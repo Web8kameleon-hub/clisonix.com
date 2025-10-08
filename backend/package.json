@@ -1,0 +1,62 @@
+{
+  "name": "@neurosonix/backend-industrial",
+  "version": "1.0.0",
+  "description": "NeuroSonix Industrial Backend - Layer 1-12 Architecture",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch server-optimized.ts",
+    "dev:full": "tsx watch server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "lint": "eslint . --ext .ts",
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "docker:build": "docker build -t neurosonix-backend .",
+    "docker:run": "docker run -p 8000:8000 neurosonix-backend"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2",
+    "multer": "^1.4.5-lts.1",
+    "ws": "^8.14.2",
+    "redis": "^4.6.10",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.11.3",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17",
+    "@types/multer": "^1.4.11",
+    "@types/ws": "^8.5.8",
+    "@types/pg": "^8.10.7",
+    "typescript": "^5.2.2",
+    "tsx": "^4.1.0",
+    "eslint": "^8.51.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "@typescript-eslint/parser": "^6.7.4",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "neurosonix",
+    "industrial",
+    "layer-architecture",
+    "alba",
+    "albi", 
+    "jona",
+    "agi",
+    "asi",
+    "real-time",
+    "websocket",
+    "redis"
+  ],
+  "author": "NeuroSonix Industrial Team",
+  "license": "MIT"
+}

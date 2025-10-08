@@ -1,0 +1,30 @@
+{
+  "name": "@neurosonix/base",
+  "version": "1.0.0",
+  "description": "NeuroSonix Base Configuration - Shared settings for all packages",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./config": "./config.js",
+    "./urls": "./urls.js",
+    "./constants": "./constants.js"
+  },
+  "scripts": {
+    "dev": "echo 'Base config loaded'",
+    "build": "echo 'Base config built'",
+    "test": "echo 'Base config tested'",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "rimraf": "^5.0.0"
+  },
+  "keywords": [
+    "neurosonix",
+    "config",
+    "base",
+    "shared"
+  ]
+}
