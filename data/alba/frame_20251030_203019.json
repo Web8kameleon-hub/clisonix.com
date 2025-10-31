@@ -1,0 +1,20 @@
+{
+  "source": "Tirana-Lab",
+  "timestamp": "2025-10-30T20:30:19.128627+00:00",
+  "sensors": {
+    "cpu_percent": 2.9,
+    "memory_percent": 25.4,
+    "disk_percent": 8.5,
+    "temperature_c": 34.06,
+    "network_sent_mb": 186.73,
+    "network_recv_mb": 364.8
+  },
+  "environment": {
+    "weather": "clear",
+    "energy_level": 90.87
+  },
+  "tags": [
+    "simulation",
+    "neurosonix"
+  ]
+}

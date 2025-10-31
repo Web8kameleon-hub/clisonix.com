@@ -1,6 +1,5 @@
 """
-NeuroSonix Stripe Checkout Routes
-Industrial payment processing with subscription management
+NeuroSonix Stripe billing routes with real subscription management integrations.
 """
 from typing import Dict, List, Optional, Any
 from fastapi import APIRouter, Request, HTTPException, Depends, BackgroundTasks

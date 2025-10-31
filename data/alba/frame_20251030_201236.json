@@ -1,0 +1,20 @@
+{
+  "source": "Berlin-Mesh",
+  "timestamp": "2025-10-30T20:12:36.798602+00:00",
+  "sensors": {
+    "cpu_percent": 0.8,
+    "memory_percent": 24.4,
+    "disk_percent": 8.5,
+    "temperature_c": 35.24,
+    "network_sent_mb": 107.08,
+    "network_recv_mb": 330.62
+  },
+  "environment": {
+    "weather": "clear",
+    "energy_level": 94.49
+  },
+  "tags": [
+    "simulation",
+    "neurosonix"
+  ]
+}

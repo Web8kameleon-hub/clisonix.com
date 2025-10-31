@@ -1,10 +1,9 @@
-﻿/**
+﻿'use client';
+/**
  * Phone Monitor v3.0 - Industrial Mobile Neural Interface
  * Advanced Communication Analysis & Real-time Monitoring
  * REAL DATA ONLY - Full Industrial Grade System
  */
-
-'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -33,15 +32,57 @@ interface PhoneMetrics {
   };
 }
 
+interface ActivityItem {
+  id: string;
+  icon: string;
+  label: string;
+  accentClass: string;
+  borderClass: string;
+  value: string;
+  timestamp: Date;
+}
+
+const PROGRESS_WIDTH_CLASSES: Record<number, string> = {
+  0: 'w-0',
+  10: 'w-[10%]',
+  20: 'w-[20%]',
+  30: 'w-[30%]',
+  40: 'w-[40%]',
+  50: 'w-[50%]',
+  60: 'w-[60%]',
+  70: 'w-[70%]',
+  80: 'w-[80%]',
+  90: 'w-[90%]',
+  100: 'w-full',
+};
+
+const getProgressWidthClass = (value: number): string => {
+  const normalized = Math.max(0, Math.min(100, Math.round(value / 10) * 10));
+  return PROGRESS_WIDTH_CLASSES[normalized];
+};
+
 export default function PhoneMonitor() {
   const [metrics, setMetrics] = useState<PhoneMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedAction, setSelectedAction] = useState('');
   const [actionResult, setActionResult] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [userPersona, setUserPersona] = useState<'doctor' | 'scientist' | 'student' | 'general'>('general');
+  const [activityFeed, setActivityFeed] = useState<ActivityItem[]>([]);
+  const [statusSource, setStatusSource] = useState<'live' | 'fallback'>('fallback');
+  const [metricsHistory, setMetricsHistory] = useState<PhoneMetrics[]>([]);
+  const [albaMaxStreams, setAlbaMaxStreams] = useState(0);
+
+  const signalStrength = metrics?.neural_interface.signal_strength ?? 0;
+  const connectionStrength = metrics?.monitoring.data_streams
+    ? Math.min(100, Math.round(metrics.monitoring.data_streams * 12.5))
+    : 0;
+  const encryptionLevel = metrics?.neural_interface.encryption_level ?? 0;
+
+  const signalStrengthWidthClass = getProgressWidthClass(signalStrength);
+  const connectionWidthClass = getProgressWidthClass(connectionStrength);
+  const encryptionWidthClass = getProgressWidthClass(encryptionLevel);
 
   useEffect(() => {
     const fetchRealPhoneData = async () => {
@@ -50,18 +91,20 @@ export default function PhoneMonitor() {
         const response = await fetch('/api/asi-status');
         if (response.ok) {
           const data = await response.json();
-          
+          const success = data.success !== false;
+          const asiPayload = data.asi_status ?? data;
+
           // Extract real metrics from ASI Trinity system
-          const albiHealth = data.asi_status?.trinity?.albi?.health || 0;
-          const albaHealth = data.asi_status?.trinity?.alba?.health || 0;
-          const jonaHealth = data.asi_status?.trinity?.jona?.health || 0;
+          const albiHealth = asiPayload.trinity?.albi?.health || 0;
+          const albaHealth = asiPayload.trinity?.alba?.health || 0;
+          const jonaHealth = asiPayload.trinity?.jona?.health || 0;
           
-          setMetrics({
-            device_status: data.success ? 'connected' : 'disconnected',
+          const nextMetrics: PhoneMetrics = {
+            device_status: success ? 'connected' : 'degraded',
             neural_interface: {
-              active: data.asi_status?.trinity?.albi?.status === 'active',
+              active: asiPayload.trinity?.albi?.status === 'active',
               signal_strength: Math.round(albiHealth * 100),
-              last_sync: data.timestamp || new Date().toISOString(),
+              last_sync: asiPayload.timestamp || new Date().toISOString(),
               encryption_level: Math.round(jonaHealth * 100),
               bandwidth: Math.round(albaHealth * 1000)
             },
@@ -78,12 +121,22 @@ export default function PhoneMonitor() {
               threat_detection: jonaHealth > 0.9,
               pattern_learning: albiHealth > 0.75
             }
+          };
+
+          setMetrics(nextMetrics);
+          setMetricsHistory(prev => {
+            const next = [...prev, nextMetrics];
+            const maxLength = 20;
+            return next.length > maxLength ? next.slice(next.length - maxLength) : next;
           });
+          setAlbaMaxStreams(prev => Math.max(prev, nextMetrics.monitoring.data_streams));
+          setStatusSource(success ? 'live' : 'fallback');
         }
         
         setLastUpdate(new Date());
       } catch (error) {
         console.error('Error fetching phone monitor data:', error);
+        setStatusSource('fallback');
       } finally {
         setLoading(false);
       }
@@ -95,8 +148,61 @@ export default function PhoneMonitor() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (!metrics) {
+      setActivityFeed([]);
+      return;
+    }
+
+    const now = new Date();
+    const feed: ActivityItem[] = [
+      {
+        id: 'neural-sync',
+        icon: '🧠',
+        label: 'Neural pattern sync',
+        accentClass: 'text-blue-400',
+        borderClass: 'border-blue-500',
+        value: `${signalStrength}%`,
+        timestamp: now,
+      },
+      {
+        id: 'security-scan',
+        icon: '🔒',
+        label: 'Security scan completed',
+        accentClass: metrics.industrial_features.threat_detection ? 'text-green-400' : 'text-yellow-400',
+        borderClass: metrics.industrial_features.threat_detection ? 'border-green-500' : 'border-yellow-500',
+        value: metrics.industrial_features.threat_detection ? 'Secure' : 'Action required',
+        timestamp: now,
+      },
+      {
+        id: 'pattern-learning',
+        icon: '🎯',
+        label: 'AI pattern learning active',
+        accentClass: 'text-purple-400',
+        borderClass: 'border-purple-500',
+        value: `${metrics.monitoring.neural_patterns ?? 0} patterns`,
+        timestamp: now,
+      },
+      {
+        id: 'data-stream',
+        icon: '📡',
+        label: 'Data stream optimized',
+        accentClass: 'text-pink-400',
+        borderClass: 'border-pink-500',
+        value: `${metrics.neural_interface.bandwidth ?? 0} MB/s`,
+        timestamp: now,
+      },
+    ];
+
+    setActivityFeed(feed);
+  }, [metrics, signalStrength, connectionStrength, encryptionLevel]);
+
   // Interactive Functions
-  const executeAction = async (action: string, params?: any) => {
+  type ActionParams = {
+    query?: string;
+  };
+
+  const executeAction = async (action: string, params?: ActionParams) => {
     setIsProcessing(true);
     setActionResult(null);
 
@@ -293,6 +399,11 @@ export default function PhoneMonitor() {
           <div className="text-sm text-gray-400 mb-4">
             Last sync: {lastUpdate.toLocaleTimeString()}
           </div>
+          {statusSource === 'fallback' && (
+            <div className="text-sm text-yellow-300 bg-yellow-500/10 border border-yellow-500/40 rounded-lg inline-block px-3 py-1">
+              Live ASI telemetry unavailable — showing fallback telemetry. Start the backend API to enable real metrics.
+            </div>
+          )}
           
           {/* User Persona Selector */}
           <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 max-w-4xl mx-auto">
@@ -474,10 +585,9 @@ export default function PhoneMonitor() {
               {metrics?.neural_interface.signal_strength || 0}%
             </div>
             <div className="w-full bg-black/30 rounded-full h-2">
-              <div 
-                className="bg-gradient-to-r from-pink-500 to-purple-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${metrics?.neural_interface.signal_strength || 0}%` }}
-              />
+                <div
+                  className={`bg-gradient-to-r from-pink-500 to-purple-500 h-2 rounded-full transition-all duration-300 ${signalStrengthWidthClass}`}
+                />
             </div>
             <div className="mt-2 text-xs text-gray-400">
               {(metrics?.neural_interface.signal_strength || 0) > 80 ? '🔥 High activity detected' : 
@@ -496,10 +606,9 @@ export default function PhoneMonitor() {
               {metrics?.monitoring.data_streams ? Math.floor(metrics.monitoring.data_streams * 12.5) : 0}%
             </div>
             <div className="w-full bg-black/30 rounded-full h-2">
-              <div 
-                className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${metrics?.monitoring.data_streams ? metrics.monitoring.data_streams * 12.5 : 0}%` }}
-              />
+                <div
+                  className={`bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-300 ${connectionWidthClass}`}
+                />
             </div>
             <div className="mt-2 text-xs text-gray-400">
               {(metrics?.monitoring.data_streams ? metrics.monitoring.data_streams * 12.5 : 0) > 85 ? '🚀 Excellent signal' : 
@@ -518,10 +627,9 @@ export default function PhoneMonitor() {
               {metrics?.neural_interface.encryption_level || 0}%
             </div>
             <div className="w-full bg-black/30 rounded-full h-2">
-              <div 
-                className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${metrics?.neural_interface.encryption_level || 0}%` }}
-              />
+                <div
+                  className={`bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300 ${encryptionWidthClass}`}
+                />
             </div>
             <div className="mt-2 text-xs text-gray-400">
               {(metrics?.neural_interface.encryption_level || 0) > 90 ? '🔒 Maximum security' : 
@@ -619,6 +727,12 @@ export default function PhoneMonitor() {
                 <span className="text-gray-300">Data Streams:</span>
                 <span className="text-white font-mono">
                   {metrics?.monitoring.data_streams || 0}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-300">Max Streams (buffer):</span>
+                <span className="text-white font-mono">
+                  {albaMaxStreams}
                 </span>
               </div>
             </div>
@@ -837,49 +951,29 @@ export default function PhoneMonitor() {
           </h3>
           
           <div className="space-y-3 max-h-60 overflow-y-auto">
-            <div className="flex items-center justify-between p-3 bg-black/20 rounded-lg border-l-4 border-blue-500">
-              <div className="flex items-center space-x-3">
-                <div className="text-blue-400">🧠</div>
-                <div>
-                  <div className="text-white text-sm">Neural pattern detected</div>
-                  <div className="text-gray-400 text-xs">{new Date().toLocaleTimeString()}</div>
+            {activityFeed.length > 0 ? (
+              activityFeed.map((item) => (
+                <div
+                  key={item.id}
+                  className={`flex items-center justify-between p-3 bg-black/20 rounded-lg border-l-4 ${item.borderClass}`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={item.accentClass}>{item.icon}</div>
+                    <div>
+                      <div className="text-white text-sm">{item.label}</div>
+                      <div className="text-gray-400 text-xs">
+                        {item.timestamp.toLocaleTimeString()}
+                      </div>
+                    </div>
+                  </div>
+                  <div className={`${item.accentClass} text-sm`}>{item.value}</div>
                 </div>
+              ))
+            ) : (
+              <div className="text-gray-400 text-sm">
+                Telemetry activity will appear here once data syncs.
               </div>
-              <div className="text-blue-400 text-sm">{metrics?.neural_interface.signal_strength || 0}%</div>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-black/20 rounded-lg border-l-4 border-green-500">
-              <div className="flex items-center space-x-3">
-                <div className="text-green-400">🔒</div>
-                <div>
-                  <div className="text-white text-sm">Security scan completed</div>
-                  <div className="text-gray-400 text-xs">{new Date(Date.now() - 30000).toLocaleTimeString()}</div>
-                </div>
-              </div>
-              <div className="text-green-400 text-sm">Secure</div>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-black/20 rounded-lg border-l-4 border-purple-500">
-              <div className="flex items-center space-x-3">
-                <div className="text-purple-400">🎯</div>
-                <div>
-                  <div className="text-white text-sm">AI pattern learning active</div>
-                  <div className="text-gray-400 text-xs">{new Date(Date.now() - 60000).toLocaleTimeString()}</div>
-                </div>
-              </div>
-              <div className="text-purple-400 text-sm">+{Math.floor(Math.random() * 10 + 5)} patterns</div>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 bg-black/20 rounded-lg border-l-4 border-pink-500">
-              <div className="flex items-center space-x-3">
-                <div className="text-pink-400">📡</div>
-                <div>
-                  <div className="text-white text-sm">Data stream optimized</div>
-                  <div className="text-gray-400 text-xs">{new Date(Date.now() - 120000).toLocaleTimeString()}</div>
-                </div>
-              </div>
-              <div className="text-pink-400 text-sm">+15% speed</div>
-            </div>
+            )}
           </div>
           
           <button
@@ -898,7 +992,7 @@ export default function PhoneMonitor() {
               <span className="ml-2 text-sm group-open:rotate-90 transition-transform">▶</span>
             </summary>
             <pre className="bg-black/20 rounded-lg p-4 text-xs text-pink-400 overflow-auto max-h-60">
-              {metrics ? JSON.stringify(metrics, null, 2) : 'No data available'}
+              {metrics ? JSON.stringify({ current: metrics, bufferSize: metricsHistory.length, history: metricsHistory }, null, 2) : 'No data available'}
             </pre>
           </details>
         </div>

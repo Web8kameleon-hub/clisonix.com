@@ -1,11 +1,20 @@
 import type { NextConfig } from "next";
 
+const INTERNAL_API_HEADER = 'x-neurosonix-internal';
+
 const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:8000/api/:path*'
+        destination: 'http://localhost:8000/api/:path*',
+        missing: [
+          {
+            type: 'header',
+            key: INTERNAL_API_HEADER,
+            value: '1'
+          }
+        ]
       },
       {
         source: '/health',

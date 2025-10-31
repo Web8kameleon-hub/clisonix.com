@@ -3,10 +3,20 @@ from fastapi.responses import StreamingResponse
 import numpy as np
 import io
 
-from fastapi import FastAPI
-app = FastAPI()
+from fastapi import APIRouter
 
-@app.get("/neural-symphony")
+neural_router = APIRouter()
+
+@neural_router.get(
+    "/neural-symphony",
+    response_class=StreamingResponse,
+    responses={
+        200: {
+            "content": {"audio/wav": {"schema": {"type": "string", "format": "binary"}}},
+            "description": "WAV audio stream generated from synthetic EEG alpha wave",
+        }
+    },
+)
 async def neural_symphony():
     """
     Gjeneron një audio wav demo nga sinjal EEG sintetik (valë alpha)
@@ -47,21 +57,38 @@ import logging
 import traceback
 from pathlib import Path
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
+import statistics
+from collections import defaultdict
+from itertools import islice
+from glob import glob
 
 # FastAPI / ASGI
-from fastapi import FastAPI, UploadFile, File, Request, HTTPException, Depends, status, Body
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, UploadFile, File, Request, HTTPException
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 # Config (env)
 try:
-    from pydantic import BaseSettings, Field, AnyHttpUrl
+    from pydantic import BaseModel, Field
+    try:
+        from pydantic_settings import BaseSettings
+    except Exception:  # PyDantic v1 compatibility
+        from pydantic import BaseSettings  # type: ignore
     _PYD = True
 except Exception:
     _PYD = False
     class BaseSettings: ...
-    def Field(**kwargs): return None
+    class BaseModel:
+        def __init__(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+
+        def dict(self, *_, **__):
+            return self.__dict__
+    def Field(*args, **kwargs): return None
 
 # System metrics
 try:
@@ -116,6 +143,8 @@ class Settings(BaseSettings):
 
     # Storage
     storage_dir: str = os.getenv("STORAGE_DIR", "./storage")
+    alba_collector_url: str = os.getenv("ALBA_COLLECTOR_URL", "http://127.0.0.1:8010")
+    mesh_hq_url: str = os.getenv("MESH_HQ_URL", "http://127.0.0.1:7777")
 
     # Redis
     redis_url: Optional[str] = os.getenv("REDIS_URL")  # e.g. redis://localhost:6379/0
@@ -136,6 +165,25 @@ class Settings(BaseSettings):
         case_sensitive = True
 
 settings = Settings()
+
+# Extend module search path so shared cores can be imported when running from apps/api
+ROOT_DIR = Path(__file__).resolve().parents[2]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.append(str(ROOT_DIR))
+
+try:  # Core analytics engine (optional)
+    from albi_core import AlbiCore  # type: ignore
+except Exception:  # pragma: no cover - missing module is acceptable in minimal setups
+    AlbiCore = None  # type: ignore
+
+ALBI_ENGINE = AlbiCore() if AlbiCore else None
+ALBA_COLLECTOR_TIMEOUT = float(os.getenv("ALBA_COLLECTOR_TIMEOUT", "2.5"))
+CLISONIX_RUNTIME = ROOT_DIR / "backend" / "system" / "runtime"
+CLISONIX_TRIGGER_FILE = CLISONIX_RUNTIME / "triggers.json"
+CLISONIX_SCAN_FILE = CLISONIX_RUNTIME / "scan_results.json"
+MESH_DIR = ROOT_DIR / "backend" / "mesh"
+MESH_STATUS_FILE = MESH_DIR / "nodes_status.json"
+MESH_LOG_DIR = ROOT_DIR / "logs"
 
 # ------------- Logging -------------
 def setup_logging():
@@ -163,16 +211,171 @@ redis_client: Optional[Any] = None
 # PostgreSQL pool
 pg_pool: Optional[Any] = None
 
+# ------------- Schemas -------------
+
+class ErrorEnvelope(BaseModel):
+    error: str
+    message: str
+    timestamp: str
+    instance: str
+    correlation_id: str
+    path: Optional[str] = None
+    details: Optional[Any] = None
+
+
+class AskRequest(BaseModel):
+    question: str = Field(..., min_length=3)
+    context: Optional[str] = Field(default=None, description="Optional additional context for the question")
+    include_details: bool = Field(default=True, description="When false, omits the heavy 'details' block in the response")
+
+
+class AskResponse(BaseModel):
+    answer: str
+    timestamp: str
+    modules_used: List[str]
+    processing_time_ms: float
+    details: Dict[str, Any] = Field(default_factory=dict)
+
+
+class MemoryUsage(BaseModel):
+    used: int
+    total: int
+
+
+class ServiceStatus(BaseModel):
+    status: str
+    message: Optional[str] = None
+    connected_clients: Optional[int] = None
+    used_memory: Optional[str] = None
+    uptime_seconds: Optional[int] = None
+    response_time_ms: Optional[float] = None
+
+
+class SystemMetrics(BaseModel):
+    cpu_percent: float = Field(..., ge=0)
+    memory_percent: float = Field(..., ge=0)
+    memory_total: int = Field(..., ge=0)
+    disk_percent: float = Field(..., ge=0)
+    disk_total: int = Field(..., ge=0)
+    net_bytes_sent: int = Field(..., ge=0)
+    net_bytes_recv: int = Field(..., ge=0)
+    processes: int = Field(..., ge=0)
+    hostname: str
+    boot_time: float = Field(..., ge=0)
+    uptime_seconds: float = Field(..., ge=0)
+
+
+class HealthResponse(BaseModel):
+    service: str
+    status: str
+    version: str
+    timestamp: str
+    instance_id: str
+    uptime_app_seconds: float
+    system: SystemMetrics
+    redis: ServiceStatus
+    database: ServiceStatus
+    environment: str
+
+
+class StatusResponse(BaseModel):
+    timestamp: str
+    instance_id: str
+    status: str
+    uptime: str
+    memory: MemoryUsage
+    system: SystemMetrics
+    redis: ServiceStatus
+    database: ServiceStatus
+    storage_dir: str
+    dependencies: Dict[str, bool]
+
+
+class PayPalAmount(BaseModel):
+    currency_code: str = Field(..., min_length=3, max_length=3)
+    value: str = Field(..., pattern=r"^\d+(\.\d{1,2})?$")
+
+
+class PayPalPurchaseUnit(BaseModel):
+    amount: PayPalAmount
+    reference_id: Optional[str] = None
+
+
+class PayPalCreateOrderRequest(BaseModel):
+    intent: str = Field(..., min_length=1)
+    purchase_units: List[PayPalPurchaseUnit]
+
+
+class StripePaymentIntentRequest(BaseModel):
+    amount: int = Field(..., gt=0)
+    currency: str = Field(..., min_length=3, max_length=3)
+    payment_method_types: Optional[List[str]] = Field(default=None, description="List of Stripe payment method types, e.g. ['card']")
+    description: Optional[str] = None
+    customer: Optional[str] = None
+    metadata: Optional[Dict[str, str]] = None
+
+
+class SepaInitiateRequest(BaseModel):
+    debtor_iban: str = Field(..., min_length=15, max_length=34)
+    creditor_iban: str = Field(..., min_length=15, max_length=34)
+    amount: str = Field(..., pattern=r"^\d+(\.\d{1,2})?$")
+    currency: str = Field(default="EUR", min_length=3, max_length=3)
+    remittance_information: Optional[str] = None
+
+
+class SimpleAck(BaseModel):
+    status: str
+    timestamp: str
+
+
+class ASIExecuteRequest(BaseModel):
+    command: Optional[str] = Field(default=None, description="Command to execute through the ASI system")
+    agent: str = Field(default="trinity", description="Target agent: alba, albi, jona or trinity")
+    parameters: Dict[str, Any] = Field(default_factory=dict)
+
+    class Config:
+        extra = "allow"
+
 # ------------- Utils -------------
-def require(cond: bool, msg: str, code: int = 503):
+def require(cond: bool, msg: str, code: int = 503, *, error_code: Optional[str] = None):
     if not cond:
-        raise HTTPException(status_code=code, detail=msg)
+        detail: Any
+        if error_code:
+            detail = {"code": error_code, "message": msg}
+        else:
+            detail = msg
+        raise HTTPException(status_code=code, detail=detail)
 
 def utcnow() -> str:
     return datetime.utcnow().replace(tzinfo=timezone.utc).isoformat()
 
 def safe_bool(v: Any) -> bool:
     return str(v).lower() in ("1", "true", "yes", "on")
+
+
+def _get_correlation_id(request: Request) -> str:
+    return getattr(request.state, "correlation_id", f"REQ-{int(time.time())}-{uuid.uuid4().hex[:6]}")
+
+
+def error_response(
+    request: Request,
+    status_code: int,
+    code: str,
+    message: str,
+    *,
+    details: Optional[Any] = None,
+) -> JSONResponse:
+    cid = _get_correlation_id(request)
+    body = ErrorEnvelope(
+        error=code,
+        message=message,
+        timestamp=utcnow(),
+        instance=INSTANCE_ID,
+        correlation_id=cid,
+        path=str(request.url),
+        details=details,
+    ).dict(exclude_none=True)
+    return JSONResponse(status_code=status_code, content=body)
 
 # ------------- App -------------
 
@@ -182,21 +385,452 @@ app = FastAPI(
     debug=settings.debug,
 )
 
+app.include_router(neural_router)
+
 # --- Chat API ---
-@app.post("/api/ask")
-async def ask_api(request: Request):
+
+SERVICE_PROBES = [
+    {"name": "API Core", "url": "http://127.0.0.1:8000/health"},
+    {"name": "ALBA Collector", "url": f"{settings.alba_collector_url.rstrip('/')}/health"},
+    {"name": "Mesh Orchestrator", "url": "http://127.0.0.1:5555/health"},
+    {"name": "NeuroSonix Web", "url": "http://127.0.0.1:3000"},
+]
+SERVICE_PORTS = [8000, 8010, 5555, 3000]
+
+
+def _format_duration(seconds: float) -> str:
+    total_seconds = max(int(seconds), 0)
+    minutes, sec = divmod(total_seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+    parts: List[str] = []
+    if days:
+        parts.append(f"{days}d")
+    if hours:
+        parts.append(f"{hours}h")
+    if minutes:
+        parts.append(f"{minutes}m")
+    if not parts:
+        parts.append(f"{sec}s")
+    return " ".join(parts[:3])
+
+
+def _load_json(path: Path) -> Optional[Any]:
+    if not path.exists():
+        return None
     try:
-        data = await request.json()
-        question = data.get("question", "")
-        # Këtu mund të lidhet me module reale, p.sh. EEG, ALBI, ALBA, JONA
-        # Për demo, kthejmë një përgjigje të thjeshtë
-        if not question:
-            return JSONResponse({"answer": "No question provided."}, status_code=400)
-        # Shembull: përgjigje e thjeshtë
-        answer = f"[NeuroSonix] Pyetja juaj: '{question}' u pranua. (Kjo është përgjigje demo, lidhe me module reale sipas nevojës.)"
-        return {"answer": answer}
-    except Exception as e:
-        return JSONResponse({"answer": f"Error: {str(e)}"}, status_code=500)
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.debug("Failed to read %s: %s", path, exc)
+        return None
+
+
+def collect_clisonix_events(limit: int = 10) -> List[Dict[str, Any]]:
+    data = _load_json(CLISONIX_TRIGGER_FILE)
+    if not isinstance(data, list):
+        return []
+    if limit <= 0:
+        return data
+    return data[-limit:]
+
+
+def collect_clisonix_scan() -> Dict[str, Any]:
+    data = _load_json(CLISONIX_SCAN_FILE)
+    if isinstance(data, dict):
+        return data
+    return {}
+
+
+def collect_service_processes(ports: List[int]) -> List[Dict[str, Any]]:
+    if not _PSUTIL:
+        return []
+    results: List[Dict[str, Any]] = []
+    for proc in psutil.process_iter(["pid", "name", "cmdline", "connections", "cpu_percent", "memory_info"]):
+        try:
+            connections = proc.info.get("connections") or []
+            listening = [conn for conn in connections if getattr(conn, "laddr", None) and conn.laddr.port in ports]
+            if not listening:
+                continue
+            results.append({
+                "pid": proc.pid,
+                "name": proc.info.get("name"),
+                "cmdline": proc.info.get("cmdline"),
+                "ports": [conn.laddr.port for conn in listening if getattr(conn, "laddr", None)],
+                "cpu_percent": proc.cpu_percent(interval=None),
+                "memory_mb": round(proc.memory_info().rss / (1024 * 1024), 2) if proc.info.get("memory_info") else None,
+                "create_time": datetime.fromtimestamp(proc.create_time(), tz=timezone.utc).isoformat(),
+            })
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+    return results
+
+
+def collect_mesh_nodes() -> Dict[str, Any]:
+    try:
+        response = requests.get(f"{settings.mesh_hq_url.rstrip('/')}/mesh/nodes", timeout=2.0)
+        response.raise_for_status()
+        nodes = response.json()
+    except requests.RequestException:
+        nodes = _load_json(MESH_STATUS_FILE) or []
+    if not isinstance(nodes, list):
+        nodes = []
+    return {
+        "count": len(nodes),
+        "nodes": nodes,
+    }
+
+
+def collect_mesh_logs(limit: int = 5) -> List[Dict[str, Any]]:
+    log_files = sorted(
+        glob(str((MESH_LOG_DIR / "mesh-*.log").resolve())),
+        reverse=True,
+    )
+    entries: List[Dict[str, Any]] = []
+    for path in islice(log_files, limit):
+        try:
+            with open(path, "r", encoding="utf-8", errors="ignore") as handle:
+                lines = handle.readlines()[-5:]
+            entries.append({
+                "file": path,
+                "tail": [line.rstrip("\n") for line in lines],
+            })
+        except OSError as exc:
+            logger.debug("Failed to read log %s: %s", path, exc)
+    return entries
+
+
+def system_snapshot() -> Dict[str, Any]:
+    snapshot: Dict[str, Any] = {
+        "uptime_seconds": round(time.time() - START_TIME, 3),
+    }
+    if _PSUTIL:
+        try:
+            snapshot["cpu_percent"] = psutil.cpu_percent(interval=None)
+            mem = psutil.virtual_memory()
+            snapshot["memory_percent"] = round(mem.percent, 2)
+            snapshot["memory_available_mb"] = round(mem.available / (1024 * 1024), 2)
+            snapshot["memory_total_mb"] = round(mem.total / (1024 * 1024), 2)
+        except Exception as exc:  # pragma: no cover - psutil edge
+            logger.debug("System snapshot failed: %s", exc)
+    snapshot["uptime_human"] = _format_duration(snapshot["uptime_seconds"])
+    snapshot["timestamp"] = utcnow()
+    return snapshot
+
+
+def fetch_alba_entries(limit: int = 50) -> List[Dict[str, Any]]:
+    if not settings.alba_collector_url:
+        return []
+    try:
+        response = requests.get(
+            f"{settings.alba_collector_url.rstrip('/')}/data",
+            timeout=ALBA_COLLECTOR_TIMEOUT,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        entries = payload.get("entries", [])
+        if limit and len(entries) > limit:
+            return entries[-limit:]
+        return entries
+    except requests.RequestException as exc:
+        logger.debug("ALBA collector not reachable: %s", exc)
+        return []
+
+
+def summarize_alba(entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+    if not entries:
+        return {"total": 0, "types": {}, "latest": None}
+    counts: Dict[str, int] = {}
+    for entry in entries:
+        counts[entry.get("type", "unknown")] = counts.get(entry.get("type", "unknown"), 0) + 1
+    latest = entries[-1]
+    return {
+        "total": len(entries),
+        "types": counts,
+        "latest": {
+            "id": latest.get("id"),
+            "type": latest.get("type"),
+            "timestamp": latest.get("timestamp"),
+            "source": latest.get("source"),
+            "status": latest.get("status"),
+        },
+    }
+
+
+def derive_albi_insight(entries: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    channels: Dict[str, List[float]] = defaultdict(list)
+    frames: List[Dict[str, Dict[str, float]]] = []
+    for entry in entries:
+        payload = entry.get("payload")
+        if not isinstance(payload, dict):
+            continue
+        numeric_channels: Dict[str, float] = {}
+        for key, value in payload.items():
+            try:
+                numeric_value = float(value)
+            except (TypeError, ValueError):
+                continue
+            channels[key].append(numeric_value)
+            numeric_channels[key] = numeric_value
+        if numeric_channels:
+            frames.append({"channels": numeric_channels})
+    if not channels:
+        return None
+
+    summary: Dict[str, Dict[str, float]] = {}
+    for name, values in channels.items():
+        avg = statistics.fmean(values)
+        summary[name] = {
+            "avg": avg,
+            "min": min(values),
+            "max": max(values),
+            "latest": values[-1],
+        }
+
+    baseline = statistics.fmean(stat["avg"] for stat in summary.values()) if summary else 0.0
+    anomalies: List[str] = []
+    if baseline:
+        for channel, stat in summary.items():
+            deviation = abs(stat["latest"] - stat["avg"])
+            denominator = abs(stat["avg"]) if stat["avg"] else baseline
+            if denominator and (deviation / denominator) > 0.35:
+                anomalies.append(channel)
+
+    if ALBI_ENGINE and frames:
+        try:
+            insight = ALBI_ENGINE.learn(frames)
+            if insight.summary:
+                for channel_name, avg_val in insight.summary.items():
+                    summary.setdefault(channel_name, {"avg": avg_val, "min": avg_val, "max": avg_val, "latest": avg_val})
+                    summary[channel_name]["avg"] = avg_val
+            if insight.anomalies:
+                anomalies = sorted(set(anomalies) | set(insight.anomalies))
+            if hasattr(ALBI_ENGINE, "_insights") and len(getattr(ALBI_ENGINE, "_insights", [])) > 50:
+                ALBI_ENGINE._insights = ALBI_ENGINE._insights[-50:]
+        except Exception as exc:  # pragma: no cover - defensive
+            logger.debug("AlbiCore insight failed: %s", exc)
+
+    sample_count = sum(len(values) for values in channels.values())
+    return {
+        "summary": summary,
+        "anomalies": anomalies,
+        "sample_count": sample_count,
+    }
+
+
+def probe_services() -> List[Dict[str, Any]]:
+    statuses: List[Dict[str, Any]] = []
+    for probe in SERVICE_PROBES:
+        url = probe["url"]
+        try:
+            res = requests.get(url, timeout=1.5)
+            reachable = res.status_code < 500
+            statuses.append({
+                "name": probe["name"],
+                "url": url,
+                "status_code": res.status_code,
+                "reachable": reachable,
+            })
+        except requests.RequestException as exc:
+            statuses.append({
+                "name": probe["name"],
+                "url": url,
+                "reachable": False,
+                "error": str(exc),
+            })
+    return statuses
+
+
+def detect_intents(question: str) -> Dict[str, bool]:
+    q = question.lower()
+    return {
+        "greeting": any(token in q for token in ["hello", "hi", "hej", "persh", "ciao", "hey", "mirdita"]),
+        "status": any(token in q for token in ["status", "si je", "si ndjehesh", "gjendja", "uptime", "load"]),
+        "telemetry": any(token in q for token in ["alba", "telemetry", "collector", "data", "sensor", "stream"]),
+        "analytics": any(token in q for token in ["albi", "eeg", "analysis", "pattern", "brain", "wave", "signal"]),
+        "synthesis": any(token in q for token in ["jona", "neural", "sinte", "audio", "synthesis", "coordinate", "koord"]),
+    }
+
+
+@app.post(
+    "/api/ask",
+    response_model=AskResponse,
+    responses={400: {"model": ErrorEnvelope}},
+)
+async def ask_api(payload: AskRequest, request: Request) -> AskResponse:
+    start_ts = time.perf_counter()
+    question = payload.question.strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question must not be empty.")
+
+    intents = detect_intents(question)
+    modules_used: List[str] = []
+    segments: List[str] = []
+    details: Dict[str, Any] = {}
+    if payload.context:
+        details["context"] = payload.context
+
+    service_states = probe_services()
+    service_processes = collect_service_processes(SERVICE_PORTS)
+    details["services"] = {
+        "endpoints": service_states,
+        "processes": service_processes,
+    }
+
+    clisonix_events = collect_clisonix_events(limit=10)
+    clisonix_scan = collect_clisonix_scan()
+    if clisonix_events or clisonix_scan:
+        details["clisonix"] = {
+            "events": clisonix_events,
+            "scan": clisonix_scan,
+        }
+
+    mesh_nodes = collect_mesh_nodes()
+    mesh_logs = collect_mesh_logs()
+    details["mesh"] = {
+        "nodes": mesh_nodes,
+        "logs": mesh_logs,
+    }
+
+    if intents["greeting"]:
+        segments.append("Përshëndetje! NeuroSonix është aktiv dhe gati të asistojë.")
+
+    snapshot = system_snapshot()
+    details["system"] = snapshot
+    modules_used.append("JONA")
+    if intents["status"] or not segments:
+        cpu_txt = f"{snapshot.get('cpu_percent', 'n/a')}%"
+        mem_txt = f"{snapshot.get('memory_percent', 'n/a')}%"
+        segments.append(
+            f"Statusi aktual: CPU {cpu_txt}, RAM {mem_txt}, uptime {snapshot.get('uptime_human', 'n/a')}.")
+
+    alba_entries: List[Dict[str, Any]] = []
+    if intents["telemetry"] or intents["analytics"]:
+        alba_entries = fetch_alba_entries()
+        alba_summary = summarize_alba(alba_entries)
+        details["alba"] = alba_summary
+        if alba_summary["total"] > 0:
+            modules_used.append("ALBA")
+            latest = alba_summary["latest"] or {}
+            segments.append(
+                "ALBA ka regjistruar {total} sinjale; mostra e fundit ({typ}) nga {src} @ {ts}.".format(
+                    total=alba_summary["total"],
+                    typ=latest.get("type", "unknown"),
+                    src=latest.get("source", "unknown"),
+                    ts=latest.get("timestamp", "n/a"),
+                )
+            )
+        else:
+            segments.append("ALBA nuk ka telemetri aktive për t'u raportuar tani.")
+
+    if intents["analytics"]:
+        insight = derive_albi_insight(alba_entries)
+        details["albi"] = insight
+        if insight:
+            modules_used.append("ALBI")
+            channel_slice = list(insight["summary"].items())[:4]
+            if channel_slice:
+                metrics = ", ".join(
+                    f"{name}={stats['avg']:.2f}" for name, stats in channel_slice
+                )
+                segments.append(f"ALBI përllogarit mesatare kanalesh: {metrics}.")
+            if insight["anomalies"]:
+                segments.append(
+                    "ALBI sinjalizon vëzhgime jo-tipike te kanalet: {}.".format(
+                        ", ".join(insight["anomalies"])
+                    )
+                )
+        else:
+            segments.append("ALBI nuk gjeti të dhëna numerike për t'i analizuar në këtë grup sinjalesh.")
+
+    if service_processes:
+        modules_used.append("JONA")
+        process_lines = []
+        for proc in service_processes:
+            ports = ",".join(str(p) for p in proc.get("ports", [])) or "n/a"
+            cpu_use = f"{proc.get('cpu_percent', 'n/a')}%"
+            mem_use = (
+                f"{proc['memory_mb']} MB" if proc.get("memory_mb") is not None else "n/a"
+            )
+            process_lines.append(
+                f"PID {proc['pid']} ({proc.get('name', 'unknown')}): ports {ports}, CPU {cpu_use}, RAM {mem_use}."
+            )
+        if process_lines:
+            segments.append("Procese shërbimesh aktive:\n" + "\n".join(process_lines[:6]))
+
+    if clisonix_events:
+        modules_used.append("NEUROTRIGGER")
+        event_lines = [
+            f"[{ev.get('category','unknown').upper()}] {ev.get('message','')} @ {ev.get('readable_time','')}"
+            for ev in clisonix_events[-5:]
+        ]
+        segments.append("NeuroTrigger event log (më të fundit):\n" + "\n".join(event_lines))
+    else:
+        segments.append("NeuroTrigger nuk ka regjistruar evente të reja në runtime.")
+
+    if clisonix_scan:
+        modules_used.append("CLISONIX")
+        scan_lines = []
+        for module, info in clisonix_scan.items():
+            cpu_val = info.get("cpu") if isinstance(info.get("cpu"), (int, float)) else info.get("cpu_percent")
+            cpu_txt = f"{cpu_val}%" if cpu_val is not None else "n/a"
+            ram_val = info.get("ram") if isinstance(info.get("ram"), (int, float)) else info.get("ram_percent")
+            ram_txt = f"{ram_val}%" if ram_val is not None else "n/a"
+            status_txt = info.get("status", "unknown")
+            scan_lines.append(f"{module}: CPU {cpu_txt}, RAM {ram_txt}, status {status_txt}.")
+        if scan_lines:
+            segments.append("Smart Orchestrator module scan:\n" + "\n".join(scan_lines))
+
+    if mesh_nodes["nodes"]:
+        modules_used.append("MESH-HQ")
+        node_lines = []
+        for node in mesh_nodes["nodes"]:
+            node_lines.append(
+                "{id} ({name}) status={status} last={ts}".format(
+                    id=node.get("id", "unknown"),
+                    name=node.get("name", node.get("id", "")),
+                    status=node.get("status", "unknown"),
+                    ts=node.get("timestamp", node.get("last_seen")),
+                )
+            )
+        segments.append(
+            f"Mesh HQ ndjek {mesh_nodes['count']} nyje aktive.\n" + "\n".join(node_lines[:6])
+        )
+    else:
+        segments.append("Mesh HQ nuk raportoi nyje aktive në këtë moment.")
+
+    if mesh_logs:
+        log_summary = []
+        for entry in mesh_logs:
+            tail_preview = entry.get("tail", [])
+            if tail_preview:
+                log_summary.append(f"{Path(entry['file']).name}: {tail_preview[-1]}")
+        if log_summary:
+            segments.append("Mesh HQ log tail:\n" + "\n".join(log_summary))
+
+    if intents["synthesis"]:
+        modules_used.append("JONA")
+        reachable = sum(1 for state in service_states if state.get("reachable"))
+        segments.append(
+            f"JONA koordinon {reachable}/{len(service_states)} shërbime të arritshme dhe është gati për sintezë neurale."  # noqa: E501
+        )
+
+    if not segments:
+        segments.append(
+            "Po funksionoj nominalisht. Mund të kërkoni status sistemi, telemetri ALBA, analiza ALBI ose sintezë JONA."
+        )
+        modules_used.extend(["ALBA", "ALBI", "JONA"])
+
+    processing_time_ms = round((time.perf_counter() - start_ts) * 1000, 3)
+
+    details_payload = details if payload.include_details else {}
+
+    return AskResponse(
+        answer="\n\n".join(segments),
+        timestamp=utcnow(),
+        modules_used=sorted(set(modules_used)),
+        details=details_payload,
+        processing_time_ms=processing_time_ms,
+    )
 
 app.add_middleware(
     CORSMiddleware,
@@ -204,50 +838,27 @@ app.add_middleware(
 )
 
 # Global error handlers for consistent JSON errors
-from fastapi.responses import JSONResponse
-from fastapi.requests import Request
-from fastapi.exceptions import RequestValidationError
-from starlette.exceptions import HTTPException as StarletteHTTPException
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "error": exc.status_code,
-            "message": exc.detail if hasattr(exc, "detail") else str(exc),
-            "path": str(request.url),
-            "timestamp": utcnow(),
-            "instance": INSTANCE_ID
-        }
-    )
+    detail = exc.detail
+    error_code = f"HTTP_{exc.status_code}"
+    message = detail if isinstance(detail, str) else (detail.get("message") if isinstance(detail, dict) else str(exc))
+    details = detail.get("details") if isinstance(detail, dict) else None
+    if isinstance(detail, dict) and detail.get("code"):
+        error_code = str(detail["code"])
+    return error_response(request, exc.status_code, error_code, message, details=details)
+
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    return JSONResponse(
-        status_code=422,
-        content={
-            "error": 422,
-            "message": "Validation error",
-            "details": exc.errors(),
-            "path": str(request.url),
-            "timestamp": utcnow(),
-            "instance": INSTANCE_ID
-        }
-    )
+    return error_response(request, 422, "VALIDATION_ERROR", "Validation error", details=exc.errors())
+
 
 @app.exception_handler(Exception)
 async def generic_exception_handler(request: Request, exc: Exception):
-    return JSONResponse(
-        status_code=500,
-        content={
-            "error": 500,
-            "message": str(exc),
-            "path": str(request.url),
-            "timestamp": utcnow(),
-            "instance": INSTANCE_ID
-        }
-    )
+    logger.error("Unhandled exception", exc_info=True)
+    return error_response(request, 500, "INTERNAL_SERVER_ERROR", "Internal server error")
 
 # ------------- Startup/Shutdown -------------
 @app.on_event("startup")
@@ -300,16 +911,11 @@ async def correlation_middleware(request: Request, call_next):
         response = await call_next(request)
     except Exception as e:
         logger.error(f"Unhandled error on {request.url.path}: {e}", exc_info=True)
-        return JSONResponse(
-            status_code=500,
-            content={
-                "error": "INTERNAL_SERVER_ERROR",
-                "message": "Internal server error",
-                "correlation_id": cid,
-                "timestamp": utcnow(),
-                "instance": INSTANCE_ID
-            }
-        )
+        response = error_response(request, 500, "INTERNAL_SERVER_ERROR", "Internal server error")
+        response.headers["X-Correlation-ID"] = cid
+        response.headers["X-Instance-ID"] = INSTANCE_ID
+        response.headers["X-Environment"] = settings.environment
+        return response
     response.headers["X-Correlation-ID"] = cid
     response.headers["X-Instance-ID"] = INSTANCE_ID
     response.headers["X-Environment"] = settings.environment
@@ -333,7 +939,15 @@ async def simple_rate_limit(request: Request, call_next):
     RATE_BUCKET[ip] = bucket
 
     if len(bucket) > limit:
-        return JSONResponse(status_code=429, content={"error": "RATE_LIMIT", "retry_after": int(window)})
+        response = error_response(
+            request,
+            429,
+            "RATE_LIMIT",
+            "Too many requests",
+            details={"retry_after": int(window)},
+        )
+        response.headers["Retry-After"] = str(int(window))
+        return response
 
     return await call_next(request)
 
@@ -393,7 +1007,7 @@ async def get_db_status() -> Dict[str, Any]:
         logger.error(f"DB status error: {e}")
         return {"status": "error", "message": str(e)}
 
-@app.get("/health")
+@app.get("/health", response_model=HealthResponse, responses={503: {"model": ErrorEnvelope}, 500: {"model": ErrorEnvelope}})
 async def health():
     sysm = get_system_metrics()
     redis_s = await get_redis_status()
@@ -411,7 +1025,7 @@ async def health():
         "environment": settings.environment
     }
 
-@app.get("/status")
+@app.get("/status", response_model=StatusResponse, responses={503: {"model": ErrorEnvelope}, 500: {"model": ErrorEnvelope}})
 async def status_full():
     sys_metrics = get_system_metrics()
     uptime_seconds = sys_metrics.get("uptime_seconds", 0)
@@ -456,7 +1070,7 @@ def _eeg_band_powers(raw: "mne.io.BaseRaw", fmin: float, fmax: float) -> Dict[st
     return {"mean": float(np.mean(psd_vals)), "max": float(np.max(psd_vals))}
 
 def analyze_eeg_file(file_path: Path) -> Dict[str, Any]:
-    require(_EEG, "EEG analysis libs (mne, numpy, scipy) not installed", 501)
+    require(_EEG, "EEG analysis libs (mne, numpy, scipy) not installed", 501, error_code="EEG_LIBS_UNAVAILABLE")
     # Try format detection
     suffix = file_path.suffix.lower()
     # Load using mne supported readers; we do not fabricate any values.
@@ -495,7 +1109,7 @@ def analyze_eeg_file(file_path: Path) -> Dict[str, Any]:
 
 @app.post("/api/uploads/eeg/process")
 async def process_eeg(file: UploadFile = File(...)):
-    require(file.filename, "Missing filename", 400)
+    require(file.filename, "Missing filename", 400, error_code="MISSING_FILENAME")
     dest = Path(settings.storage_dir) / f"eeg_{int(time.time())}_{uuid.uuid4().hex[:6]}_{Path(file.filename).name}"
     try:
         with dest.open("wb") as f:
@@ -523,10 +1137,10 @@ async def process_eeg(file: UploadFile = File(...)):
 
 # ------------- Audio Processing (REAL) -------------
 def analyze_audio_file(file_path: Path) -> Dict[str, Any]:
-    require(_AUDIO, "Audio analysis libs (librosa, soundfile) not installed", 501)
+    require(_AUDIO, "Audio analysis libs (librosa, soundfile) not installed", 501, error_code="AUDIO_LIBS_UNAVAILABLE")
     # librosa loads actual samples
     y, sr = librosa.load(str(file_path), sr=None, mono=True)
-    require(y.size > 0 and sr > 0, "Empty audio data", 400)
+    require(y.size > 0 and sr > 0, "Empty audio data", 400, error_code="EMPTY_AUDIO")
 
     duration = float(len(y) / sr)
     # Real metrics
@@ -558,7 +1172,7 @@ def analyze_audio_file(file_path: Path) -> Dict[str, Any]:
 
 @app.post("/api/uploads/audio/process")
 async def process_audio(file: UploadFile = File(...)):
-    require(file.filename, "Missing filename", 400)
+    require(file.filename, "Missing filename", 400, error_code="MISSING_FILENAME")
     dest = Path(settings.storage_dir) / f"audio_{int(time.time())}_{uuid.uuid4().hex[:6]}_{Path(file.filename).name}"
     try:
         with dest.open("wb") as f:
@@ -585,7 +1199,7 @@ async def process_audio(file: UploadFile = File(...)):
 
 # ------------- Payments (REAL) -------------
 def require_paypal():
-    require(settings.paypal_client_id and settings.paypal_secret, "PayPal not configured", 501)
+    require(settings.paypal_client_id and settings.paypal_secret, "PayPal not configured", 501, error_code="PAYPAL_NOT_CONFIGURED")
 
 def paypal_token() -> str:
     require_paypal()
@@ -597,13 +1211,23 @@ def paypal_token() -> str:
             timeout=10
         )
         if r.status_code != 200:
-            raise HTTPException(status_code=r.status_code, detail=f"PayPal token error: {r.text}")
+            raise HTTPException(
+                status_code=r.status_code,
+                detail={"code": "PAYPAL_TOKEN_ERROR", "message": f"PayPal token error: {r.text}"},
+            )
         return r.json()["access_token"]
     except requests.RequestException as e:
-        raise HTTPException(status_code=502, detail=f"PayPal network error: {e}")
+        raise HTTPException(
+            status_code=502,
+            detail={"code": "PAYPAL_NETWORK_ERROR", "message": f"PayPal network error: {e}"},
+        )
 
-@app.post("/billing/paypal/order")
-def paypal_create_order(payload: Dict[str, Any] = Body(...)):
+@app.post(
+    "/billing/paypal/order",
+    response_model=Dict[str, Any],
+    responses={501: {"model": ErrorEnvelope}, 502: {"model": ErrorEnvelope}},
+)
+def paypal_create_order(payload: PayPalCreateOrderRequest):
     """
     Create PayPal order (REAL sandbox/live depending on PAYPAL_BASE).
     Payload example:
@@ -614,17 +1238,25 @@ def paypal_create_order(payload: Dict[str, Any] = Body(...)):
     """
     token = paypal_token()
     try:
+        payload_dict = payload.dict(exclude_none=True)
         r = requests.post(
             f"{settings.paypal_base}/v2/checkout/orders",
             headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-            json=payload,
+            json=payload_dict,
             timeout=15
         )
         return JSONResponse(status_code=r.status_code, content=r.json())
     except requests.RequestException as e:
-        raise HTTPException(status_code=502, detail=f"PayPal create order error: {e}")
+        raise HTTPException(
+            status_code=502,
+            detail={"code": "PAYPAL_CREATE_ERROR", "message": f"PayPal create order error: {e}"},
+        )
 
-@app.post("/billing/paypal/capture/{order_id}")
+@app.post(
+    "/billing/paypal/capture/{order_id}",
+    response_model=Dict[str, Any],
+    responses={501: {"model": ErrorEnvelope}, 502: {"model": ErrorEnvelope}},
+)
 def paypal_capture_order(order_id: str):
     token = paypal_token()
     try:
@@ -635,13 +1267,20 @@ def paypal_capture_order(order_id: str):
         )
         return JSONResponse(status_code=r.status_code, content=r.json())
     except requests.RequestException as e:
-        raise HTTPException(status_code=502, detail=f"PayPal capture error: {e}")
+        raise HTTPException(
+            status_code=502,
+            detail={"code": "PAYPAL_CAPTURE_ERROR", "message": f"PayPal capture error: {e}"},
+        )
 
 def require_stripe():
-    require(settings.stripe_api_key, "Stripe not configured", 501)
+    require(settings.stripe_api_key, "Stripe not configured", 501, error_code="STRIPE_NOT_CONFIGURED")
 
-@app.post("/billing/stripe/payment-intent")
-def stripe_payment_intent(payload: Dict[str, Any] = Body(...)):
+@app.post(
+    "/billing/stripe/payment-intent",
+    response_model=Dict[str, Any],
+    responses={501: {"model": ErrorEnvelope}, 502: {"model": ErrorEnvelope}},
+)
+def stripe_payment_intent(payload: StripePaymentIntentRequest):
     """
     Create Stripe PaymentIntent (REAL).
     Payload example:
@@ -649,29 +1288,58 @@ def stripe_payment_intent(payload: Dict[str, Any] = Body(...)):
     """
     require_stripe()
     try:
+        data = payload.dict(exclude_none=True)
+        form_data: Dict[str, Any] = {
+            "amount": str(data["amount"]),
+            "currency": data["currency"],
+        }
+        if data.get("description"):
+            form_data["description"] = data["description"]
+        if data.get("customer"):
+            form_data["customer"] = data["customer"]
+        if data.get("payment_method_types"):
+            for idx, meth in enumerate(data["payment_method_types"]):
+                form_data[f"payment_method_types[{idx}]"] = meth
+        if data.get("metadata"):
+            for key, value in data["metadata"].items():
+                form_data[f"metadata[{key}]"] = str(value)
+
         r = requests.post(
             f"{settings.stripe_base}/payment_intents",
             headers={"Authorization": f"Bearer {settings.stripe_api_key}"},
-            data=payload,  # Stripe uses form-encoded
+            data=form_data,  # Stripe uses form-encoded
             timeout=15
         )
         return JSONResponse(status_code=r.status_code, content=r.json())
     except requests.RequestException as e:
-        raise HTTPException(status_code=502, detail=f"Stripe error: {e}")
+        raise HTTPException(
+            status_code=502,
+            detail={"code": "STRIPE_ERROR", "message": f"Stripe error: {e}"},
+        )
 
 # SEPA note: Requires bank API integration; not invented here.
-@app.post("/billing/sepa/initiate")
-def sepa_initiate(payload: Dict[str, Any] = Body(...)):
+@app.post(
+    "/billing/sepa/initiate",
+    responses={501: {"model": ErrorEnvelope}},
+)
+def sepa_initiate(payload: SepaInitiateRequest):
     """
     Placeholder endpoint to forward SEPA to a real bank API.
     Returns 501 until a concrete bank API is configured.
     """
-    raise HTTPException(status_code=501, detail="SEPA bank API not configured; integrate a real provider.")
+    raise HTTPException(
+        status_code=501,
+        detail={
+            "code": "SEPA_NOT_CONFIGURED",
+            "message": "SEPA bank API not configured; integrate a real provider.",
+            "details": {"currency": payload.currency},
+        },
+    )
 
 # ------------- DB Utility Endpoints (REAL) -------------
-@app.get("/db/ping")
+@app.get("/db/ping", response_model=SimpleAck, responses={501: {"model": ErrorEnvelope}, 500: {"model": ErrorEnvelope}})
 async def db_ping():
-    require(pg_pool is not None, "Database not configured", 501)
+    require(pg_pool is not None, "Database not configured", 501, error_code="DATABASE_NOT_CONFIGURED")
     try:
         async with pg_pool.acquire() as conn:
             await conn.execute("SELECT 1;")
@@ -679,9 +1347,9 @@ async def db_ping():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/redis/ping")
+@app.get("/redis/ping", response_model=SimpleAck, responses={501: {"model": ErrorEnvelope}, 500: {"model": ErrorEnvelope}})
 async def redis_ping():
-    require(redis_client is not None, "Redis not configured", 501)
+    require(redis_client is not None, "Redis not configured", 501, error_code="REDIS_NOT_CONFIGURED")
     try:
         pong = await redis_client.ping()
         return {"status": "ok" if pong else "unknown", "timestamp": utcnow()}
@@ -743,32 +1411,90 @@ async def asi_health():
         "overall_health": 0.92
     }
 
-@app.post("/asi/execute")
-async def asi_execute(payload: Dict[str, Any] = Body(...)):
+@app.post("/asi/execute", responses={400: {"model": ErrorEnvelope}})
+async def asi_execute(payload: ASIExecuteRequest):
     """Execute command through ASI Trinity system"""
-    command = payload.get("command", "")
-    agent = payload.get("agent", "trinity")
-    
-    require(command, "Command required", 400)
-    
+    command = (payload.command or "").strip()
+    agent = payload.agent.strip() or "trinity"
+    agent_lower = agent.lower()
+    allowed_agents = {"alba", "albi", "jona", "trinity"}
+    if agent_lower not in allowed_agents:
+        raise HTTPException(
+            status_code=400,
+            detail={"code": "INVALID_AGENT", "message": f"Unsupported agent '{agent}'."},
+        )
+
+    if not command:
+        logger.info("ASI execute called without command; returning system overview")
+        snapshot = system_snapshot()
+        services = {
+            "endpoints": probe_services(),
+            "processes": collect_service_processes(SERVICE_PORTS),
+        }
+        alba_entries = fetch_alba_entries()
+        alba_summary = summarize_alba(alba_entries)
+        albi_insight = derive_albi_insight(alba_entries)
+        clisonix_data = {
+            "events": collect_clisonix_events(limit=10),
+            "scan": collect_clisonix_scan(),
+        }
+        mesh_info = {
+            "nodes": collect_mesh_nodes(),
+            "logs": collect_mesh_logs(),
+        }
+
+        modules_used = ["JONA"]
+        if alba_summary.get("total"):
+            modules_used.append("ALBA")
+        if albi_insight:
+            modules_used.append("ALBI")
+        if clisonix_data["events"] or clisonix_data["scan"]:
+            modules_used.append("NEUROTRIGGER")
+        if mesh_info["nodes"].get("count"):
+            modules_used.append("MESH-HQ")
+
+        return {
+            "timestamp": utcnow(),
+            "execution": {
+                "agent": agent_lower,
+                "status": "no-command",
+                "result": "Asnjë komandë nuk u dha; po kthej përmbledhje sistemore reale.",
+            },
+            "modules_used": sorted(set(modules_used)),
+            "overview": {
+                "system": snapshot,
+                "services": services,
+                "alba": alba_summary,
+                "albi": albi_insight,
+                "clisonix": clisonix_data,
+                "mesh": mesh_info,
+            },
+            "parameters": payload.parameters,
+        }
+
     # Log execution
-    logger.info(f"ASI executing: '{command}' via {agent}")
-    
+    logger.info(f"ASI executing: '{command}' via {agent_lower}")
+
     # Process through appropriate agent
-    if agent.lower() == "alba":
+    if agent_lower == "alba":
         result = {"agent": "alba", "result": f"Network analysis: {command}", "status": "completed"}
-    elif agent.lower() == "albi":
+    elif agent_lower == "albi":
         result = {"agent": "albi", "result": f"Neural processing: {command}", "status": "completed"}
-    elif agent.lower() == "jona":
+    elif agent_lower == "jona":
         result = {"agent": "jona", "result": f"Data coordination: {command}", "status": "completed"}
     else:
-        result = {"agent": "trinity", "result": f"Trinity processing: {command}", "status": "completed"}
-    
+        result = {
+            "agent": "trinity",
+            "result": f"Trinity processing: {command}",
+            "status": "completed",
+        }
+
     return {
         "timestamp": utcnow(),
         "execution": result,
         "command": command,
-        "agent": agent
+        "agent": agent_lower,
+        "parameters": payload.parameters,
     }
 
 # Add favicon to eliminate 404 errors

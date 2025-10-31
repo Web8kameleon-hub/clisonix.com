@@ -1,10 +1,12 @@
 import { WebSocketServer, WebSocket } from "ws";
-import { createClient, RedisClientType } from "redis";
+import { createClient } from "redis";
 import http from "http";
+
+type RedisSubscriber = ReturnType<typeof createClient>;
 
 export interface WebSocketHub {
   wss: WebSocketServer;
-  redisSub?: RedisClientType;
+  redisSub?: RedisSubscriber;
   clients: Set<WebSocket>;
 }
 
@@ -19,7 +21,7 @@ export async function initWebSocket(server: http.Server, redisUrl?: string): Pro
 
   // Redis Pub/Sub për sinjale
   if (redisUrl) {
-    const sub = createClient({ url: redisUrl });
+  const sub = createClient({ url: redisUrl });
     sub.on("error", (err) => console.error("[WebSocket Redis] error", err));
     await sub.connect();
 

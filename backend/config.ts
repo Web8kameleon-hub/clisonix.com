@@ -9,6 +9,7 @@ export type AppConfig = {
   MNE_SCRIPT?: string;             // p.sh. ./python/eeg_process.py
   LIBROSA_SCRIPT?: string;         // p.sh. ./python/audio_analyze.py
   MODBUS_HOST?: string; MODBUS_PORT?: number;
+  ALBA_MAX_STREAMS?: number;
 };
 
 export function loadConfig(): AppConfig {
@@ -25,5 +26,6 @@ export function loadConfig(): AppConfig {
     LIBROSA_SCRIPT: process.env.LIBROSA_SCRIPT ?? "./python/audio_analyze.py",
     MODBUS_HOST: process.env.MODBUS_HOST,
     MODBUS_PORT: process.env.MODBUS_PORT ? Number(process.env.MODBUS_PORT) : undefined,
+    ALBA_MAX_STREAMS: process.env.ALBA_MAX_STREAMS ? Number(process.env.ALBA_MAX_STREAMS) : undefined,
   };
 }

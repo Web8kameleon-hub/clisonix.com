@@ -18,7 +18,8 @@
   "include": [
     "server.ts",
     "config.ts", 
-    "layers/**/*"
+    "layers/**/*",
+    "lib/**/*"
   ],
   "exclude": [
     "node_modules",

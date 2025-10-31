@@ -1,6 +1,4 @@
-﻿version: '3.8'
-
-# NeuroSonix Cloud Industrial Backend + Payment System
+﻿# NeuroSonix Cloud Industrial Backend + Payment System
 # Business: Ledjan Ahmati - WEB8euroweb GmbH  
 # SEPA: DE72430500010015012263 | PayPal: ahmati.bau@gmail.com
 # REAL DATA ONLY - NO MOCK/PLACEHOLDER
@@ -39,7 +37,6 @@ services:
       - db
       - redis
     volumes:
-      - ./app:/app
       - ./logs:/app/logs
     restart: unless-stopped
     healthcheck:

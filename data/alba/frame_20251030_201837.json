@@ -1,0 +1,20 @@
+{
+  "source": "Zurich-Lab",
+  "timestamp": "2025-10-30T20:18:37.681854+00:00",
+  "sensors": {
+    "cpu_percent": 3.6,
+    "memory_percent": 25.4,
+    "disk_percent": 8.5,
+    "temperature_c": 42.74,
+    "network_sent_mb": 118.55,
+    "network_recv_mb": 345.87
+  },
+  "environment": {
+    "weather": "cloudy",
+    "energy_level": 97.54
+  },
+  "tags": [
+    "simulation",
+    "neurosonix"
+  ]
+}

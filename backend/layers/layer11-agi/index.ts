@@ -8,7 +8,7 @@
 
 import { Router } from 'express';
 import { WebSocketHub } from '../_shared/websocket';
-import { broadcastLayerSignal } from '../_shared/signal';
+import { broadcastLayerSignal } from '../_shared/memory-signal';
 
 export const mountLayer11 = (app: any, wss: WebSocketHub) => {
   const router = Router();

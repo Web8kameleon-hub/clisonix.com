@@ -1,6 +1,6 @@
 ﻿"use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { ASITerminal } from '../components/asi/ASITerminal';
 
@@ -14,13 +14,82 @@ interface SystemStatus {
 export default function Home() {
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null)
   const [loading, setLoading] = useState(true)
+  const remoteFailureLoggedRef = useRef(false)
 
   useEffect(() => {
     const fetchSystemStatus = async () => {
       try {
-        // Fetch system status from industrial dashboard demo
-        const systemResponse = await fetch('/api/system-status')
-        const systemData = await systemResponse.json()
+        // Fetch system status from industrial dashboard demo.
+        // Use NEXT_PUBLIC_API_BASE (if provided) so the frontend can target the backend
+        // server instead of the Next server (which would return HTML and break .json()).
+        const API_BASE = (process.env.NEXT_PUBLIC_API_BASE || '').replace(/\/$/, '')
+        const endpoints = API_BASE
+          ? [`${API_BASE}/api/system-status`, '/api/system-status']
+          : ['/api/system-status']
+
+        let statusPayload: Record<string, any> | null = null
+        let successFlag = false
+        let lastError: unknown = null
+
+        for (const target of endpoints) {
+          try {
+            const isInternalApi = target.startsWith('/') || target.startsWith(window.location.origin)
+            const systemResponse = await fetch(target, {
+              headers: isInternalApi
+                ? { 'x-neurosonix-internal': '1' }
+                : undefined,
+            })
+
+            // Defensive parsing: guard against HTML/error pages being returned.
+            const contentType = systemResponse.headers.get('content-type') || ''
+            if (!systemResponse.ok) {
+              const text = await systemResponse.text()
+              console.error(`API ${target} returned status ${systemResponse.status}:`, text)
+              throw new Error(`API error ${systemResponse.status}`)
+            }
+
+            if (!contentType.includes('application/json')) {
+              const text = await systemResponse.text()
+              console.error(`Expected JSON from ${target} but received non-JSON response (first 2KB):`, text.slice(0, 2048))
+              throw new Error('API did not return JSON; see console for response body')
+            }
+
+            const systemData = await systemResponse.json()
+            const normalized = systemData && typeof systemData === 'object' && 'data' in systemData
+              ? systemData
+              : { success: true, data: systemData }
+
+            statusPayload = normalized.data || {}
+            successFlag = normalized.success !== false
+            remoteFailureLoggedRef.current = false
+            break
+          } catch (err) {
+            lastError = err
+            const isRemoteTarget = API_BASE && target.startsWith(API_BASE)
+            const message = err instanceof Error ? err.message : String(err)
+
+            if (!isRemoteTarget || !remoteFailureLoggedRef.current) {
+              console.warn(`system-status request to ${target} failed: ${message}`)
+            }
+
+            if (isRemoteTarget) {
+              remoteFailureLoggedRef.current = true
+            }
+          }
+        }
+
+        if (!statusPayload) {
+          if (!remoteFailureLoggedRef.current) {
+            console.warn('Falling back to synthetic system status payload due to prior errors.', lastError instanceof Error ? lastError.message : lastError)
+          }
+          statusPayload = {
+            core_services: 'Degraded',
+            network: 'Disconnected',
+            maintenance: 'Offline',
+            data_integrity: 'Unverified',
+          }
+          successFlag = false
+        }
 
         // Fetch data sources for additional info (optional)
         // const sourcesResponse = await fetch('/api/data-sources')
@@ -28,19 +97,19 @@ export default function Home() {
 
         setSystemStatus({
           signal_gen: { 
-            status: systemData.core_services === 'Operational' ? 'Online' : 'Offline',
+            status: statusPayload.core_services === 'Operational' ? 'Online' : successFlag ? 'Degraded' : 'Offline',
             version: '1.0.0'
           },
           albi: {
-            status: systemData.network === 'Connected' ? 'online' : 'offline',
+            status: statusPayload.network === 'Connected' ? 'online' : successFlag ? 'degraded' : 'offline',
             neural_patterns: 1247
           },
           alba: {
-            status: systemData.maintenance === 'Scheduled' ? 'online' : 'offline',
+            status: statusPayload.maintenance === 'Scheduled' ? 'online' : successFlag ? 'degraded' : 'offline',
             data_streams: 8
           },
           jona: {
-            status: systemData.data_integrity === 'Verified' ? 'online' : 'offline',
+            status: statusPayload.data_integrity === 'Verified' ? 'online' : successFlag ? 'degraded' : 'offline',
             audio_synthesis: true
           }
         })

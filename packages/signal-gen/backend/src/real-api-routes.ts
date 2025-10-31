@@ -57,7 +57,8 @@ async function getRealSystemMetrics() {
   };
 }
 
-async function scanRealFiles(directory: string) {
+async function scanRealFiles(directory: string, options: { recursive?: boolean } = {}) {
+  const { recursive = false } = options;
   const results = {
     files: [] as any[],
     total_size: 0,
@@ -67,46 +68,68 @@ async function scanRealFiles(directory: string) {
 
   try {
     if (!fs.existsSync(directory)) {
-      return results;
+      return {
+        ...results,
+        total_size_mb: 0,
+        scan_timestamp: new Date().toISOString()
+      };
     }
 
     const items = await fs.promises.readdir(directory, { withFileTypes: true });
-    
+
+    if (items.length === 0) {
+      console.info(`[scanRealFiles] Directory is empty: ${directory}`);
+    }
+
     for (const item of items) {
       const fullPath = path.join(directory, item.name);
-      
+
       if (item.isDirectory()) {
         results.directory_count++;
+        if (recursive) {
+          const nested = await scanRealFiles(fullPath, options);
+          results.files.push(...nested.files);
+          results.total_size += nested.total_size;
+          results.file_count += nested.file_count;
+          results.directory_count += nested.directory_count;
+        }
       } else if (item.isFile()) {
         try {
           const stats = await fs.promises.stat(fullPath);
-          const fileHash = crypto.createHash('md5').update(fs.readFileSync(fullPath)).digest('hex');
-          
+          if (stats.size === 0 || item.name.startsWith('.')) {
+            continue;
+          }
+          const fileBuffer = await fs.promises.readFile(fullPath);
+          const fileHash = crypto.createHash('md5').update(fileBuffer).digest('hex');
+
           results.files.push({
             name: item.name,
             path: fullPath,
             size_bytes: stats.size,
-            size_mb: Number((stats.size / (1024**2)).toFixed(3)),
+            size_mb: Number((stats.size / (1024 ** 2)).toFixed(3)),
             created: stats.birthtime.toISOString(),
             modified: stats.mtime.toISOString(),
             extension: path.extname(item.name),
             hash: fileHash
           });
-          
+
           results.total_size += stats.size;
           results.file_count++;
         } catch (err) {
-          // Skip files that can't be read
+          const message = err instanceof Error ? err.message : String(err);
+          console.warn(`[scanRealFiles] Skipped file ${fullPath}: ${message}`);
+          continue;
         }
       }
     }
   } catch (err) {
-    // Directory access error
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn(`[scanRealFiles] Failed to scan directory ${directory}: ${message}`);
   }
 
   return {
     ...results,
-    total_size_mb: Number((results.total_size / (1024**2)).toFixed(2)),
+    total_size_mb: Number((results.total_size / (1024 ** 2)).toFixed(2)),
     scan_timestamp: new Date().toISOString()
   };
 }
