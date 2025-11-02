@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-Telemetry / tracing decorator for NeuroSonix services.
+Telemetry / tracing decorator for Clisonix services.
 Captures function entry metadata, timing, and approximate payload size without logging contents.
 """
 
@@ -13,7 +13,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable
 
-LOG_PATH = Path(r"C:\neurosonix-cloud\logs\telemetry.jsonl")
+LOG_PATH = Path(r"C:\Clisonix-cloud\logs\telemetry.jsonl")
 LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 

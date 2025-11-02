@@ -1,7 +1,7 @@
-{
-  "name": "@neurosonix/backend-industrial",
+﻿{
+  "name": "@Clisonix/backend-industrial",
   "version": "1.0.0",
-  "description": "NeuroSonix Industrial Backend - Layer 1-12 Architecture",
+  "description": "Clisonix Industrial Backend - Layer 1-12 Architecture",
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
@@ -12,8 +12,8 @@
     "lint": "eslint . --ext .ts",
     "type-check": "tsc --noEmit",
     "test": "jest",
-    "docker:build": "docker build -t neurosonix-backend .",
-    "docker:run": "docker run -p 8000:8000 neurosonix-backend"
+    "docker:build": "docker build -t Clisonix-backend .",
+    "docker:run": "docker run -p 8000:8000 Clisonix-backend"
   },
   "dependencies": {
     "body-parser": "^1.20.2",
@@ -46,7 +46,7 @@
     "node": ">=18.0.0"
   },
   "keywords": [
-    "neurosonix",
+    "Clisonix",
     "industrial",
     "layer-architecture",
     "alba",
@@ -58,6 +58,6 @@
     "websocket",
     "redis"
   ],
-  "author": "NeuroSonix Industrial Team",
+  "author": "Clisonix Industrial Team",
   "license": "MIT"
 }

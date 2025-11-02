@@ -1,7 +1,7 @@
-{
-  "system": "Neurosonix Ultra-Industrial Base",
+﻿{
+  "system": "Clisonix Ultra-Industrial Base",
   "version": "1.0.0",
-  "description": "Konfigurim bazë për të gjitha shërbimet industriale, SaaS, API, nodes, audit, tracing, compliance, backup, monitoring.",
+  "description": "Konfigurim bazÃ« pÃ«r tÃ« gjitha shÃ«rbimet industriale, SaaS, API, nodes, audit, tracing, compliance, backup, monitoring.",
   "modules": [
     "albi_core",
     "alba_core",

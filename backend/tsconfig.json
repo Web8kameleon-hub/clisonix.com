@@ -1,11 +1,11 @@
-{
+﻿{
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022"],
     "module": "ESNext",
     "moduleResolution": "Node",
-    "outDir": "dist",
-    "rootDir": ".",
+  "outDir": "dist",
+  "rootDir": "..",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
@@ -19,7 +19,9 @@
     "server.ts",
     "config.ts", 
     "layers/**/*",
-    "lib/**/*"
+    "lib/**/*",
+    "../app/modules/**/*",
+    "../app/Clisonix/**/*.ts"
   ],
   "exclude": [
     "node_modules",

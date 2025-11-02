@@ -1,23 +1,23 @@
-# setup_neurosonix.ps1 - Neurosonix Cloud Industrial Setup Script
+﻿# setup_Clisonix.ps1 - Clisonix Cloud Industrial Setup Script
 # Author: Ledjan Ahmati
 # License: Closed Source
 
-Write-Host "🚀 Neurosonix Cloud Industrial Setup Starting..."
+Write-Host "ðŸš€ Clisonix Cloud Industrial Setup Starting..."
 
 # Step 1: Install Python dependencies
-Write-Host "📦 Installing Python dependencies..."
+Write-Host "ðŸ“¦ Installing Python dependencies..."
 pip install -r requirements.txt
 
 # Step 2: Install Node.js dependencies
-Write-Host "📦 Installing Node.js dependencies..."
+Write-Host "ðŸ“¦ Installing Node.js dependencies..."
 npm install
 
 # Step 3: Build Docker images
-Write-Host "🔨 Building Docker images..."
+Write-Host "ðŸ”¨ Building Docker images..."
 docker compose build
 
 # Step 4: Start Docker services
-Write-Host "🔄 Starting Docker services..."
+Write-Host "ðŸ”„ Starting Docker services..."
 docker compose up -d
 
-Write-Host "✅ Setup complete! Neurosonix Cloud is ready."
+Write-Host "âœ… Setup complete! Clisonix Cloud is ready."

@@ -1,11 +1,11 @@
-from fastapi import FastAPI
+﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .auth_controller import router as auth_router
 from .billing_controller import router as billing_router
 from .usage_controller import router as usage_router
 
 app = FastAPI(
-    title="NeuroSonix Cloud API",
+    title="Clisonix Cloud API",
     version="1.0.0",
     description="Industrial EEG + Audio + Neuro Feedback API (REAL DATA)"
 )
@@ -24,7 +24,7 @@ app.include_router(usage_router, prefix="/api/usage", tags=["Usage"])
 
 @app.get("/health")
 def health_check():
-    return {"status": "ok", "service": "NeuroSonix Cloud API"}
+    return {"status": "ok", "service": "Clisonix Cloud API"}
 
 # ASI Trinity status endpoint for frontend integration
 @app.get("/asi/status")

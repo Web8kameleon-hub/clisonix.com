@@ -1,5 +1,5 @@
-"""
-NeuroSonix Database Session Management
+﻿"""
+Clisonix Database Session Management
 Async SQLAlchemy configuration with connection pooling
 """
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
@@ -21,7 +21,7 @@ engine = create_async_engine(
     pool_recycle=3600,  # Recycle connections after 1 hour
     connect_args={
         "server_settings": {
-            "application_name": "neurosonix-api",
+            "application_name": "Clisonix-api",
         }
     }
 )
@@ -58,13 +58,13 @@ async def init_db():
     async with engine.begin() as conn:
         # Create all tables
         await conn.run_sync(Base.metadata.create_all)
-        logger.info("✓ Database tables created successfully")
+        logger.info("âœ“ Database tables created successfully")
 
 
 async def close_db():
     """Close database connections"""
     await engine.dispose()
-    logger.info("✓ Database connections closed")
+    logger.info("âœ“ Database connections closed")
 
 
 # Health check for database

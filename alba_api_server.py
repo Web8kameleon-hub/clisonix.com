@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-ALBA API Server - Live ingestion endpoint for Neurosonix Cloud.
+ALBA API Server - Live ingestion endpoint for Clisonix Cloud.
 Receives frames via HTTP POST and saves them into /data/alba.
 """
 
@@ -27,7 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DATA_DIR = Path(r"C:\neurosonix-cloud\data\alba")
+DATA_DIR = Path(r"C:\Clisonix-cloud\data\alba")
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 

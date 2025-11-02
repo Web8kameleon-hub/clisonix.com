@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
+﻿from fastapi import APIRouter, HTTPException, Request
 import stripe, os
 
 router = APIRouter()
@@ -11,8 +11,8 @@ def create_checkout():
             payment_method_types=["card"],
             line_items=[{"price": os.getenv("STRIPE_PRICE_PRO"), "quantity": 1}],
             mode="subscription",
-            success_url="https://neurosonix.cloud/success",
-            cancel_url="https://neurosonix.cloud/cancel",
+            success_url="https://Clisonix.cloud/success",
+            cancel_url="https://Clisonix.cloud/cancel",
         )
         return {"checkout_url": session.url}
     except Exception as e:
@@ -24,5 +24,5 @@ async def stripe_webhook(request: Request):
     sig_header = request.headers.get("stripe-signature")
     event = stripe.Webhook.construct_event(payload, sig_header, os.getenv("STRIPE_WEBHOOK_SECRET"))
     if event["type"] == "checkout.session.completed":
-        print("✅ Payment completed:", event["data"]["object"]["customer_email"])
+        print("âœ… Payment completed:", event["data"]["object"]["customer_email"])
     return {"received": True}

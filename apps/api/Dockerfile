@@ -1,4 +1,4 @@
-# NeuroSonix Industrial Backend Docker Image
+﻿# Clisonix Industrial Backend Docker Image
 FROM node:18-alpine AS base
 
 # Set working directory
@@ -28,16 +28,16 @@ FROM node:18-alpine AS production
 
 # Create app user
 RUN addgroup -g 1001 -S nodejs
-RUN adduser -S neurosonix -u 1001
+RUN adduser -S Clisonix -u 1001
 
 WORKDIR /app
 
 # Copy production files
-COPY --from=build --chown=neurosonix:nodejs /app/dist ./dist
-COPY --from=build --chown=neurosonix:nodejs /app/node_modules ./node_modules
-COPY --from=build --chown=neurosonix:nodejs /app/package*.json ./
+COPY --from=build --chown=Clisonix:nodejs /app/dist ./dist
+COPY --from=build --chown=Clisonix:nodejs /app/node_modules ./node_modules
+COPY --from=build --chown=Clisonix:nodejs /app/package*.json ./
 
-USER neurosonix
+USER Clisonix
 
 EXPOSE 8088
 

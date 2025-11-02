@@ -1,4 +1,4 @@
-"""Self-generating API laboratory utilities.
+﻿"""Self-generating API laboratory utilities.
 
 This module orchestrates the pipeline that detects a domain need, drafts
 an OpenAPI specification, scaffolds FastAPI code, and stores artifacts for
@@ -115,7 +115,7 @@ class SelfGeneratingAPI:
         return NeedProfile(domain, purpose, priority, tags, reference_channels, source_notes, context=context)
 
     def design_api_specification(self, profile: NeedProfile) -> Dict[str, Any]:
-        title = f"Neurosonix {profile.domain.replace('-', ' ').title()} API"
+        title = f"Clisonix {profile.domain.replace('-', ' ').title()} API"
         description = textwrap.dedent(
             f"""
             This specification was generated automatically. It addresses the

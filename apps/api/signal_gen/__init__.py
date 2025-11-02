@@ -1,5 +1,5 @@
-"""
-Signal Generation Module for NeuroSonix
+﻿"""
+Signal Generation Module for Clisonix
 Integrated TypeScript functionality into Python backend
 """
 

@@ -1,8 +1,8 @@
-"""
-NeuroSonix Cloud Server
+﻿"""
+Clisonix Cloud Server
 Industrial-Grade Real-Time Middleware System
 Business: Ledjan Ahmati - WEB8euroweb GmbH
-REAL DATA ONLY • NO MOCK • NO RANDOM • NO FAKE API
+REAL DATA ONLY â€¢ NO MOCK â€¢ NO RANDOM â€¢ NO FAKE API
 """
 
 from datetime import datetime
@@ -16,14 +16,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.middleware.gzip import GZipMiddleware
 
-from neurosonix.middleware import (
+from Clisonix.middleware import (
     MonitoringMiddleware,
     QuotaGateMiddleware,
     SecurityMiddleware,
 )
 
 app = FastAPI(
-    title="NeuroSonix Cloud API",
+    title="Clisonix Cloud API",
     description="Real-time AI & Sensor Middleware System",
     version="3.0.0-industrial",
 )
@@ -62,7 +62,7 @@ async def system_status():
 
 @app.get("/ping")
 async def ping():
-    return {"message": "NeuroSonix active", "time": datetime.utcnow().isoformat()}
+    return {"message": "Clisonix active", "time": datetime.utcnow().isoformat()}
 
 
 @app.post("/metrics/upload")
@@ -81,4 +81,4 @@ if __name__ == "__main__":
     os.makedirs("logs", exist_ok=True)
     import uvicorn
 
-    uvicorn.run("neurosonix_server:app", host="0.0.0.0", port=8080, reload=True)
+    uvicorn.run("Clisonix_server:app", host="0.0.0.0", port=8080, reload=True)

@@ -1,5 +1,5 @@
-"""
-NeuroSonix Industrial File Upload Routes
+﻿"""
+Clisonix Industrial File Upload Routes
 FastAPI routes for secure file upload and management
 Business: Ledjan Ahmati - WEB8euroweb GmbH
 

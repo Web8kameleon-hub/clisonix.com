@@ -1,5 +1,5 @@
-"""
-NeuroSonix API Routes
+﻿"""
+Clisonix API Routes
 Real EEG processing and brain-to-audio conversion endpoints
 """
 
@@ -8,12 +8,12 @@ from typing import Dict, List, Optional
 import asyncio
 from datetime import datetime
 
-# Import real NeuroSonix modules
+# Import real Clisonix modules
 from .eeg_processor import EEGProcessor
 from .brain_analyzer import BrainWaveAnalyzer
 from .audio_synthesizer import AudioSynthesizer
 
-router = APIRouter(prefix="/api/neurosonix", tags=["NeuroSonix EEG Processing"])
+router = APIRouter(prefix="/api/Clisonix", tags=["Clisonix EEG Processing"])
 
 # Initialize real processing modules
 eeg_processor = EEGProcessor(sampling_rate=256)
@@ -22,8 +22,8 @@ audio_synthesizer = AudioSynthesizer(sample_rate=44100)
 
 
 @router.get("/status")
-async def get_neurosonix_status():
-    """Get real-time NeuroSonix system status"""
+async def get_Clisonix_status():
+    """Get real-time Clisonix system status"""
     try:
         eeg_metrics = eeg_processor.get_real_time_metrics()
         brain_analysis = brain_analyzer.get_brain_analysis_summary()
@@ -297,8 +297,8 @@ async def simulate_eeg_data(duration_seconds: int = 5):
 
 
 @router.get("/health")
-async def neurosonix_health():
-    """NeuroSonix system health check"""
+async def Clisonix_health():
+    """Clisonix system health check"""
     try:
         # Check all modules
         eeg_active = len(eeg_processor.signal_buffer) > 0
@@ -309,7 +309,7 @@ async def neurosonix_health():
         
         return {
             "status": health_status,
-            "service": "NeuroSonix Real EEG Processing",
+            "service": "Clisonix Real EEG Processing",
             "version": "1.0.0",
             "modules": {
                 "eeg_processor": "active" if eeg_active else "waiting_for_data",

@@ -3,9 +3,9 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "neurosonix-cloud"
+name = "Clisonix-cloud"
 version = "0.1.0"
-description = "Cloud platform for NeuroSonix EEG-to-Audio and Brain Symphony"
+description = "Cloud platform for Clisonix EEG-to-Audio and Brain Symphony"
 authors = [{name="Ledjan Ahmati"}]
 license = {text = "MIT"}
 requires-python = ">=3.9"

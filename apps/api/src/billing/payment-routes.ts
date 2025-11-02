@@ -1,7 +1,7 @@
-/**
- * NEUROSONIX INDUSTRIAL PAYMENT ROUTES
+﻿/**
+ * Clisonix INDUSTRIAL PAYMENT ROUTES
  * ===================================
- * REST API për pagesa industriale me SEPA dhe PayPal
+ * REST API pÃ«r pagesa industriale me SEPA dhe PayPal
  * Real business data - Ledjan Ahmati / WEB8euroweb
  */
 
@@ -69,7 +69,7 @@ const refundPaymentSchema = {
 export async function registerPaymentRoutes(app: FastifyInstance) {
 
   // =================================================================================
-  // CREATE PAYMENT - Krijo pagesë të re
+  // CREATE PAYMENT - Krijo pagesÃ« tÃ« re
   // =================================================================================
   app.post("/billing/create", {
     schema: createPaymentSchema
@@ -139,7 +139,7 @@ export async function registerPaymentRoutes(app: FastifyInstance) {
   });
 
   // =================================================================================
-  // PROCESS PAYMENT - Konfirmo pagesën si të kryer
+  // PROCESS PAYMENT - Konfirmo pagesÃ«n si tÃ« kryer
   // =================================================================================
   app.post("/billing/process/:payment_id", {
     schema: processPaymentSchema
@@ -199,7 +199,7 @@ export async function registerPaymentRoutes(app: FastifyInstance) {
   });
 
   // =================================================================================
-  // REFUND PAYMENT - Kthe paratë
+  // REFUND PAYMENT - Kthe paratÃ«
   // =================================================================================
   app.post("/billing/refund", {
     schema: refundPaymentSchema
@@ -249,7 +249,7 @@ export async function registerPaymentRoutes(app: FastifyInstance) {
   });
 
   // =================================================================================
-  // GET PAYMENT STATUS - Kontrollo statusin e pagesës
+  // GET PAYMENT STATUS - Kontrollo statusin e pagesÃ«s
   // =================================================================================
   app.get("/billing/payment/:payment_id", async (request: FastifyRequest, reply: FastifyReply) => {
     const { payment_id } = request.params as { payment_id: string };
@@ -281,7 +281,7 @@ export async function registerPaymentRoutes(app: FastifyInstance) {
   });
 
   // =================================================================================
-  // GET USER PAYMENTS - Merr të gjitha pagesat e një përdoruesi
+  // GET USER PAYMENTS - Merr tÃ« gjitha pagesat e njÃ« pÃ«rdoruesi
   // =================================================================================
   app.get("/billing/user/:user_id/payments", async (request: FastifyRequest, reply: FastifyReply) => {
     const { user_id } = request.params as { user_id: string };
@@ -375,7 +375,7 @@ export async function registerPaymentRoutes(app: FastifyInstance) {
   });
 
   // =================================================================================
-  // FAIL PAYMENT - Vendor pagesën si të dështuar (manual)
+  // FAIL PAYMENT - Vendor pagesÃ«n si tÃ« dÃ«shtuar (manual)
   // =================================================================================
   app.post("/billing/fail/:payment_id", async (request: FastifyRequest, reply: FastifyReply) => {
     const { payment_id } = request.params as { payment_id: string };

@@ -1,5 +1,5 @@
-
-// Advanced Industrial Layout for Neurosonix Modules
+﻿
+// Advanced Industrial Layout for Clisonix Modules
 // Author: Ledjan Ahmati
 
 import React, { useEffect, useState } from 'react'
@@ -54,7 +54,7 @@ export default function ModulesLayout({ children }: { children: React.ReactNode 
     <div className="min-h-screen bg-gray-50">
       <header className="bg-gray-900 text-white py-4 px-8 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="text-xl font-bold">Neurosonix Industrial Cloud</div>
+          <div className="text-xl font-bold">Clisonix Industrial Cloud</div>
           <span className="ml-2 px-2 py-1 bg-green-700 rounded text-xs">Industrial</span>
           <span className="ml-2 px-2 py-1 bg-blue-700 rounded text-xs">Polyphony: {status?.polyphony ?? '-'}</span>
           <span className="ml-2 px-2 py-1 bg-yellow-700 rounded text-xs">Tracing: {status?.tracingId ?? '-'}</span>
@@ -97,7 +97,7 @@ export default function ModulesLayout({ children }: { children: React.ReactNode 
         {children}
       </main>
       <footer className="bg-gray-900 text-white py-4 px-8 text-xs text-center mt-8">
-        <div className="mb-2">© 2025 Neurosonix Industrial Cloud. All modules are protected, audited, and monitored for industrial compliance.</div>
+        <div className="mb-2">Â© 2025 Clisonix Industrial Cloud. All modules are protected, audited, and monitored for industrial compliance.</div>
         <div className="mb-2">Log | Audit | Metrika | Polyphony | Tracing | Historik | Protection</div>
         <div className="mb-2">User: {user?.username ?? '-'} | Last Login: {user?.lastLogin ?? '-'}</div>
         <div className="mb-2">Tracing ID: {status?.tracingId ?? '-'}</div>

@@ -1,6 +1,6 @@
-import type { NextConfig } from "next";
+﻿import type { NextConfig } from "next";
 
-const INTERNAL_API_HEADER = 'x-neurosonix-internal';
+const INTERNAL_API_HEADER = 'x-Clisonix-internal';
 
 const nextConfig: NextConfig = {
   async rewrites() {

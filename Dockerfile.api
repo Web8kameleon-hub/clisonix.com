@@ -1,7 +1,7 @@
-# Closed Source License - Neurosonix Cloud
-# Copyright (c) Neurosonix. All rights reserved.
+﻿# Closed Source License - Clisonix Cloud
+# Copyright (c) Clisonix. All rights reserved.
 #
-# Dockerfile for neurosonix-api (FastAPI)
+# Dockerfile for Clisonix-api (FastAPI)
 FROM python:3.11-slim
 WORKDIR /app
 COPY apps/api/ /app/

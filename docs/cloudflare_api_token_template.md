@@ -1,4 +1,4 @@
-# Cloudflare API token template
+﻿# Cloudflare API token template
 
 When creating a scoped API token for the helper scripts and automated tasks, use the Minimum Privilege principle.
 
@@ -12,7 +12,7 @@ Recommended token permissions (Scope: Zone -> select the clisonix.com zone):
 
 If you manage multiple zones in one token, consider using Account-level tokens cautiously.
 
-Token name: neurosonix-cloudflare-automation
+Token name: Clisonix-cloudflare-automation
 Expiry: 90 days (rotate regularly)
 
 Example usage in PowerShell:

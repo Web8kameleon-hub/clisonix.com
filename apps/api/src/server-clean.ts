@@ -1,5 +1,5 @@
-/**
- * NEUROSONIX INDUSTRIAL BACKEND SERVER
+﻿/**
+ * Clisonix INDUSTRIAL BACKEND SERVER
  * ===================================
  * Production-ready server with ALBI+ALBA+JONA + Payment System
  * SEPA IBAN: DE72 4305 0001 0015 0122 63 - Ledjan Ahmati/WEB8euroweb
@@ -117,7 +117,7 @@ industrialServer.get("/health", async (request, reply) => {
   const metrics = await getRealSystemMetrics();
   
   return {
-    service: "neurosonix-industrial-backend",
+    service: "Clisonix-industrial-backend",
     status: "operational",
     version: "1.0.0",
     timestamp: new Date().toISOString(),
@@ -151,7 +151,7 @@ industrialServer.get("/status", async (request, reply) => {
                                  (100 - metrics.system.memory_usage_percent)) / 2).toFixed(1);
   
   return {
-    neurosonix_ecosystem: {
+    Clisonix_ecosystem: {
       albi: "active_processing",
       alba: "data_collecting", 
       jona: "system_monitoring",
@@ -345,7 +345,7 @@ industrialServer.get("/", async (request, reply) => {
     <!DOCTYPE html>
     <html>
     <head>
-      <title>NeuroSonix Industrial Backend + Payment System</title>
+      <title>Clisonix Industrial Backend + Payment System</title>
       <style>
         body { font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff41; padding: 20px; }
         .container { max-width: 900px; margin: 0 auto; }
@@ -359,7 +359,7 @@ industrialServer.get("/", async (request, reply) => {
     </head>
     <body>
       <div class="container">
-        <h1 class="title">NeuroSonix Industrial Backend + Payment System</h1>
+        <h1 class="title">Clisonix Industrial Backend + Payment System</h1>
         <div class="status">Status: <span class="success">OPERATIONAL</span></div>
         <div class="status">Time: ${new Date().toISOString()}</div>
         <div class="status">Business: <span class="payment">Ledjan Ahmati - WEB8euroweb</span></div>
@@ -416,7 +416,7 @@ try {
   await industrialServer.listen({ port, host: "0.0.0.0" });
   
   console.log("==========================================");
-  console.log("NEUROSONIX INDUSTRIAL BACKEND STARTED");
+  console.log("Clisonix INDUSTRIAL BACKEND STARTED");
   console.log("==========================================");
   console.log(`Server: http://127.0.0.1:${port}`);
   console.log(`Health: http://127.0.0.1:${port}/health`);

@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
-"""Advanced Neural Signal Processing Engine for NeuroSonix Industrial Platform"""
+﻿# -*- coding: utf-8 -*-
+"""Advanced Neural Signal Processing Engine for Clisonix Industrial Platform"""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from enum import Enum
 import logging
 
-from neurosonix_telemetry import trace, metrics
+from Clisonix_telemetry import trace, metrics
 
 logger = logging.getLogger(__name__)
 
@@ -439,7 +439,7 @@ def real_time_neural_monitoring(signal_buffer: np.ndarray,
 
 if __name__ == "__main__":
     # Demo with synthetic multi-channel EEG data
-    print("🧠 NeuroSonix Advanced Neural Signal Processing Engine")
+    print("ðŸ§  Clisonix Advanced Neural Signal Processing Engine")
     print("=" * 60)
     
     # Generate synthetic EEG data
@@ -462,16 +462,16 @@ if __name__ == "__main__":
     channel_names = [f"EEG_{i}" for i in range(n_channels)]
     results = process_multichannel_eeg(eeg_data, 1000.0, channel_names)
     
-    print(f"✅ Processed {n_channels} EEG channels")
+    print(f"âœ… Processed {n_channels} EEG channels")
     
     # Display results for first channel
     first_channel = list(results.values())[0]
-    print(f"📊 Signal Quality Metrics:")
+    print(f"ðŸ“Š Signal Quality Metrics:")
     print(f"   SNR: {first_channel.signal_quality_metrics.snr_db:.2f} dB")
     print(f"   Artifact Ratio: {first_channel.signal_quality_metrics.artifact_ratio:.3f}")
     print(f"   Stationarity: {first_channel.signal_quality_metrics.stationarity_score:.3f}")
     print(f"   Complexity: {first_channel.signal_quality_metrics.complexity_measure:.3f}")
     
-    print(f"🎯 Detected {len(first_channel.artifacts_detected)} artifacts")
-    print(f"📈 Extracted {len(first_channel.feature_vectors)} feature types")
-    print(f"🌊 Frequency bands analyzed: {list(first_channel.frequency_bands.keys())}")
+    print(f"ðŸŽ¯ Detected {len(first_channel.artifacts_detected)} artifacts")
+    print(f"ðŸ“ˆ Extracted {len(first_channel.feature_vectors)} feature types")
+    print(f"ðŸŒŠ Frequency bands analyzed: {list(first_channel.frequency_bands.keys())}")

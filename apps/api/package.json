@@ -1,7 +1,7 @@
-{
-  "name": "@neurosonix/backend",
+﻿{
+  "name": "@Clisonix/backend",
   "version": "1.0.0",
-  "description": "NeuroSonix Industrial Backend - Production Ready",
+  "description": "Clisonix Industrial Backend - Production Ready",
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
@@ -9,8 +9,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "deploy": "npm run build && npm start",
-    "docker:build": "docker build -t neurosonix-backend .",
-    "docker:run": "docker run -p 8088:8088 neurosonix-backend",
+    "docker:build": "docker build -t Clisonix-backend .",
+    "docker:run": "docker run -p 8088:8088 Clisonix-backend",
     "lint": "eslint src --ext .ts",
     "type-check": "tsc --noEmit"
   },

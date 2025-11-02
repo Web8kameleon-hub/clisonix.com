@@ -1,7 +1,7 @@
-{
-  "name": "@neurosonix/frontend",
+﻿{
+  "name": "@Clisonix/frontend",
   "version": "1.0.0",
-  "description": "NeuroSonix Industrial Frontend - Next.js Dashboard",
+  "description": "Clisonix Industrial Frontend - Next.js Dashboard",
   "private": true,
   "scripts": {
     "dev": "next dev",

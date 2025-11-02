@@ -1,14 +1,15 @@
 import { Router } from "express";
 import { AppConfig } from "../../config";
 import { isAllowed, getViolations, addViolation, EthicsRule } from "./ethics";
-import { signalPush, nodeInfo } from "../_shared/signal";
+import { emitSignal, nodeDiagnostics } from "../_shared/signal";
 
-export function jonaRoutes(cfg: AppConfig) {
+export function jonaRoutes(_cfg: AppConfig) {
   const r = Router();
 
   // JONA Status - Ethics Guardian
   r.get("/jona/status", async (_req: any, res: any) => {
     const violations = getViolations();
+    const diagnostics = nodeDiagnostics();
     const status = {
       status: "monitoring",
       ethics: "STRICT",
@@ -16,10 +17,10 @@ export function jonaRoutes(cfg: AppConfig) {
       last_check: new Date().toISOString(),
       rules_active: 12,
       threat_level: violations.length > 5 ? "HIGH" : violations.length > 2 ? "MEDIUM" : "LOW",
-      ...nodeInfo()
+      ...diagnostics,
     };
 
-    await signalPush(cfg.SIGNAL_HTTP, "signals:jona", status);
+    await emitSignal("JONA", "status", status);
     res.json(status);
   });
 
@@ -32,6 +33,7 @@ export function jonaRoutes(cfg: AppConfig) {
     }
 
     const allowed = isAllowed(action, context);
+    const diagnostics = nodeDiagnostics();
     const result = {
       ok: allowed,
       action,
@@ -41,13 +43,13 @@ export function jonaRoutes(cfg: AppConfig) {
     };
 
     if (!allowed) {
-      addViolation({ action, context, timestamp: new Date().toISOString() });
+      await addViolation({ action, context, timestamp: new Date().toISOString() });
     }
 
-    await signalPush(cfg.SIGNAL_HTTP, "signals:jona", {
+    await emitSignal("JONA", "event", {
       event: "ethics_check",
       ...result,
-      ...nodeInfo()
+      ...diagnostics,
     });
 
     res.json(result);
@@ -69,16 +71,17 @@ export function jonaRoutes(cfg: AppConfig) {
   // Emergency shutdown endpoint
   r.post("/jona/emergency-stop", async (req: any, res: any) => {
     const { reason, initiator } = req.body || {};
+    const diagnostics = nodeDiagnostics();
     
     const emergencyEvent = {
       event: "EMERGENCY_STOP",
       reason: reason || "Manual trigger",
       initiator: initiator || "Unknown",
       timestamp: new Date().toISOString(),
-      ...nodeInfo()
+      ...diagnostics,
     };
 
-    await signalPush(cfg.SIGNAL_HTTP, "signals:jona", emergencyEvent);
+    await emitSignal("JONA", "alert", emergencyEvent);
     
     // Here would be actual emergency stop logic
     console.log("🚨 JONA EMERGENCY STOP TRIGGERED:", emergencyEvent);

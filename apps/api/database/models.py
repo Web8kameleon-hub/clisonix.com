@@ -1,4 +1,4 @@
-# 🚀 NEUROSONIX PRODUCTION DATABASE MODELS
+﻿# ðŸš€ Clisonix PRODUCTION DATABASE MODELS
 # Industrial-Grade SQLAlchemy Models with Real Relationships
 # Production PostgreSQL Schema, Real Business Logic
 
@@ -56,7 +56,7 @@ class JobType(str, Enum):
     THUMBNAIL_GENERATION = "thumbnail_generation"
     CONTENT_MODERATION = "content_moderation"
 
-# 👤 USER MANAGEMENT
+# ðŸ‘¤ USER MANAGEMENT
 class User(Base):
     __tablename__ = "users"
     
@@ -124,7 +124,7 @@ class UserSession(Base):
         Index('idx_sessions_expires', 'expires_at'),
     )
 
-# 💰 PAYMENT SYSTEM
+# ðŸ’° PAYMENT SYSTEM
 class Payment(Base):
     __tablename__ = "payments"
     
@@ -169,7 +169,7 @@ class Payment(Base):
         Index('idx_payments_created', 'created_at'),
     )
 
-# 📁 FILE MANAGEMENT
+# ðŸ“ FILE MANAGEMENT
 class FileUpload(Base):
     __tablename__ = "file_uploads"
     
@@ -218,7 +218,7 @@ class FileUpload(Base):
         Index('idx_files_expires', 'expires_at'),
     )
 
-# 🔧 JOB PROCESSING
+# ðŸ”§ JOB PROCESSING
 class Job(Base):
     __tablename__ = "jobs"
     
@@ -266,7 +266,7 @@ class Job(Base):
         Index('idx_jobs_retry', 'retry_after'),
     )
 
-# 📊 SYSTEM MONITORING
+# ðŸ“Š SYSTEM MONITORING
 class SystemMetric(Base):
     __tablename__ = "system_metrics"
     
@@ -298,7 +298,7 @@ class SystemMetric(Base):
         Index('idx_metrics_host_time', 'hostname', 'timestamp'),
     )
 
-# 📋 AUDIT LOGS
+# ðŸ“‹ AUDIT LOGS
 class AuditLog(Base):
     __tablename__ = "audit_logs"
     
@@ -334,7 +334,7 @@ class AuditLog(Base):
         Index('idx_audit_user_time', 'user_id', 'timestamp'),
     )
 
-# 🔗 API INTEGRATIONS
+# ðŸ”— API INTEGRATIONS
 class APIIntegration(Base):
     __tablename__ = "api_integrations"
     

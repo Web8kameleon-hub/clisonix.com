@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+﻿from fastapi import APIRouter
 import psutil
 import time
 
@@ -6,7 +6,7 @@ router = APIRouter()
 
 @router.get("/api/agi-stats", tags=["AGI"])
 def get_agi_stats():
-    """Kthen statistika reale të sistemit AGI industrial."""
+    """Kthen statistika reale tÃ« sistemit AGI industrial."""
     return {
         "agi_status": "active",
         "node_count": len(psutil.pids()),
@@ -17,7 +17,7 @@ def get_agi_stats():
         "hostname": psutil.users()[0].name if psutil.users() else "unknown"
     }
 """
-Copyright (c) Neurosonix Cloud. All rights reserved.
+Copyright (c) Clisonix Cloud. All rights reserved.
 Closed Source License.
 """
 

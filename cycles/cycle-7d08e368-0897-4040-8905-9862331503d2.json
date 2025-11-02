@@ -1,10 +1,10 @@
-{
+﻿{
   "cycle_started": "2025-10-29T21:34:17.980858Z",
   "cycle_duration_seconds": 51.585,
   "stages": [
     {
       "stage": "ALBA",
-      "source_dir": "C:\\neurosonix-cloud\\data\\alba",
+      "source_dir": "C:\\Clisonix-cloud\\data\\alba",
       "processed_files": [],
       "frames_ingested": 0,
       "total_history": 0,
@@ -31,7 +31,7 @@
     {
       "stage": "ASI",
       "realtime": {
-        "header": "✅ Statusi i sistemit",
+        "header": "âœ… Statusi i sistemit",
         "data": {
           "status": "operational",
           "status_label": "Operativ",
@@ -48,7 +48,7 @@
         },
         "timing": "80ms",
         "success": "99.25%",
-        "insight": "💡 Albi: Gjendje e mirë, pa anomali të dukshme.",
+        "insight": "ðŸ’¡ Albi: Gjendje e mirÃ«, pa anomali tÃ« dukshme.",
         "timestamp": "2025-10-29T22:34:59",
         "language": "sq"
       },
@@ -71,7 +71,7 @@
   ],
   "summary": {
     "alba": {
-      "source_dir": "C:\\neurosonix-cloud\\data\\alba",
+      "source_dir": "C:\\Clisonix-cloud\\data\\alba",
       "processed_files": [],
       "frames_ingested": 0,
       "total_history": 0,
@@ -89,7 +89,7 @@
     },
     "asi": {
       "realtime": {
-        "header": "✅ Statusi i sistemit",
+        "header": "âœ… Statusi i sistemit",
         "data": {
           "status": "operational",
           "status_label": "Operativ",
@@ -106,7 +106,7 @@
         },
         "timing": "80ms",
         "success": "99.25%",
-        "insight": "💡 Albi: Gjendje e mirë, pa anomali të dukshme.",
+        "insight": "ðŸ’¡ Albi: Gjendje e mirÃ«, pa anomali tÃ« dukshme.",
         "timestamp": "2025-10-29T22:34:59",
         "language": "sq"
       },

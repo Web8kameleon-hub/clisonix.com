@@ -1,4 +1,4 @@
-{
+﻿{
   "source": "Zurich-Lab",
   "timestamp": "2025-10-30T20:19:27.759239+00:00",
   "sensors": {
@@ -15,6 +15,6 @@
   },
   "tags": [
     "simulation",
-    "neurosonix"
+    "Clisonix"
   ]
 }

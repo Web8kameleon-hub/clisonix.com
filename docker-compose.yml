@@ -1,113 +1,160 @@
-﻿# NeuroSonix Cloud Industrial Backend + Payment System
-# Business: Ledjan Ahmati - WEB8euroweb GmbH  
-# SEPA: DE72430500010015012263 | PayPal: ahmati.bau@gmail.com
-# REAL DATA ONLY - NO MOCK/PLACEHOLDER
-
+﻿version: "3.9"
 services:
-  # NeuroSonix Industrial FastAPI Backend
-  neurosonix-api:
-    build:
-      context: .
-      dockerfile: Dockerfile.api
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-08-04T17-05-18Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports: ["9000:9000","9001:9001"]
+    volumes:
+      - minio_data:/data
+      - ./storage/minio-init.sh:/docker-entrypoint-initminio.d/minio-init.sh:ro
+
+  postgres:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TIMESCALEDB_TELEMETRY: ${TIMESCALEDB_TELEMETRY}
+    ports: ["5432:5432"]
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./db/timescale-init.sql:/docker-entrypoint-initdb.d/01-timescale.sql:ro
+
+  neo4j:
+    image: neo4j:5.24
+    environment:
+      NEO4J_AUTH: ${NEO4J_AUTH}
+      NEO4JLABS_PLUGINS: "[\"apoc\"]"
+      NEO4J_dbms_memory_heap_initial__size: 1G
+      NEO4J_dbms_memory_heap_max__size: 2G
+    ports: ["7474:7474","7687:7687"]
+    volumes:
+      - neo4j_data:/data
+      - ./db/neo4j-init.cypher:/docker-entrypoint-initdb.d/neo4j-init.cypher:ro
+      - ./neo4j/ontologies.cypher:/opt/neo4j/import/ontologies.cypher:ro
+
+  weaviate:
+    image: semitechnologies/weaviate:1.26.5
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_APIKEY_ENABLED: "true"
+      AUTHENTICATION_APIKEY_ALLOWED_KEYS: ${WEAVIATE_API_KEY}
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+    ports: ["8085:8080"]
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+      - ./weaviate/schema.json:/app/schema.json:ro
+
+  redpanda:
+    image: docker.redpanda.com/redpanda/redpanda:v24.2.7
+    command: redpanda start --overprovisioned --smp 1 --memory 512M --reserve-memory 0M --check=false
+    ports: ["9092:9092"]
+    volumes:
+      - redpanda_data:/var/lib/redpanda/data
+
+  influxdb:
+    image: influxdb:2.7
+    ports: ["8086:8086"]
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUX_TOKEN}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUX_ORG}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUX_BUCKET}
+    volumes:
+      - influx_data:/var/lib/influxdb2
+
+  telegraf:
+    image: telegraf:1.30
+    depends_on: [influxdb]
+    environment:
+      INFLUX_TOKEN: ${INFLUX_TOKEN}
+    volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+
+  airflow:
+    image: apache/airflow:2.10.2-python3.11
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
+      AIRFLOW_UID: "50000"
+      _PIP_ADDITIONAL_REQUIREMENTS: "requests>=2.32.0 weaviate-client>=4.6.4 psycopg2-binary neo4j>=5.22 boto3"
+    command: bash -lc "airflow db init && airflow users create --role Admin --username admin --password admin --firstname a --lastname b --email admin@local && airflow webserver & airflow scheduler"
+    ports: ["8080:8080"]
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/requirements.txt:/opt/airflow/requirements.txt
+
+  api:
+    build: ./services/api
+    environment:
+      POSTGRES_DSN: postgresql+psycopg://postgres:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      WEAVIATE_URL: http://weaviate:8080
+      WEAVIATE_API_KEY: ${WEAVIATE_API_KEY}
+      NEO4J_URL: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: test1234
+      INFLUX_URL: ${INFLUX_URL}
+      INFLUX_TOKEN: ${INFLUX_TOKEN}
+      INFLUX_ORG: ${INFLUX_ORG}
+      INFLUX_BUCKET: ${INFLUX_BUCKET}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_ISSUER: http://keycloak:8080/realms/${KEYCLOAK_REALM}
+      KEYCLOAK_AUDIENCE: ${KEYCLOAK_CLIENT_ID}
+    ports: ["9009:9009"]
+    depends_on: [postgres,weaviate,neo4j,influxdb]
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    volumes:
+      - ./infra/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+    ports: ["8089:8080"]
+
+  kong:
+    image: kong/kong-gateway:3.7
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/kong.yaml
+    volumes:
+      - ./infra/kong/kong.yaml:/kong/kong.yaml:ro
     ports:
       - "8000:8000"
-    environment:
-      # Database Configuration
-      - DATABASE_URL=postgresql+asyncpg://neurosonix_user:neurosonix_pass_2024@db:5432/neurosonix_industrial
-      - REDIS_URL=redis://redis:6379/0
-      
-      # Business Configuration (Secure - Load from .env file)
-      - BUSINESS_COMPANY=WEB8euroweb GmbH
-      - PAYMENT_MODE=secure_processing
-      - INDUSTRIAL_GRADE=true
-      
-      # Security & Authentication
-      - JWT_SECRET_KEY=neurosonix_industrial_jwt_secret_2024_real_system
-      - JWT_ALGORITHM=HS256
-      - JWT_EXPIRE_MINUTES=30
-      
-      # System Configuration
-      - ENVIRONMENT=production
-      - DEBUG=false
-      - API_VERSION=1.0.0
-      - API_TITLE=NeuroSonix Industrial Backend
-      - LOG_LEVEL=info
-      
-    depends_on:
-      - db
-      - redis
-    volumes:
-      - ./logs:/app/logs
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - "8001:8001"
+    depends_on: [api, keycloak]
 
-  # Background Job Processing Worker
-  neurosonix-worker:
-    build:
-      context: .
-      dockerfile: Dockerfile.worker
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://neurosonix_user:neurosonix_pass_2024@db:5432/neurosonix_industrial
-      - REDIS_URL=redis://redis:6379/0
-      - BUSINESS_OWNER=Ledjan Ahmati
-      - BUSINESS_COMPANY=WEB8euroweb GmbH
-      - ENVIRONMENT=production
-      - LOG_LEVEL=info
-      - MAX_WORKERS=4
-      - WORKER_TIMEOUT=300
-      
-    depends_on:
-      - db
-      - redis
+  otel-collector:
+    image: otel/opentelemetry-collector:0.104.0
+    command: ["--config=/etc/otel-collector.yml"]
     volumes:
-      - ./worker:/worker
-    restart: unless-stopped
+      - ./infra/otel-collector.yml:/etc/otel-collector.yml:ro
+    ports: ["4317:4317"]
 
-  # PostgreSQL Database (Industrial Configuration)
-  db:
-    image: postgres:15
-    environment:
-      - POSTGRES_DB=neurosonix_industrial
-      - POSTGRES_USER=neurosonix_user
-      - POSTGRES_PASSWORD=neurosonix_pass_2024
+  prometheus:
+    image: prom/prometheus:v2.55.0
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U neurosonix_user -d neurosonix_industrial"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
+      - ./infra/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports: ["9090:9090"]
 
-  # Redis Cache & Session Store
-  redis:
-    image: redis:7-alpine
-    command: redis-server --appendonly yes --requirepass neurosonix_redis_2024
-    ports:
-      - "6379:6379"
+  grafana:
+    image: grafana/grafana:11.2.0
     volumes:
-      - redis_data:/data
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      interval: 30s
-      timeout: 3s
-      retries: 5
+      - grafana_data:/var/lib/grafana
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports: ["3000:3000"]
 
 volumes:
-  postgres_data:
-    driver: local
-  redis_data:
-    driver: local
-  logs:
-
-networks:
-  default:
-    name: neurosonix-industrial-network
+  minio_data: {}
+  pg_data: {}
+  neo4j_data: {}
+  weaviate_data: {}
+  redpanda_data: {}
+  influx_data: {}
+  grafana_data: {}

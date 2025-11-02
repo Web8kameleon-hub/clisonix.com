@@ -1,4 +1,4 @@
-# 🚀 NEUROSONIX DATABASE CONNECTION
+﻿# ðŸš€ Clisonix DATABASE CONNECTION
 # Production-Grade SQLAlchemy Engine with Real Connection Pooling
 # Industrial Redis Caching, Session Management
 
@@ -21,11 +21,11 @@ logger = logging.getLogger(__name__)
 class DatabaseConfig:
     def __init__(self):
         # PostgreSQL connection parameters
-        self.DB_USER = os.getenv('DB_USER', 'neurosonix')
-        self.DB_PASSWORD = os.getenv('DB_PASSWORD', 'neurosonix123')
+        self.DB_USER = os.getenv('DB_USER', 'Clisonix')
+        self.DB_PASSWORD = os.getenv('DB_PASSWORD', 'Clisonix123')
         self.DB_HOST = os.getenv('DB_HOST', 'localhost')
         self.DB_PORT = os.getenv('DB_PORT', '5432')
-        self.DB_NAME = os.getenv('DB_NAME', 'neurosonix')
+        self.DB_NAME = os.getenv('DB_NAME', 'Clisonix')
         
         # Connection pooling
         self.POOL_SIZE = int(os.getenv('DB_POOL_SIZE', '20'))
@@ -87,9 +87,9 @@ try:
     )
     # Test connection
     redis_client.ping()
-    logger.info("✅ Redis connection established")
+    logger.info("âœ… Redis connection established")
 except Exception as e:
-    logger.warning(f"⚠️ Redis connection failed: {e}")
+    logger.warning(f"âš ï¸ Redis connection failed: {e}")
     redis_client = None
 
 # Database session dependency

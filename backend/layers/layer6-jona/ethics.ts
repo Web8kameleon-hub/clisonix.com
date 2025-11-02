@@ -1,3 +1,4 @@
+import { emitSignal } from "../_shared/signal";
 export interface EthicsRule {
   id: string;
   description: string;
@@ -63,7 +64,7 @@ export function isAllowed(action: string, context?: any): boolean {
   return true;
 }
 
-export function addViolation(violation: Omit<EthicsViolation, "severity">): void {
+export async function addViolation(violation: Omit<EthicsViolation, "severity">): Promise<void> {
   const fullViolation: EthicsViolation = {
     ...violation,
     severity: determineSeverity(violation.action)
@@ -77,6 +78,15 @@ export function addViolation(violation: Omit<EthicsViolation, "severity">): void
   }
   
   console.log(`🚨 [JONA] Ethics violation: ${violation.action}`);
+
+  try {
+    await emitSignal("JONA", "alert", {
+      module: "JONA",
+      ...fullViolation,
+    });
+  } catch (err) {
+    console.error("[JONA] Failed to emit ethics violation signal", err);
+  }
 }
 
 export function getViolations(): EthicsViolation[] {

@@ -1,5 +1,5 @@
-"""
-Neurosonix Routes - Industrial API
+﻿"""
+Clisonix Routes - Industrial API
 Author: Ledjan Ahmati
 License: Closed Source
 """
@@ -10,9 +10,9 @@ import psutil
 
 router = APIRouter()
 
-@router.get("/neurosonix/status", tags=["Neurosonix"])
+@router.get("/Clisonix/status", tags=["Clisonix"])
 def get_status():
-    """Kthen statusin real të sistemit Neurosonix industrial."""
+    """Kthen statusin real tÃ« sistemit Clisonix industrial."""
     return {
         "status": "active",
         "timestamp": time.time(),
@@ -22,9 +22,9 @@ def get_status():
         "hostname": psutil.users()[0].name if psutil.users() else "unknown"
     }
 
-@router.get("/neurosonix/metrics", tags=["Neurosonix"])
+@router.get("/Clisonix/metrics", tags=["Clisonix"])
 def get_metrics():
-    """Kthen metrika reale të sistemit Neurosonix industrial."""
+    """Kthen metrika reale tÃ« sistemit Clisonix industrial."""
     return {
         "uptime": time.time() - psutil.boot_time(),
         "process_count": len(psutil.pids()),

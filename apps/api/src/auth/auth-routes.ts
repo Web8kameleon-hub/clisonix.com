@@ -1,7 +1,7 @@
-/**
- * NEUROSONIX SIMPLE USER AUTHENTICATION
+﻿/**
+ * Clisonix SIMPLE USER AUTHENTICATION
  * ====================================
- * Basic user auth për payment system
+ * Basic user auth pÃ«r payment system
  */
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
@@ -52,7 +52,7 @@ const ledjanUser: User = {
   id: "ledjan-ahmati-001",
   email: "ahmati.bau@gmail.com",
   username: "ledjan_ahmati",
-  hashed_password: hashPassword("NeuroSonix2025!"),
+  hashed_password: hashPassword("Clisonix2025!"),
   is_active: true,
   is_superuser: true,
   created_at: new Date().toISOString(),
@@ -65,7 +65,7 @@ users.set(ledjanUser.id, ledjanUser);
 // =================================================================================
 
 function hashPassword(password: string): string {
-  return crypto.createHash('sha256').update(password + 'neurosonix_salt').digest('hex');
+  return crypto.createHash('sha256').update(password + 'Clisonix_salt').digest('hex');
 }
 
 function verifyPassword(password: string, hashedPassword: string): boolean {

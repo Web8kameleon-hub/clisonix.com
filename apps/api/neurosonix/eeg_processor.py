@@ -1,5 +1,5 @@
-"""
-NeuroSonix Industrial EEG Processor
+﻿"""
+Clisonix Industrial EEG Processor
 Advanced real-time processing of EEG signals with industrial-grade algorithms
 Business: Ledjan Ahmati - WEB8euroweb GmbH
 
@@ -120,9 +120,9 @@ class IndustrialEEGProcessor:
         self.filter_order = 6  # Higher order for better frequency response
         self.notch_frequencies = [50.0, 60.0]  # Power line interference
         self.artifact_thresholds = {
-            "amplitude_threshold": 150.0,  # μV
-            "gradient_threshold": 50.0,    # μV/sample
-            "variance_threshold": 100.0,   # μV²
+            "amplitude_threshold": 150.0,  # Î¼V
+            "gradient_threshold": 50.0,    # Î¼V/sample
+            "variance_threshold": 100.0,   # Î¼VÂ²
             "kurtosis_threshold": 5.0,     # Dimensionless
             "frequency_ratio_threshold": 0.3  # Power ratio
         }
@@ -195,9 +195,9 @@ class IndustrialEEGProcessor:
             logger.warning(f"Invalid sample value for {channel}: {sample}")
             return False
         
-        # Check for reasonable EEG amplitude range (-500 to +500 μV)
+        # Check for reasonable EEG amplitude range (-500 to +500 Î¼V)
         if abs(sample) > 500.0:
-            logger.warning(f"Sample amplitude out of range for {channel}: {sample}μV")
+            logger.warning(f"Sample amplitude out of range for {channel}: {sample}Î¼V")
             # Don't reject, but flag for artifact detection
         
         with self.processing_lock:

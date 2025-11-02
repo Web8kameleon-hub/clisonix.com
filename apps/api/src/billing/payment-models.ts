@@ -1,7 +1,7 @@
-/**
- * NEUROSONIX INDUSTRIAL PAYMENT MODELS
+﻿/**
+ * Clisonix INDUSTRIAL PAYMENT MODELS
  * ===================================
- * SQLAlchemy-style models për pagesa industriale
+ * SQLAlchemy-style models pÃ«r pagesa industriale
  * SEPA IBAN: DE72 4305 0001 0015 0122 63
  * PayPal: ahmati.bau@gmail.com
  * Ledjan Ahmati - WEB8euroweb

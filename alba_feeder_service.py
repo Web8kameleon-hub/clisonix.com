@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 ALBA Feeder Service
 Simulates environmental and system metrics for the ALBA ingestion layer.
-Feeds data frames every few seconds into data/alba/ for Neurosonix Cloud.
+Feeds data frames every few seconds into data/alba/ for Clisonix Cloud.
 """
 
 from __future__ import annotations
@@ -16,13 +16,13 @@ from pathlib import Path
 
 import psutil
 
-# Folderi ku ALBA lexon të dhënat
-ALBA_PATH = Path(r"C:\neurosonix-cloud\data\alba")
+# Folderi ku ALBA lexon tÃ« dhÃ«nat
+ALBA_PATH = Path(r"C:\Clisonix-cloud\data\alba")
 ALBA_PATH.mkdir(parents=True, exist_ok=True)
 
 
 def generate_alba_frame() -> Path:
-    """Krijon një 'frame' të vetme të të dhënave që përfaqëson perceptimin e sistemit."""
+    """Krijon njÃ« 'frame' tÃ« vetme tÃ« tÃ« dhÃ«nave qÃ« pÃ«rfaqÃ«son perceptimin e sistemit."""
     now = datetime.now(timezone.utc).isoformat()
     cpu = psutil.cpu_percent()
     mem = psutil.virtual_memory().percent
@@ -68,7 +68,7 @@ def generate_alba_frame() -> Path:
 
 
 def continuous_feed(interval: int = 10) -> None:
-    """Dërgon frames në mënyrë të vazhdueshme për ALBA."""
+    """DÃ«rgon frames nÃ« mÃ«nyrÃ« tÃ« vazhdueshme pÃ«r ALBA."""
     print(f"[ALBA-FEEDER] Starting continuous data feed to {ALBA_PATH}")
     print(f"[ALBA-FEEDER] Interval: {interval}s per frame\n")
     while True:

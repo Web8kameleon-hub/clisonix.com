@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-NeuroSonix Trinity Analyzer
+Clisonix Trinity Analyzer
 Hashes the status of the ALBA, ALBI, and JONA modules and produces a deep insight report.
 """
 

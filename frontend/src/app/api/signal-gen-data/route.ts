@@ -1,4 +1,4 @@
-// route.ts - Signal Generator Data API (Next.js Route Handler)
+﻿// route.ts - Signal Generator Data API (Next.js Route Handler)
 // Author: Ledjan Ahmati
 
 
@@ -37,7 +37,7 @@ export async function GET(request: Request) {
     // Metadata industriale
     const now = Date.now();
     const config = {
-      engine: 'neurosonix-signal-gen-pro',
+      engine: 'Clisonix-signal-gen-pro',
       version: '2.1.0',
       location: 'Industrial Lab 3',
       operator: 'Ledjan Ahmati',
@@ -114,7 +114,7 @@ export async function GET(request: Request) {
       userAgent: request.headers.get('user-agent') || 'unknown'
     }
 
-    // Përgjigje industriale
+    // PÃ«rgjigje industriale
     const data = {
       config,
       signalParams,

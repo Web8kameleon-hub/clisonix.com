@@ -53,7 +53,7 @@ interface PulseData {
   message: string;
 }
 
-export default function NeuroSonixDemo() {
+export default function ClisonixDemo() {
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [pulseLog, setPulseLog] = useState<PulseData[]>([]);
@@ -62,7 +62,7 @@ export default function NeuroSonixDemo() {
 
   // Mock system status for demo
   const mockSystemStatus: SystemStatus = {
-    system_id: 'neurosonix-demo-' + Math.random().toString(36).substr(2, 8),
+    system_id: 'Clisonix-demo-' + Math.random().toString(36).substr(2, 8),
     running: isRunning,
     uptime_seconds: isRunning ? Math.floor(Date.now() / 1000) % 3600 : 0,
     pulse_balancer: {
@@ -143,7 +143,7 @@ export default function NeuroSonixDemo() {
 
   const startSystem = async () => {
     setLoading(true);
-    setLogs(['🚀 Starting NeuroSonix Integrated System...']);
+    setLogs(['🚀 Starting Clisonix Integrated System...']);
     
     // Simulate startup sequence
     setTimeout(() => {
@@ -186,7 +186,7 @@ export default function NeuroSonixDemo() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
-              NeuroSonix Integrated System
+              Clisonix Integrated System
             </h1>
             <p className="text-slate-300 mt-2">
               EU-Compliant Security • Pulse-Based Load Balancing • Crash Prevention

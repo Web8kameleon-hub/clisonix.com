@@ -1,5 +1,5 @@
-"""
-NeuroSonix Audio Synthesizer
+﻿"""
+Clisonix Audio Synthesizer
 Convert brain wave patterns into real-time audio synthesis with real audio output
 """
 
@@ -64,12 +64,12 @@ class AudioSynthesizer:
         if self.real_audio:
             try:
                 self._initialize_audio_device()
-                logger.info(f"🔊 Real Audio Synthesizer initialized with {sample_rate}Hz sample rate")
+                logger.info(f"ðŸ”Š Real Audio Synthesizer initialized with {sample_rate}Hz sample rate")
             except Exception as e:
-                logger.warning(f"⚠️ Failed to initialize audio device: {e}, falling back to simulation mode")
+                logger.warning(f"âš ï¸ Failed to initialize audio device: {e}, falling back to simulation mode")
                 self.real_audio = False
         else:
-            logger.info(f"🎵 Audio Synthesizer initialized in simulation mode with {sample_rate}Hz sample rate")
+            logger.info(f"ðŸŽµ Audio Synthesizer initialized in simulation mode with {sample_rate}Hz sample rate")
     
     def _initialize_audio_device(self):
         """Initialize audio device for real-time playback"""
@@ -108,7 +108,7 @@ class AudioSynthesizer:
     def start_audio_stream(self):
         """Start real-time audio streaming"""
         if not self.real_audio:
-            logger.info("🎵 Audio streaming in simulation mode")
+            logger.info("ðŸŽµ Audio streaming in simulation mode")
             return
         
         try:
@@ -120,10 +120,10 @@ class AudioSynthesizer:
                 blocksize=1024
             )
             self.stream.start()
-            logger.info("🔊 Real-time audio streaming started")
+            logger.info("ðŸ”Š Real-time audio streaming started")
             
         except Exception as e:
-            logger.error(f"❌ Failed to start audio stream: {e}")
+            logger.error(f"âŒ Failed to start audio stream: {e}")
             self.real_audio = False
     
     def stop_audio_stream(self):
@@ -132,7 +132,7 @@ class AudioSynthesizer:
             self.stream.stop()
             self.stream.close()
             self.is_playing = False
-            logger.info("⏹️ Audio streaming stopped")
+            logger.info("â¹ï¸ Audio streaming stopped")
     
     def play_audio_array(self, audio_data: np.ndarray):
         """Play audio data either through real device or simulation"""
@@ -141,13 +141,13 @@ class AudioSynthesizer:
                 # Add to queue for real-time playback
                 if not self.audio_queue.full():
                     self.audio_queue.put_nowait(audio_data)
-                logger.debug(f"🔊 Playing {len(audio_data)} audio samples")
+                logger.debug(f"ðŸ”Š Playing {len(audio_data)} audio samples")
             except Exception as e:
-                logger.error(f"❌ Failed to queue audio data: {e}")
+                logger.error(f"âŒ Failed to queue audio data: {e}")
         else:
             # Simulation mode - just log
             duration = len(audio_data) / self.sample_rate
-            logger.info(f"🎵 Simulated audio playback: {duration:.2f}s, {len(audio_data)} samples")
+            logger.info(f"ðŸŽµ Simulated audio playback: {duration:.2f}s, {len(audio_data)} samples")
     
     def generate_sine_wave(self, frequency: float, duration: float, amplitude: float = 0.5) -> np.ndarray:
         """Generate a sine wave with given parameters"""
@@ -353,7 +353,7 @@ class AudioSynthesizer:
             }
             
         except Exception as e:
-            logger.error(f"❌ Error in real-time synthesis: {e}")
+            logger.error(f"âŒ Error in real-time synthesis: {e}")
             return {"status": "error", "message": str(e)}
     
     def start_continuous_synthesis(self, brain_data_callback, update_interval: float = 0.5):
@@ -364,7 +364,7 @@ class AudioSynthesizer:
         self.start_audio_stream()
         
         def synthesis_loop():
-            logger.info("🎵 Starting continuous brain-to-audio synthesis")
+            logger.info("ðŸŽµ Starting continuous brain-to-audio synthesis")
             
             while self.is_playing:
                 try:
@@ -375,16 +375,16 @@ class AudioSynthesizer:
                         # Synthesize and play
                         result = self.synthesize_and_play_realtime(brain_data)
                         if result["status"] == "playing":
-                            logger.debug(f"🔊 Playing: {result['active_streams']}")
+                            logger.debug(f"ðŸ”Š Playing: {result['active_streams']}")
                     
                     # Wait for next update
                     time.sleep(update_interval)
                     
                 except Exception as e:
-                    logger.error(f"❌ Error in synthesis loop: {e}")
+                    logger.error(f"âŒ Error in synthesis loop: {e}")
                     time.sleep(1.0)  # Error recovery delay
             
-            logger.info("⏹️ Continuous synthesis stopped")
+            logger.info("â¹ï¸ Continuous synthesis stopped")
         
         # Start synthesis in background thread
         self.audio_thread = threading.Thread(target=synthesis_loop, daemon=True)

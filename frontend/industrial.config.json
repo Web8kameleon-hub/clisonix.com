@@ -1,4 +1,4 @@
-{
+﻿{
   "autoSynchronization": {
     "enabled": true,
     "syncBetween": ["frontend", "backend"],
@@ -40,7 +40,7 @@
     "enabled": true,
     "plan": "documented, tested quarterly",
     "scripts": ["disaster-recovery.ps1", "restore.ps1"],
-    "contact": "industrial-support@neurosonix.com"
+    "contact": "industrial-support@Clisonix.com"
   },
   "slaMonitoring": {
     "enabled": true,

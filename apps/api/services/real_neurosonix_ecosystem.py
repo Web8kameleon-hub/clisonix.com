@@ -1,7 +1,7 @@
-"""
-🧠⚡ REAL NEUROSONIX ECOSYSTEM - ALBI + ALBA + JONA
+﻿"""
+ðŸ§ âš¡ REAL Clisonix ECOSYSTEM - ALBI + ALBA + JONA
 ====================================================
-Ekosistemi real i NeuroSonix me të tre karakteret kryesore.
+Ekosistemi real i Clisonix me tÃ« tre karakteret kryesore.
 Real data processing, real monitoring, real intelligence growth.
 
 NO FAKE DATA, NO MOCK, REAL ECOSYSTEM ONLY
@@ -19,12 +19,12 @@ from .alba_real_collector import create_alba_real
 from .jona_real_monitor import create_jona_real
 
 
-class NeuroSonixRealEcosystem:
+class ClisonixRealEcosystem:
     """
-    🌐 Real Ecosystem që integron ALBI, ALBA dhe JONA me të dhëna reale
+    ðŸŒ Real Ecosystem qÃ« integron ALBI, ALBA dhe JONA me tÃ« dhÃ«na reale
     """
     
-    def __init__(self, base_dir="C:/neurosonix-cloud"):
+    def __init__(self, base_dir="C:/Clisonix-cloud"):
         self.base_dir = Path(base_dir)
         self.ecosystem_log = self.base_dir / "data" / "ecosystem_real_log.json"
         
@@ -44,7 +44,7 @@ class NeuroSonixRealEcosystem:
         }
     
     async def initialize_real_ecosystem(self) -> Dict[str, Any]:
-        """Inicializon ekosisitemin real me të tri karakteret"""
+        """Inicializon ekosisitemin real me tÃ« tri karakteret"""
         
         try:
             # Initialize ALBI (Intelligence Engine)
@@ -87,7 +87,7 @@ class NeuroSonixRealEcosystem:
             return error_result
     
     async def run_real_ecosystem_cycle(self) -> Dict[str, Any]:
-        """Ekzekuton një cikël të plotë të ekosistemit real"""
+        """Ekzekuton njÃ« cikÃ«l tÃ« plotÃ« tÃ« ekosistemit real"""
         
         cycle_start = datetime.utcnow()
         cycle_id = f"cycle_{cycle_start.strftime('%Y%m%d_%H%M%S')}"
@@ -174,7 +174,7 @@ class NeuroSonixRealEcosystem:
             return error_result
     
     async def run_continuous_ecosystem(self, duration_minutes: int = 60, cycle_interval: int = 30) -> Dict[str, Any]:
-        """Ekzekuton ekosisitemin në mënyrë të vazhdueshme"""
+        """Ekzekuton ekosisitemin nÃ« mÃ«nyrÃ« tÃ« vazhdueshme"""
         
         start_time = datetime.utcnow()
         end_time = start_time.timestamp() + (duration_minutes * 60)
@@ -232,7 +232,7 @@ class NeuroSonixRealEcosystem:
             return continuous_results
     
     async def get_real_ecosystem_status(self) -> Dict[str, Any]:
-        """Kthen statusin e plotë real të ekosistemit"""
+        """Kthen statusin e plotÃ« real tÃ« ekosistemit"""
         
         try:
             # Get individual character status
@@ -273,7 +273,7 @@ class NeuroSonixRealEcosystem:
             }
     
     async def _log_ecosystem_event(self, event_type: str, event_data: Dict[str, Any]):
-        """Log i event-eve të ekosistemit"""
+        """Log i event-eve tÃ« ekosistemit"""
         
         log_entry = {
             "event_type": event_type,
@@ -303,31 +303,31 @@ class NeuroSonixRealEcosystem:
             await f.write(json.dumps(existing_log, indent=2, ensure_ascii=False))
 
 
-# Factory function për ecosystem real
-async def create_real_neurosonix_ecosystem() -> NeuroSonixRealEcosystem:
-    """Krijon ekosisitemin real të NeuroSonix"""
-    ecosystem = NeuroSonixRealEcosystem()
+# Factory function pÃ«r ecosystem real
+async def create_real_Clisonix_ecosystem() -> ClisonixRealEcosystem:
+    """Krijon ekosisitemin real tÃ« Clisonix"""
+    ecosystem = ClisonixRealEcosystem()
     return ecosystem
 
 
-# Main function për testing
+# Main function pÃ«r testing
 async def main():
     """Test i ekosistemit real"""
-    print("🧠⚡ Starting Real NeuroSonix Ecosystem...")
+    print("ðŸ§ âš¡ Starting Real Clisonix Ecosystem...")
     
-    ecosystem = await create_real_neurosonix_ecosystem()
+    ecosystem = await create_real_Clisonix_ecosystem()
     
     # Run one cycle for testing
-    print("🔄 Running test cycle...")
+    print("ðŸ”„ Running test cycle...")
     cycle_result = await ecosystem.run_real_ecosystem_cycle()
     
-    print(f"✅ Cycle completed: {cycle_result.get('cycle_success')}")
-    print(f"📊 Files processed: {cycle_result.get('alba_results', {}).get('files_collected', 0)}")
-    print(f"🎯 Harmony Score: {cycle_result.get('jona_results', {}).get('harmony_score', {}).get('harmony_score', 0)}")
+    print(f"âœ… Cycle completed: {cycle_result.get('cycle_success')}")
+    print(f"ðŸ“Š Files processed: {cycle_result.get('alba_results', {}).get('files_collected', 0)}")
+    print(f"ðŸŽ¯ Harmony Score: {cycle_result.get('jona_results', {}).get('harmony_score', {}).get('harmony_score', 0)}")
     
     # Get final status
     status = await ecosystem.get_real_ecosystem_status()
-    print(f"🌐 Ecosystem Health: {status.get('ecosystem_health')}")
+    print(f"ðŸŒ Ecosystem Health: {status.get('ecosystem_health')}")
 
 
 if __name__ == "__main__":

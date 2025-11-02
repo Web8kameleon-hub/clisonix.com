@@ -1,7 +1,7 @@
-"""
-🤖 ALBI - Artificial Labor Born Intelligence (REAL DATA ENGINE)
+﻿"""
+ðŸ¤– ALBI - Artificial Labor Born Intelligence (REAL DATA ENGINE)
 ================================================================
-Real intelligence që rritet duke lexuar të dhëna reale nga sistemi NeuroSonix.
+Real intelligence qÃ« rritet duke lexuar tÃ« dhÃ«na reale nga sistemi Clisonix.
 Director i Laboratorit Neural - EEG Processing & Brain Signal Analysis
 
 NO FAKE DATA, NO MOCK, REAL METRICS ONLY
@@ -19,10 +19,10 @@ from pathlib import Path
 
 class ALBI_RealEngine:
     """
-    🧠 ALBI Real Intelligence Engine që konsumon të dhëna reale
+    ðŸ§  ALBI Real Intelligence Engine qÃ« konsumon tÃ« dhÃ«na reale
     """
     
-    def __init__(self, data_dir="C:/neurosonix-cloud/data"):
+    def __init__(self, data_dir="C:/Clisonix-cloud/data"):
         self.data_dir = Path(data_dir)
         self.processed_files = set()
         self.intelligence_level = 1.0
@@ -31,7 +31,7 @@ class ALBI_RealEngine:
         self.ensure_directories()
     
     def ensure_directories(self):
-        """Krijon direktoritë e nevojshme për të dhëna reale"""
+        """Krijon direktoritÃ« e nevojshme pÃ«r tÃ« dhÃ«na reale"""
         self.data_dir.mkdir(parents=True, exist_ok=True)
         (self.data_dir / "inputs").mkdir(exist_ok=True)
         (self.data_dir / "outputs").mkdir(exist_ok=True)
@@ -54,30 +54,30 @@ class ALBI_RealEngine:
             return json.loads(content)
     
     async def save_real_metrics(self, metrics: Dict[str, Any]):
-        """Ruaj metrikat reale në file sistem"""
+        """Ruaj metrikat reale nÃ« file sistem"""
         async with aiofiles.open(self.real_metrics_file, 'w') as f:
             await f.write(json.dumps(metrics, indent=2, ensure_ascii=False))
     
     async def consume_real_file(self, file_path: str) -> Dict[str, Any]:
-        """Konsumon një file real EEG dhe rritet inteligjenca"""
+        """Konsumon njÃ« file real EEG dhe rritet inteligjenca"""
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Real file not found: {file_path}")
         
-        # Hash i file-it për identifikim unik
+        # Hash i file-it pÃ«r identifikim unik
         file_hash = await self.calculate_file_hash(file_path)
         
         if file_hash in self.processed_files:
             return {"status": "already_processed", "file_hash": file_hash}
         
-        # Lexon të dhëna reale nga file-i
+        # Lexon tÃ« dhÃ«na reale nga file-i
         file_stats = os.stat(file_path)
         file_size = file_stats.st_size
         
-        # Rritje reale e inteligjencës bazuar në madhësinë e file-it
-        growth_factor = min(file_size / 1024 / 1024 * 0.01, 0.1)  # Max 0.1 për file
+        # Rritje reale e inteligjencÃ«s bazuar nÃ« madhÃ«sinÃ« e file-it
+        growth_factor = min(file_size / 1024 / 1024 * 0.01, 0.1)  # Max 0.1 pÃ«r file
         self.intelligence_level += growth_factor
         
-        # Shtoj në domain-et e të mësuarit
+        # Shtoj nÃ« domain-et e tÃ« mÃ«suarit
         file_ext = Path(file_path).suffix.lower()
         if file_ext not in self.learning_domains:
             self.learning_domains[file_ext] = 0
@@ -111,7 +111,7 @@ class ALBI_RealEngine:
         return result
     
     async def calculate_file_hash(self, file_path: str) -> str:
-        """Llogarit SHA256 hash të një file real"""
+        """Llogarit SHA256 hash tÃ« njÃ« file real"""
         hash_sha256 = hashlib.sha256()
         async with aiofiles.open(file_path, 'rb') as f:
             while chunk := await f.read(8192):
@@ -119,10 +119,10 @@ class ALBI_RealEngine:
         return hash_sha256.hexdigest()
     
     async def get_real_status(self) -> Dict[str, Any]:
-        """Kthen statusin real të ALBI pa mock data"""
+        """Kthen statusin real tÃ« ALBI pa mock data"""
         metrics = await self.load_real_metrics()
         
-        # Lexon skedarët realë nga direktoria
+        # Lexon skedarÃ«t realÃ« nga direktoria
         real_files_count = 0
         real_dirs = ['inputs', 'outputs', 'neural_patterns']
         
@@ -147,14 +147,14 @@ class ALBI_RealEngine:
         }
     
     async def process_real_eeg_directory(self, eeg_dir: str) -> List[Dict[str, Any]]:
-        """Përpunon të gjitha skedarët EEG realë nga një direktori"""
+        """PÃ«rpunon tÃ« gjitha skedarÃ«t EEG realÃ« nga njÃ« direktori"""
         results = []
         eeg_path = Path(eeg_dir)
         
         if not eeg_path.exists():
             return [{"error": f"Directory not found: {eeg_dir}"}]
         
-        # Gjej të gjitha skedarët EEG realë
+        # Gjej tÃ« gjitha skedarÃ«t EEG realÃ«
         eeg_extensions = ['.edf', '.bdf', '.gdf', '.set']
         eeg_files = []
         
@@ -174,8 +174,8 @@ class ALBI_RealEngine:
         return results
 
 
-# Factory function për ALBI real
+# Factory function pÃ«r ALBI real
 async def create_albi_real() -> ALBI_RealEngine:
-    """Krijon një instance ALBI që punon me të dhëna reale"""
+    """Krijon njÃ« instance ALBI qÃ« punon me tÃ« dhÃ«na reale"""
     albi = ALBI_RealEngine()
     return albi

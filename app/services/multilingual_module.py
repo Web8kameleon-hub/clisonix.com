@@ -1,5 +1,5 @@
-"""
-Multilingual Module for Neurosonix Cloud
+﻿"""
+Multilingual Module for Clisonix Cloud
 Real implementation with actual APIs and services
 """
 
@@ -223,7 +223,7 @@ class RealMultilingualService:
         # Common patterns for different languages
         patterns = {
             'en': r'[a-zA-Z]',  # Latin script
-            'ru': r'[а-яА-Я]',  # Cyrillic
+            'ru': r'[Ð°-ÑÐ-Ð¯]',  # Cyrillic
             'zh': r'[\u4e00-\u9fff]',  # Chinese characters
             'ja': r'[\u3040-\u309f\u30a0-\u30ff]',  # Hiragana/Katakana
             'ar': r'[\u0600-\u06ff]',  # Arabic

@@ -3,6 +3,7 @@ import {
   AbstractConcept,
   ConceptOutput,
   ConceptRelation,
+  LaborIntake,
   LaborMetrics,
   LaborPool,
   LaborPoolName,
@@ -21,6 +22,7 @@ import {
   TemporalModel,
   TemporalOutput,
   TemporalRelation,
+  DistributedLabor,
   LaborOutput,
 } from "./types";
 
@@ -36,6 +38,60 @@ export class NeuralLaborEngine {
   private processCounter = 0;
 
   constructor(private readonly config: AppConfig) {}
+
+  async initializePools(poolConfigs?: LaborPool[]): Promise<void> {
+    const configs = poolConfigs ?? this.buildDefaultPools();
+    const initialization = configs.map(async (poolConfig) => {
+      if (this.laborPools.has(poolConfig.name as LaborPoolName)) {
+        return;
+      }
+      await this.initializePool(poolConfig);
+    });
+
+    await Promise.all(initialization);
+  }
+
+  async distribute(data: LaborIntake): Promise<DistributedLabor> {
+    if (this.laborPools.size === 0) {
+      await this.initializePools();
+    }
+
+    return {
+      neural_pattern_labor: {
+        data: data.rawPatterns ?? [],
+        processingMode: "pattern_recognition",
+        expectedOutput: "pattern_insights",
+      },
+      conceptual_synthesis_labor: {
+        data: data.semanticNetworks ?? [],
+        processingMode: "concept_formation",
+        expectedOutput: "abstract_concepts",
+      },
+      temporal_reasoning_labor: {
+        data: data.temporalSequences ?? [],
+        processingMode: "temporal_logic",
+        expectedOutput: "temporal_models",
+      },
+      meta_cognitive_labor: {
+        data: data.learningTrajectories ?? [],
+        processingMode: "self_reflection",
+        expectedOutput: "improved_strategies",
+      },
+    } satisfies DistributedLabor;
+  }
+
+  async execute(distributed: DistributedLabor): Promise<LaborProcessResults> {
+    const executions = await Promise.all(
+      (Object.entries(distributed) as Array<[LaborPoolName, LaborTask]>).map(
+        async ([poolName, task]) => {
+          const result = await this.executeLabor(poolName, task);
+          return [poolName, result] as const;
+        },
+      ),
+    );
+
+    return Object.fromEntries(executions) as LaborProcessResults;
+  }
 
   async initializePool(poolConfig: LaborPool): Promise<void> {
     const workerTemplateCount = Math.max(1, Math.floor(poolConfig.capacity / 100));
@@ -493,5 +549,35 @@ export class NeuralLaborEngine {
   private generateProcessId(): string {
     this.processCounter += 1;
     return `labor-${Date.now()}-${this.processCounter}`;
+  }
+
+  private buildDefaultPools(): LaborPool[] {
+    const baseCapacity = Math.max(400, Number(this.config.ALBA_MAX_STREAMS ?? 800));
+    return [
+      {
+        name: "neural_pattern_labor",
+        capacity: baseCapacity,
+        specialization: "pattern_recognition",
+        inputSources: ["rawPatterns"],
+      },
+      {
+        name: "conceptual_synthesis_labor",
+        capacity: Math.round(baseCapacity * 0.75),
+        specialization: "concept_formation",
+        inputSources: ["semanticNetworks"],
+      },
+      {
+        name: "temporal_reasoning_labor",
+        capacity: Math.round(baseCapacity * 0.6),
+        specialization: "temporal_logic",
+        inputSources: ["temporalSequences"],
+      },
+      {
+        name: "meta_cognitive_labor",
+        capacity: Math.round(baseCapacity * 0.5),
+        specialization: "self_reflection",
+        inputSources: ["learningTrajectories"],
+      },
+    ];
   }
 }

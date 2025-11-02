@@ -1,5 +1,5 @@
-"""
-NeuroSonix Cloud - Minimal FastAPI Backend
+﻿"""
+Clisonix Cloud - Minimal FastAPI Backend
 Reduced resource usage for Docker deployment
 """
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
-    title="NeuroSonix Cloud - Minimal",
+    title="Clisonix Cloud - Minimal",
     description="Lightweight API for reduced PC load",
     version="1.0.0"
 )
@@ -40,7 +40,7 @@ async def health_check(request: Request):
         increment_usage(api_key)
     return {
         "status": "healthy",
-        "service": "NeuroSonix Cloud Minimal",
+        "service": "Clisonix Cloud Minimal",
         "version": "1.0.0",
         "load_type": "minimal"
     }
@@ -52,7 +52,7 @@ async def root(request: Request):
     if api_key:
         increment_usage(api_key)
     return {
-        "message": "NeuroSonix Cloud - Minimal Load Setup",
+        "message": "Clisonix Cloud - Minimal Load Setup",
         "status": "running",
         "endpoints": ["/health", "/status", "/system", "/usage"]
     }

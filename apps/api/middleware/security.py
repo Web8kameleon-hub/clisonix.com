@@ -1,5 +1,5 @@
-"""
-NeuroSonix Cloud - Security Middleware
+﻿"""
+Clisonix Cloud - Security Middleware
 Industrial-grade security controls and monitoring
 Business: Ledjan Ahmati - WEB8euroweb GmbH
 SEPA: DE72430500010015012263 | PayPal: ahmati.bau@gmail.com
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class SecurityMiddleware(BaseHTTPMiddleware):
     """
-    Industrial-grade security middleware for NeuroSonix
+    Industrial-grade security middleware for Clisonix
     Implements IP filtering, request validation, and threat detection
     """
     
@@ -39,7 +39,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             "X-XSS-Protection": "1; mode=block",
             "Referrer-Policy": "strict-origin-when-cross-origin",
             "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
-            "X-Powered-By": "NeuroSonix-Industrial-Backend",
+            "X-Powered-By": "Clisonix-Industrial-Backend",
             "X-Business": "Ledjan-Ahmati-WEB8euroweb"
         }
         

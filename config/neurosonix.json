@@ -1,5 +1,5 @@
-{
-  "project": "Neurosonix Cloud",
+﻿{
+  "project": "Clisonix Cloud",
   "version": "1.0.0",
   "environment": "production",
   "api": {
@@ -10,16 +10,16 @@
     "type": "postgresql",
     "host": "localhost",
     "port": 5432,
-    "user": "neurosonix",
+    "user": "Clisonix",
     "password": "changeme",
-    "name": "neurosonix_db"
+    "name": "Clisonix_db"
   },
   "storage": {
     "path": "./storage"
   },
   "logging": {
     "level": "INFO",
-    "file": "./logs/neurosonix.log"
+    "file": "./logs/Clisonix.log"
   },
   "modules": [
     "asi_trinity",

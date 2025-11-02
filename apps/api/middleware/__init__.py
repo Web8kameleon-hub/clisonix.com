@@ -1,5 +1,5 @@
-"""
-NeuroSonix Cloud Middleware Package
+﻿"""
+Clisonix Cloud Middleware Package
 Industrial-grade middleware components for FastAPI
 Business: Ledjan Ahmati - WEB8euroweb GmbH
 """

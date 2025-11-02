@@ -1,4 +1,4 @@
-﻿# ------------- Neural Symphony (EEG to Audio) -------------
+﻿# ------------- Clisonix Cloud API (EEG to Audio) -------------
 from fastapi.responses import StreamingResponse
 import numpy as np
 import io
@@ -19,14 +19,14 @@ neural_router = APIRouter()
 )
 async def neural_symphony():
     """
-    Gjeneron një audio wav demo nga sinjal EEG sintetik (valë alpha)
+    Gjeneron njï¿½ audio wav demo nga sinjal EEG sintetik (valï¿½ alpha)
     """
     sr = 22050  # sample rate
     duration = 5  # sekonda
     t = np.linspace(0, duration, int(sr * duration), endpoint=False)
-    # Simulo një sinjal alpha (10 Hz)
+    # Simulo njï¿½ sinjal alpha (10 Hz)
     eeg_wave = 0.5 * np.sin(2 * np.pi * 10 * t)
-    # Konverto në int16 për wav
+    # Konverto nï¿½ int16 pï¿½r wav
     audio = np.int16(eeg_wave * 32767)
     import soundfile as sf
     buf = io.BytesIO()
@@ -39,7 +39,7 @@ This software is proprietary and confidential. Unauthorized copying, distributio
 Author: Ledjan Ahmati
 License: Closed Source
 ---
-NeuroSonix Cloud API - Industrial Production Backend (REAL-ONLY)
+Clisonix Cloud API - Industrial Production Backend (REAL-ONLY)
 Notes:
     - No mock, no random, no placeholder numbers.
     - All outputs derive from real system data, real files, or real external APIs.
@@ -135,7 +135,7 @@ import requests
 
 # ------------- Settings -------------
 class Settings(BaseSettings):
-    api_title: str = "NeuroSonix Industrial Backend (REAL)"
+    api_title: str = "Clisonix Industrial Backend (REAL)"
     api_version: str = "1.0.0"
     environment: str = os.getenv("ENVIRONMENT", "production")
     debug: bool = os.getenv("DEBUG", "false").lower() == "true"
@@ -194,10 +194,10 @@ def setup_logging():
         format=fmt,
         handlers=[
             logging.StreamHandler(sys.stdout),
-            logging.FileHandler("logs/neurosonix_real.log", encoding="utf-8")
+            logging.FileHandler("logs/Clisonix_real.log", encoding="utf-8")
         ],
     )
-    return logging.getLogger("neurosonix_real")
+    return logging.getLogger("Clisonix_real")
 
 logger = setup_logging()
 
@@ -380,7 +380,7 @@ def error_response(
 # ------------- App -------------
 
 app = FastAPI(
-    title=settings.api_title,
+    title="Clisonix Cloud API",
     version=settings.api_version,
     debug=settings.debug,
 )
@@ -393,7 +393,7 @@ SERVICE_PROBES = [
     {"name": "API Core", "url": "http://127.0.0.1:8000/health"},
     {"name": "ALBA Collector", "url": f"{settings.alba_collector_url.rstrip('/')}/health"},
     {"name": "Mesh Orchestrator", "url": "http://127.0.0.1:5555/health"},
-    {"name": "NeuroSonix Web", "url": "http://127.0.0.1:3000"},
+    {"name": "Clisonix Web", "url": "http://127.0.0.1:3000"},
 ]
 SERVICE_PORTS = [8000, 8010, 5555, 3000]
 
@@ -549,7 +549,7 @@ def summarize_alba(entries: List[Dict[str, Any]]) -> Dict[str, Any]:
         "latest": {
             "id": latest.get("id"),
             "type": latest.get("type"),
-            "timestamp": latest.get("timestamp"),
+            "timestamp": latest.get("timestamp),
             "source": latest.get("source"),
             "status": latest.get("status"),
         },
@@ -692,7 +692,7 @@ async def ask_api(payload: AskRequest, request: Request) -> AskResponse:
     }
 
     if intents["greeting"]:
-        segments.append("Përshëndetje! NeuroSonix është aktiv dhe gati të asistojë.")
+        segments.append("Pï¿½rshï¿½ndetje! Clisonix ï¿½shtï¿½ aktiv dhe gati tï¿½ asistojï¿½.")
 
     snapshot = system_snapshot()
     details["system"] = snapshot
@@ -720,7 +720,7 @@ async def ask_api(payload: AskRequest, request: Request) -> AskResponse:
                 )
             )
         else:
-            segments.append("ALBA nuk ka telemetri aktive për t'u raportuar tani.")
+            segments.append("ALBA nuk ka telemetri aktive pï¿½r t'u raportuar tani.")
 
     if intents["analytics"]:
         insight = derive_albi_insight(alba_entries)
@@ -732,15 +732,15 @@ async def ask_api(payload: AskRequest, request: Request) -> AskResponse:
                 metrics = ", ".join(
                     f"{name}={stats['avg']:.2f}" for name, stats in channel_slice
                 )
-                segments.append(f"ALBI përllogarit mesatare kanalesh: {metrics}.")
+                segments.append(f"ALBI pï¿½rllogarit mesatare kanalesh: {metrics}.")
             if insight["anomalies"]:
                 segments.append(
-                    "ALBI sinjalizon vëzhgime jo-tipike te kanalet: {}.".format(
+                    "ALBI sinjalizon vï¿½zhgime jo-tipike te kanalet: {}.".format(
                         ", ".join(insight["anomalies"])
                     )
                 )
         else:
-            segments.append("ALBI nuk gjeti të dhëna numerike për t'i analizuar në këtë grup sinjalesh.")
+            segments.append("ALBI nuk gjeti tï¿½ dhï¿½na numerike pï¿½r t'i analizuar nï¿½ kï¿½tï¿½ grup sinjalesh.")
 
     if service_processes:
         modules_used.append("JONA")
@@ -755,7 +755,7 @@ async def ask_api(payload: AskRequest, request: Request) -> AskResponse:
                 f"PID {proc['pid']} ({proc.get('name', 'unknown')}): ports {ports}, CPU {cpu_use}, RAM {mem_use}."
             )
         if process_lines:
-            segments.append("Procese shërbimesh aktive:\n" + "\n".join(process_lines[:6]))
+            segments.append("Procese shï¿½rbimesh aktive:\n" + "\n".join(process_lines[:6]))
 
     if clisonix_events:
         modules_used.append("NEUROTRIGGER")
@@ -763,9 +763,9 @@ async def ask_api(payload: AskRequest, request: Request) -> AskResponse:
             f"[{ev.get('category','unknown').upper()}] {ev.get('message','')} @ {ev.get('readable_time','')}"
             for ev in clisonix_events[-5:]
         ]
-        segments.append("NeuroTrigger event log (më të fundit):\n" + "\n".join(event_lines))
+        segments.append("NeuroTrigger event log (mï¿½ tï¿½ fundit):\n" + "\n".join(event_lines))
     else:
-        segments.append("NeuroTrigger nuk ka regjistruar evente të reja në runtime.")
+        segments.append("NeuroTrigger nuk ka regjistruar evente tï¿½ reja nï¿½ runtime.")
 
     if clisonix_scan:
         modules_used.append("CLISONIX")
@@ -796,7 +796,7 @@ async def ask_api(payload: AskRequest, request: Request) -> AskResponse:
             f"Mesh HQ ndjek {mesh_nodes['count']} nyje aktive.\n" + "\n".join(node_lines[:6])
         )
     else:
-        segments.append("Mesh HQ nuk raportoi nyje aktive në këtë moment.")
+        segments.append("Mesh HQ nuk raportoi nyje aktive nï¿½ kï¿½tï¿½ moment.")
 
     if mesh_logs:
         log_summary = []
@@ -811,12 +811,12 @@ async def ask_api(payload: AskRequest, request: Request) -> AskResponse:
         modules_used.append("JONA")
         reachable = sum(1 for state in service_states if state.get("reachable"))
         segments.append(
-            f"JONA koordinon {reachable}/{len(service_states)} shërbime të arritshme dhe është gati për sintezë neurale."  # noqa: E501
+            f"JONA koordinon {reachable}/{len(service_states)} shï¿½rbime tï¿½ arritshme dhe ï¿½shtï¿½ gati pï¿½r sintezï¿½ neurale."  # noqa: E501
         )
 
     if not segments:
         segments.append(
-            "Po funksionoj nominalisht. Mund të kërkoni status sistemi, telemetri ALBA, analiza ALBI ose sintezë JONA."
+            "Po funksionoj nominalisht. Mund tï¿½ kï¿½rkoni status sistemi, telemetri ALBA, analiza ALBI ose sintezï¿½ JONA."
         )
         modules_used.extend(["ALBA", "ALBI", "JONA"])
 
@@ -1013,7 +1013,7 @@ async def health():
     redis_s = await get_redis_status()
     db_s = await get_db_status()
     return {
-        "service": "neurosonix-industrial-backend-real",
+        "service": "Clisonix-industrial-backend-real",
         "status": "operational",
         "version": settings.api_version,
         "timestamp": utcnow(),
@@ -1458,7 +1458,7 @@ async def asi_execute(payload: ASIExecuteRequest):
             "execution": {
                 "agent": agent_lower,
                 "status": "no-command",
-                "result": "Asnjë komandë nuk u dha; po kthej përmbledhje sistemore reale.",
+                "result": "Asnjï¿½ komandï¿½ nuk u dha; po kthej pï¿½rmbledhje sistemore reale.",
             },
             "modules_used": sorted(set(modules_used)),
             "overview": {
@@ -1512,7 +1512,7 @@ except Exception as e:
 @app.get("/")
 def root():
     return {
-        "service": "NeuroSonix Industrial Backend (REAL)",
+        "service": "Clisonix Industrial Backend (REAL)",
         "version": settings.api_version,
         "environment": settings.environment,
         "instance": INSTANCE_ID,

@@ -1,4 +1,4 @@
-"""Utility to regenerate favicon assets for NeuroSonix."""
+﻿"""Utility to regenerate favicon assets for Clisonix."""
 from __future__ import annotations
 
 import os
@@ -27,12 +27,12 @@ POSSIBLE_FAVICON_PATHS = (
     Path("static/favicon.ico"),
     Path("public/favicon.ico"),
     Path("assets/favicon.ico"),
-    Path("neurosonix-cloud/favicon.ico"),
+    Path("Clisonix-cloud/favicon.ico"),
 )
 
 
 def _generate_icon_bytes(width: int = 16, height: int = 16) -> bytes:
-    """Return ICO bytes for a simple NeuroSonix gradient orb."""
+    """Return ICO bytes for a simple Clisonix gradient orb."""
     if width != height:
         raise ValueError("ICO generation expects square dimensions")
 
@@ -50,7 +50,7 @@ def _generate_icon_bytes(width: int = 16, height: int = 16) -> bytes:
             dx, dy = x - (width - 1) / 2, y - (height - 1) / 2
             dist = (dx * dx + dy * dy) ** 0.5
             t = max(0.0, min(1.0, 1.0 - dist / (width / 2)))
-            # interpolate between NeuroSonix brand colors (approx.)
+            # interpolate between Clisonix brand colors (approx.)
             r = int(99 + (139 - 99) * (1 - t))
             g = int(102 + (92 - 102) * (1 - t))
             b = int(241 + (246 - 241) * (1 - t))

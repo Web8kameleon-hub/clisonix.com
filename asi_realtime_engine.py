@@ -1,4 +1,4 @@
-"""Real-time analysis engine for the ASI (ALBA, ALBI, JONA) stack."""
+﻿"""Real-time analysis engine for the ASI (ALBA, ALBI, JONA) stack."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ import psutil
 from localization import DEFAULT_LOCALIZATION, LocalizationManager
 
 try:
-    from neurosonix.colored_logger import setup_logger
+    from Clisonix.colored_logger import setup_logger
 except Exception:  # pragma: no cover - fallback when optional dependency missing
     def setup_logger(name: str) -> logging.Logger:
         logging.basicConfig(
@@ -51,7 +51,7 @@ class ASIRealtimeEngine:
         self.language = language.lower()
 
     # ---------------------------
-    # METRIKAT REALE TË SISTEMIT
+    # METRIKAT REALE TÃ‹ SISTEMIT
     # ---------------------------
     def collect_metrics(self) -> Dict[str, Any]:
         try:
@@ -84,7 +84,7 @@ class ASIRealtimeEngine:
             }
 
     # ---------------------------
-    # ANALIZË LOG-ESH (ANOMALI)
+    # ANALIZÃ‹ LOG-ESH (ANOMALI)
     # ---------------------------
     def analyze_logs(self) -> List[str]:
         anomalies: List[str] = []
@@ -243,7 +243,7 @@ class ASIRealtimeEngine:
         return translator.translate("insight.good", language=lang)
 
     # ---------------------------
-    # FORMATIM I PËRGJIGJEVE
+    # FORMATIM I PÃ‹RGJIGJEVE
     # ---------------------------
     def _format_response(self, header: str, data: Dict[str, Any], insight: str) -> Dict[str, Any]:
         duration = f"{round(time.perf_counter() * 1000) % 200}ms"

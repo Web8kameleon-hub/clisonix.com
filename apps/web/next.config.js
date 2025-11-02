@@ -1,12 +1,12 @@
-/**
- * Normalized next.config.js — single source of truth for rewrites
+﻿/**
+ * Normalized next.config.js â€” single source of truth for rewrites
  * Rewrites /api/:path* to NEXT_PUBLIC_API_BASE (dev) or preserved host routes
  */
 const { createVanillaExtractPlugin } = require('@vanilla-extract/next-plugin');
 const withVanillaExtract = createVanillaExtractPlugin();
 // Default to the API the monorepo dev starts on (8000). Use NEXT_PUBLIC_API_BASE to override.
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
-const INTERNAL_API_HEADER = 'x-neurosonix-internal';
+const INTERNAL_API_HEADER = 'x-Clisonix-internal';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

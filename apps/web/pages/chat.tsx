@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Head from 'next/head';
 import LiveChatTools from '../components/LiveChatTools';
@@ -18,7 +18,7 @@ const ChatPage = () => {
   const [loading, setLoading] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll kur vijnë mesazhe të reja
+  // Auto-scroll kur vijnÃ« mesazhe tÃ« reja
   useEffect(() => {
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
@@ -51,7 +51,7 @@ const ChatPage = () => {
         data?.response ||
         data?.result ||
         data?.output ||
-        '⚠️ Asnjë përgjigje e kthyer nga AGI/ASI.';
+        'âš ï¸ AsnjÃ« pÃ«rgjigje e kthyer nga AGI/ASI.';
 
       setMessages((prev) => [
         ...prev,
@@ -69,7 +69,7 @@ const ChatPage = () => {
           id: crypto.randomUUID(),
           sender: 'system',
           content:
-            '⚠️ Nuk u arrit lidhja me backend. Kontrollo që `NeuroSonix` po punon në portin 8000.',
+            'âš ï¸ Nuk u arrit lidhja me backend. Kontrollo qÃ« `Clisonix` po punon nÃ« portin 8000.',
           timestamp: new Date().toISOString(),
         },
       ]);
@@ -81,7 +81,7 @@ const ChatPage = () => {
   return (
     <>
       <Head>
-        <title>Clisonix • Live Chat Toolkit</title>
+        <title>Clisonix â€¢ Live Chat Toolkit</title>
         <meta
           name="description"
           content="Trigger Clisonix diagnostics, ASI automations, and neural symphony actions directly from the live chat console."
@@ -104,7 +104,7 @@ const ChatPage = () => {
           >
             {messages.length === 0 && (
               <p className="text-gray-400 text-center mt-10">
-                Filloni një bisedë me inteligjencën AGI...
+                Filloni njÃ« bisedÃ« me inteligjencÃ«n AGI...
               </p>
             )}
 
@@ -144,7 +144,7 @@ const ChatPage = () => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-              placeholder="Shkruaj një pyetje ose komandë për AGI..."
+              placeholder="Shkruaj njÃ« pyetje ose komandÃ« pÃ«r AGI..."
               className="flex-grow p-3 rounded-xl bg-gray-800 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
@@ -153,7 +153,7 @@ const ChatPage = () => {
               disabled={loading || !inputValue.trim()}
               className="px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? 'Duke menduar...' : 'Dërgo'}
+              {loading ? 'Duke menduar...' : 'DÃ«rgo'}
             </button>
           </div>
         </div>

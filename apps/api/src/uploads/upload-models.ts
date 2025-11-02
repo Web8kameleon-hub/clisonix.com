@@ -1,5 +1,5 @@
-/**
- * 🚀 NEUROSONIX INDUSTRIAL FILE UPLOAD MODELS
+﻿/**
+ * ðŸš€ Clisonix INDUSTRIAL FILE UPLOAD MODELS
  * Production-Grade File Management System
  * Real S3 Integration, Chunked Uploads, Industrial Validation
  */
@@ -340,7 +340,7 @@ export const DEFAULT_UPLOAD_CONFIG: UploadConfig = {
   uploadPath: '/uploads',
   tempPath: '/tmp/uploads',
   s3Config: {
-    bucket: 'neurosonix-uploads',
+    bucket: 'Clisonix-uploads',
     region: 'eu-central-1',
     accessKeyId: process.env['AWS_ACCESS_KEY_ID'] || '',
     secretAccessKey: process.env['AWS_SECRET_ACCESS_KEY'] || '',

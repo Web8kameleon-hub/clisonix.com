@@ -1,5 +1,5 @@
-"""
-NeuroSonix Cloud - Monitoring Middleware  
+﻿"""
+Clisonix Cloud - Monitoring Middleware  
 Real-time performance monitoring and metrics collection
 Business: Ledjan Ahmati - WEB8euroweb GmbH
 SEPA: DE72430500010015012263 | PayPal: ahmati.bau@gmail.com
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class MonitoringMiddleware(BaseHTTPMiddleware):
     """
-    Industrial-grade monitoring middleware for NeuroSonix
+    Industrial-grade monitoring middleware for Clisonix
     Collects real-time metrics, performance data, and system health
     """
     

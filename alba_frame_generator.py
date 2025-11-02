@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Continuous ALBA telemetry frame generator for local testing."""
 
@@ -34,7 +34,7 @@ def generate_frame() -> dict[str, object]:
             "weather": random.choice(["clear", "rain", "cloudy", "storm"]),
             "energy_level": round(random.uniform(70, 100), 2),
         },
-        "tags": ["simulation", "neurosonix"],
+        "tags": ["simulation", "Clisonix"],
     }
     return frame
 

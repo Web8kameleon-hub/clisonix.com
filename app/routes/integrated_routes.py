@@ -1,4 +1,4 @@
-"""Minimal integrated routes for the app.
+﻿"""Minimal integrated routes for the app.
 
 Provides a small APIRouter with /health and /info endpoints so the main app can
 mount and exercise basic behavior without requiring the full system.
@@ -12,7 +12,7 @@ router = APIRouter()
 
 def get_service_name() -> str:
 	# example dependency that could be replaced by a real service later
-	return "neurosonix-integrated"
+	return "Clisonix-integrated"
 
 
 @router.get("/health")

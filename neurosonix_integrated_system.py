@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-NeuroSonix Integrated System — with Distributed Pulse Balancer Integration
+Clisonix Integrated System â€” with Distributed Pulse Balancer Integration
 Industrial-Grade Real-Time Integration + Cloud Upload + Cluster-Aware Routing
 
 Business: Ledjan Ahmati - WEB8euroweb GmbH
-REAL DATA ONLY • NO MOCK • NO RANDOM • NO PLACEHOLDER
+REAL DATA ONLY â€¢ NO MOCK â€¢ NO RANDOM â€¢ NO PLACEHOLDER
 """
 
 import os
@@ -19,25 +19,25 @@ import platform
 import psutil
 import requests
 
-from neurosonix.colored_logger import setup_logger
-BASE_DIR = Path(r"C:\neurosonix-cloud")
+from Clisonix.colored_logger import setup_logger
+BASE_DIR = Path(r"C:\Clisonix-cloud")
 LOG_DIR = BASE_DIR / "logs"
 DATA_DIR = BASE_DIR / "data"
 os.makedirs(LOG_DIR, exist_ok=True)
 os.makedirs(DATA_DIR, exist_ok=True)
 
-SYSTEM_ID = f"NEUROSONIX-{platform.node()}"
+SYSTEM_ID = f"Clisonix-{platform.node()}"
 
 # Upload lokal (zakonisht API FastAPI vendase)
 DEFAULT_API_ENDPOINT = os.getenv("NSX_API_ENDPOINT", "http://localhost:8080/metrics/upload")
 
-# Balancer endpoint (ndrysho nëse është në node tjetër)
+# Balancer endpoint (ndrysho nÃ«se Ã«shtÃ« nÃ« node tjetÃ«r)
 BALANCER_API = os.getenv("NSX_BALANCER_API", "http://localhost:8091/balancer/request")
 
 # Intervali i ciklit
 UPLOAD_INTERVAL = int(os.getenv("NSX_UPLOAD_INTERVAL", "15"))
 
-# Opsionale: API KEY (nëse backend kërkon autentikim)
+# Opsionale: API KEY (nÃ«se backend kÃ«rkon autentikim)
 API_KEY = os.getenv("NSX_API_KEY", "").strip()
 
 REALTIME_FILE = LOG_DIR / "system_metrics.jsonl"
@@ -47,10 +47,10 @@ ERROR_LOG    = LOG_DIR / "errors.log"
 SESSION = requests.Session()
 DEFAULT_TIMEOUT = (3, 7)  # (connect, read) seconds
 
-logger = setup_logger("NeuroSonixIntegrated")
+logger = setup_logger("ClisonixIntegrated")
 
 # =====================================================
-# 🧠 DATA COLLECTION
+# ðŸ§  DATA COLLECTION
 # =====================================================
 def collect_system_metrics() -> dict:
     """Mbledh metrika reale nga sistemi."""
@@ -69,19 +69,19 @@ def collect_system_metrics() -> dict:
     }
 
 def collect_sensor_data() -> dict:
-    """Lexon të dhëna reale nga sensorët e disponueshëm në host (temp, bateri)."""
-    # Temperatura CPU (nëse suportuar nga OS/driver-at)
+    """Lexon tÃ« dhÃ«na reale nga sensorÃ«t e disponueshÃ«m nÃ« host (temp, bateri)."""
+    # Temperatura CPU (nÃ«se suportuar nga OS/driver-at)
     temperature = None
     if hasattr(psutil, "sensors_temperatures"):
         temps = psutil.sensors_temperatures()
         if temps:
-            # Merr elementin e parë të sensorit të parë si “përfaqësues”
+            # Merr elementin e parÃ« tÃ« sensorit tÃ« parÃ« si â€œpÃ«rfaqÃ«suesâ€
             for name, entries in temps.items():
                 if entries:
                     temperature = round(entries[0].current, 2)
                     break
 
-    # Bateria (nëse ekziston; p.sh. në laptop)
+    # Bateria (nÃ«se ekziston; p.sh. nÃ« laptop)
     battery = None
     if hasattr(psutil, "sensors_battery"):
         bat = psutil.sensors_battery()
@@ -97,10 +97,10 @@ def collect_sensor_data() -> dict:
     }
 
 # =====================================================
-# 💾 STORAGE HELPERS
+# ðŸ’¾ STORAGE HELPERS
 # =====================================================
 def append_jsonl(file_path: Path, data: dict):
-    """Shton një rekord JSONL në disk."""
+    """Shton njÃ« rekord JSONL nÃ« disk."""
     with open(file_path, "a", encoding="utf-8") as f:
         f.write(json.dumps(data, ensure_ascii=False) + "\n")
 
@@ -109,7 +109,7 @@ def log_error(msg: str):
         f.write(f"{datetime.utcnow().isoformat()} | {msg}\n")
 
 # =====================================================
-# 🌐 NETWORK HELPERS
+# ðŸŒ NETWORK HELPERS
 # =====================================================
 def headers():
     h = {"Content-Type": "application/json"}
@@ -118,7 +118,7 @@ def headers():
     return h
 
 def upload_to_endpoint(endpoint: str, payload: dict) -> bool:
-    """Dërgon payload në endpoint-in e dhënë. Kthen True në sukses."""
+    """DÃ«rgon payload nÃ« endpoint-in e dhÃ«nÃ«. Kthen True nÃ« sukses."""
     try:
         r = SESSION.post(endpoint, json=payload, headers=headers(), timeout=DEFAULT_TIMEOUT)
         if r.status_code == 200:
@@ -139,7 +139,7 @@ def upload_to_endpoint(endpoint: str, payload: dict) -> bool:
         return False
 
 def ask_balancer_for_target(work_id: str, weight: float = 1.0) -> dict | None:
-    """Pyet Balancer-in për vendim rishpërndarjeje."""
+    """Pyet Balancer-in pÃ«r vendim rishpÃ«rndarjeje."""
     body = {"work_id": work_id, "weight": float(weight)}
     try:
         r = SESSION.post(BALANCER_API, json=body, headers=headers(), timeout=DEFAULT_TIMEOUT)
@@ -154,18 +154,18 @@ def ask_balancer_for_target(work_id: str, weight: float = 1.0) -> dict | None:
         return None
 
 # =====================================================
-# 🔁 MAIN LOOP
+# ðŸ” MAIN LOOP
 # =====================================================
 def decide_and_dispatch(combined: dict):
     """
-    Vendos si të dërgohet pulsi duke pyetur balancer-in.
-    Fallback: dërgo te DEFAULT_API_ENDPOINT nëse balancer nuk përgjigjet.
+    Vendos si tÃ« dÃ«rgohet pulsi duke pyetur balancer-in.
+    Fallback: dÃ«rgo te DEFAULT_API_ENDPOINT nÃ«se balancer nuk pÃ«rgjigjet.
     """
     work_id = combined.get("system", {}).get("system_id") or f"work-{uuid.uuid4()}"
     decision = ask_balancer_for_target(work_id=work_id)
 
     if not decision:
-        # Balancer offline → dërgo lokalisht te endpoint default
+        # Balancer offline â†’ dÃ«rgo lokalisht te endpoint default
         logger.info("Balancer offline -> local upload fallback")
         upload_to_endpoint(DEFAULT_API_ENDPOINT, combined)
         return
@@ -179,10 +179,10 @@ def decide_and_dispatch(combined: dict):
         upload_to_endpoint(DEFAULT_API_ENDPOINT, combined)
     elif dec_type == "redirect" and target_api:
         logger.info("Redirect by leader -> %s", target_api)
-        # Dërgo te target node (presa që target të ketë /metrics/upload)
+        # DÃ«rgo te target node (presa qÃ« target tÃ« ketÃ« /metrics/upload)
         ok = upload_to_endpoint(target_api.rstrip("/") + "/metrics/upload", combined)
         if not ok:
-            # nëse dështoi redirect → fallback lokal
+            # nÃ«se dÃ«shtoi redirect â†’ fallback lokal
             logger.warning("Redirect failed -> fallback to local endpoint")
             upload_to_endpoint(DEFAULT_API_ENDPOINT, combined)
     elif dec_type == "redirect_to_leader" and leader_api:
@@ -192,13 +192,13 @@ def decide_and_dispatch(combined: dict):
             logger.warning("Leader upload failed -> fallback to local endpoint")
             upload_to_endpoint(DEFAULT_API_ENDPOINT, combined)
     else:
-        # Rast i panjohur → fallback lokal
+        # Rast i panjohur â†’ fallback lokal
         logger.info("Unknown decision -> local upload")
         upload_to_endpoint(DEFAULT_API_ENDPOINT, combined)
 
 def monitor_loop():
     logger.info(
-        "NeuroSonix Integrated System (Cluster-Aware) — Node: %s",
+        "Clisonix Integrated System (Cluster-Aware) â€” Node: %s",
         platform.node(),
     )
     logger.info("Default API: %s", DEFAULT_API_ENDPOINT)
@@ -206,7 +206,7 @@ def monitor_loop():
     logger.info("Interval: %ss | Logs: %s", UPLOAD_INTERVAL, LOG_DIR)
 
     while True:
-        # 1) Mbledh të dhënat reale
+        # 1) Mbledh tÃ« dhÃ«nat reale
         sys_metrics = collect_system_metrics()
         sensor_data = collect_sensor_data()
 
@@ -214,7 +214,7 @@ def monitor_loop():
         append_jsonl(REALTIME_FILE, sys_metrics)
         append_jsonl(SENSOR_LOG, sensor_data)
 
-        # 3) Përgatit payload-in e përbashkët
+        # 3) PÃ«rgatit payload-in e pÃ«rbashkÃ«t
         combined = {
             "timestamp": datetime.utcnow().isoformat(),
             "system": sys_metrics,
@@ -222,12 +222,12 @@ def monitor_loop():
             "version": "3.1.0-cluster"
         }
 
-        # 4) Vendos dhe dërgo (me balancer + fallback)
+        # 4) Vendos dhe dÃ«rgo (me balancer + fallback)
         decide_and_dispatch(combined)
 
-        # 5) Print status i shkurtër në console
+        # 5) Print status i shkurtÃ«r nÃ« console
         logger.debug(
-            "CPU %.1f%% | MEM %.1f%% | TEMP %s°C",
+            "CPU %.1f%% | MEM %.1f%% | TEMP %sÂ°C",
             sys_metrics["cpu_percent"],
             sys_metrics["memory_percent"],
             sensor_data.get("temperature_C"),
@@ -235,7 +235,7 @@ def monitor_loop():
         time.sleep(UPLOAD_INTERVAL)
 
 # =====================================================
-# ▶️ ENTRY POINT
+# â–¶ï¸ ENTRY POINT
 # =====================================================
 if __name__ == "__main__":
     try:

@@ -1,4 +1,4 @@
-# NeuroSonix Cloud API Documentation
+﻿# Clisonix Cloud API Documentation
 
 ## Endpoints
 
@@ -6,7 +6,7 @@
 
 - `GET /health`
   - Returns API health status.
-  - Response: `{ "status": "ok", "service": "NeuroSonix Cloud API" }`
+  - Response: `{ "status": "ok", "service": "Clisonix Cloud API" }`
 
 ### ASI Trinity Status
 

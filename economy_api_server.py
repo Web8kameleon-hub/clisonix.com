@@ -41,6 +41,20 @@ def health() -> Dict[str, Any]:
     return {"status": "running", "service": "Economy API", "port": PORT}
 
 
+@app.get("/")
+def root() -> Dict[str, Any]:
+    return {
+        "status": "running",
+        "service": "Economy API",
+        "routes": {
+            "GET /": "This message",
+            "GET /health": "Basic service health",
+            "POST /economy/compute": "Compute cycle transaction value",
+            "GET /economy/report": "Retrieve latest economy report",
+        },
+    }
+
+
 @app.post("/economy/compute")
 def compute(payload: ComputeIn) -> Dict[str, Any]:
     tx = ECONOMY.compute_cycle_value(

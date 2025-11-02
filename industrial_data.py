@@ -1,5 +1,5 @@
-"""
-Copyright (c) Neurosonix Cloud. All rights reserved.
+﻿"""
+Copyright (c) Clisonix Cloud. All rights reserved.
 Closed Source License.
 """
 

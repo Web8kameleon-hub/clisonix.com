@@ -1,4 +1,4 @@
-"""
+﻿"""
 Signal Generation API Routes
 FastAPI routes for real-time system monitoring and signal processing
 Integrated from TypeScript backend into Python
@@ -20,7 +20,7 @@ async def signal_gen_health():
     """Health check for signal generation service"""
     return {
         "status": "healthy",
-        "service": "NeuroSonix Signal Generation",
+        "service": "Clisonix Signal Generation",
         "version": "1.0.0",
         "timestamp": signal_service.start_time
     }

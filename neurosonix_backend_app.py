@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
-"""Shembull përdorimi për ColoredLoggingMiddleware."""
+﻿# -*- coding: utf-8 -*-
+"""Shembull pÃ«rdorimi pÃ«r ColoredLoggingMiddleware."""
 
 from fastapi import FastAPI
 
-from neurosonix_backend_logging_middleware import ColoredLoggingMiddleware
+from Clisonix_backend_logging_middleware import ColoredLoggingMiddleware
 
 app = FastAPI(
-    title="NeuroSonix Industrial Backend (REAL)",
+    title="Clisonix Industrial Backend (REAL)",
     version="1.0.0",
 )
 

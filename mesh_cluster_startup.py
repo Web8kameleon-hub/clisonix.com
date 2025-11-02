@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
 Mesh Cluster Startup Script
 Industrial Launcher for:
  - Distributed Pulse Balancer
- - NeuroSonix Integrated System
+ - Clisonix Integrated System
  - Mesh HQ Receiver
 
 Business: Ledjan Ahmati - WEB8euroweb GmbH
-REAL LAUNCHER • NO MOCK • NO RANDOM • NO PLACEHOLDER
+REAL LAUNCHER â€¢ NO MOCK â€¢ NO RANDOM â€¢ NO PLACEHOLDER
 """
 
 from datetime import datetime
@@ -20,14 +20,14 @@ from typing import Dict
 
 import psutil
 
-from neurosonix.colored_logger import setup_logger
+from Clisonix.colored_logger import setup_logger
 
-BASE_DIR = Path(r"C:\neurosonix-cloud")
+BASE_DIR = Path(r"C:\Clisonix-cloud")
 LOGS_DIR = BASE_DIR / "logs"
 os.makedirs(LOGS_DIR, exist_ok=True)
 
 
-logger = setup_logger("NeuroSonixCluster")
+logger = setup_logger("ClisonixCluster")
 
 
 def launch_process(name: str, command: list[str], logfile: Path) -> subprocess.Popen:
@@ -68,7 +68,7 @@ def monitor_processes(processes: Dict[str, subprocess.Popen]) -> None:
                     except psutil.NoSuchProcess:
                         alive = False
 
-                status = "🟢 RUNNING" if alive else "🔴 STOPPED"
+                status = "ðŸŸ¢ RUNNING" if alive else "ðŸ”´ STOPPED"
                 logger.info(
                     "%s | PID %s | %s | CPU %.1f%% | MEM %.1f%%",
                     f"{name:<25}",
@@ -93,7 +93,7 @@ def monitor_processes(processes: Dict[str, subprocess.Popen]) -> None:
 
 if __name__ == "__main__":
     balancer_file = BASE_DIR / "distributed_pulse_balancer.py"
-    integrated_file = BASE_DIR / "neurosonix_integrated_system.py"
+    integrated_file = BASE_DIR / "Clisonix_integrated_system.py"
     mesh_file = BASE_DIR / "mesh_hq_receiver.py"
 
     processes: Dict[str, subprocess.Popen] = {}
@@ -106,8 +106,8 @@ if __name__ == "__main__":
 
     time.sleep(3)
 
-    processes["NeuroSonix Integrated System"] = launch_process(
-        "NeuroSonix Integrated System",
+    processes["Clisonix Integrated System"] = launch_process(
+        "Clisonix Integrated System",
         ["python", str(integrated_file)],
         LOGS_DIR / "integrated_run.log",
     )

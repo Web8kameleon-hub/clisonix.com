@@ -4,6 +4,13 @@ export type LaborPoolName =
   | "temporal_reasoning_labor"
   | "meta_cognitive_labor";
 
+export interface LaborIntake {
+  rawPatterns: unknown[];
+  semanticNetworks: unknown[];
+  temporalSequences: unknown[];
+  learningTrajectories: unknown[];
+}
+
 type LaborSpecialization =
   | "pattern_recognition"
   | "concept_formation"

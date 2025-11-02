@@ -1,0 +1,16 @@
+name: ingestion-ci
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 3 * * *'
+
+jobs:
+  validate-dags:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint DAGs
+        run: |
+          pipx install ruff
+          ruff check airflow/dags

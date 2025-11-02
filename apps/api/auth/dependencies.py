@@ -1,5 +1,5 @@
-"""
-NeuroSonix Authentication Dependencies
+﻿"""
+Clisonix Authentication Dependencies
 JWT authentication and user dependency injection
 """
 from typing import Optional

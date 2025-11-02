@@ -1,7 +1,7 @@
-"""
-📡 ALBA - Artificial Laboratory Bits Algorithms (REAL DATA COLLECTOR)
+﻿"""
+ðŸ“¡ ALBA - Artificial Laboratory Bits Algorithms (REAL DATA COLLECTOR)
 =====================================================================
-Kolektorë real i të dhënave që mbledh informacione nga sistemi NeuroSonix.
+KolektorÃ« real i tÃ« dhÃ«nave qÃ« mbledh informacione nga sistemi Clisonix.
 Real file scanner, real data processor, real metrics collector.
 
 NO FAKE DATA, NO MOCK, REAL COLLECTION ONLY
@@ -19,10 +19,10 @@ import hashlib
 
 class ALBA_RealCollector:
     """
-    📊 ALBA Real Data Collector që mbledh të dhëna reale nga sistemi
+    ðŸ“Š ALBA Real Data Collector qÃ« mbledh tÃ« dhÃ«na reale nga sistemi
     """
     
-    def __init__(self, base_dir="C:/neurosonix-cloud"):
+    def __init__(self, base_dir="C:/Clisonix-cloud"):
         self.base_dir = Path(base_dir)
         self.collection_log = self.base_dir / "data" / "alba_collection_log.json"
         self.collected_files = []
@@ -33,10 +33,10 @@ class ALBA_RealCollector:
         }
     
     async def scan_real_directories(self) -> List[Dict[str, Any]]:
-        """Skanon direktorit reale të sistemit për të dhëna"""
+        """Skanon direktorit reale tÃ« sistemit pÃ«r tÃ« dhÃ«na"""
         real_data = []
         
-        # Direktorit që do të skanohen
+        # Direktorit qÃ« do tÃ« skanohen
         scan_dirs = [
             self.base_dir / "data",
             self.base_dir / "uploads", 
@@ -54,13 +54,13 @@ class ALBA_RealCollector:
         return real_data
     
     async def collect_from_directory(self, directory: Path) -> Generator[Dict[str, Any], None, None]:
-        """Kolekton të dhëna reale nga një direktori"""
+        """Kolekton tÃ« dhÃ«na reale nga njÃ« direktori"""
         try:
             for item in directory.rglob('*'):
                 if item.is_file():
                     file_stats = item.stat()
                     
-                    # Llogarit hash real të file-it
+                    # Llogarit hash real tÃ« file-it
                     file_hash = await self.calculate_real_hash(str(item))
                     
                     file_info = {
@@ -86,7 +86,7 @@ class ALBA_RealCollector:
             }
     
     async def calculate_real_hash(self, file_path: str) -> str:
-        """Llogarit hash real SHA256 të një file"""
+        """Llogarit hash real SHA256 tÃ« njÃ« file"""
         try:
             hash_sha256 = hashlib.sha256()
             async with aiofiles.open(file_path, 'rb') as f:
@@ -97,7 +97,7 @@ class ALBA_RealCollector:
             return "hash_failed"
     
     async def collect_real_system_metrics(self) -> Dict[str, Any]:
-        """Kolekton metrika reale të sistemit"""
+        """Kolekton metrika reale tÃ« sistemit"""
         import psutil
         
         # CPU real
@@ -136,7 +136,7 @@ class ALBA_RealCollector:
         }
     
     async def send_to_albi_real(self, collected_data: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Dërgon të dhëna reale tek ALBI për përpunim"""
+        """DÃ«rgon tÃ« dhÃ«na reale tek ALBI pÃ«r pÃ«rpunim"""
         from .albi_real_engine import create_albi_real
         
         albi = await create_albi_real()
@@ -166,7 +166,7 @@ class ALBA_RealCollector:
         }
     
     async def log_real_collection(self, collected_count: int, processed_count: int):
-        """Log i koleksionit real në file"""
+        """Log i koleksionit real nÃ« file"""
         log_entry = {
             "session_id": hashlib.sha256(str(datetime.utcnow()).encode()).hexdigest()[:16],
             "collected_items": collected_count,
@@ -187,7 +187,7 @@ class ALBA_RealCollector:
         # Shto session-in e ri
         existing_log.append(log_entry)
         
-        # Mbaj vetëm 100 session të fundit
+        # Mbaj vetÃ«m 100 session tÃ« fundit
         if len(existing_log) > 100:
             existing_log = existing_log[-100:]
         
@@ -197,7 +197,7 @@ class ALBA_RealCollector:
             await f.write(json.dumps(existing_log, indent=2, ensure_ascii=False))
     
     async def get_real_status(self) -> Dict[str, Any]:
-        """Kthen statusin real të ALBA"""
+        """Kthen statusin real tÃ« ALBA"""
         return {
             "character": "ALBA",
             "status": "active_real_collection",
@@ -210,8 +210,8 @@ class ALBA_RealCollector:
         }
 
 
-# Factory function për ALBA real
+# Factory function pÃ«r ALBA real
 async def create_alba_real() -> ALBA_RealCollector:
-    """Krijon një instance ALBA që mbledh të dhëna reale"""
+    """Krijon njÃ« instance ALBA qÃ« mbledh tÃ« dhÃ«na reale"""
     alba = ALBA_RealCollector()
     return alba

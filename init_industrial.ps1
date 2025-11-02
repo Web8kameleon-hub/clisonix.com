@@ -1,14 +1,14 @@
-# Ultra-Industrial Initialization Script
+﻿# Ultra-Industrial Initialization Script
 # Author: Ledjan Ahmati
 
 param(
-    [string]$ProjectName = "neurosonix-industrial",
+    [string]$ProjectName = "Clisonix-industrial",
     [string]$DockerComposeFile = "docker-compose.yml",
     [switch]$Audit,
     [switch]$Trace
 )
 
-Write-Host "[INFO] Initializing Ultra-Industrial Neurosonix Cloud..." -ForegroundColor Cyan
+Write-Host "[INFO] Initializing Ultra-Industrial Clisonix Cloud..." -ForegroundColor Cyan
 Write-Host "[INFO] Project Name: $ProjectName" -ForegroundColor Yellow
 Write-Host "[INFO] Docker Compose File: $DockerComposeFile" -ForegroundColor Yellow
 

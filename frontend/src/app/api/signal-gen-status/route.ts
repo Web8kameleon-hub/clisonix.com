@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+﻿import { NextResponse } from 'next/server'
 
 /**
  * GET /api/signal-gen-status
@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     const now = Date.now();
     // Metadata industriale
     const metadata = {
-      engine: 'neurosonix-signal-gen-pro',
+      engine: 'Clisonix-signal-gen-pro',
       version: '2.1.0',
       location: 'Industrial Lab 3',
       operator: 'Ledjan Ahmati',
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
       clientIp: request.headers.get('x-forwarded-for') || 'unknown',
       userAgent: request.headers.get('user-agent') || 'unknown'
     };
-    // Përgjigje industriale
+    // PÃ«rgjigje industriale
     const data = {
       metadata,
       log,

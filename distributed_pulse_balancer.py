@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-NeuroSonix Distributed Pulse Balancer (Industrial)
+Clisonix Distributed Pulse Balancer (Industrial)
 - Real UDP heartbeat & peer discovery
 - Simple leader election
 - Token-bucket rate limiting per client
@@ -10,7 +10,7 @@ NeuroSonix Distributed Pulse Balancer (Industrial)
 - Graceful shutdown & rotating logs
 
 Business: Ledjan Ahmati - WEB8euroweb GmbH
-REAL DATA ONLY • NO MOCK • NO RANDOM
+REAL DATA ONLY â€¢ NO MOCK â€¢ NO RANDOM
 """
 
 import os, sys, json, time, uuid, hmac, hashlib, socket, threading, signal, logging
@@ -23,7 +23,7 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 import uvicorn
 
-from neurosonix.colored_logger import setup_logger
+from Clisonix.colored_logger import setup_logger
 
 # =========================
 # Config
@@ -37,7 +37,7 @@ HB_PORT     = int(os.getenv("NSX_HB_PORT", "42999"))
 HB_INTERVAL = float(os.getenv("NSX_HB_INTERVAL", "3.0"))
 HB_TIMEOUT  = float(os.getenv("NSX_HB_TIMEOUT", "10.0"))
 BROADCAST_IP= os.getenv("NSX_BCAST_IP", "255.255.255.255")
-DATA_DIR    = os.getenv("NSX_DATA_DIR", r"C:\neurosonix-cloud")
+DATA_DIR    = os.getenv("NSX_DATA_DIR", r"C:\Clisonix-cloud")
 LOG_DIR     = os.path.join(DATA_DIR, "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -278,7 +278,7 @@ def heartbeat_receiver():
 # FastAPI app
 # =========================
 app = FastAPI(
-    title="NeuroSonix Distributed Pulse Balancer",
+    title="Clisonix Distributed Pulse Balancer",
     version="1.0.0-industrial",
     description="Cluster-aware balancer with real metrics, rate limit, and circuit breaker."
 )
@@ -330,7 +330,7 @@ async def balancer_request(request: Request):
     me_metrics = system_metrics()
     me_score = capacity_score(me_metrics)
 
-    # If I'm the leader → choose best target among all alive nodes
+    # If I'm the leader â†’ choose best target among all alive nodes
     if leader_id == NODE_ID:
         target = pick_target_for_work(exclude=exclude)
         if target is None:

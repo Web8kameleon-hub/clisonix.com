@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
-"""Real-time NeuroSonix Telemetry Analysis with Live API Integration"""
+﻿# -*- coding: utf-8 -*-
+"""Real-time Clisonix Telemetry Analysis with Live API Integration"""
 
 from __future__ import annotations
 
@@ -21,12 +21,12 @@ import seaborn as sns
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class NeuroSonixTelemetryAnalyzer:
+class ClisonixTelemetryAnalyzer:
     """Real-time telemetry analysis with live API integration"""
     
     def __init__(self, base_url: str = "http://localhost:8000"):
         self.base_url = base_url
-        self.log_file = Path(r"C:\neurosonix-cloud\logs\telemetry.jsonl")
+        self.log_file = Path(r"C:\Clisonix-cloud\logs\telemetry.jsonl")
         self.session: Optional[aiohttp.ClientSession] = None
         
     async def __aenter__(self):
@@ -38,7 +38,7 @@ class NeuroSonixTelemetryAnalyzer:
             await self.session.close()
     
     async def get_live_system_metrics(self) -> Dict:
-        """Get real system metrics from NeuroSonix API"""
+        """Get real system metrics from Clisonix API"""
         try:
             async with self.session.get(f"{self.base_url}/health") as response:
                 health_data = await response.json()
@@ -258,7 +258,7 @@ class NeuroSonixTelemetryAnalyzer:
         """Generate comprehensive performance report"""
         report = []
         report.append("=" * 60)
-        report.append("NEUROSONIX REAL-TIME PERFORMANCE REPORT")
+        report.append("Clisonix REAL-TIME PERFORMANCE REPORT")
         report.append("=" * 60)
         report.append(f"Generated: {datetime.utcnow().isoformat()}")
         report.append(f"Data Points: {len(df)}")
@@ -304,24 +304,24 @@ class NeuroSonixTelemetryAnalyzer:
 
 async def main():
     """Main analysis function with real API integration"""
-    print("🚀 NeuroSonix Real-Time Telemetry Analysis")
+    print("ðŸš€ Clisonix Real-Time Telemetry Analysis")
     print("Connecting to live services...")
     
-    async with NeuroSonixTelemetryAnalyzer() as analyzer:
+    async with ClisonixTelemetryAnalyzer() as analyzer:
         try:
             # Get live data from running services
-            print("📡 Fetching live system metrics...")
+            print("ðŸ“¡ Fetching live system metrics...")
             live_metrics = await analyzer.get_live_system_metrics()
             
-            print("⚡ Fetching real-time performance data...")
+            print("âš¡ Fetching real-time performance data...")
             real_time_perf = await analyzer.get_real_time_performance()
             
             # Load historical telemetry data
-            print("📊 Loading telemetry logs...")
+            print("ðŸ“Š Loading telemetry logs...")
             df = analyzer.load_telemetry_logs()
             
             if not df.empty:
-                print("🔍 Analyzing performance trends...")
+                print("ðŸ” Analyzing performance trends...")
                 analysis = analyzer.analyze_performance_trends(df)
                 
                 # Generate comprehensive report
@@ -329,20 +329,20 @@ async def main():
                 print("\n" + report)
                 
                 # Create visualizations
-                print("📈 Generating visualizations...")
+                print("ðŸ“ˆ Generating visualizations...")
                 analyzer.generate_real_time_visualizations(df, live_metrics)
                 
             else:
-                print("ℹ️ No historical telemetry data found")
+                print("â„¹ï¸ No historical telemetry data found")
                 
             if live_metrics:
-                print("✅ Live system metrics captured successfully")
+                print("âœ… Live system metrics captured successfully")
             else:
-                print("⚠️ Could not connect to live services")
+                print("âš ï¸ Could not connect to live services")
                 
         except Exception as e:
             logger.error(f"Analysis failed: {e}")
-            print(f"❌ Analysis error: {e}")
+            print(f"âŒ Analysis error: {e}")
 
 if __name__ == "__main__":
     # Run the analysis

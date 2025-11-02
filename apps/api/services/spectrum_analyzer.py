@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
-📊 NEUROSONIX INDUSTRIAL SPECTRUM ANALYZER
+ðŸ“Š Clisonix INDUSTRIAL SPECTRUM ANALYZER
 Advanced FFT Processing, Spectrogram Generation, Real-time Visualization
 Production-Grade Frequency Domain Analysis for EEG & Neural Signals
 
-🎯 Key Features:
+ðŸŽ¯ Key Features:
 - Multi-channel FFT processing with windowing
 - Real-time spectrogram generation
 - Advanced frequency band analysis (Delta, Theta, Alpha, Beta, Gamma)
@@ -43,7 +43,7 @@ import time
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("NeuroSonix-SpectrumAnalyzer")
+logger = logging.getLogger("Clisonix-SpectrumAnalyzer")
 
 @dataclass
 class FrequencyBand:
@@ -102,7 +102,7 @@ class CoherenceAnalysis:
 
 class IndustrialSpectrumAnalyzer:
     """
-    🏭 Industrial-grade spectrum analyzer for EEG and neural signals
+    ðŸ­ Industrial-grade spectrum analyzer for EEG and neural signals
     Real-time FFT processing with advanced spectral analysis
     """
     
@@ -153,12 +153,12 @@ class IndustrialSpectrumAnalyzer:
         self.processing_times = deque(maxlen=100)
         self.total_analyses = 0
         
-        logger.info(f"🔧 Spectrum Analyzer initialized:")
-        logger.info(f"   📊 Sampling Rate: {sampling_rate} Hz")
-        logger.info(f"   🪟 FFT Size: {fft_size}")
-        logger.info(f"   📐 Window: {window_function}")
-        logger.info(f"   🔄 Overlap: {overlap*100:.1f}%")
-        logger.info(f"   📈 Frequency Resolution: {self.frequency_resolution:.2f} Hz")
+        logger.info(f"ðŸ”§ Spectrum Analyzer initialized:")
+        logger.info(f"   ðŸ“Š Sampling Rate: {sampling_rate} Hz")
+        logger.info(f"   ðŸªŸ FFT Size: {fft_size}")
+        logger.info(f"   ðŸ“ Window: {window_function}")
+        logger.info(f"   ðŸ”„ Overlap: {overlap*100:.1f}%")
+        logger.info(f"   ðŸ“ˆ Frequency Resolution: {self.frequency_resolution:.2f} Hz")
     
     def _create_window(self) -> np.ndarray:
         """Create window function for FFT processing"""
@@ -277,7 +277,7 @@ class IndustrialSpectrumAnalyzer:
             return analysis_result
             
         except Exception as e:
-            logger.error(f"❌ Spectrum analysis error for {channel}: {e}")
+            logger.error(f"âŒ Spectrum analysis error for {channel}: {e}")
             return self._empty_analysis_result(channel, f"Analysis error: {str(e)}")
     
     async def _perform_fft_analysis(self, data: np.ndarray) -> FFTAnalysis:
@@ -737,7 +737,7 @@ class IndustrialSpectrumAnalyzer:
             self.processing_times.clear()
             self.total_analyses = 0
         
-        logger.info("🔄 Spectrum Analyzer reset completed")
+        logger.info("ðŸ”„ Spectrum Analyzer reset completed")
 
 # Global analyzer instance
 spectrum_analyzer = IndustrialSpectrumAnalyzer()

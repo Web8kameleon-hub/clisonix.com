@@ -1,4 +1,4 @@
-// Neurosonix Modules Industrial Dashboard
+﻿// Clisonix Modules Industrial Dashboard
 // Author: Ledjan Ahmati
 
 import React from 'react'
@@ -12,7 +12,7 @@ const modules = [
   {
     name: 'Neural Synthesis',
     path: '/modules/neural-synthesis',
-    description: 'Sintetizon të dhëna neurale në audio industriale me log, audit, metrika.'
+    description: 'Sintetizon tÃ« dhÃ«na neurale nÃ« audio industriale me log, audit, metrika.'
   },
   {
     name: 'EEG Analysis',
@@ -29,7 +29,7 @@ const modules = [
 export default function ModulesDashboardPage() {
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Neurosonix Modules Industrial Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">Clisonix Modules Industrial Dashboard</h1>
       <div className="grid grid-cols-2 gap-6">
         {modules.map((mod, i) => (
           <a key={i} href={mod.path} className="block p-6 bg-gray-100 rounded-lg shadow hover:bg-gray-200 transition">
@@ -40,7 +40,7 @@ export default function ModulesDashboardPage() {
         ))}
       </div>
       <div className="mt-8 text-xs text-muted-foreground">
-        © 2025 Neurosonix Industrial Cloud. All modules are protected, audited, and monitored for industrial compliance.
+        Â© 2025 Clisonix Industrial Cloud. All modules are protected, audited, and monitored for industrial compliance.
       </div>
     </div>
   )

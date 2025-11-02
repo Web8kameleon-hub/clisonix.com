@@ -1,5 +1,5 @@
-"""
-NeuroSonix Stripe billing routes with real subscription management integrations.
+﻿"""
+Clisonix Stripe billing routes with real subscription management integrations.
 """
 from typing import Dict, List, Optional, Any
 from fastapi import APIRouter, Request, HTTPException, Depends, BackgroundTasks
@@ -197,7 +197,7 @@ async def create_portal_session(
             detail="No Stripe customer found. Please subscribe to a plan first."
         )
     
-    return_url = return_url or "https://app.neurosonix.com/billing"
+    return_url = return_url or "https://app.Clisonix.com/billing"
     
     try:
         portal_url = await StripeService.create_portal_session(

@@ -1,7 +1,7 @@
-"""
-🔮 JONA - Joyful Overseer of Neural Alignment (REAL SYSTEM MONITOR) 
+﻿"""
+ðŸ”® JONA - Joyful Overseer of Neural Alignment (REAL SYSTEM MONITOR) 
 ===================================================================
-Monitor real i sistemit që mbikëqyr harmoninë e NeuroSonix ecosystem.
+Monitor real i sistemit qÃ« mbikÃ«qyr harmoninÃ« e Clisonix ecosystem.
 Real health monitor, real harmony checker, real system optimizer.
 
 NO FAKE METRICS, NO MOCK HEALTH, REAL MONITORING ONLY
@@ -19,7 +19,7 @@ from enum import Enum
 
 
 class HarmonyLevel(Enum):
-    """Nivelet e harmonisë në sistem"""
+    """Nivelet e harmonisÃ« nÃ« sistem"""
     CRITICAL = "critical"
     LOW = "low"
     MEDIUM = "medium"
@@ -29,15 +29,15 @@ class HarmonyLevel(Enum):
 
 class JONA_RealMonitor:
     """
-    🧠 JONA Real System Monitor që mbikëqyr sistemin real
+    ðŸ§  JONA Real System Monitor qÃ« mbikÃ«qyr sistemin real
     """
     
-    def __init__(self, base_dir="C:/neurosonix-cloud"):
+    def __init__(self, base_dir="C:/Clisonix-cloud"):
         self.base_dir = Path(base_dir)
         self.harmony_log = self.base_dir / "data" / "jona_harmony_log.json"
         self.alert_log = self.base_dir / "data" / "jona_alerts.json"
         
-        # Thresholds për vlerësimin real
+        # Thresholds pÃ«r vlerÃ«simin real
         self.thresholds = {
             "cpu_warning": 80.0,
             "cpu_critical": 95.0,
@@ -49,7 +49,7 @@ class JONA_RealMonitor:
         }
     
     async def monitor_real_system_health(self) -> Dict[str, Any]:
-        """Mbikëqyr shëndetin real të sistemit"""
+        """MbikÃ«qyr shÃ«ndetin real tÃ« sistemit"""
         
         # System metrics real
         cpu_usage = psutil.cpu_percent(interval=1)
@@ -96,11 +96,11 @@ class JONA_RealMonitor:
         return health_report
     
     async def calculate_real_harmony_score(self) -> Dict[str, Any]:
-        """Llogarit rezultatin real të harmonisë në sistem"""
+        """Llogarit rezultatin real tÃ« harmonisÃ« nÃ« sistem"""
         
         health = await self.monitor_real_system_health()
         
-        # Llogarit komponente të ndryshme harmonije
+        # Llogarit komponente tÃ« ndryshme harmonije
         cpu_score = self._calculate_resource_score(health["system_health"]["cpu_usage_percent"], "cpu")
         memory_score = self._calculate_resource_score(health["system_health"]["memory_usage_percent"], "memory")
         disk_score = self._calculate_resource_score(health["system_health"]["disk_usage_percent"], "disk")
@@ -137,7 +137,7 @@ class JONA_RealMonitor:
         }
     
     def _calculate_resource_score(self, usage_percent: float, resource_type: str) -> float:
-        """Llogarit score për një resurs specifik"""
+        """Llogarit score pÃ«r njÃ« resurs specifik"""
         warning_threshold = self.thresholds[f"{resource_type}_warning"]
         critical_threshold = self.thresholds[f"{resource_type}_critical"]
         
@@ -154,7 +154,7 @@ class JONA_RealMonitor:
             return max(0, 20 - (usage_percent - critical_threshold))
     
     def _determine_harmony_level(self, score: float) -> HarmonyLevel:
-        """Përcakton nivelin e harmonisë bazuar në score"""
+        """PÃ«rcakton nivelin e harmonisÃ« bazuar nÃ« score"""
         if score >= 90:
             return HarmonyLevel.OPTIMAL
         elif score >= 75:
@@ -213,7 +213,7 @@ class JONA_RealMonitor:
             }
     
     async def generate_real_alerts(self) -> List[Dict[str, Any]]:
-        """Gjeneron alerte reale bazuar në monitorim"""
+        """Gjeneron alerte reale bazuar nÃ« monitorim"""
         
         health = await self.monitor_real_system_health()
         harmony = await self.calculate_real_harmony_score()
@@ -262,7 +262,7 @@ class JONA_RealMonitor:
         return alerts
     
     async def log_real_monitoring_session(self, health: Dict[str, Any], harmony: Dict[str, Any], alerts: List[Dict[str, Any]]):
-        """Log i sesionit real të monitorimit"""
+        """Log i sesionit real tÃ« monitorimit"""
         
         session_log = {
             "session_id": f"jona_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}",
@@ -321,7 +321,7 @@ class JONA_RealMonitor:
             await f.write(json.dumps(existing_alerts, indent=2, ensure_ascii=False))
     
     async def get_real_status(self) -> Dict[str, Any]:
-        """Kthen statusin real të JONA"""
+        """Kthen statusin real tÃ« JONA"""
         return {
             "character": "JONA",
             "status": "active_real_monitoring",
@@ -335,8 +335,8 @@ class JONA_RealMonitor:
         }
 
 
-# Factory function për JONA real
+# Factory function pÃ«r JONA real
 async def create_jona_real() -> JONA_RealMonitor:
-    """Krijon një instance JONA që monitorizon sistemin real"""
+    """Krijon njÃ« instance JONA qÃ« monitorizon sistemin real"""
     jona = JONA_RealMonitor()
     return jona

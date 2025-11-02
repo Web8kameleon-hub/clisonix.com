@@ -1,5 +1,5 @@
-"""
-Test FastAPI Integration - Neurosonix Cloud
+﻿"""
+Test FastAPI Integration - Clisonix Cloud
 Author: Ledjan Ahmati
 License: Closed Source
 """

@@ -1,7 +1,7 @@
-# Closed Source License - Neurosonix Cloud
-# Copyright (c) Neurosonix. All rights reserved.
+﻿# Closed Source License - Clisonix Cloud
+# Copyright (c) Clisonix. All rights reserved.
 #
-# Dockerfile for neurosonix-worker (Python)
+# Dockerfile for Clisonix-worker (Python)
 FROM python:3.11-slim
 WORKDIR /worker
 COPY worker/ /worker/

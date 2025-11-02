@@ -1,5 +1,5 @@
-"""
-NeuroSonix Brain Wave Analyzer
+﻿"""
+Clisonix Brain Wave Analyzer
 Advanced analysis of brain wave patterns and cognitive states
 """
 

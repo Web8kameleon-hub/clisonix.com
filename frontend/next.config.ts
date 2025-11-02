@@ -1,4 +1,4 @@
-
+﻿
 // Ultra-Industrial Next.js Config
 // Author: Ledjan Ahmati
 
@@ -20,12 +20,12 @@ const nextConfig = {
   swcMinify: true,
   poweredByHeader: false,
   serviceAnalysis: {
-    summary: 'Analiza industriale e të gjitha shërbimeve të frontend/backend',
+    summary: 'Analiza industriale e tÃ« gjitha shÃ«rbimeve tÃ« frontend/backend',
     services: [
       {
         name: 'Neural Synthesis',
         type: 'krijuese',
-        description: 'Sintetizon të dhëna neurale në audio industriale',
+        description: 'Sintetizon tÃ« dhÃ«na neurale nÃ« audio industriale',
         endpoints: ['/api/neural-synthesis-data'],
         status: 'active',
         metrics: ['fidelity', 'synthesisTimeMs', 'inputPeak', 'outputPeak']
@@ -65,7 +65,7 @@ const nextConfig = {
       {
         name: 'Backend Health',
         type: 'studiuese',
-        description: 'Monitoron statusin industrial të backend-it',
+        description: 'Monitoron statusin industrial tÃ« backend-it',
         endpoints: ['/api/backend-health'],
         status: 'active',
         metrics: ['cpu', 'memory', 'requests', 'errors', 'auditEvents']
@@ -77,8 +77,8 @@ const nextConfig = {
       'Gjenerim sinjali'
     ],
     studyFunctions: [
-      'Analizë EEG',
-      'Analizë spektrale',
+      'AnalizÃ« EEG',
+      'AnalizÃ« spektrale',
       'Monitorim industrial',
       'Audit',
       'Tracing',
@@ -153,12 +153,12 @@ const nextConfig = {
   },
   images: {
     domains: [
-      'industrial.neurosonix.com',
+      'industrial.Clisonix.com',
     // Konfigurimi industrial importuar nga industrial.config.json
     industrialConfig,
-      'cdn.neurosonix.com',
-      'api.neurosonix.com',
-      'cloud.neurosonix.com'
+      'cdn.Clisonix.com',
+      'api.Clisonix.com',
+      'cloud.Clisonix.com'
     ],
     formats: ['image/webp', 'image/avif']
   },

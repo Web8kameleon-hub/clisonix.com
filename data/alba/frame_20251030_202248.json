@@ -1,4 +1,4 @@
-{
+﻿{
   "source": "Tirana-Lab",
   "timestamp": "2025-10-30T20:22:48.063811+00:00",
   "sensors": {
@@ -15,6 +15,6 @@
   },
   "tags": [
     "simulation",
-    "neurosonix"
+    "Clisonix"
   ]
 }

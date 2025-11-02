@@ -1,4 +1,4 @@
-{
+﻿{
   "brief": {
     "title": "Neuro-Alignment Proposal Brief",
     "executive_summary": "Center: Zurich-Lab | Alignment status: pending | Generated API: system-telemetry",
@@ -18,7 +18,7 @@
       },
       "insight": {},
       "alba": {
-        "source_dir": "C:\\neurosonix-cloud\\data\\alba",
+        "source_dir": "C:\\Clisonix-cloud\\data\\alba",
         "processed_files": [],
         "frames_ingested": 0,
         "total_history": 0,

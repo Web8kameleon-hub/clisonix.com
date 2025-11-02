@@ -2,7 +2,7 @@
  * ASI Styles with Vanilla Extract
  * ===============================
  * 
- * Type-safe CSS styles for NeuroSonix ASI components
+ * Type-safe CSS styles for Clisonix ASI components
  */
 
 import { style, keyframes, globalStyle } from '@vanilla-extract/css';

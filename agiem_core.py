@@ -1,15 +1,15 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
 AGIEM Core (real-only)
 
-Location: C:\neurosonix-cloud\agiem_core.py
+Location: C:\\Clisonix-cloud\\agiem_core.py
 
 Purpose:
 - Real-time, production-ready core for ASI/AGIEM operations.
 - NO SIMULATION, NO RANDOM, NO MOCK DATA.
 - Gathers real system metrics (psutil required), analyzes logs for anomalies,
   registers and reports to Mesh HQ using HTTP (requests optional), and
-  offers safe, non-destructive "recommendations" (insights) — not automatic
+  offers safe, non-destructive "recommendations" (insights) â€” not automatic
   system changes.
 
 Features:
@@ -22,8 +22,8 @@ Features:
 
 Run examples:
   python agiem_core.py status
-  python agiem_core.py analyze --logs C:\neurosonix-cloud\logs
-  python agiem_core.py backup --path C:\neurosonix-cloud\data --out backup.zip
+  python agiem_core.py analyze --logs C:\\Clisonix-cloud\\logs
+  python agiem_core.py backup --path C:\\Clisonix-cloud\\data --out backup.zip
   python agiem_core.py register --hq http://localhost:7777/mesh/register
 
 Note: this module does not alter system configuration or install services.
@@ -1072,7 +1072,7 @@ class NodeReal:
         """Upload a file to the configured remote endpoint (if requests available).
 
         Returns response status code and optional text. This is a safe, best-effort
-        operation — it will not remove or alter local files.
+        operation â€” it will not remove or alter local files.
         """
         fp = Path(filepath)
         if not fp.exists() or not fp.is_file():
@@ -1156,7 +1156,7 @@ class MeshReporter:
 # ---------------------------
 
 def _build_parser():
-    p = argparse.ArgumentParser(prog="agiem_core.py", description="AGIEM Core — real-only operations")
+    p = argparse.ArgumentParser(prog="agiem_core.py", description="AGIEM Core â€” real-only operations")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("status", help="Print cluster overview and health")

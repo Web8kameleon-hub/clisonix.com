@@ -1,4 +1,4 @@
-import psutil
+﻿import psutil
 import datetime
 import requests
 import json
@@ -7,12 +7,12 @@ from typing import Dict, List
 import subprocess
 import socket
 
-class NeuroSonixRealMetrics:
+class ClisonixRealMetrics:
     def __init__(self):
         self.start_time = datetime.datetime.utcnow()
         
     def get_system_metrics(self) -> Dict:
-        """Metrika reale të sistemit pa fake data"""
+        """Metrika reale tÃ« sistemit pa fake data"""
         try:
             # CPU me procese aktuale
             cpu_per_core = psutil.cpu_percent(percpu=True)
@@ -30,11 +30,11 @@ class NeuroSonixRealMetrics:
             net_io = psutil.net_io_counters()
             network_interfaces = self.get_network_interfaces()
             
-            # Temperatura nëse është e mundur
+            # Temperatura nÃ«se Ã«shtÃ« e mundur
             temperatures = self.get_temperatures()
             
-            # Proceset e NeuroSonix
-            neurosonix_processes = self.get_neurosonix_processes()
+            # Proceset e Clisonix
+            Clisonix_processes = self.get_Clisonix_processes()
             
             return {
                 "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
@@ -67,9 +67,9 @@ class NeuroSonixRealMetrics:
                     "temperatures": temperatures,
                     "uptime_seconds": round((datetime.datetime.utcnow() - self.start_time).total_seconds(), 2)
                 },
-                "neurosonix": {
-                    "process_count": len(neurosonix_processes),
-                    "processes": neurosonix_processes,
+                "Clisonix": {
+                    "process_count": len(Clisonix_processes),
+                    "processes": Clisonix_processes,
                     "alba_status": self.check_alba_status(),
                     "asi_status": self.check_asi_status(),
                     "api_endpoints_active": self.check_api_endpoints()
@@ -85,7 +85,7 @@ class NeuroSonixRealMetrics:
             }
 
     def get_network_interfaces(self) -> List[Dict]:
-        """Kthen statistikat reale të interface-ve të rrjetit"""
+        """Kthen statistikat reale tÃ« interface-ve tÃ« rrjetit"""
         interfaces = []
         try:
             for interface, addrs in psutil.net_if_addrs().items():
@@ -104,7 +104,7 @@ class NeuroSonixRealMetrics:
         return interfaces
 
     def get_temperatures(self) -> Dict:
-        """Merr temperaturat e sensorëve nëse janë të disponueshme"""
+        """Merr temperaturat e sensorÃ«ve nÃ«se janÃ« tÃ« disponueshme"""
         try:
             temps = psutil.sensors_temperatures()
             if temps:
@@ -116,17 +116,17 @@ class NeuroSonixRealMetrics:
             pass
         return {"available_sensors": []}
 
-    def get_neurosonix_processes(self) -> List[Dict]:
-        """Gjen proceset aktive të NeuroSonix"""
-        neurosonix_processes = []
+    def get_Clisonix_processes(self) -> List[Dict]:
+        """Gjen proceset aktive tÃ« Clisonix"""
+        Clisonix_processes = []
         try:
             for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
                 try:
                     proc_info = proc.info
-                    # Kontrollo nëse është proces NeuroSonix
+                    # Kontrollo nÃ«se Ã«shtÃ« proces Clisonix
                     if any(keyword in proc_info['name'].lower() for keyword in 
-                          ['python', 'neurosonix', 'alba', 'asi', 'fastapi', 'uvicorn']):
-                        neurosonix_processes.append({
+                          ['python', 'Clisonix', 'alba', 'asi', 'fastapi', 'uvicorn']):
+                        Clisonix_processes.append({
                             "pid": proc_info['pid'],
                             "name": proc_info['name'],
                             "cpu_percent": round(proc_info['cpu_percent'] or 0, 2),
@@ -136,12 +136,12 @@ class NeuroSonixRealMetrics:
                     continue
         except:
             pass
-        return neurosonix_processes
+        return Clisonix_processes
 
     def check_alba_status(self) -> Dict:
-        """Kontrollon statusin real të ALBA"""
+        """Kontrollon statusin real tÃ« ALBA"""
         try:
-            # Provon të lidhet me ALBA endpoint
+            # Provon tÃ« lidhet me ALBA endpoint
             response = requests.get('http://localhost:8000/api/alba/status', timeout=2)
             return {
                 "status": "active" if response.status_code == 200 else "inactive",
@@ -156,7 +156,7 @@ class NeuroSonixRealMetrics:
             }
 
     def check_asi_status(self) -> Dict:
-        """Kontrollon statusin real të ASI"""
+        """Kontrollon statusin real tÃ« ASI"""
         try:
             response = requests.get('http://localhost:8000/asi/status', timeout=2)
             return {
@@ -167,7 +167,7 @@ class NeuroSonixRealMetrics:
             return {"status": "inactive", "response_time_ms": 0}
 
     def check_api_endpoints(self) -> List[Dict]:
-        """Kontrollon të gjitha endpoint-et e API-t"""
+        """Kontrollon tÃ« gjitha endpoint-et e API-t"""
         endpoints = [
             ("/health", "GET"),
             ("/status", "GET"), 
@@ -201,32 +201,32 @@ class NeuroSonixRealMetrics:
         return results
 
     def calculate_health_score(self) -> float:
-        """Llogarit score real të shëndetit të sistemit"""
+        """Llogarit score real tÃ« shÃ«ndetit tÃ« sistemit"""
         try:
             score = 100.0
             
-            # Zbrit për CPU të lartë
+            # Zbrit pÃ«r CPU tÃ« lartÃ«
             cpu_usage = psutil.cpu_percent(interval=0.1)
             if cpu_usage > 80:
                 score -= 20
             elif cpu_usage > 60:
                 score -= 10
                 
-            # Zbrit për memory të lartë
+            # Zbrit pÃ«r memory tÃ« lartÃ«
             memory = psutil.virtual_memory()
             if memory.percent > 90:
                 score -= 20
             elif memory.percent > 80:
                 score -= 10
                 
-            # Zbrit për disk të plotë
+            # Zbrit pÃ«r disk tÃ« plotÃ«
             disk = psutil.disk_usage('/')
             if disk.percent > 90:
                 score -= 15
             elif disk.percent > 80:
                 score -= 5
                 
-            # Zbrit për API joaktiv
+            # Zbrit pÃ«r API joaktiv
             api_status = self.check_api_endpoints()
             inactive_apis = sum(1 for api in api_status if api['status'] == 'inactive')
             if inactive_apis > 0:
@@ -237,18 +237,18 @@ class NeuroSonixRealMetrics:
         except:
             return 0.0
 
-# ✅ PËRDORIMI:
+# âœ… PÃ‹RDORIMI:
 if __name__ == "__main__":
-    metrics_collector = NeuroSonixRealMetrics()
+    metrics_collector = ClisonixRealMetrics()
     
     # Merr metrika reale
     real_metrics = metrics_collector.get_system_metrics()
     
     # Printo rezultatet
-    print("🚀 NEUROSONIX REAL METRICS:")
+    print("ðŸš€ Clisonix REAL METRICS:")
     print(json.dumps(real_metrics, indent=2))
     
-    # Gjendja e shëndetit
+    # Gjendja e shÃ«ndetit
     health = real_metrics['health_score']
-    status = "✅ OPTIMAL" if health > 90 else "⚠️ ATTENTION" if health > 70 else "🚨 CRITICAL"
-    print(f"\n🏥 SYSTEM HEALTH: {health}% - {status}")
+    status = "âœ… OPTIMAL" if health > 90 else "âš ï¸ ATTENTION" if health > 70 else "ðŸš¨ CRITICAL"
+    print(f"\nðŸ¥ SYSTEM HEALTH: {health}% - {status}")

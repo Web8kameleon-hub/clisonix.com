@@ -1,5 +1,5 @@
-/**
- * 🚀 NEUROSONIX INDUSTRIAL FILE UPLOAD ROUTES
+﻿/**
+ * ðŸš€ Clisonix INDUSTRIAL FILE UPLOAD ROUTES
  * Production-Grade File Upload API with S3, Chunked Upload, Real Processing
  * Industrial Security, Real Virus Scanning, Professional Validation
  */
@@ -95,9 +95,9 @@ class UploadService {
         scanLog: join(process.cwd(), 'logs', 'virus-scan.log'),
         debugMode: process.env.NODE_ENV === 'development'
       });
-      console.log('🔒 Virus scanner initialized');
+      console.log('ðŸ”’ Virus scanner initialized');
     } catch (error) {
-      console.error('❌ Failed to initialize virus scanner:', error);
+      console.error('âŒ Failed to initialize virus scanner:', error);
     }
   }
 

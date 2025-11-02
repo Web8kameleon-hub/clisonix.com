@@ -1,5 +1,5 @@
-"""
-NeuroSonix Authentication Models
+﻿"""
+Clisonix Authentication Models
 User and subscription management with SQLAlchemy
 """
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey, Enum, Numeric

@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
 Mesh HQ Receiver
-Industrial Real-Data Sink for NeuroSonix Distributed Systems
+Industrial Real-Data Sink for Clisonix Distributed Systems
 Business: Ledjan Ahmati - WEB8euroweb GmbH
 
-Pranon çdo të dhënë nga Integrated System / Pulse Balancer
-Ruhet si JSONL në disk me timestamp real.
+Pranon Ã§do tÃ« dhÃ«nÃ« nga Integrated System / Pulse Balancer
+Ruhet si JSONL nÃ« disk me timestamp real.
 """
 
 from datetime import datetime
@@ -19,12 +19,12 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import uvicorn
 
-from neurosonix.colored_logger import setup_logger
+from Clisonix.colored_logger import setup_logger
 
 # =========================================================
-# 🔧 KONFIGURIMET
+# ðŸ”§ KONFIGURIMET
 # =========================================================
-BASE_DIR = Path(r"C:\neurosonix-cloud")
+BASE_DIR = Path(r"C:\Clisonix-cloud")
 DATA_DIR = BASE_DIR / "mesh_data"
 LOGS_DIR = BASE_DIR / "logs"
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -35,26 +35,26 @@ ERROR_FILE = LOGS_DIR / "mesh_errors.log"
 
 APP_NAME = f"MeshHQ@{platform.node()}"
 
-logger = setup_logger("NeuroSonixMeshHQ")
+logger = setup_logger("ClisonixMeshHQ")
 
 # =========================================================
-# 🌐 FASTAPI APP
+# ðŸŒ FASTAPI APP
 # =========================================================
 app = FastAPI(
     title="Mesh HQ Receiver",
-    description="Industrial endpoint for receiving NeuroSonix data pulses in real time.",
+    description="Industrial endpoint for receiving Clisonix data pulses in real time.",
     version="1.0.0-industrial",
 )
 
 
 # =========================================================
-# 🔹 ENDPOINT: Upload metrics
+# ðŸ”¹ ENDPOINT: Upload metrics
 # =========================================================
 @app.post("/metrics/upload")
 async def receive_metrics(request: Request):
     """
-    Pranon çdo dërgim nga sistemet NeuroSonix (Integrated System ose Balancer)
-    dhe e ruan si JSONL në disk.
+    Pranon Ã§do dÃ«rgim nga sistemet Clisonix (Integrated System ose Balancer)
+    dhe e ruan si JSONL nÃ« disk.
     """
     try:
         data = await request.json()
@@ -74,7 +74,7 @@ async def receive_metrics(request: Request):
 
 
 # =========================================================
-# 🔹 ENDPOINT: Health check
+# ðŸ”¹ ENDPOINT: Health check
 # =========================================================
 @app.get("/health")
 async def health():
@@ -91,7 +91,7 @@ async def health():
 
 
 # =========================================================
-# 🔹 ENDPOINT: View latest pulses
+# ðŸ”¹ ENDPOINT: View latest pulses
 # =========================================================
 @app.get("/metrics/latest")
 async def latest_entries(limit: int = 5):
@@ -103,7 +103,7 @@ async def latest_entries(limit: int = 5):
 
 
 # =========================================================
-# 🔹 HELPER FUNCTIONS
+# ðŸ”¹ HELPER FUNCTIONS
 # =========================================================
 def append_jsonl(path: Path, data: dict):
     with open(path, "a", encoding="utf-8") as handle:
@@ -120,7 +120,7 @@ def time_since_boot() -> float:
 
 
 # =========================================================
-# ▶️ MAIN ENTRY POINT
+# â–¶ï¸ MAIN ENTRY POINT
 # =========================================================
 if __name__ == "__main__":
     logger.info("Starting Mesh HQ Receiver on http://localhost:7777")

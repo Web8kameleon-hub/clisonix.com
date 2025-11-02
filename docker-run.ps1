@@ -1,9 +1,9 @@
-# Ultra-Industrial Docker Run Script
+﻿# Ultra-Industrial Docker Run Script
 # Author: Ledjan Ahmati
 
 param(
     [string]$ComposeFile = "docker-compose.yml",
-    [string]$ProjectName = "neurosonix-industrial",
+    [string]$ProjectName = "Clisonix-industrial",
     [switch]$Rebuild,
     [switch]$Audit,
     [switch]$Trace

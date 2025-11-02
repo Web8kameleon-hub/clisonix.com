@@ -1,12 +1,17 @@
-﻿## 🧠 NeuroSonix Cloud - Industrial Backend + Payment System
+﻿# 🧠 Clisonix Cloud
 
-**Industrial-Grade FastAPI Backend with Real Business Integration**
+Industrial Backend & Payment System
+
+**-Industrial-Grade FastAPI Backend with Real
+ Business Integration**
 
 **Business Information:**
-- **Owner:** Ledjan Ahmati  
+-**Owner:**
+Ledjan Ahmati
+
 - **Company:** WEB8euroweb GmbH
 - **SEPA IBAN:** DE72430500010015012263 (Sparkasse Bochum)
-- **PayPal:** ahmati.bau@gmail.com
+- **PayPal:** <ahmati.bau@gmail.com>
 - **Data Policy:** REAL DATA ONLY - NO MOCK/PLACEHOLDER
 
 ---
@@ -14,23 +19,27 @@
 ## 🚀 Real Industrial Features
 
 ### 🧠 AI Character Engines (ALBI/ALBA/JONA)
+
 - **ALBI:** Advanced Learning & Brain Intelligence - Cognitive pattern analysis
 - **ALBA:** Adaptive Learning & Brain Analysis - Real-time EEG processing  
 - **JONA:** Joint Oscillatory Neural Analysis - Multi-modal signal correlation
 
 ### 💳 Payment System Integration
+
 - **SEPA Payments:** Direct bank transfers with real IBAN validation
 - **PayPal Integration:** Real business account processing
 - **Stripe Checkout:** Subscription management with plan-based quotas
 - **Webhook Processing:** Real-time payment verification
 
 ### 📊 Live System Monitoring
+
 - **Real-time Metrics:** CPU, memory, disk, network monitoring with psutil
 - **Health Scoring:** Industrial-grade system health algorithms
 - **Performance Tracking:** Live efficiency and stability measurements
 - **Process Monitoring:** Complete system process analysis
 
 ### 🔐 Authentication & Security
+
 - **JWT Authentication:** Refresh token support with secure handling
 - **Plan-Based Quotas:** Subscription tier restrictions
 - **Rate Limiting:** Industrial middleware for API protection
@@ -40,8 +49,7 @@
 
 ## 🏗️ Architecture
 
-```
-neurosonix-cloud/
+Clisonix-cloud/
 ├── app/
 │   ├── main.py              # Industrial FastAPI backend with live monitoring
 │   ├── settings.py          # Configuration with business integration
@@ -54,13 +62,13 @@ neurosonix-cloud/
 ├── requirements.txt       # Industrial-grade dependencies
 ├── docker-compose.yml     # Multi-service orchestration
 └── start_server.py        # Backend launcher script
-```
 
 ---
 
 ## ⚡ Quick Start
 
 ### 1. Install Dependencies
+
 ```bash
 # Install core dependencies
 pip install -r requirements.txt
@@ -70,6 +78,7 @@ python start_server.py
 ```
 
 ### 2. Start Industrial Backend
+
 ```bash
 # Method 1: Use launcher script
 python start_server.py
@@ -79,15 +88,17 @@ uvicorn app.master:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### 3. Access Industrial Backend
-- **Backend:** http://localhost:8000
-- **API Docs:** http://localhost:8000/docs (development only)
-- **Health Check:** http://localhost:8000/health
+
+- **Backend:** <http://localhost:8000>
+- **API Docs:** <http://localhost:8000/docs> (development only)
+- **Health Check:** <http://localhost:8000/health>
 
 ---
 
 ## 🌟 Industrial Endpoints
 
 ### System Information
+
 ```bash
 GET /                        # Complete system overview + business info
 GET /health                  # Industrial health check with real metrics
@@ -96,6 +107,7 @@ GET /api/v1/info            # Complete API capabilities
 ```
 
 ### AI Character Engines  
+
 ```bash
 GET /api/albi/info          # ALBI Intelligence Engine status
 GET /api/alba/info          # ALBA Data Collector metrics
@@ -104,12 +116,14 @@ GET /api/ecosystem/status   # Complete ecosystem overview
 ```
 
 ### Real Data Processing
+
 ```bash
 POST /api/uploads/eeg/process    # Real EEG analysis (ALBI+ALBA engines)
 POST /api/uploads/audio/process  # Real audio processing (JONA+ALBA engines)
 ```
 
 ### Payment Processing
+
 ```bash
 POST /billing/create        # Create SEPA/PayPal payment
 POST /billing/process/:id   # Process payment with real verification
@@ -118,6 +132,7 @@ GET /billing/stats          # Payment system statistics
 ```
 
 ### Authentication
+
 ```bash
 POST /auth/login           # JWT authentication
 POST /auth/register        # User registration with plan assignment
@@ -129,9 +144,10 @@ GET /auth/me              # Current user information
 ## 🔧 Configuration
 
 ### Environment Variables
+
 ```bash
 # Database Configuration
-DATABASE_URL=postgresql+asyncpg://user:pass@localhost/neurosonix
+DATABASE_URL=postgresql+asyncpg://user:pass@localhost/Clisonix
 
 # Redis Configuration  
 REDIS_URL=redis://localhost:6379
@@ -161,6 +177,7 @@ API_VERSION=1.0.0
 ## 🏭 Industrial Features
 
 ### Real System Monitoring
+
 - **CPU Monitoring:** Real-time CPU usage with psutil
 - **Memory Tracking:** Live memory consumption analysis
 - **Disk Analytics:** Storage utilization monitoring
@@ -168,12 +185,14 @@ API_VERSION=1.0.0
 - **Process Monitoring:** Complete system process tracking
 
 ### Payment System
+
 - **SEPA Integration:** Real bank account DE72430500010015012263
-- **PayPal Processing:** Business account ahmati.bau@gmail.com
+- **PayPal Processing:** Business account <ahmati.bau@gmail.com>
 - **Stripe Subscriptions:** Plan-based quota management
 - **Webhook Verification:** Secure payment status updates
 
 ### Data Processing
+
 - **EEG Analysis:** Real neural signal processing (no mock data)
 - **Audio Processing:** Industrial-grade audio analysis
 - **Multi-modal Integration:** ALBI/ALBA/JONA engine coordination
@@ -184,6 +203,7 @@ API_VERSION=1.0.0
 ## 📈 Performance Metrics
 
 ### System Health Scoring
+
 ```python
 # Industrial health algorithm
 cpu_score = max(0, 100 - cpu_usage) * 0.3
@@ -193,6 +213,7 @@ total_health = cpu_score + memory_score + uptime_score
 ```
 
 ### Live Ecosystem Tracking
+
 - **ALBI Jobs:** Real processing job counter
 - **ALBA Data Points:** Live data collection metrics  
 - **JONA Alerts:** System monitoring alert handling
@@ -203,12 +224,14 @@ total_health = cpu_score + memory_score + uptime_score
 ## 🔒 Security & Compliance
 
 ### Authentication Security
+
 - **JWT Tokens:** Secure authentication with refresh tokens
 - **Plan Quotas:** Subscription-based API limiting
 - **CORS Protection:** Production-ready cross-origin policies
 - **Request Tracing:** Complete request ID tracking
 
 ### Payment Security
+
 - **Webhook Verification:** Stripe signature validation
 - **SEPA Compliance:** European payment standard compliance
 - **PayPal Integration:** Business account secure processing
@@ -219,6 +242,7 @@ total_health = cpu_score + memory_score + uptime_score
 ## 🐳 Docker Deployment
 
 ### Production Deployment
+
 ```bash
 # Build and deploy full stack
 docker-compose up -d
@@ -231,6 +255,7 @@ docker-compose logs -f api
 ```
 
 ### Services
+
 - **API:** FastAPI backend with industrial monitoring
 - **Worker:** Background job processing
 - **PostgreSQL:** Production database
@@ -242,6 +267,7 @@ docker-compose logs -f api
 ## 📊 Business Integration
 
 ### Real Business Data
+
 ```json
 {
   "owner": "Ledjan Ahmati",
@@ -254,7 +280,8 @@ docker-compose logs -f api
 }
 ```
 
-### Payment Processing
+ Payment Processing
+
 - **SEPA Transfers:** Direct European bank integration
 - **PayPal Payments:** Real business account processing  
 - **Stripe Subscriptions:** Plan-based recurring billing
@@ -265,6 +292,7 @@ docker-compose logs -f api
 ## 🛠️ Development
 
 ### Local Development
+
 ```bash
 # Install development dependencies
 pip install -r requirements.txt
@@ -277,6 +305,7 @@ uvicorn app.master:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### Testing
+
 ```bash
 # Run test suite
 pytest tests/
@@ -292,8 +321,9 @@ pytest tests/test_billing.py -v
 
 ## 📞 Business Contact
 
-**Ledjan Ahmati - WEB8euroweb GmbH**
-- **Email:** ahmati.bau@gmail.com
+Ledjan Ahmati - WEB8euroweb GmbH**
+
+- **Email:** <ahmati.bau@gmail.com>
 - **SEPA:** DE72430500010015012263 (Sparkasse Bochum)
 - **Company:** WEB8euroweb GmbH
 - **Data Policy:** Industrial-grade real data processing only
@@ -303,6 +333,7 @@ pytest tests/test_billing.py -v
 ## 🔍 System Status
 
 **Live Monitoring Available:**
+
 - Real-time system metrics at `/health`
 - Complete ecosystem status at `/status`
 - AI engine monitoring at `/api/*/info`

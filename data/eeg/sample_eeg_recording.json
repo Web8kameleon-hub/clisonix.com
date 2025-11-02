@@ -1,4 +1,4 @@
-{
+﻿{
   "recording_id": "EEG-20251011-001",
   "subject": "Subject01",
   "timestamp": "2025-10-11T10:30:00Z",
@@ -12,7 +12,7 @@
     [0.15, 0.18, 0.16, 0.17, 0.19, 0.18, 0.17, 0.16]
   ],
   "metadata": {
-    "device": "Neurosonix EEG Pro",
+    "device": "Clisonix EEG Pro",
     "location": "Lab 1",
     "notes": "Alpha wave test, eyes closed"
   }

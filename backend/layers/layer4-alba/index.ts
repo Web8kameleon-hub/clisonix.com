@@ -1,8 +1,9 @@
-import type { Express, Request, Response, NextFunction } from "express";
+﻿import type { Express, Request, Response, NextFunction } from "express";
 import { AppConfig } from "../../config";
 import os from "os";
 import crypto from "crypto";
 import { EventEmitter } from "events";
+import { emitSignal } from "../_shared/signal";
 
 interface AlbaStream {
   id: string;
@@ -194,16 +195,29 @@ export class AlbaCore extends EventEmitter {
 }
 
 // ============================
-// 🌐 Express Mount Function
+// ðŸŒ Express Mount Function
 // ============================
 export function mountAlba(app: Express, cfg: AppConfig): AlbaCore {
-  console.log("🏭 [L4] Initializing ALBA Industrial Core...");
+  console.log("ðŸ­ [L4] Initializing ALBA Industrial Core...");
   const alba = new AlbaCore(cfg.ALBA_MAX_STREAMS ?? 24);
 
-  alba.on("alert", (alert: AlbaAlert) => {
-    console.log(`🚨 [ALBA ALERT] (${alert.level.toUpperCase()}): ${alert.message}`);
+  alba.on("alert", async (alert: AlbaAlert) => {
+    console.log(`ðŸš¨ [ALBA ALERT] (${alert.level.toUpperCase()}): ${alert.message}`);
+    try {
+      await emitSignal("ALBA", "alert", alert);
+    } catch (err) {
+      console.error("[ALBA] Failed to emit alert signal", err);
+    }
   });
-  alba.on("log", (msg: string) => console.log(msg));
+
+  alba.on("log", async (msg: string) => {
+    console.log(msg);
+    try {
+      await emitSignal("ALBA", "event", { message: msg });
+    } catch (err) {
+      console.error("[ALBA] Failed to emit log signal", err);
+    }
+  });
 
   app.get("/alba/status", (_req, res) => res.json(alba.getStatus()));
 
@@ -241,7 +255,7 @@ export function mountAlba(app: Express, cfg: AppConfig): AlbaCore {
     res.json({
       system: "ALBA Industrial Monitoring Core",
       version: "7.3",
-      developer: "NeuroSonix / Trinity Systems",
+      developer: "Clisonix / Trinity Systems",
       maxStreams: 24,
       uptime: `${Math.round((Date.now() - alba['started']) / 1000)}s`,
       lastDiagnostics: alba.getStatus().timestamp,
@@ -250,10 +264,10 @@ export function mountAlba(app: Express, cfg: AppConfig): AlbaCore {
 
   // Error middleware
   app.use("/alba", (err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    console.error("❌ [ALBA ERROR]", err);
+    console.error("âŒ [ALBA ERROR]", err);
     res.status(500).json({ error: err.message });
   });
 
-  console.log(`✅ [L4] ALBA Industrial Core mounted — monitoring ${cfg.ALBA_MAX_STREAMS ?? 24} streams`);
+  console.log(`âœ… [L4] ALBA Industrial Core mounted â€” monitoring ${cfg.ALBA_MAX_STREAMS ?? 24} streams`);
   return alba;
 }

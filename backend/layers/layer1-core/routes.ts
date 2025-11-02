@@ -1,4 +1,4 @@
-import { Router } from "express";
+﻿import { Router } from "express";
 import os from "os";
 import { AppConfig } from "../../config";
 
@@ -7,7 +7,7 @@ export function coreRoutes(cfg: AppConfig) {
   r.get("/health", (_req, res) => {
     res.json({
       status: "healthy",
-      service: "NeuroSonix Industrial Backend",
+      service: "Clisonix Industrial Backend",
       version: "1.0.0",
       timestamp: new Date().toISOString(),
       hostname: os.hostname(),

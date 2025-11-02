@@ -1,7 +1,7 @@
-"""
-🎵 NeuroSonix Neuroacoustic Converter
+﻿"""
+ðŸŽµ Clisonix Neuroacoustic Converter
 ====================================
-Advanced EEG-to-Audio conversion engine për neuroacoustic analysis.
+Advanced EEG-to-Audio conversion engine pÃ«r neuroacoustic analysis.
 Real-time neural signal processing & audio synthesis.
 
 REAL NEUROACOUSTIC TECHNOLOGY - NO MOCK DATA
@@ -48,7 +48,7 @@ class NeuroAcousticConverter:
             conversion_mode: 'harmonic', 'frequency_mapping', 'rhythmic'
         """
         try:
-            logger.info(f"🎵 Starting neuroacoustic conversion: {conversion_mode}")
+            logger.info(f"ðŸŽµ Starting neuroacoustic conversion: {conversion_mode}")
             
             # Validate EEG data
             if eeg_data.shape[0] != self.eeg_channels:
@@ -91,7 +91,7 @@ class NeuroAcousticConverter:
             }
             
         except Exception as e:
-            logger.error(f"💥 Neuroacoustic conversion error: {str(e)}")
+            logger.error(f"ðŸ’¥ Neuroacoustic conversion error: {str(e)}")
             raise
     
     async def _analyze_frequency_bands(self, eeg_data: np.ndarray) -> Dict:
@@ -100,14 +100,14 @@ class NeuroAcousticConverter:
         band_powers = {}
         
         for band_name, (low_freq, high_freq) in self.frequency_bands.items():
-            # Bandpass filter për secilën bandë
+            # Bandpass filter pÃ«r secilÃ«n bandÃ«
             nyquist = self.eeg_sample_rate / 2
             low = low_freq / nyquist
             high = high_freq / nyquist
             
             b, a = signal.butter(4, [low, high], btype='band')
             
-            # Filter të gjitha channels
+            # Filter tÃ« gjitha channels
             band_power = 0
             for channel in range(eeg_data.shape[0]):
                 filtered = signal.filtfilt(b, a, eeg_data[channel])
@@ -370,7 +370,7 @@ class NeuroAcousticConverter:
                                     filename: str, metadata: Dict) -> str:
         """Save neuroacoustic audio file with metadata"""
         
-        filepath = f"C:/neurosonix-cloud/data/neuroacoustic/{filename}"
+        filepath = f"C:/Clisonix-cloud/data/neuroacoustic/{filename}"
         
         # Ensure directory exists
         import os
@@ -383,12 +383,12 @@ class NeuroAcousticConverter:
         with open(f"{filepath}_metadata.json", 'w') as f:
             json.dump(metadata, f, indent=2)
         
-        logger.info(f"💾 Neuroacoustic file saved: {filepath}")
+        logger.info(f"ðŸ’¾ Neuroacoustic file saved: {filepath}")
         return filepath
 
 # Factory function
 async def create_neuroacoustic_converter() -> NeuroAcousticConverter:
     """Create neuroacoustic converter instance"""
     converter = NeuroAcousticConverter()
-    logger.info("🎵 NeuroAcoustic Converter initialized - REAL TECHNOLOGY READY")
+    logger.info("ðŸŽµ NeuroAcoustic Converter initialized - REAL TECHNOLOGY READY")
     return converter
