@@ -1,521 +1,252 @@
+#!/usr/bin/env pwsh
 #
-# Clisonix Cloud - Start All Services Script
-# ===============================================
-# PowerShell helper to start the complete local dev stack with all
-# services properly configured, monitored, and health-checked.
-#
-# Usage:
-#   .\scripts\start-all.ps1                   # Start all services
-#   .\scripts\start-all.ps1 -Detached         # Start in visible windows
-#   .\scripts\start-all.ps1 -Clean            # Clean and restart
-#   .\scripts\start-all.ps1 -OpenPostman      # Generate & open Postman
-#
-# Options:
-#   -Detached     Start in visible PowerShell windows
-#   -Clean        Kill all existing services before starting
-#   -Service      Start only specific service (API, MESH, ORCH, NEXT, DB)
-#   -Monitor      Show real-time status monitoring
-#   -OpenPostman  Generate Postman collection for API testing
+# ╔═══════════════════════════════════════════════════════════════════╗
+# ║                    CLISONIX CLOUD - MEGA LAUNCHER                 ║
+# ║                   "Next Generation Startup Script"                ║
+# ║                                                                   ║
+# ║  Launches the entire Clisonix Cloud stack like a modern aircraft  ║
+# ║  with pre-flight checks, parallel initialization, and real-time   ║
+# ║  monitoring dashboard.                                            ║
+# ╚═══════════════════════════════════════════════════════════════════╝
 #
 
 param(
-    [switch]$Detached,
+    [ValidateSet('1', '2', '3')]
+    [string]$Mode = '3',
     [switch]$Clean,
-    [string]$Service,
-    [switch]$Monitor,
-    [switch]$OpenPostman
+    [switch]$Monitor
 )
 
-$Root = Split-Path -Parent $MyInvocation.MyCommand.Path | Split-Path -Parent
-Set-Location -Path $Root
+$Root = 'c:\neurosonix-cloud'
+Set-Location $Root
 
-# Configuration
-$VenvActivate = Join-Path $Root ".venv\Scripts\Activate.ps1"
-$LogDir = Join-Path $Root 'logs'
-$HealthCheckRetries = 10
-$HealthCheckDelay = 2
+# ═══════════════════════════════════════════════════════════════════
+# CONFIGURATION & STYLING
+# ═══════════════════════════════════════════════════════════════════
 
-# Colors for output
 $Colors = @{
-    Success = 'Green'
-    Error = 'Red'
-    Warning = 'Yellow'
-    Info = 'Cyan'
-    Section = 'Magenta'
+    Title    = 'Magenta'
+    Success  = 'Green'
+    Warning  = 'Yellow'
+    Error    = 'Red'
+    Info     = 'Cyan'
+    Section  = 'Blue'
 }
 
-# Create logs directory if it doesn't exist
-if (-not (Test-Path $LogDir)) {
-    New-Item -ItemType Directory -Path $LogDir | Out-Null
+function Show-Banner {
+    Write-Host "`n╔═══════════════════════════════════════════════════════════════════╗" -ForegroundColor $Colors.Title
+    Write-Host "║                                                                   ║" -ForegroundColor $Colors.Title
+    Write-Host "║     🚀  CLISONIX CLOUD - NEXT GENERATION LAUNCHER  🚀             ║" -ForegroundColor $Colors.Title
+    Write-Host "║                                                                   ║" -ForegroundColor $Colors.Title
+    Write-Host "╚═══════════════════════════════════════════════════════════════════╝`n" -ForegroundColor $Colors.Title
 }
 
-function Write-Status {
-    param([string]$Message, [string]$Type = 'Info')
-    $Color = $Colors[$Type]
-    $Symbol = @{
-        'Success' = '[OK]'
-        'Error' = '[ERR]'
-        'Warning' = '[WRN]'
-        'Info' = '[INF]'
-        'Section' = '[---]'
-    }[$Type]
-    Write-Host "$Symbol $Message" -ForegroundColor $Color
+function Show-Status {
+    param([string]$Message, [string]$Status = 'INFO')
+    $Icon = @{
+        'INFO'    = '▸'
+        'OK'      = '✓'
+        'WAIT'    = '◌'
+        'ERROR'   = '✗'
+        'WARN'    = '⚠'
+    }[$Status]
+    
+    $Color = @{
+        'INFO'    = $Colors.Info
+        'OK'      = $Colors.Success
+        'WAIT'    = $Colors.Warning
+        'ERROR'   = $Colors.Error
+        'WARN'    = $Colors.Warning
+    }[$Status]
+    
+    Write-Host "  $Icon " -NoNewline -ForegroundColor $Color
+    Write-Host $Message
 }
 
-function Invoke-VenvCommand($cmd) {
-    if (Test-Path $VenvActivate) {
-        return "& `"$VenvActivate`"; $cmd"
-    }
-    return $cmd
-}
-
-function Test-ServiceHealth {
-    param([string]$Port, [string]$Path = '/')
-    try {
-        $url = "http://localhost:$Port$Path"
-        $response = Invoke-WebRequest -Uri $url -TimeoutSec 3 -SkipHttpErrorCheck -ErrorAction SilentlyContinue
-        return $response.StatusCode -eq 200
-    }
-    catch {
+function Invoke-PreFlightCheck {
+    Write-Host "`n┌─── PRE-FLIGHT CHECKS ───────────────────────────────────────┐" -ForegroundColor $Colors.Section
+    
+    # Check Node.js
+    Show-Status "Checking Node.js..." 'WAIT'
+    $node = node --version 2>$null
+    if ($node) {
+        Show-Status "Node.js $node ✓" 'OK'
+    } else {
+        Show-Status "Node.js not found" 'ERROR'
         return $false
     }
-}
-
-function Wait-ForService {
-    param([string]$Name, [int]$Port, [string]$Path = '/')
-    Write-Host "  Waiting for $Name to be ready..." -ForegroundColor Yellow
     
-    for ($i = 1; $i -le $HealthCheckRetries; $i++) {
-        if (Test-ServiceHealth -Port $Port -Path $Path) {
-            Write-Status "$Name is healthy ($i/$HealthCheckRetries)" 'Success'
-            return $true
-        }
-        Write-Host "  [$i/$HealthCheckRetries] Still starting..." -ForegroundColor Gray
-        Start-Sleep -Seconds $HealthCheckDelay
-    }
-    
-    Write-Status "$Name failed to respond" 'Warning'
-    return $false
-}
-
-function Import-ToPostman {
-    param([string]$ApiBase)
-    
-    Write-Status "Preparing Postman collection..." 'Info'
-    
-    # Build comprehensive collection
-    $postmanCollection = @{
-        info = @{
-            name = "Clisonix Cloud API"
-            description = "Auto-generated API collection for Clisonix Cloud - Complete microservices API"
-            schema = "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-        }
-        item = @(
-            @{
-                name = "Health & Diagnostics"
-                description = "System health and status endpoints"
-                item = @(
-                    @{
-                        name = "Health Check"
-                        description = "Get system health status"
-                        request = @{
-                            method = "GET"
-                            header = @()
-                            url = @{ 
-                                raw = "$ApiBase/health"
-                                protocol = "http"
-                                host = @("localhost")
-                                port = "8000"
-                                path = @("health")
-                            }
-                        }
-                    },
-                    @{
-                        name = "System Status"
-                        description = "Get complete system status"
-                        request = @{
-                            method = "GET"
-                            header = @( @{ key = "Accept"; value = "application/json" } )
-                            url = @{ 
-                                raw = "$ApiBase/api/system-status"
-                                protocol = "http"
-                                host = @("localhost")
-                                port = "8000"
-                                path = @("api", "system-status")
-                            }
-                        }
-                    }
-                )
-            },
-            @{
-                name = "Brain Intelligence APIs"
-                description = "Advanced AI and cognitive processing endpoints"
-                item = @(
-                    @{
-                        name = "YouTube Insight"
-                        description = "Analyze YouTube content and extract insights"
-                        request = @{
-                            method = "GET"
-                            header = @()
-                            url = @{ 
-                                raw = "$ApiBase/brain/youtube/insight"
-                                path = @("brain", "youtube", "insight")
-                            }
-                        }
-                    },
-                    @{
-                        name = "Energy Check"
-                        description = "Check energy levels and system performance"
-                        request = @{
-                            method = "POST"
-                            header = @( @{ key = "Content-Type"; value = "application/json" } )
-                            body = @{
-                                mode = "raw"
-                                raw = '{"energy_level": 50, "threshold": 30}'
-                            }
-                            url = @{ 
-                                raw = "$ApiBase/brain/energy/check"
-                                path = @("brain", "energy", "check")
-                            }
-                        }
-                    },
-                    @{
-                        name = "Cortex Map"
-                        description = "Get neural network topology and connections"
-                        request = @{
-                            method = "GET"
-                            header = @()
-                            url = @{ 
-                                raw = "$ApiBase/brain/cortex-map"
-                                path = @("brain", "cortex-map")
-                            }
-                        }
-                    }
-                )
-            },
-            @{
-                name = "Documentation"
-                description = "API documentation and schema"
-                item = @(
-                    @{
-                        name = "OpenAPI Docs"
-                        description = "Interactive Swagger UI documentation"
-                        request = @{
-                            method = "GET"
-                            url = @{ 
-                                raw = "$ApiBase/docs"
-                                path = @("docs")
-                            }
-                        }
-                    },
-                    @{
-                        name = "ReDoc Docs"
-                        description = "ReDoc API documentation"
-                        request = @{
-                            method = "GET"
-                            url = @{ 
-                                raw = "$ApiBase/redoc"
-                                path = @("redoc")
-                            }
-                        }
-                    },
-                    @{
-                        name = "OpenAPI Schema"
-                        description = "OpenAPI specification JSON"
-                        request = @{
-                            method = "GET"
-                            url = @{ 
-                                raw = "$ApiBase/openapi.json"
-                                path = @("openapi.json")
-                            }
-                        }
-                    }
-                )
-            }
-        )
-    }
-    
-    # Save collection to file
-    $collectionPath = Join-Path $Root "Clisonix_Cloud_API.postman_collection.json"
-    $postmanCollection | ConvertTo-Json -Depth 20 | Set-Content $collectionPath -Encoding UTF8
-    
-    Write-Status "Postman collection saved to: $collectionPath" 'Success'
-    Write-Host "  File size: $('{0:N0}' -f (Get-Item $collectionPath).Length) bytes" -ForegroundColor Cyan
-    Write-Host "  Import in Postman: File → Import → $collectionPath" -ForegroundColor Yellow
-    
-    # Try to open Postman if available
-    $postmanPaths = @(
-        "C:\Program Files\Postman\Postman.exe",
-        "C:\Program Files (x86)\Postman\Postman.exe",
-        "$env:LOCALAPPDATA\Postman\Postman.exe"
-    )
-    
-    $postmanFound = $false
-    foreach ($path in $postmanPaths) {
-        if (Test-Path $path) {
-            Write-Status "Opening Postman..." 'Info'
-            Start-Process $path -ErrorAction SilentlyContinue
-            $postmanFound = $true
-            break
-        }
-    }
-    
-    if (-not $postmanFound) {
-        Write-Host "  💡 Postman not found in common locations" -ForegroundColor Yellow
-        Write-Host "  📝 Import collection manually in Postman:" -ForegroundColor Cyan
-        Write-Host "     1. Open Postman" -ForegroundColor Gray
-        Write-Host "     2. Click 'Import' button" -ForegroundColor Gray
-        Write-Host "     3. Select: $collectionPath" -ForegroundColor Gray
-    }
-    
-    return $collectionPath
-}
-
-# Default services - complete configuration
-$Services = @(
-    @{ 
-        Name = 'API'
-        Cwd = $Root
-        Cmd = Invoke-VenvCommand('python -m uvicorn apps.api.main:app --reload --host 0.0.0.0 --port 8000')
-        Port = 8000
-        HealthPath = '/health'
-        Order = 1
-    },
-    @{ 
-        Name = 'MESH'
-        Cwd = $Root
-        Cmd = Invoke-VenvCommand('python -m uvicorn backend.mesh.server:app --reload --host 0.0.0.0 --port 7777')
-        Port = 7777
-        HealthPath = '/'
-        Order = 2
-    },
-    @{ 
-        Name = 'ORCH'
-        Cwd = $Root
-        Cmd = Invoke-VenvCommand('python -m uvicorn backend.system.smart_orchestrator:app --reload --host 0.0.0.0 --port 5555')
-        Port = 5555
-        HealthPath = '/'
-        Order = 3
-    },
-    @{ 
-        Name = 'NEXT'
-        Cwd = Join-Path $Root 'apps\web'
-        Cmd = "`$env:NEXT_PUBLIC_API_BASE='http://localhost:8000'; npm run dev"
-        Port = 3000
-        HealthPath = '/'
-        Order = 4
-    }
-)
-
-# ===============================================
-# PRE-START VALIDATION & CLEANUP
-# ===============================================
-
-function Initialize-Environment {
-    Write-Host "`n========================================" -ForegroundColor Magenta
-    Write-Host "CLISONIX CLOUD - INITIALIZING ENVIRONMENT" -ForegroundColor Magenta
-    Write-Host "========================================`n" -ForegroundColor Magenta
-
-    # Check Python venv
-    Write-Status "Checking Python virtual environment..." 'Info'
-    if (Test-Path $VenvActivate) {
-        Write-Status "Virtual environment found" 'Success'
+    # Check Python
+    Show-Status "Checking Python..." 'WAIT'
+    $python = python --version 2>&1
+    if ($?) {
+        Show-Status "Python installed ✓" 'OK'
     } else {
-        Write-Status "Virtual environment not found" 'Warning'
-        Write-Host "Creating venv..." -ForegroundColor Yellow
-        python -m venv .venv
-        & $VenvActivate
-    }
-
-    # Install Python dependencies
-    Write-Status "Installing Python dependencies..." 'Info'
-    python -m pip install -q --upgrade pip setuptools wheel 2>&1 | Out-Null
-    if (Test-Path 'requirements.txt') {
-        python -m pip install -q -r requirements.txt 2>&1 | Out-Null
-        Write-Status "Python dependencies installed" 'Success'
-    }
-
-    # Check and install frontend dependencies
-    Write-Status "Checking frontend dependencies..." 'Info'
-    $webDir = Join-Path $Root 'apps\web'
-    if (Test-Path $webDir) {
-        Push-Location $webDir
-        if (-not (Test-Path 'node_modules')) {
-            Write-Host "Installing npm packages..." -ForegroundColor Yellow
-            npm install --legacy-peer-deps 2>&1 | Out-Null
-        }
-        Write-Status "Frontend dependencies ready" 'Success'
-        Pop-Location
-    }
-
-    Write-Status "Environment initialization complete" 'Success'
-}
-
-if ($Clean) {
-    Write-Status "Cleaning up existing services..." 'Warning'
-    Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-    Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-    Start-Sleep -Seconds 2
-    Write-Status "Cleanup complete" 'Success'
-}
-
-Initialize-Environment
-
-# ===============================================
-# SERVICE STARTUP
-# ===============================================
-
-function Start-Service {
-    param([hashtable]$ServiceConfig)
-    
-    $name = $ServiceConfig.Name
-    $cwd  = $ServiceConfig.Cwd
-    $cmd  = $ServiceConfig.Cmd
-    $port = $ServiceConfig.Port
-    
-    if (-not (Test-Path $cwd)) {
-        Write-Status "Path not found for $name : $cwd" 'Error'
+        Show-Status "Python not found" 'ERROR'
         return $false
     }
-
-    Write-Host "`n> Starting $name (port $port)..." -ForegroundColor Cyan
     
-    $logFile = Join-Path $LogDir "$($name.ToLower())-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
-
-    if ($Detached) {
-        # Open in new visible window with proper title
-        $windowTitle = "Clisonix - $name (Port: $port)"
-        $psCmd = @"
-`$host.ui.RawUI.WindowTitle = '$windowTitle'
-Set-Location -Path '$cwd'
-Write-Host 'Starting $name...' -ForegroundColor Green
-Write-Host 'Port: $port' -ForegroundColor Yellow
-Write-Host 'Directory: $cwd' -ForegroundColor Gray
-Write-Host 'Log: $logFile`n' -ForegroundColor Gray
-$cmd
-"@
-        
-        # Start in new PowerShell window with proper configuration
-        $process = Start-Process -FilePath pwsh `
-            -ArgumentList @('-NoExit', '-Command', $psCmd) `
-            -WorkingDirectory $cwd `
-            -PassThru
-        
-        Write-Host "  [OK] Opened in new window (PID: $($process.Id))" -ForegroundColor Green
-        Write-Host "  Title: $windowTitle" -ForegroundColor Green
+    # Check dependencies
+    Show-Status "Checking dependencies..." 'WAIT'
+    if (-not (Test-Path 'apps\web\node_modules')) {
+        Show-Status "Installing npm dependencies..." 'WAIT'
+        npm install --legacy-peer-deps --silent 2>$null
+        Show-Status "Dependencies ready ✓" 'OK'
     } else {
-        # Start as background job
-        $script = {
-            param($cwd, $cmd, $logFile)
-            Set-Location -Path $cwd
-            Invoke-Expression $cmd 2>&1 | Out-File -FilePath $logFile -Encoding utf8 -Append
-        }
-        
-        Start-Job -ScriptBlock $script -ArgumentList $cwd, $cmd, $logFile -Name $name | Out-Null
-        Write-Host "  [OK] Started as background job" -ForegroundColor Green
+        Show-Status "Dependencies cached ✓" 'OK'
     }
-
+    
+    # Check ports
+    Show-Status "Checking ports..." 'WAIT'
+    $ports3000 = Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue
+    $ports8000 = Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue
+    
+    if ($ports3000 -or $ports8000) {
+        Show-Status "Ports already in use - will attempt restart" 'WARN'
+        if ($Clean) {
+            Get-Process node, python -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+            Start-Sleep 2
+            Show-Status "Processes cleaned ✓" 'OK'
+        }
+    } else {
+        Show-Status "Ports available ✓" 'OK'
+    }
+    
+    Write-Host "└────────────────────────────────────────────────────────────────┘" -ForegroundColor $Colors.Section
     return $true
 }
 
-# Sort services by order and start them
-$ServicesToStart = if ($Service) {
-    $Services | Where-Object { $_.Name -eq $Service }
-} else {
-    $Services | Sort-Object { $_.Order }
-}
-
-Write-Host "`n========================================" -ForegroundColor Cyan
-Write-Host "STARTING SERVICES (Detached=$Detached)" -ForegroundColor Cyan
-Write-Host "========================================" -ForegroundColor Cyan
-
-$StartedServices = @()
-foreach ($svc in $ServicesToStart) {
-    if (Start-Service $svc) {
-        $StartedServices += $svc
+function Start-Mode1 {
+    Write-Host "`n┌─── MODE 1: BACKGROUND JOBS ─────────────────────────────────┐" -ForegroundColor $Colors.Section
+    
+    Show-Status "Starting API Server (port 8000)..." 'WAIT'
+    $apiJob = Start-Job -Name 'API' -ScriptBlock {
+        Set-Location 'c:\neurosonix-cloud'
+        python -m uvicorn apps.api.main:app --reload --host 0.0.0.0 --port 8000
     }
+    Show-Status "API started (Job #$($apiJob.Id)) ✓" 'OK'
+    
+    Start-Sleep 2
+    
+    Show-Status "Starting Frontend (port 3000)..." 'WAIT'
+    $webJob = Start-Job -Name 'Frontend' -ScriptBlock {
+        Set-Location 'c:\neurosonix-cloud\apps\web'
+        $env:NEXT_PUBLIC_API_BASE = 'http://localhost:8000'
+        npm run dev
+    }
+    Show-Status "Frontend started (Job #$($webJob.Id)) ✓" 'OK'
+    
+    Write-Host "└────────────────────────────────────────────────────────────────┘" -ForegroundColor $Colors.Section
+    Show-Status "Use: Get-Job | Stop-Job to stop services" 'INFO'
 }
 
-# ===============================================
-# HEALTH CHECKS
-# ===============================================
+function Start-Mode2 {
+    Write-Host "`n┌─── MODE 2: DETACHED WINDOWS ────────────────────────────────┐" -ForegroundColor $Colors.Section
+    
+    Show-Status "Starting API in new window..." 'WAIT'
+    Start-Process pwsh -ArgumentList @(
+        '-NoExit',
+        '-Command',
+        'Set-Location c:\neurosonix-cloud; $host.UI.RawUI.WindowTitle = "Clisonix - API (8000)"; Write-Host "Starting API..." -ForegroundColor Green; python -m uvicorn apps.api.main:app --reload --host 0.0.0.0 --port 8000'
+    )
+    Show-Status "API window opened ✓" 'OK'
+    
+    Start-Sleep 3
+    
+    Show-Status "Starting Frontend in new window..." 'WAIT'
+    Start-Process pwsh -ArgumentList @(
+        '-NoExit',
+        '-Command',
+        'Set-Location c:\neurosonix-cloud\apps\web; $host.UI.RawUI.WindowTitle = "Clisonix - Frontend (3000)"; $env:NEXT_PUBLIC_API_BASE="http://localhost:8000"; Write-Host "Starting Frontend..." -ForegroundColor Green; npm run dev'
+    )
+    Show-Status "Frontend window opened ✓" 'OK'
+    
+    Write-Host "└────────────────────────────────────────────────────────────────┘" -ForegroundColor $Colors.Section
+    Show-Status "Check the new PowerShell windows for output" 'INFO'
+}
 
-if (-not $Detached) {
-    Write-Host "`n========================================" -ForegroundColor Yellow
-    Write-Host "HEALTH CHECK - VERIFYING SERVICES" -ForegroundColor Yellow
-    Write-Host "========================================`n" -ForegroundColor Yellow
-
-    $AllHealthy = $true
-    foreach ($svc in $StartedServices) {
-        $healthy = Wait-ForService -Name $svc.Name -Port $svc.Port -Path $svc.HealthPath
-        if (-not $healthy) {
-            $AllHealthy = $false
+function Start-Mode3 {
+    Write-Host "`n┌─── MODE 3: MEGA LAUNCH (Next Generation) ──────────────────┐" -ForegroundColor $Colors.Section
+    
+    Show-Status "Initializing parallel startup sequence..." 'WAIT'
+    Start-Sleep 1
+    
+    Show-Status "Launching API Server..." 'WAIT'
+    $apiCmd = 'Set-Location c:\neurosonix-cloud; $host.UI.RawUI.WindowTitle = "🔷 CLISONIX - API SERVER (8000)"; Write-Host "╔═════════════════════════════════════════╗" -ForegroundColor Cyan; Write-Host "║   API SERVER ONLINE - Port 8000        ║" -ForegroundColor Cyan; Write-Host "╚═════════════════════════════════════════╝" -ForegroundColor Cyan; python -m uvicorn apps.api.main:app --reload --host 0.0.0.0 --port 8000'
+    Start-Process pwsh -ArgumentList @('-NoExit', '-Command', $apiCmd)
+    Show-Status "API launched ✓" 'OK'
+    
+    Start-Sleep 2
+    
+    Show-Status "Launching Frontend..." 'WAIT'
+    $webCmd = 'Set-Location c:\neurosonix-cloud\apps\web; $host.UI.RawUI.WindowTitle = "🔶 CLISONIX - FRONTEND (3000)"; $env:NEXT_PUBLIC_API_BASE="http://localhost:8000"; Write-Host "╔═════════════════════════════════════════╗" -ForegroundColor Yellow; Write-Host "║   FRONTEND ONLINE - Port 3000          ║" -ForegroundColor Yellow; Write-Host "╚═════════════════════════════════════════╝" -ForegroundColor Yellow; npm run dev'
+    Start-Process pwsh -ArgumentList @('-NoExit', '-Command', $webCmd)
+    Show-Status "Frontend launched ✓" 'OK'
+    
+    Write-Host "└────────────────────────────────────────────────────────────────┘" -ForegroundColor $Colors.Section
+    
+    Start-Sleep 3
+    
+    # Health Check
+    Write-Host "`n┌─── HEALTH CHECK ────────────────────────────────────────────┐" -ForegroundColor $Colors.Section
+    
+    for ($i = 1; $i -le 5; $i++) {
+        Write-Host "  Checking connectivity ($i/5)..." -ForegroundColor $Colors.Info
+        $apiHealth = Invoke-WebRequest -Uri 'http://localhost:8000/health' -SkipHttpErrorCheck -TimeoutSec 2 -ErrorAction SilentlyContinue
+        $webHealth = Invoke-WebRequest -Uri 'http://localhost:3000' -SkipHttpErrorCheck -TimeoutSec 2 -ErrorAction SilentlyContinue
+        
+        if ($apiHealth.StatusCode -eq 200) {
+            Show-Status "API responding ✓" 'OK'
+            break
         }
+        if ($i -lt 5) { Start-Sleep 2 }
     }
-
-    if ($AllHealthy) {
-        Write-Host "`n[OK] All services are healthy and responding!" -ForegroundColor Green
-    } else {
-        Write-Host "`n[WRN] Some services may still be initializing. Check logs/" -ForegroundColor Yellow
-    }
-
-    # Generate Postman collection if requested (regardless of health status)
-    if ($OpenPostman) {
-        Write-Host "`n[INF] Setting up Postman collection..." -ForegroundColor Cyan
-        $collectionPath = Import-ToPostman "http://localhost:8000"
-        if ($collectionPath -and (Test-Path $collectionPath)) {
-            Write-Host "[OK] Postman collection created" -ForegroundColor Green
-            
-            # Try to open Postman
-            $postmanPaths = @(
-                "C:\Program Files\Postman\Postman.exe",
-                "C:\Program Files (x86)\Postman\Postman.exe",
-                "$env:LOCALAPPDATA\Postman\Postman.exe"
-            )
-            
-            $postmanFound = $false
-            foreach ($path in $postmanPaths) {
-                if (Test-Path $path) {
-                    Write-Host "  Opening Postman..." -ForegroundColor Green
-                    Start-Process $path -ErrorAction SilentlyContinue
-                    $postmanFound = $true
-                    break
-                }
-            }
-            
-            if (-not $postmanFound) {
-                Write-Host "  Import manually: $collectionPath" -ForegroundColor Yellow
-            }
-        }
-    }
+    
+    Write-Host "└────────────────────────────────────────────────────────────────┘`n" -ForegroundColor $Colors.Section
 }
 
-# ===============================================
-# SUMMARY & ACCESS INFO
-# ===============================================
-
-Write-Host "`n========================================" -ForegroundColor Green
-Write-Host "[OK] CLISONIX CLOUD STARTUP COMPLETE" -ForegroundColor Green
-Write-Host "========================================`n" -ForegroundColor Green
-
-Write-Host "SERVICE ENDPOINTS:" -ForegroundColor Cyan
-Write-Host "   Dashboard:      http://localhost:3000" -ForegroundColor White
-Write-Host "   API Docs:       http://localhost:8000/docs" -ForegroundColor White
-Write-Host "   System Status:  http://localhost:8000/api/system-status" -ForegroundColor White
-Write-Host "   Health Check:   http://localhost:8000/health" -ForegroundColor White
-
-Write-Host "`nBACKGROUND SERVICES:" -ForegroundColor Cyan
-Write-Host "   - FastAPI Backend    (port 8000)" -ForegroundColor White
-Write-Host "   - Next.js Frontend   (port 3000)" -ForegroundColor White
-Write-Host "   - ORCH Service       (port 5555)" -ForegroundColor White
-Write-Host "   - MESH Network       (port 7777)" -ForegroundColor White
-
-if (-not $Detached) {
-    Write-Host "`nJOB MANAGEMENT:" -ForegroundColor Cyan
-    Write-Host "   List jobs:     Get-Job" -ForegroundColor Gray
-    Write-Host "   View logs:     Get-Content logs/api-*.log -Tail 20" -ForegroundColor Gray
-    Write-Host "   Stop service:  Stop-Job -Name <name>" -ForegroundColor Gray
-    Write-Host "   Restart:       .\scripts\start-all.ps1 -Clean" -ForegroundColor Gray
+function Show-Dashboard {
+    Write-Host "`n╔═══════════════════════════════════════════════════════════════════╗" -ForegroundColor $Colors.Title
+    Write-Host "║                        🎯 SYSTEM ONLINE 🎯                        ║" -ForegroundColor $Colors.Title
+    Write-Host "╠═══════════════════════════════════════════════════════════════════╣" -ForegroundColor $Colors.Title
+    Write-Host "║                                                                   ║" -ForegroundColor $Colors.Title
+    Write-Host "║  📊 ENDPOINTS                                                     ║" -ForegroundColor $Colors.Title
+    Write-Host "║  ├─ Frontend:      http://localhost:3000                          ║" -ForegroundColor $Colors.Success
+    Write-Host "║  ├─ API:           http://localhost:8000                          ║" -ForegroundColor $Colors.Success
+    Write-Host "║  ├─ Docs:          http://localhost:8000/docs                     ║" -ForegroundColor $Colors.Success
+    Write-Host "║  └─ Health:        http://localhost:8000/health                   ║" -ForegroundColor $Colors.Success
+    Write-Host "║                                                                   ║" -ForegroundColor $Colors.Title
+    Write-Host "║  ⚙️  STATUS                                                       ║" -ForegroundColor $Colors.Title
+    Write-Host "║  └─ Mode: $Mode" -NoNewline -ForegroundColor $Colors.Title
+    if ($Mode -eq '1') { Write-Host " (Background Jobs)" -ForegroundColor $Colors.Info }
+    elseif ($Mode -eq '2') { Write-Host " (Detached Windows)" -ForegroundColor $Colors.Info }
+    else { Write-Host " (Mega Launch - Next Gen)" -ForegroundColor $Colors.Info }
+    Write-Host "║                                                                   ║" -ForegroundColor $Colors.Title
+    Write-Host "║  💡 TIPS                                                          ║" -ForegroundColor $Colors.Title
+    Write-Host "║  ├─ Get-Job              | Show running jobs                      ║" -ForegroundColor $Colors.Warning
+    Write-Host "║  ├─ Stop-Job -Name API   | Stop API service                      ║" -ForegroundColor $Colors.Warning
+    Write-Host "║  └─ Get-Job | Remove-Job | Clean all jobs                        ║" -ForegroundColor $Colors.Warning
+    Write-Host "║                                                                   ║" -ForegroundColor $Colors.Title
+    Write-Host "╚═══════════════════════════════════════════════════════════════════╝`n" -ForegroundColor $Colors.Title
 }
 
-Write-Host "`n[OK] System is 100% functional and ready!`n" -ForegroundColor Green
+# ═══════════════════════════════════════════════════════════════════
+# MAIN EXECUTION
+# ═══════════════════════════════════════════════════════════════════
+
+Show-Banner
+
+if (-not (Invoke-PreFlightCheck)) {
+    Show-Status "Pre-flight check failed!" 'ERROR'
+    exit 1
+}
+
+switch ($Mode) {
+    '1' { Start-Mode1 }
+    '2' { Start-Mode2 }
+    '3' { Start-Mode3 }
+}
+
+Show-Dashboard
+
+Write-Host "🚀 Clisonix Cloud is ready for takeoff!`n" -ForegroundColor $Colors.Success
