@@ -102,3 +102,48 @@ financial_records/
 *.backup
 backup_*
 node_modules
+
+# ═══════════════════════════════════════════════════════════════
+# RUNTIME DATA - NEVER COMMIT THESE! 🚨
+# ═══════════════════════════════════════════════════════════════
+
+# Docker runtime data
+data/
+backup/
+backups/
+
+# Database runtime
+data/postgres/
+data/minio/
+data/redis/
+
+# Monitoring & metrics runtime
+data/grafana/
+data/prometheus/
+data/victoria-metrics/
+data/loki/
+data/tempo/
+
+# Elasticsearch runtime
+data/elasticsearch/
+data/kibana/
+
+# Logs & temp files
+logs/
+instance/
+*.log
+
+# Generated files
+*.wasm
+*.bin
+*.chunk
+
+# WAL (Write-Ahead Logs)
+**/wal/
+**/chunks_head/
+
+# Cache & temp
+.cache/
+*.tmp
+tmp/
+temp/
