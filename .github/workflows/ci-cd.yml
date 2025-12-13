@@ -73,7 +73,7 @@ jobs:
       
       - name: Upload code quality report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: code-quality-report
           path: |
@@ -182,7 +182,7 @@ jobs:
       
       - name: Upload test artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-coverage-${{ matrix.python-version }}
           path: htmlcov/
@@ -260,7 +260,7 @@ jobs:
       
       - name: Upload API test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: api-test-results
           path: api-test-report.json
@@ -298,7 +298,7 @@ jobs:
       
       - name: Notify Slack (Staging)
         # Note: Configure SLACK_WEBHOOK_STAGING secret in GitHub Settings → Secrets and variables → Actions
-        if: always()
+        if: always() && secrets.SLACK_WEBHOOK_STAGING != ''
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_STAGING }}
@@ -374,7 +374,7 @@ jobs:
       
       - name: Notify Slack (Production)
         # Note: Configure SLACK_WEBHOOK_PROD secret in GitHub Settings → Secrets and variables → Actions
-        if: always()
+        if: always() && secrets.SLACK_WEBHOOK_PROD != ''
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_PROD }}
@@ -442,7 +442,7 @@ jobs:
       
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ci-cd-logs-${{ github.run_id }}
           path: |
@@ -473,7 +473,7 @@ jobs:
       
       - name: Notify completion
         # Note: Configure SLACK_WEBHOOK_CI secret in GitHub Settings → Secrets and variables → Actions
-        if: always()
+        if: always() && secrets.SLACK_WEBHOOK_CI != ''
         uses: slackapi/slack-github-action@v1.24.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_CI }}
