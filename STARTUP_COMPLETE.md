@@ -192,16 +192,16 @@ axios.get('http://localhost:8888/status-report')
 ## 📋 File Locations
 
 ### Core Service Files
-- `c:\neurosonix-cloud\slack_integration_service.py`
-- `c:\neurosonix-cloud\start-slack.ps1`
-- `c:\neurosonix-cloud\launch-all-with-slack.ps1`
+- `c:\clisonix-cloud\slack_integration_service.py`
+- `c:\clisonix-cloud\start-slack.ps1`
+- `c:\clisonix-cloud\launch-all-with-slack.ps1`
 
 ### Documentation Files
-- `c:\neurosonix-cloud\SLACK_INDEX.md` ← Start here!
-- `c:\neurosonix-cloud\SLACK_INTEGRATION_GUIDE.md`
-- `c:\neurosonix-cloud\SLACK_INTEGRATION_READY.md`
-- `c:\neurosonix-cloud\SLACK_QUICK_REFERENCE.txt`
-- `c:\neurosonix-cloud\COMPLETE_SYSTEM_GUIDE.md`
+- `c:\clisonix-cloud\SLACK_INDEX.md` ← Start here!
+- `c:\clisonix-cloud\SLACK_INTEGRATION_GUIDE.md`
+- `c:\clisonix-cloud\SLACK_INTEGRATION_READY.md`
+- `c:\clisonix-cloud\SLACK_QUICK_REFERENCE.txt`
+- `c:\clisonix-cloud\COMPLETE_SYSTEM_GUIDE.md`
 
 ---
 

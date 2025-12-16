@@ -9,7 +9,7 @@ Successfully created and tested **2 comprehensive master launcher scripts** for 
 ## 📦 Created Files
 
 ### 1. **MASTER-LAUNCH.ps1** (Modular - 7 Modes)
-- ✅ Location: `c:\neurosonix-cloud\MASTER-LAUNCH.ps1`
+- ✅ Location: `c:\clisonix-cloud\MASTER-LAUNCH.ps1`
 - ✅ Lines: 850+
 - ✅ Status: Production Ready
 
@@ -27,7 +27,7 @@ Successfully created and tested **2 comprehensive master launcher scripts** for 
 ---
 
 ### 2. **MASTER-LAUNCH-FULL.ps1** (Complete - 11 Services)
-- ✅ Location: `c:\neurosonix-cloud\MASTER-LAUNCH-FULL.ps1`
+- ✅ Location: `c:\clisonix-cloud\MASTER-LAUNCH-FULL.ps1`
 - ✅ Lines: 600+
 - ✅ Status: Production Ready
 
@@ -49,7 +49,7 @@ Successfully created and tested **2 comprehensive master launcher scripts** for 
 ---
 
 ### 3. **MASTER-LAUNCHER-GUIDE.md** (Documentation)
-- ✅ Location: `c:\neurosonix-cloud\MASTER-LAUNCHER-GUIDE.md`
+- ✅ Location: `c:\clisonix-cloud\MASTER-LAUNCHER-GUIDE.md`
 - ✅ Lines: 400+
 - ✅ Status: Complete Reference
 
@@ -205,19 +205,19 @@ Start http://localhost:8000/docs  # API Docs
 
 ### Full Orchestration (Investor Ready)
 ```powershell
-cd c:\neurosonix-cloud
+cd c:\clisonix-cloud
 .\MASTER-LAUNCH-FULL.ps1 -Clean -Monitor
 ```
 
 ### Development Mode
 ```powershell
-cd c:\neurosonix-cloud
+cd c:\clisonix-cloud
 .\MASTER-LAUNCH.ps1 -Mode dev
 ```
 
 ### System Diagnostics
 ```powershell
-cd c:\neurosonix-cloud
+cd c:\clisonix-cloud
 .\MASTER-LAUNCH.ps1 -Mode diagnostics
 ```
 

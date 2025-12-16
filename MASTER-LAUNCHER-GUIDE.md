@@ -9,7 +9,7 @@
 ### 1. **MASTER-LAUNCH.ps1** (7 Operational Modes)
 Modular script with multiple execution modes for different use cases.
 
-**Location:** `c:\neurosonix-cloud\MASTER-LAUNCH.ps1`
+**Location:** `c:\clisonix-cloud\MASTER-LAUNCH.ps1`
 
 **Modes:**
 ```
@@ -42,7 +42,7 @@ diagnostics  - System health scan (Port check, service probes)
 ### 2. **MASTER-LAUNCH-FULL.ps1** (Complete Orchestration)
 Ultimate launcher that starts ALL 11 services in separate PowerShell windows.
 
-**Location:** `c:\neurosonix-cloud\MASTER-LAUNCH-FULL.ps1`
+**Location:** `c:\clisonix-cloud\MASTER-LAUNCH-FULL.ps1`
 
 **Services Launched (11 Total):**
 

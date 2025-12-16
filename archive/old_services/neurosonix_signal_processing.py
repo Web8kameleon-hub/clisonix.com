@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Advanced Neural Signal Processing Engine for Clisonix Industrial Platform"""
 
 from __future__ import annotations

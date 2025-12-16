@@ -13,7 +13,7 @@
 ## STEP 1: Start API Server (1 minute)
 
 ```powershell
-cd c:\neurosonix-cloud
+cd c:\clisonix-cloud
 python -m uvicorn apps.api.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
@@ -33,7 +33,7 @@ INFO:     Application startup complete.
 **In another terminal:**
 
 ```powershell
-cd c:\neurosonix-cloud\apps\web
+cd c:\clisonix-cloud\apps\web
 npm run dev
 ```
 
@@ -212,7 +212,7 @@ pip install -q sqlalchemy psycopg2-binary alembic
 **If Frontend doesn't start:**
 
 ```powershell
-cd c:\neurosonix-cloud\apps\web
+cd c:\clisonix-cloud\apps\web
 npm install --legacy-peer-deps
 npm run dev
 ```

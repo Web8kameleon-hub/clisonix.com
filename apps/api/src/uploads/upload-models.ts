@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ðŸš€ Clisonix INDUSTRIAL FILE UPLOAD MODELS
  * Production-Grade File Management System
  * Real S3 Integration, Chunked Uploads, Industrial Validation

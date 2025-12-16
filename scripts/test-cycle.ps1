@@ -175,7 +175,7 @@ $results | ForEach-Object {
 
 # Save report if requested
 if ($SaveReport) {
-    $reportPath = "c:\neurosonix-cloud\logs\test-cycle-$(Get-Date -Format 'yyyy-MM-dd_HH-mm-ss').json"
+    $reportPath = "c:\clisonix-cloud\logs\test-cycle-$(Get-Date -Format 'yyyy-MM-dd_HH-mm-ss').json"
     $reportDir = Split-Path $reportPath
     if (-not (Test-Path $reportDir)) {
         New-Item -ItemType Directory -Path $reportDir -Force | Out-Null

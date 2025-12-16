@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Clisonix INDUSTRIAL PAYMENT ROUTES
  * ===================================
  * REST API pÃ«r pagesa industriale me SEPA dhe PayPal

@@ -1,1 +1,1 @@
-﻿# Clisonix Auth
+# Clisonix Auth

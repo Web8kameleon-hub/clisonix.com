@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Quota Gate Middleware
 Industrial-grade plan-based restrictions and rate limiting
 """

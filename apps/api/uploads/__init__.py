@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Industrial File Upload System
 Advanced file handling, validation, storage, and metadata extraction
 Business: Ledjan Ahmati - WEB8euroweb GmbH

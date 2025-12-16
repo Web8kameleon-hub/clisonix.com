@@ -1,7 +1,7 @@
 // Shared constants
 export const API_ENDPOINTS = {
   AGI: '/api/agi',
-  NEUROSONIX: '/api/neurosonix', 
+  clisonix: '/api/clisonix', 
   DASHBOARD: '/api/dashboard',
   WORLD_BRAIN: '/api/world-brain'
 } as const

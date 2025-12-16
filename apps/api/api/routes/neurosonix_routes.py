@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Routes - Industrial API
 Author: Ledjan Ahmati
 License: Closed Source

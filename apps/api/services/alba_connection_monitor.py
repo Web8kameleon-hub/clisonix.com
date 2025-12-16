@@ -101,7 +101,7 @@ class AlbaConnectionMonitor:
         """Ngarkon konfigurimin e monitorimit"""
         try:
             if os.path.exists(self.config_path):
-                with open(self.config_path, 'r', encoding='utf-8') as f:
+                with open(self.config_path, 'r', encoding='utf-8-sig') as f:
                     config = json.load(f)
                     self.hosts_to_monitor = config.get('hosts', self.default_hosts)
                     self.ping_interval = config.get('ping_interval', 30)  # sekonda

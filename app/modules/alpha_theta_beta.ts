@@ -1,4 +1,4 @@
-﻿import path from "path";
+import path from "path";
 import { fileURLToPath } from "url";
 import { AlbaCore } from "../../backend/layers/layer4-alba";
 import { ALBISystem, type LaborData } from "../../backend/layers/layer5-albi";

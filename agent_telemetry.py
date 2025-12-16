@@ -30,27 +30,120 @@ class AgentMetrics:
     metadata: Optional[Dict[str, Any]] = None
 
 
+@dataclass
+class AgentPulse:
+    """Real-time agent health snapshot"""
+    agent: str
+    role: str
+    status: str
+    metrics: Dict[str, Any]
+    ts: str
+
+
 class TelemetryRouter:
     """Routes agent telemetry to Alba/Albi/Jona based on data type"""
     
     def __init__(
         self,
-        alba_url: str = "http://localhost:5050",
-        albi_url: str = "http://localhost:6060",
-        jona_url: str = "http://localhost:7070",
+        base_url: str = "http://127.0.0.1",
+        alba_port: int = 5050,
+        albi_port: int = 6060,
+        jona_port: int = 7070,
+        asi_port: int = 8000,
         enabled: bool = True
     ):
-        self.alba_url = alba_url
-        self.albi_url = albi_url
-        self.jona_url = jona_url
+        self.base_url = base_url
+        self.alba_url = f"{base_url}:{alba_port}"
+        self.albi_url = f"{base_url}:{albi_port}"
+        self.jona_url = f"{base_url}:{jona_port}"
+        self.asi_url = f"{base_url}:{asi_port}"
         self.enabled = enabled
         self.session = requests.Session()
         self.session.headers.update({"Content-Type": "application/json"})
         
         logger.info(f"TelemetryRouter initialized (enabled={enabled})")
-        logger.info(f"  Alba: {alba_url}")
-        logger.info(f"  Albi: {albi_url}")
-        logger.info(f"  Jona: {jona_url}")
+        logger.info(f"  Alba: {self.alba_url}")
+        logger.info(f"  Albi: {self.albi_url}")
+        logger.info(f"  Jona: {self.jona_url}")
+        logger.info(f"  ASI:  {self.asi_url}")
+    
+    # ==================== READ OPERATIONS ====================
+    
+    def get_root(self) -> Dict[str, Any]:
+        """Get ASI root service info"""
+        try:
+            r = self.session.get(f"{self.asi_url}/", timeout=5)
+            r.raise_for_status()
+            return r.json()
+        except Exception as e:
+            logger.error(f"Failed to get root: {e}")
+            return {}
+    
+    def get_asi_status(self) -> Dict[str, Any]:
+        """Get ASI orchestration status"""
+        try:
+            r = self.session.get(f"{self.asi_url}/asi/status", timeout=5)
+            r.raise_for_status()
+            return r.json()
+        except Exception as e:
+            logger.error(f"Failed to get ASI status: {e}")
+            return {"health": "error", "error": str(e)}
+    
+    def get_asi_health(self) -> Dict[str, Any]:
+        """Get ASI health check"""
+        try:
+            r = self.session.get(f"{self.asi_url}/asi/health", timeout=5)
+            r.raise_for_status()
+            return r.json()
+        except Exception as e:
+            logger.error(f"Failed to get ASI health: {e}")
+            return {"status": "unhealthy", "error": str(e)}
+    
+    def get_agent_metrics(self, agent: str) -> Dict[str, Any]:
+        """Get specific agent metrics"""
+        path_map = {
+            "alba": "/asi/alba/metrics",
+            "albi": "/asi/albi/metrics",
+            "jona": "/asi/jona/metrics",
+        }
+        
+        if agent.lower() not in path_map:
+            logger.error(f"Unknown agent: {agent}")
+            return {}
+        
+        try:
+            path = path_map[agent.lower()]
+            r = self.session.get(f"{self.asi_url}{path}", timeout=5)
+            r.raise_for_status()
+            return r.json()
+        except Exception as e:
+            logger.error(f"Failed to get {agent} metrics: {e}")
+            return {}
+    
+    def get_prometheus_metrics(self) -> str:
+        """Get Prometheus exposition format metrics"""
+        try:
+            r = self.session.get(f"{self.asi_url}/metrics", timeout=5)
+            r.raise_for_status()
+            return r.text
+        except Exception as e:
+            logger.error(f"Failed to get Prometheus metrics: {e}")
+            return ""
+    
+    def pulse(self, agent: str, role: str) -> AgentPulse:
+        """Get real-time agent pulse"""
+        metrics = self.get_agent_metrics(agent)
+        status = "ok" if metrics else "error"
+        ts = datetime.now(timezone.utc).isoformat()
+        return AgentPulse(
+            agent=agent,
+            role=role,
+            status=status,
+            metrics=metrics,
+            ts=ts
+        )
+    
+    # ==================== WRITE OPERATIONS ====================
     
     def send_to_alba(self, metrics: AgentMetrics) -> bool:
         """Send raw data collection metrics to Alba"""
@@ -150,6 +243,35 @@ class TelemetryRouter:
             logger.error(f"Jona send failed: {e}")
             return False
     
+    def execute_trinity(
+        self,
+        command: str,
+        payload: Optional[Dict[str, Any]] = None,
+        timeout: int = 30
+    ) -> Dict[str, Any]:
+        """Execute Trinity command via ASI"""
+        try:
+            body = {
+                "command": command,
+                "payload": payload or {},
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+            
+            r = self.session.post(
+                f"{self.asi_url}/asi/execute",
+                json=body,
+                timeout=timeout
+            )
+            r.raise_for_status()
+            
+            result = r.json()
+            logger.info(f"✓ Trinity command '{command}' executed: {result.get('status')}")
+            return result
+            
+        except Exception as e:
+            logger.error(f"Trinity execute failed: {e}")
+            return {"status": "error", "error": str(e)}
+    
     def send_all(self, metrics: AgentMetrics) -> Dict[str, bool]:
         """Send metrics to all three services"""
         results = {
@@ -176,6 +298,7 @@ class AgentTelemetryMixin:
             enabled=kwargs.get("telemetry_enabled", True)
         )
         self._operation_start: Optional[float] = None
+        self._current_operation: Optional[str] = None
     
     def start_operation(self, operation_name: str):
         """Mark the start of an operation for timing"""
@@ -212,6 +335,7 @@ class AgentTelemetryMixin:
         
         self.telemetry.send_all(metrics)
         self._operation_start = None
+        self._current_operation = None
 
 
 # Standalone telemetry sender for scripts
@@ -219,14 +343,23 @@ _global_router: Optional[TelemetryRouter] = None
 
 
 def init_telemetry(
-    alba_url: str = "http://localhost:5050",
-    albi_url: str = "http://localhost:6060",
-    jona_url: str = "http://localhost:7070",
+    base_url: str = "http://127.0.0.1",
+    alba_port: int = 5050,
+    albi_port: int = 6060,
+    jona_port: int = 7070,
+    asi_port: int = 8000,
     enabled: bool = True
-):
+) -> TelemetryRouter:
     """Initialize global telemetry router"""
     global _global_router
-    _global_router = TelemetryRouter(alba_url, albi_url, jona_url, enabled)
+    _global_router = TelemetryRouter(
+        base_url=base_url,
+        alba_port=alba_port,
+        albi_port=albi_port,
+        jona_port=jona_port,
+        asi_port=asi_port,
+        enabled=enabled
+    )
     return _global_router
 
 
@@ -237,7 +370,7 @@ def send_agent_telemetry(
     success: bool = True,
     error: Optional[str] = None,
     metadata: Optional[Dict[str, Any]] = None
-):
+) -> Dict[str, bool]:
     """Send telemetry using global router"""
     if _global_router is None:
         init_telemetry()
@@ -256,57 +389,130 @@ def send_agent_telemetry(
     return _global_router.send_all(metrics)
 
 
+def telemetry_loop(interval: int = 15, max_iterations: Optional[int] = None):
+    """
+    Main telemetry monitoring loop
+    
+    Args:
+        interval: Seconds between checks
+        max_iterations: Max loops (None = infinite)
+    """
+    logger.info("Starting Agent Telemetry loop")
+    
+    router = init_telemetry()
+    root = router.get_root()
+    logger.info(f"Service: {root.get('service')} v{root.get('version')}")
+    
+    iteration = 0
+    
+    while True:
+        try:
+            # Check ASI orchestrator status
+            asi = router.get_asi_status()
+            health = router.get_asi_health()
+            
+            # Get Trinity pulses
+            alba_pulse = router.pulse("alba", "collector")
+            albi_pulse = router.pulse("albi", "analyzer")
+            jona_pulse = router.pulse("jona", "synthesizer")
+            
+            # Health-gated action
+            if (
+                asi.get("health") == "ok"
+                and health.get("status") == "healthy"
+                and jona_pulse.metrics.get("alignment_ok", True)
+            ):
+                # Safe to request analysis cycle
+                res = router.execute_trinity("analyze_system", {"priority": "normal"})
+                logger.info(f"Executed analyze_system: {json.dumps(res)[:300]}")
+            else:
+                logger.warning("Health/alignment not OK; deferring actions")
+            
+            # Consume Prometheus metrics (optional)
+            prom = router.get_prometheus_metrics()
+            logger.debug(f"Prometheus metrics snapshot len={len(prom)}")
+            
+            # Emit pulse logs
+            for p in (alba_pulse, albi_pulse, jona_pulse):
+                logger.info(f"Pulse {p.agent}: {json.dumps(asdict(p))[:500]}")
+            
+            iteration += 1
+            if max_iterations and iteration >= max_iterations:
+                logger.info(f"Reached max iterations ({max_iterations}), stopping")
+                break
+            
+        except Exception as e:
+            logger.error(f"Telemetry loop error: {e}", exc_info=True)
+        
+        time.sleep(interval)
+
+
 if __name__ == "__main__":
-    # Test telemetry integration
+    import sys
+    
     print("🧪 Testing Agent Telemetry Integration\n")
     
-    router = TelemetryRouter()
+    # Test mode: send test metrics
+    if "--test" in sys.argv:
+        router = TelemetryRouter()
+        
+        # Test AGIEM telemetry
+        agiem_metrics = AgentMetrics(
+            agent_name="AGIEM",
+            timestamp=time.time(),
+            status="success",
+            operation="pipeline_execution",
+            duration_ms=1234.56,
+            input_tokens=500,
+            output_tokens=150,
+            success=True,
+            metadata={"stage": "data_collection", "nodes": 3}
+        )
+        
+        print("Testing AGIEM -> Alba/Albi/Jona...")
+        results = router.send_all(agiem_metrics)
+        print(f"Results: {results}\n")
+        
+        # Test ASI telemetry
+        asi_metrics = AgentMetrics(
+            agent_name="ASI",
+            timestamp=time.time(),
+            status="success",
+            operation="realtime_analysis",
+            duration_ms=567.89,
+            success=True,
+            metadata={"nodes": ["ALBA", "ALBI", "JONA"], "health_score": 0.95}
+        )
+        
+        print("Testing ASI -> Alba/Albi/Jona...")
+        results = router.send_all(asi_metrics)
+        print(f"Results: {results}\n")
+        
+        # Test Blerina telemetry
+        blerina_metrics = AgentMetrics(
+            agent_name="Blerina",
+            timestamp=time.time(),
+            status="success",
+            operation="youtube_metadata_extraction",
+            duration_ms=234.12,
+            success=True,
+            metadata={"video_id": "dQw4w9WgXcQ", "views": 1721885158}
+        )
+        
+        print("Testing Blerina -> Alba/Albi/Jona...")
+        results = router.send_all(blerina_metrics)
+        print(f"Results: {results}\n")
+        
+        print("✅ Telemetry integration test complete")
     
-    # Test AGIEM telemetry
-    agiem_metrics = AgentMetrics(
-        agent_name="AGIEM",
-        timestamp=time.time(),
-        status="success",
-        operation="pipeline_execution",
-        duration_ms=1234.56,
-        input_tokens=500,
-        output_tokens=150,
-        success=True,
-        metadata={"stage": "data_collection", "nodes": 3}
-    )
+    # Monitor mode: run telemetry loop
+    elif "--monitor" in sys.argv:
+        max_iter = int(sys.argv[sys.argv.index("--max-iterations") + 1]) if "--max-iterations" in sys.argv else None
+        interval = int(sys.argv[sys.argv.index("--interval") + 1]) if "--interval" in sys.argv else 15
+        
+        telemetry_loop(interval=interval, max_iterations=max_iter)
     
-    print("Testing AGIEM -> Alba/Albi/Jona...")
-    results = router.send_all(agiem_metrics)
-    print(f"Results: {results}\n")
-    
-    # Test ASI telemetry
-    asi_metrics = AgentMetrics(
-        agent_name="ASI",
-        timestamp=time.time(),
-        status="success",
-        operation="realtime_analysis",
-        duration_ms=567.89,
-        success=True,
-        metadata={"nodes": ["ALBA", "ALBI", "JONA"], "health_score": 0.95}
-    )
-    
-    print("Testing ASI -> Alba/Albi/Jona...")
-    results = router.send_all(asi_metrics)
-    print(f"Results: {results}\n")
-    
-    # Test Blerina telemetry
-    blerina_metrics = AgentMetrics(
-        agent_name="Blerina",
-        timestamp=time.time(),
-        status="success",
-        operation="youtube_metadata_extraction",
-        duration_ms=234.12,
-        success=True,
-        metadata={"video_id": "dQw4w9WgXcQ", "views": 1721885158}
-    )
-    
-    print("Testing Blerina -> Alba/Albi/Jona...")
-    results = router.send_all(blerina_metrics)
-    print(f"Results: {results}\n")
-    
-    print("✅ Telemetry integration test complete")
+    else:
+        print("Usage:")
+        print("  python agent_telemetry.py --test")
+        print("  python agent_telemetry.py --monitor [--interval 15] [--max-iterations 10]")

@@ -1,4 +1,4 @@
-﻿import os from "os";
+import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
 import { AlbaCore } from "../../backend/layers/layer4-alba";

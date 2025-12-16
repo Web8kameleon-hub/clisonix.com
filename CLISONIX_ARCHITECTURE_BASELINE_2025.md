@@ -354,7 +354,7 @@ User → Frontend → API (JWT validation) → Service
 
 ### Recommended Clean Structure
 ```
-neurosonix-cloud/
+clisonix-cloud/
 ├── apps/
 │   ├── api/              # Main FastAPI service (port 8000)
 │   └── web/              # Next.js frontend (port 3000)
@@ -656,13 +656,13 @@ Production (Blue/Green Deploy)
 ```
 - frontend/ (old Next.js)
 - frontend-new/ (another old Next.js)
-- neurosonix-supernova/ (Vite app)
-- launch_neurosonix_cloud.py
+- clisonix-supernova/ (Vite app)
+- launch_clisonix_cloud.py
 - start_server.py
 - run_*.py (5 files)
 - simple_server.py
 - react_backend.py
-- neurosonix_*.py (6 files in root)
+- clisonix_*.py (6 files in root)
 - packages/signal-gen/ (TypeScript prototypes)
 ```
 

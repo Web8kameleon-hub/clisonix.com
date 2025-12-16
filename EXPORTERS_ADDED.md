@@ -107,7 +107,7 @@ File: `ops/alert-rules.yml`
 
 Execute:
 ```powershell
-cd c:\neurosonix-cloud
+cd c:\clisonix-cloud
 .\test-monitoring.ps1
 ```
 

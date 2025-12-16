@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Audio Synthesizer
 Convert brain wave patterns into real-time audio synthesis with real audio output
 """

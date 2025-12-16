@@ -152,7 +152,7 @@ Successfully stabilized Clisonix commercial SaaS platform through comprehensive 
 
 **Directory Structure:**
 ```
-c:\neurosonix-cloud/
+c:\clisonix-cloud/
 ├── apps/
 │   ├── api/                    # ✅ Production API (self-contained)
 │   │   ├── main.py             # 3,219 lines - unified API gateway

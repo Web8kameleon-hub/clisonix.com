@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Authentication Models
 User and subscription management with SQLAlchemy
 """

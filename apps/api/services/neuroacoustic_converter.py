@@ -1,4 +1,4 @@
-﻿"""
+"""
 ðŸŽµ Clisonix Neuroacoustic Converter
 ====================================
 Advanced EEG-to-Audio conversion engine pÃ«r neuroacoustic analysis.

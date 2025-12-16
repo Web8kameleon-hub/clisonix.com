@@ -1,5 +1,5 @@
-# Closed Source License - Neurosonix Cloud
-# Copyright (c) Neurosonix. All rights reserved.
+# Closed Source License - clisonix Cloud
+# Copyright (c) clisonix. All rights reserved.
 
 import time
 import logging

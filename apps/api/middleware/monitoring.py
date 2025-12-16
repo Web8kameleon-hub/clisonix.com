@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Cloud - Monitoring Middleware  
 Real-time performance monitoring and metrics collection
 Business: Ledjan Ahmati - WEB8euroweb GmbH

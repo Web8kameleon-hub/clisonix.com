@@ -124,7 +124,7 @@ class AlbiCore:
 		path = Path(source)
 		if not path.exists():
 			return 0
-		payload = json.loads(path.read_text(encoding="utf-8"))
+		payload = json.loads(path.read_text(encoding="utf-8-sig"))
 		self._insights.clear()
 		for entry in payload:
 			insight = Insight(

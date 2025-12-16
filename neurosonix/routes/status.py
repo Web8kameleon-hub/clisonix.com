@@ -32,4 +32,4 @@ async def system_status():
 
 @router.get("/ping")
 async def ping():
-    return {"message": "NeuroSonix active", "time": datetime.utcnow().isoformat()}
+    return {"message": "clisonix active", "time": datetime.utcnow().isoformat()}

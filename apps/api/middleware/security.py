@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Cloud - Security Middleware
 Industrial-grade security controls and monitoring
 Business: Ledjan Ahmati - WEB8euroweb GmbH

@@ -85,38 +85,133 @@ echo "✅ Repository cloned"
 # Step 6: Create Production Environment File
 echo ""
 echo "[6/8] Creating production environment..."
+
+# Generate secure secrets
+SECRET_KEY=$(openssl rand -hex 32)
+JWT_SECRET=$(openssl rand -hex 32)
+API_KEY=$(openssl rand -hex 16)
+DB_PASSWORD=$(openssl rand -hex 16)
+GRAFANA_PASSWORD=$(openssl rand -hex 16)
+MINIO_PASSWORD=$(openssl rand -hex 16)
+
 cat > .env.production <<EOF
-# Clisonix Cloud - Production Environment
+# ════════════════════════════════════════════════════════════
+# CLISONIX CLOUD - PRODUCTION ENVIRONMENT
+# Auto-generated on $(date)
+# ════════════════════════════════════════════════════════════
+
+# Environment
 ENV=production
 NODE_ENV=production
+DEBUG=false
+
+# Domain Configuration
+DOMAIN=$DOMAIN
+API_DOMAIN=$API_DOMAIN
+WEB_DOMAIN=$DOMAIN
 
 # API Configuration
 API_HOST=0.0.0.0
 API_PORT=8000
-CORS_ORIGINS=https://$DOMAIN,https://www.$DOMAIN
+CORS_ORIGINS=https://$DOMAIN,https://www.$DOMAIN,https://$API_DOMAIN
 
 # Frontend Configuration
 NEXT_PUBLIC_API_URL=https://$API_DOMAIN
+NEXT_PUBLIC_WEB_URL=https://$DOMAIN
 
-# Database (configure with your PostgreSQL)
-DATABASE_URL=postgresql://user:password@localhost:5432/clisonix
+# Database Configuration
+POSTGRES_USER=clisonix_prod
+POSTGRES_PASSWORD=$DB_PASSWORD
+POSTGRES_DB=clisonixdb
+DATABASE_URL=postgresql://clisonix_prod:$DB_PASSWORD@postgres:5432/clisonixdb
 
 # Redis
-REDIS_URL=redis://localhost:6379
+REDIS_URL=redis://redis:6379/0
 
-# Stripe (configure with your keys)
-STRIPE_SECRET_KEY=sk_live_...
-STRIPE_PUBLISHABLE_KEY=pk_live_...
+# MinIO Object Storage
+MINIO_ROOT_USER=clisonix_admin
+MINIO_ROOT_PASSWORD=$MINIO_PASSWORD
+MINIO_ENDPOINT=http://minio:9000
 
-# Security
-SECRET_KEY=$(openssl rand -hex 32)
-API_KEY=$(openssl rand -hex 16)
+# Security - Auto-generated secrets
+SECRET_KEY=$SECRET_KEY
+JWT_SECRET_KEY=$JWT_SECRET
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=30
+API_KEY=$API_KEY
 
 # Monitoring
 PROMETHEUS_PORT=9090
 GRAFANA_PORT=3001
+GRAFANA_ADMIN_USER=admin
+GRAFANA_ADMIN_PASSWORD=$GRAFANA_PASSWORD
+
+# Elasticsearch
+ELASTIC_PASSWORD=$GRAFANA_PASSWORD
+ES_JAVA_OPTS=-Xms512m -Xmx512m
+
+# AI Services
+SERVICE_ALBA_HOST=alba
+SERVICE_ALBI_HOST=albi
+SERVICE_JONA_HOST=jona
+
+# Logging
+LOG_LEVEL=info
+PYTHONUNBUFFERED=1
+
+# SSL Configuration
+SSL_EMAIL=amati.ledian@gmail.com
+CERTBOT_DOMAIN=$DOMAIN
+
+# Feature Flags
+ENABLE_METRICS_EXPORT=true
+ENABLE_DISTRIBUTED_TRACING=true
+
+# ════════════════════════════════════════════════════════════
+# IMPORTANT: Configure these manually after deployment:
+# - STRIPE_SECRET_KEY (get from stripe.com/dashboard)
+# - STRIPE_PUBLISHABLE_KEY
+# - SLACK_WEBHOOK_URL (optional)
+# - SMTP settings (optional for emails)
+# ════════════════════════════════════════════════════════════
 EOF
+
+# Save credentials to secure file
+cat > .credentials.txt <<EOF
+════════════════════════════════════════════════════════════
+CLISONIX CLOUD - SECURE CREDENTIALS
+Generated: $(date)
+Server IP: $SERVER_IP
+════════════════════════════════════════════════════════════
+
+Database:
+  User: clisonix_prod
+  Password: $DB_PASSWORD
+  Database: clisonixdb
+
+Grafana Dashboard:
+  URL: https://$DOMAIN:3001
+  Username: admin
+  Password: $GRAFANA_PASSWORD
+
+MinIO Storage:
+  Username: clisonix_admin
+  Password: $MINIO_PASSWORD
+
+API Keys:
+  Secret Key: $SECRET_KEY
+  JWT Secret: $JWT_SECRET
+  API Key: $API_KEY
+
+════════════════════════════════════════════════════════════
+⚠️  SAVE THIS FILE SECURELY - DELETE AFTER COPYING
+════════════════════════════════════════════════════════════
+EOF
+
+chmod 600 .credentials.txt
+
 echo "✅ Environment file created"
+echo "✅ Credentials saved to .credentials.txt (chmod 600)"
 
 # Step 7: Create Docker Compose Configuration
 echo ""
@@ -385,9 +480,15 @@ echo "   certbot certonly --standalone -d api.clisonix.com"
 echo ""
 echo "4. Start the platform:"
 echo "   cd $PROJECT_DIR"
-echo "   docker compose -f docker-compose.production.yml up -d --build"
+echo "   docker compose -f docker-compose.prod.yml up -d --build"
 echo ""
-echo "5. Monitor deployment:"
-echo "   docker compose logs -f"
+echo "5. View credentials:"
+echo "   cat .credentials.txt"
+echo ""
+echo "6. Monitor deployment:"
+echo "   docker compose -f docker-compose.prod.yml logs -f"
+echo ""
+echo "📁 Project directory: $PROJECT_DIR"
+echo "🔐 Credentials file: $PROJECT_DIR/.credentials.txt (chmod 600)"
 echo ""
 echo "════════════════════════════════════════════════════════════"

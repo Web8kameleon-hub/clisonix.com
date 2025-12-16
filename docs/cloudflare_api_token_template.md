@@ -1,4 +1,4 @@
-﻿# Cloudflare API token template
+# Cloudflare API token template
 
 When creating a scoped API token for the helper scripts and automated tasks, use the Minimum Privilege principle.
 

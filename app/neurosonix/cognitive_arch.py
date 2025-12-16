@@ -1,4 +1,4 @@
-﻿"""
+"""
 Cognitive architecture integration for the Clisonix backend.
 
 This module connects the ALBI layer with the lower-level BrainAnalyzer to

@@ -26,7 +26,7 @@ if ($nodeVersion -match "v20\." -or $nodeVersion -match "v2[1-9]\.") {
 # 3. Verify pyproject.toml
 Write-Host "3️⃣  Validating pyproject.toml..." -ForegroundColor Yellow
 try {
-    $tomlTest = python -c "import tomllib; f = open('c:/neurosonix-cloud/pyproject.toml', 'rb'); data = tomllib.load(f); print(len(data['project']['dependencies']))" 2>&1
+    $tomlTest = python -c "import tomllib; f = open('c:/clisonix-cloud/pyproject.toml', 'rb'); data = tomllib.load(f); print(len(data['project']['dependencies']))" 2>&1
     Write-Host "   ✅ Valid TOML - $tomlTest dependencies locked" -ForegroundColor Green
 } catch {
     Write-Host "   ❌ TOML validation failed" -ForegroundColor Red

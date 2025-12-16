@@ -34,7 +34,7 @@ Next.js build cache corruption causing manifest file errors:
 ### How to Start the System
 
 ```powershell
-cd C:\neurosonix-cloud
+cd C:\clisonix-cloud
 .\start-dev.ps1
 ```
 

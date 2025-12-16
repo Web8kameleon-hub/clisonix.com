@@ -3,7 +3,7 @@ from typing import List
 from googleapiclient.discovery import build
 
 # AlbaAnalyzer import placeholder (update with actual import if found)
-# from neurosonix.alba import AlbaAnalyzer
+# from clisonix.alba import AlbaAnalyzer
 
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 

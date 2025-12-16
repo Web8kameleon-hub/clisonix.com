@@ -1,4 +1,4 @@
-﻿"""
+"""
 ðŸ“¡ ALBA - Artificial Laboratory Bits Algorithms (REAL DATA COLLECTOR)
 =====================================================================
 KolektorÃ« real i tÃ« dhÃ«nave qÃ« mbledh informacione nga sistemi Clisonix.

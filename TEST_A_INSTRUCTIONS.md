@@ -1,6 +1,7 @@
 # 🧪 TEST A - PROMETHEUS TARGETS VALIDATION
 
 ## Overview
+
 **Objective**: Verify that all Prometheus targets (services) are being scraped successfully
 
 **Expected Result**: All services should show `UP` status in Prometheus targets endpoint
@@ -10,12 +11,14 @@
 ## Steps to Run TEST A
 
 ### Step 1: Start the Docker Stack
+
 ```powershell
-cd c:\neurosonix-cloud
+cd c:\clisonix-cloud
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
 **What starts**:
+
 - PostgreSQL (5432)
 - PostgreSQL Exporter (9187) ← **NEW**
 - Redis (6379)
@@ -30,6 +33,7 @@ docker-compose -f docker-compose.prod.yml up -d
 ---
 
 ### Step 2: Verify Exporters Are Running
+
 ```powershell
 # Check postgres-exporter is responding
 curl http://localhost:9187/metrics | Select-Object -First 10
@@ -49,7 +53,7 @@ pg_up 1
 
 ### Step 3: Run the Test Suite
 ```powershell
-cd c:\neurosonix-cloud
+cd c:\clisonix-cloud
 .\test-monitoring.ps1
 ```
 

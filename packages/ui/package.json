@@ -1,7 +1,7 @@
 {
-  "name": "@neurosonix/ui",
+  "name": "@clisonix/ui",
   "version": "1.0.0",
-  "description": "Shared UI components for NeuroSonix platform",
+  "description": "Shared UI components for clisonix platform",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -12,7 +12,7 @@
   "dependencies": {
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "@neurosonix/shared": "1.0.0"
+    "@clisonix/shared": "1.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

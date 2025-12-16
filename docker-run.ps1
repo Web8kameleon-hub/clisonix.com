@@ -1,4 +1,4 @@
-﻿# Ultra-Industrial Docker Run Script
+# Ultra-Industrial Docker Run Script
 # Author: Ledjan Ahmati
 
 param(

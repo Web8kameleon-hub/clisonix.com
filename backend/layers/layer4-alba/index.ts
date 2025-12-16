@@ -1,4 +1,4 @@
-﻿import type { Express, Request, Response, NextFunction } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { AppConfig } from "../../config";
 import os from "os";
 import crypto from "crypto";

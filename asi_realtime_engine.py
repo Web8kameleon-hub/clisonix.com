@@ -1,4 +1,4 @@
-﻿"""Real-time analysis engine for the ASI (ALBA, ALBI, JONA) stack."""
+"""Real-time analysis engine for the ASI (ALBA, ALBI, JONA) stack."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-﻿"""
+"""
 brain_analyzer.py
 -----------------
 Clisonix Cognitive Health Analyzer

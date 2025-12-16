@@ -1,4 +1,4 @@
-﻿from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 import stripe, os
 
 router = APIRouter()

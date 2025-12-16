@@ -295,7 +295,7 @@ Clisonix operates as a **microservices-based AI platform** with the following la
 **Location:** `/archive/`
 
 ### Old Services
-- `neurosonix_*.py` (8 files) - Legacy Neurosonix modules
+- `clisonix_*.py` (8 files) - Legacy clisonix modules
 - `saas_api.py` - Old Flask-based SaaS API
 - `saas_services_orchestrator.py` - Deprecated orchestrator
 - `industrial_dashboard_demo.py` - Demo application

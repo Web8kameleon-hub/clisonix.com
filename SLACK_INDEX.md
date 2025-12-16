@@ -192,7 +192,7 @@ curl -X POST http://localhost:8888/send-alert \
 
 ### Step 1: Clone/Setup Repository
 ```bash
-cd c:\neurosonix-cloud
+cd c:\clisonix-cloud
 ```
 
 ### Step 2: Install Dependencies

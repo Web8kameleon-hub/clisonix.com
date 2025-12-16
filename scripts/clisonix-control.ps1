@@ -4,7 +4,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$Root = "C:\neurosonix-cloud"
+$Root = "C:\clisonix-cloud"
 $ComposeFile = Join-Path $Root "docker-compose.prod.yml"
 
 Set-Location $Root

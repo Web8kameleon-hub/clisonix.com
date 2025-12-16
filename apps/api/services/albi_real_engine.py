@@ -1,4 +1,4 @@
-﻿"""
+"""
 ðŸ¤– ALBI - Artificial Labor Born Intelligence (REAL DATA ENGINE)
 ================================================================
 Real intelligence qÃ« rritet duke lexuar tÃ« dhÃ«na reale nga sistemi Clisonix.

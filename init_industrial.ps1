@@ -1,4 +1,4 @@
-﻿# Ultra-Industrial Initialization Script
+# Ultra-Industrial Initialization Script
 # Author: Ledjan Ahmati
 
 param(

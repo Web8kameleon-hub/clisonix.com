@@ -13,7 +13,7 @@ PG_CONFIG = {
     "host": os.getenv("PGHOST", "postgres"),
     "user": os.getenv("PGUSER", "postgres"),
     "password": os.getenv("PGPASSWORD", "postgres"),
-    "dbname": os.getenv("PGDATABASE", "neurosonix"),
+    "dbname": os.getenv("PGDATABASE", "clisonix"),
 }
 
 

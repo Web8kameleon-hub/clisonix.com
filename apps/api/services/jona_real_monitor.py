@@ -1,4 +1,4 @@
-﻿"""
+"""
 ðŸ”® JONA - Joyful Overseer of Neural Alignment (REAL SYSTEM MONITOR) 
 ===================================================================
 Monitor real i sistemit qÃ« mbikÃ«qyr harmoninÃ« e Clisonix ecosystem.

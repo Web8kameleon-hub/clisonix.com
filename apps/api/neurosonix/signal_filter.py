@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Signal Filter
 Real-time signal filtering and noise reduction for EEG data
 """

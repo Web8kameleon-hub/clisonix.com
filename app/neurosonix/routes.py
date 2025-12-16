@@ -1,4 +1,4 @@
-﻿"""
+"""
 routes.py
 ----------
 Real Clisonix routes (no mocks)
@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 from datetime import datetime
 import traceback
 
-from app.neurosonix.cognitive_arch import CognitiveArchitecture
+from app.clisonix.cognitive_arch import CognitiveArchitecture
 
 # Inicializo router-in
 router = APIRouter()

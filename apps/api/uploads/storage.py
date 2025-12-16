@@ -1,4 +1,4 @@
-﻿"""
+"""
 Industrial Storage System for Clisonix Cloud
 S3-compatible storage with local fallback, versioning, and audit trails
 Business: Ledjan Ahmati - WEB8euroweb GmbH

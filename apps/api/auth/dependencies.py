@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Authentication Dependencies
 
 JWT authentication, API keys, subscription plans, and Redis session management.
@@ -50,7 +50,7 @@ security = HTTPBearer()
 # ---------------------------------------------------------------------------
 
 def _get_jwt_secret() -> str:
-    # expecting settings.secret_key (Neurosonix/Clisonix style)
+    # expecting settings.secret_key (clisonix/Clisonix style)
     return settings.secret_key
 
 

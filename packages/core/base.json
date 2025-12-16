@@ -1,7 +1,7 @@
 {
-  "name": "@neurosonix/base",
+  "name": "@clisonix/base",
   "version": "1.0.0",
-  "description": "NeuroSonix Base Configuration - Shared settings for all packages",
+  "description": "clisonix Base Configuration - Shared settings for all packages",
   "private": true,
   "type": "module",
   "main": "index.js",
@@ -22,7 +22,7 @@
     "rimraf": "^5.0.0"
   },
   "keywords": [
-    "neurosonix",
+    "clisonix",
     "config",
     "base",
     "shared"

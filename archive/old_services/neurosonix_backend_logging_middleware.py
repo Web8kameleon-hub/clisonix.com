@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Middleware pÃ«r logim me ngjyra nÃ« Ã§do kÃ«rkesÃ« FastAPI
 Business: Ledjan Ahmati - WEB8euroweb GmbH

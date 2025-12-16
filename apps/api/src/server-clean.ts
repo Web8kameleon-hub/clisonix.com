@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Clisonix INDUSTRIAL BACKEND SERVER
  * ===================================
  * Production-ready server with ALBI+ALBA+JONA + Payment System

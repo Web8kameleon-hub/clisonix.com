@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Signal Generation Services
 Real-time system metrics and signal processing
 Migrated from TypeScript backend to Python FastAPI

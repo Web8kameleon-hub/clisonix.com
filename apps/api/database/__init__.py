@@ -1,1 +1,1 @@
-﻿# Clisonix Database
+# Clisonix Database

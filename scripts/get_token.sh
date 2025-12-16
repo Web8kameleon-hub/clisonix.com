@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REALM=${KC_REALM:-neurosonix}
+REALM=${KC_REALM:-clisonix}
 CLIENT=${KC_CLIENT:-neuro-api}
 SECRET=${KC_SECRET:-changeme}
 KC=${KC_URL:-http://localhost:8089}

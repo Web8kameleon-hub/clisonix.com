@@ -1,4 +1,4 @@
-﻿"""Self-generating API laboratory utilities.
+"""Self-generating API laboratory utilities.
 
 This module orchestrates the pipeline that detects a domain need, drafts
 an OpenAPI specification, scaffolds FastAPI code, and stores artifacts for

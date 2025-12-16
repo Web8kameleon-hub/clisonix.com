@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Database Session Management
 Async SQLAlchemy configuration with connection pooling
 """

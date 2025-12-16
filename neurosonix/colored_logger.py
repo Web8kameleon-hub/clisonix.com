@@ -1,5 +1,5 @@
 """
-NeuroSonix Colored Logger
+clisonix Colored Logger
 Business: Ledjan Ahmati - WEB8euroweb GmbH
 Logs with real color-coded output for ERROR (red) and WARNING (yellow).
 """
@@ -42,7 +42,7 @@ class ColoredFormatter(logging.Formatter):
         return f"{color}{message}{reset}"
 
 
-def setup_logger(name: str = "NeuroSonix", level: int = logging.INFO) -> logging.Logger:
+def setup_logger(name: str = "clisonix", level: int = logging.INFO) -> logging.Logger:
     """Create or retrieve a color-enabled logger."""
 
     logger = logging.getLogger(name)
@@ -67,7 +67,7 @@ def setup_logger(name: str = "NeuroSonix", level: int = logging.INFO) -> logging
 
 
 if __name__ == "__main__":
-    demo_logger = setup_logger("NeuroSonix", logging.DEBUG)
+    demo_logger = setup_logger("clisonix", logging.DEBUG)
     demo_logger.debug("Debug message (cyan)")
     demo_logger.info("System started successfully (green)")
     demo_logger.warning("Memory usage nearing threshold (yellow)")

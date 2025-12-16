@@ -18,7 +18,7 @@
 
 ### 🗄️ Archived Old Frontends (`/archive/frontends/`)
 - **Moved**: `frontend/` → `frontend-old/` (deprecated Next.js)
-- **Moved**: `neurosonix-supernova/` (Vite prototype)
+- **Moved**: `clisonix-supernova/` (Vite prototype)
 
 **Impact**: Removed 2 redundant frontend implementations, kept only `apps/web/` as production
 
@@ -26,7 +26,7 @@
 
 ### 🚀 Archived Redundant Launchers (`/archive/launchers/`)
 - **Moved**: 6 old Python launcher scripts:
-  - `launch_neurosonix_cloud.py`
+  - `launch_clisonix_cloud.py`
   - `start_server.py`
   - `run_backend.py`
   - `run_hypercorn.py`
@@ -38,15 +38,15 @@
 ---
 
 ### 🔧 Archived Legacy Services (`/archive/old_services/`)
-- **Moved**: All `neurosonix_*.py` files (6 files):
-  - `neurosonix_backend_app.py`
-  - `neurosonix_backend_logging_middleware.py`
-  - `neurosonix_integrated_system.py`
-  - `neurosonix_server.py`
-  - `neurosonix_signal_processing.py`
-  - `neurosonix_telemetry.py`
-  - `neurosonix_telemetry_analysis.py`
-  - `neurosonix_trinity_analyzer.py`
+- **Moved**: All `clisonix_*.py` files (6 files):
+  - `clisonix_backend_app.py`
+  - `clisonix_backend_logging_middleware.py`
+  - `clisonix_integrated_system.py`
+  - `clisonix_server.py`
+  - `clisonix_signal_processing.py`
+  - `clisonix_telemetry.py`
+  - `clisonix_telemetry_analysis.py`
+  - `clisonix_trinity_analyzer.py`
 
 **Impact**: Removed duplicate/superseded implementations, main API in `apps/api/main.py` is now canonical
 

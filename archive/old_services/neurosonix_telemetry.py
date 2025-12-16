@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Telemetry / tracing decorator for Clisonix services.
 Captures function entry metadata, timing, and approximate payload size without logging contents.

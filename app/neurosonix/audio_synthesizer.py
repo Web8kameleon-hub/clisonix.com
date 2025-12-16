@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Audio Synthesizer
 ----------------------------
 Modern implementation of the Clisonix audio synthesizer engine.

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # --- CONSOLIDATED IMPORTS (MUST COME FIRST) ---
 import os
 import sys

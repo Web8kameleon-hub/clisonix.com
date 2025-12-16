@@ -1,4 +1,4 @@
-﻿"""Entry point for the Clisonix FastAPI service."""
+"""Entry point for the Clisonix FastAPI service."""
 
 from fastapi import FastAPI
 

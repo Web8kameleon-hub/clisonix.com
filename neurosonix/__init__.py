@@ -1,1 +1,1 @@
-"""NeuroSonix core runtime package."""
+"""clisonix core runtime package."""

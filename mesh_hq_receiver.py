@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Mesh HQ Receiver
 Industrial Real-Data Sink for Clisonix Distributed Systems

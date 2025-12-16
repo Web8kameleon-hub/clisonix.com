@@ -22,7 +22,7 @@ export interface RebalanceSession {
 let activeSession: RebalanceSession | null = null;
 let t = 0; // time index for sine wave
 
-// í·  Monitoron aktivitetin neural dhe aktivizon qetÃ«simin nÃ«se beta/gamma janÃ« tÃ« larta
+// ï¿½ï¿½ï¿½ Monitoron aktivitetin neural dhe aktivizon qetÃ«simin nÃ«se beta/gamma janÃ« tÃ« larta
 export async function monitorAndRebalance(activity: NeuralActivity): Promise<RebalanceSession | null> {
   if (activity.beta > 25 && activity.gamma > 35) {
     console.log("âš ï¸ [JONA] Elevated beta/gamma detected â€” initiating rhythmic calm protocol");
@@ -31,7 +31,7 @@ export async function monitorAndRebalance(activity: NeuralActivity): Promise<Reb
   return null;
 }
 
-// í¼Š Fillon sesionin e qetÃ«simit ritmik
+// ï¿½ï¿½ï¿½ Fillon sesionin e qetÃ«simit ritmik
 export async function startCalmSession(): Promise<RebalanceSession> {
   if (activeSession) return activeSession;
 
@@ -46,7 +46,7 @@ export async function startCalmSession(): Promise<RebalanceSession> {
   activeSession = session;
   await emitSignal("JONA", "rebalance_start", { module: "ALBI", session });
 
-  console.log("í¼¬ï¸ [ALBI] Rhythmic Calm Mode activated (Alphaâ€“Theta sync)");
+  console.log("ï¿½ï¿½ï¿½ï¸ [ALBI] Rhythmic Calm Mode activated (Alphaâ€“Theta sync)");
 
   // valÃ« ritmike ~0.1 Hz (6 cikle/minutÃ«) pÃ«r frymÃ«marrje qetÃ«suese
   const interval = setInterval(async () => {
@@ -68,7 +68,7 @@ export async function startCalmSession(): Promise<RebalanceSession> {
     });
 
     console.log(
-      `í¾µ [ALBI] Calm cycle ${activeSession.cycles} | Alpha ${alpha.toFixed(2)}Hz | Theta ${theta.toFixed(2)}Hz | CalmLevel ${(activeSession.calmLevel * 100).toFixed(0)}%`
+      `ï¿½ï¿½ï¿½ [ALBI] Calm cycle ${activeSession.cycles} | Alpha ${alpha.toFixed(2)}Hz | Theta ${theta.toFixed(2)}Hz | CalmLevel ${(activeSession.calmLevel * 100).toFixed(0)}%`
     );
 
     if (activeSession.calmLevel >= 1) {
@@ -90,7 +90,7 @@ export async function completeCalmSession(): Promise<void> {
   activeSession = null;
 }
 
-// í´ Merr sesionin aktiv
+// ï¿½ï¿½ï¿½ Merr sesionin aktiv
 export function getActiveSession(): RebalanceSession | null {
   return activeSession;
 }

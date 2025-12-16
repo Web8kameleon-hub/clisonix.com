@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Normalized next.config.js – single source of truth for rewrites
  * Rewrites /api/:path* to NEXT_PUBLIC_API_BASE (dev) or preserved host routes
  */
@@ -11,6 +11,7 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['framer-motion'],
   staticPageGenerationTimeout: 600,
+
   webpack: (config, { isServer }) => {
     config.cache = false;
     return config;

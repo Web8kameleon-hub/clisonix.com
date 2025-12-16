@@ -29,7 +29,7 @@ param(
 # CONFIGURATION & CONSTANTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
-$Root = 'c:\neurosonix-cloud'
+$Root = 'c:\clisonix-cloud'
 Set-Location $Root
 
 $Colors = @{
@@ -257,7 +257,7 @@ function Start-DevMode {
     
     Show-Status "Starting API Server (port 8000)..." 'WAIT'
     $apiJob = Start-Job -Name 'API' -ScriptBlock {
-        Set-Location 'c:\neurosonix-cloud'
+        Set-Location 'c:\clisonix-cloud'
         python -m uvicorn apps.api.main:app --reload --host 0.0.0.0 --port 8000
     }
     Show-Status "API started (Job #$($apiJob.Id)) ✓" 'OK'
@@ -266,7 +266,7 @@ function Start-DevMode {
     
     Show-Status "Starting Frontend (port 3000)..." 'WAIT'
     $webJob = Start-Job -Name 'Frontend' -ScriptBlock {
-        Set-Location 'c:\neurosonix-cloud\apps\web'
+        Set-Location 'c:\clisonix-cloud\apps\web'
         $env:NEXT_PUBLIC_API_BASE = 'http://localhost:8000'
         npm run dev 2>$null
     }
@@ -288,7 +288,7 @@ function Start-ProdMode {
     
     Show-Status "Starting API in separate window..." 'WAIT'
     $apiScript = {
-        Set-Location 'c:\neurosonix-cloud'
+        Set-Location 'c:\clisonix-cloud'
         $host.UI.RawUI.WindowTitle = "Clisonix - API (8000)"
         Write-Host "╔══════════════════════════════════════════╗" -ForegroundColor Green
         Write-Host "║   API SERVER STARTING - Port 8000      ║" -ForegroundColor Green
@@ -302,7 +302,7 @@ function Start-ProdMode {
     
     Show-Status "Starting Frontend in separate window..." 'WAIT'
     $frontendScript = {
-        Set-Location 'c:\neurosonix-cloud\apps\web'
+        Set-Location 'c:\clisonix-cloud\apps\web'
         $host.UI.RawUI.WindowTitle = "Clisonix - Frontend (3000)"
         $env:NEXT_PUBLIC_API_BASE = "http://localhost:8000"
         Write-Host "╔══════════════════════════════════════════╗" -ForegroundColor Yellow
@@ -332,7 +332,7 @@ function Start-FullMode {
     
     Show-Status "Launching API Server..." 'WAIT'
     $apiScript = {
-        Set-Location 'c:\neurosonix-cloud'
+        Set-Location 'c:\clisonix-cloud'
         $host.UI.RawUI.WindowTitle = "CLISONIX - API SERVER (8000)"
         Write-Host "╔══════════════════════════════════════════╗" -ForegroundColor Cyan
         Write-Host "║   API SERVER ONLINE - Port 8000        ║" -ForegroundColor Cyan
@@ -346,7 +346,7 @@ function Start-FullMode {
     
     Show-Status "Launching Frontend..." 'WAIT'
     $frontendScript = {
-        Set-Location 'c:\neurosonix-cloud\apps\web'
+        Set-Location 'c:\clisonix-cloud\apps\web'
         $host.UI.RawUI.WindowTitle = "CLISONIX - FRONTEND (3000)"
         $env:NEXT_PUBLIC_API_BASE = "http://localhost:8000"
         Write-Host "╔══════════════════════════════════════════╗" -ForegroundColor Yellow
@@ -417,7 +417,7 @@ function Start-SaaSMode {
         if (Test-Path $svc.Script) {
             Start-Job -Name $svc.Name -ScriptBlock {
                 param($Script, $Port)
-                Set-Location 'c:\neurosonix-cloud'
+                Set-Location 'c:\clisonix-cloud'
                 python $Script
             } -ArgumentList $svc.Script, $svc.Port
             

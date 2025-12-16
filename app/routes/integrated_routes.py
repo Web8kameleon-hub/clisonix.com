@@ -1,4 +1,4 @@
-﻿"""Minimal integrated routes for the app.
+"""Minimal integrated routes for the app.
 
 Provides a small APIRouter with /health and /info endpoints so the main app can
 mount and exercise basic behavior without requiring the full system.

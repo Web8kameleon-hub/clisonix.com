@@ -1,4 +1,4 @@
-// Shared types for NeuroSonix platform
+// Shared types for clisonix platform
 export interface ServiceStatus {
   name: string
   url: string

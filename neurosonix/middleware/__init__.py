@@ -1,5 +1,5 @@
 """
-NeuroSonix Cloud Middleware Package
+clisonix Cloud Middleware Package
 Industrial-grade middleware for real-time AI, sensor, and API traffic
 Business: Ledjan Ahmati - WEB8euroweb GmbH
 REAL DATA ONLY - NO MOCK/FAKE SIMULATION
@@ -84,7 +84,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
             handle.write(json.dumps(metrics) + "\n")
 
         response = await call_next(request)
-        response.headers["X-NeuroSonix-Monitor"] = "active"
+        response.headers["X-clisonix-Monitor"] = "active"
         return response
 
 

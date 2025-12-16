@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Cloud - Minimal FastAPI Backend
 Reduced resource usage for Docker deployment
 """

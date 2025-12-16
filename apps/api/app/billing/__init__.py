@@ -1,1 +1,1 @@
-﻿# Clisonix Billing
+# Clisonix Billing

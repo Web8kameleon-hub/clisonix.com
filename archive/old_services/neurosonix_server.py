@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Cloud Server
 Industrial-Grade Real-Time Middleware System
 Business: Ledjan Ahmati - WEB8euroweb GmbH

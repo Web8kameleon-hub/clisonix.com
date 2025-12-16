@@ -1,4 +1,4 @@
-﻿# 🧠 Clisonix Cloud
+# 🧠 Clisonix Cloud
 
 Industrial Backend & Payment System
 
@@ -6,13 +6,12 @@ Industrial Backend & Payment System
  Business Integration**
 
 **Business Information:**
--**Owner:**
-Ledjan Ahmati
 
+- **Owner:** [Contact for details]
 - **Company:** WEB8euroweb GmbH
-- **SEPA IBAN:** DE72430500010015012263 (Sparkasse Bochum)
-- **PayPal:** <ahmati.bau@gmail.com>
-- **Data Policy:** REAL DATA ONLY - NO MOCK/PLACEHOLDER
+- **SEPA IBAN:** `${SEPA_IBAN}` (Configured via secrets)
+- **PayPal:** `${PAYPAL_EMAIL}` (Configured via secrets)
+- **Data Policy:** Production credentials managed via secrets - See SECURITY.md
 
 ---
 
@@ -44,6 +43,41 @@ Ledjan Ahmati
 - **Plan-Based Quotas:** Subscription tier restrictions
 - **Rate Limiting:** Industrial middleware for API protection
 - **CORS Security:** Production-ready cross-origin handling
+
+---
+
+## 🔐 Security
+
+**⚠️ IMPORTANT: This project handles sensitive data and payment processing.**
+
+### Getting Started Securely
+
+1. **Never commit secrets** - Use `.secrets` file (see `.secrets.template`)
+2. **Read SECURITY.md** - Comprehensive security guidelines
+3. **Use Docker Secrets** - For production deployments
+4. **Enable pre-commit hooks** - Prevent accidental secret exposure
+
+```bash
+# Setup secrets (first time only)
+cp .secrets.template .secrets
+# Edit .secrets with your real values
+
+# Install security tools
+cp scripts/pre-commit.sh .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+
+# Scan for exposed secrets
+python scripts/scan-secrets.py
+```
+
+### Security Resources
+
+- 📖 **[SECURITY.md](SECURITY.md)** - Full security policy
+- 🔍 **Secret Scanning** - Automated with GitHub Actions
+- 🔐 **Secrets Management** - Docker secrets, Vault integration
+- 🛡️ **Vulnerability Scanning** - Trivy + dependency monitoring
+
+**Report security issues**: See [SECURITY.md](SECURITY.md#reporting-security-vulnerabilities)
 
 ---
 
@@ -152,18 +186,18 @@ DATABASE_URL=postgresql+asyncpg://user:pass@localhost/Clisonix
 # Redis Configuration  
 REDIS_URL=redis://localhost:6379
 
-# Payment Integration
-STRIPE_SECRET_KEY=sk_live_...
-STRIPE_WEBHOOK_SECRET=whsec_...
+# Payment Integration (Use .secrets file - see .secrets.template)
+STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
 
-# Business Configuration
-BUSINESS_OWNER="Ledjan Ahmati"
-BUSINESS_COMPANY="WEB8euroweb GmbH"
-SEPA_IBAN="DE72430500010015012263"
-PAYPAL_EMAIL="ahmati.bau@gmail.com"
+# Business Configuration (NEVER commit real values)
+BUSINESS_OWNER=${BUSINESS_OWNER}
+BUSINESS_COMPANY=${BUSINESS_COMPANY}
+SEPA_IBAN=${SEPA_IBAN}
+PAYPAL_EMAIL=${PAYPAL_EMAIL}
 
-# Security
-JWT_SECRET_KEY=your-industrial-secret-key
+# Security (Generate strong random keys)
+JWT_SECRET_KEY=${JWT_SECRET_KEY}
 JWT_ALGORITHM=HS256
 
 # System Settings
@@ -186,8 +220,8 @@ API_VERSION=1.0.0
 
 ### Payment System
 
-- **SEPA Integration:** Real bank account DE72430500010015012263
-- **PayPal Processing:** Business account <ahmati.bau@gmail.com>
+- **SEPA Integration:** Enterprise bank account (configured via secrets)
+- **PayPal Processing:** Business account integration (see SECURITY.md)
 - **Stripe Subscriptions:** Plan-based quota management
 - **Webhook Verification:** Secure payment status updates
 

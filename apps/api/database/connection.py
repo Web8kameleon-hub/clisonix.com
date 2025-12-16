@@ -1,4 +1,4 @@
-﻿# ðŸš€ Clisonix DATABASE CONNECTION
+# ðŸš€ Clisonix DATABASE CONNECTION
 # Production-Grade SQLAlchemy Engine with Real Connection Pooling
 # Industrial Redis Caching, Session Management
 

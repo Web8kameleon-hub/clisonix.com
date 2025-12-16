@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 ALBA API Server - Live ingestion endpoint for Clisonix Cloud.
@@ -99,7 +99,7 @@ def get_latest() -> JSONResponse:
 
         latest_file = files[0]
         try:
-            with latest_file.open("r", encoding="utf-8") as handle:
+            with latest_file.open("r", encoding="utf-8-sig") as handle:
                 frame = json.load(handle)
                 span.set_attribute("file_name", latest_file.name)
         except Exception as exc:

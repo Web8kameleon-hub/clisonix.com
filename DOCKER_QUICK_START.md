@@ -51,7 +51,7 @@ curl http://localhost:8000/docs
 
 ### View Running Services
 ```bash
-cd c:\neurosonix-cloud
+cd c:\clisonix-cloud
 docker-compose -f docker-compose.prod.yml ps
 ```
 
@@ -185,7 +185,7 @@ docker exec clisonix-minio mc cp file.txt local/bucket-name/
 
 ### Scenario 1: Check if Everything is Running
 ```bash
-cd c:\neurosonix-cloud
+cd c:\clisonix-cloud
 docker-compose -f docker-compose.prod.yml ps
 ```
 ✅ Expected: All 11 services showing "Up"

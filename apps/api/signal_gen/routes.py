@@ -1,4 +1,4 @@
-﻿"""
+"""
 Signal Generation API Routes
 FastAPI routes for real-time system monitoring and signal processing
 Integrated from TypeScript backend into Python

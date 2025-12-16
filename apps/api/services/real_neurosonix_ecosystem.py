@@ -1,4 +1,4 @@
-﻿"""
+"""
 ðŸ§ âš¡ REAL Clisonix ECOSYSTEM - ALBI + ALBA + JONA
 ====================================================
 Ekosistemi real i Clisonix me tÃ« tre karakteret kryesore.

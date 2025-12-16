@@ -1,7 +1,7 @@
 {
-  "name": "@neurosonix/shared",
+  "name": "@clisonix/shared",
   "version": "1.0.0",
-  "description": "Shared utilities for NeuroSonix platform",
+  "description": "Shared utilities for clisonix platform",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

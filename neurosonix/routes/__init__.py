@@ -1,4 +1,4 @@
-"""Route registration utilities for the NeuroSonix standalone services."""
+"""Route registration utilities for the clisonix standalone services."""
 
 import logging
 from typing import Any

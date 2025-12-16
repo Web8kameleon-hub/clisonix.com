@@ -1,4 +1,4 @@
-﻿"""
+"""
 Copyright (c) Clisonix Cloud. All rights reserved.
 Closed Source License.
 """

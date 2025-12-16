@@ -1,7 +1,7 @@
 {
-  "name": "@neurosonix/signal-gen-backend",
+  "name": "@clisonix/signal-gen-backend",
   "version": "1.0.0",
-  "description": "NeuroSonix Industrial Backend - TypeScript Fastify Server",
+  "description": "clisonix Industrial Backend - TypeScript Fastify Server",
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
@@ -27,7 +27,7 @@
     "@typescript-eslint/parser": "^6.7.4"
   },
   "keywords": [
-    "neurosonix",
+    "clisonix",
     "industrial",
     "fastify", 
     "typescript",
@@ -36,6 +36,6 @@
     "jona",
     "real-data"
   ],
-  "author": "NeuroSonix Industrial Team",
+  "author": "clisonix Industrial Team",
   "license": "MIT"
 }

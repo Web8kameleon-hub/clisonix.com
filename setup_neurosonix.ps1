@@ -1,4 +1,4 @@
-﻿# setup_Clisonix.ps1 - Clisonix Cloud Industrial Setup Script
+# setup_Clisonix.ps1 - Clisonix Cloud Industrial Setup Script
 # Author: Ledjan Ahmati
 # License: Closed Source
 

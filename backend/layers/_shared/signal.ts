@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Clisonix Signal Core
  * ----------------------
  * Unified event propagation layer between modules (ALBA, ALBI, JONA, ASI).

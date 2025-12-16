@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 ðŸ“Š Clisonix INDUSTRIAL SPECTRUM ANALYZER
 Advanced FFT Processing, Spectrogram Generation, Real-time Visualization

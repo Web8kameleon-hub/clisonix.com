@@ -1,4 +1,4 @@
-﻿"""Utility to regenerate favicon assets for Clisonix."""
+"""Utility to regenerate favicon assets for Clisonix."""
 from __future__ import annotations
 
 import os

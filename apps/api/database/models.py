@@ -1,4 +1,4 @@
-﻿# ðŸš€ Clisonix PRODUCTION DATABASE MODELS
+# ðŸš€ Clisonix PRODUCTION DATABASE MODELS
 # Industrial-Grade SQLAlchemy Models with Real Relationships
 # Production PostgreSQL Schema, Real Business Logic
 

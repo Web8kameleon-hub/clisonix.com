@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Clisonix Distributed Pulse Balancer (Industrial)
 - Real UDP heartbeat & peer discovery

@@ -1,4 +1,4 @@
-﻿from datetime import datetime
+from datetime import datetime
 import os
 import json
 import xml.etree.ElementTree as ET

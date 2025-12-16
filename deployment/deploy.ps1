@@ -1,4 +1,4 @@
-﻿# deploy.ps1 - Clisonix Cloud Industrial Deployment Script
+# deploy.ps1 - Clisonix Cloud Industrial Deployment Script
 # Author: Ledjan Ahmati
 # License: Closed Source
 

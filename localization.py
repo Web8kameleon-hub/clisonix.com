@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Lightweight localization utilities for Clisonix runtimes."""
 
 from __future__ import annotations

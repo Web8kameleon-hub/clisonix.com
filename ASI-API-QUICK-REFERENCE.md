@@ -72,7 +72,7 @@ Invoke-WebRequest -Uri 'http://localhost:8000/api/status/services' | ConvertFrom
 ### Run Full Test Suite
 
 ```powershell
-cd c:\neurosonix-cloud
+cd c:\clisonix-cloud
 .\scripts\test-cycle.ps1
 ```
 

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ASI Styles with Vanilla Extract
  * ===============================
  * 

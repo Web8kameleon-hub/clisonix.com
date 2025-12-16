@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Clisonix Integrated System â€” with Distributed Pulse Balancer Integration
 Industrial-Grade Real-Time Integration + Cloud Upload + Cluster-Aware Routing

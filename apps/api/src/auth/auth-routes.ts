@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Clisonix SIMPLE USER AUTHENTICATION
  * ====================================
  * Basic user auth pÃ«r payment system

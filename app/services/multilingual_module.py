@@ -1,4 +1,4 @@
-﻿"""
+"""
 Multilingual Module for Clisonix Cloud
 Real implementation with actual APIs and services
 """

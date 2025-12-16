@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Stripe billing routes with real subscription management integrations.
 """
 from typing import Dict, List, Optional, Any

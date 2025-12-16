@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Core - Real EEG to Audio Processing
 Real-time brain wave analysis and audio synthesis
 """

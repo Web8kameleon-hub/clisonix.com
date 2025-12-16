@@ -1,4 +1,4 @@
-﻿"""
+"""
 ðŸŒŸ Clisonix Services Package
 =============================
 Paketa qÃ« pÃ«rmban tÃ« gjithÃ« personazhet dhe shÃ«rbimet e sistemit neural.

@@ -31,7 +31,7 @@ param(
 # CONFIGURATION
 # ═══════════════════════════════════════════════════════════════════════════════
 
-$Root = 'c:\neurosonix-cloud'
+$Root = 'c:\clisonix-cloud'
 Set-Location $Root
 
 $Colors = @{
@@ -130,7 +130,7 @@ $Services = @(
         Port = 9090; 
         Icon = '📊'; 
         Color = 'Red'
-        Command = 'docker run --name clisonix-prometheus -p 9090:9090 -v c:\neurosonix-cloud\prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus'
+        Command = 'docker run --name clisonix-prometheus -p 9090:9090 -v c:\clisonix-cloud\prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus'
         Type = 'docker'
     }
     @{ 

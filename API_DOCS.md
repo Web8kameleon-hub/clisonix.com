@@ -1,4 +1,4 @@
-﻿# Clisonix Cloud API Documentation
+# Clisonix Cloud API Documentation
 
 ## Endpoints
 

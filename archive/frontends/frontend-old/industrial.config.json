@@ -1,4 +1,4 @@
-﻿{
+{
   "autoSynchronization": {
     "enabled": true,
     "syncBetween": ["frontend", "backend"],

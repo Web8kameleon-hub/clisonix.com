@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 AGIEM Core (real-only)
 
@@ -699,7 +699,7 @@ class ReproductionPipeline:
         if source_dir.exists() and source_dir.is_dir():
             for path in sorted(source_dir.glob("*.json")):
                 try:
-                    data = json.loads(path.read_text(encoding="utf-8"))
+                    data = json.loads(path.read_text(encoding="utf-8-sig"))
                 except Exception as exc:
                     self.core.add_stage_note("ALBA", f"Failed to parse {path.name}: {exc}", "WARN")
                     continue

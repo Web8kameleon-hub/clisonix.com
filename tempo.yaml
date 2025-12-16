@@ -1,6 +1,5 @@
 server:
   http_listen_port: 3200
-  grpc_listen_port: 4317
 
 distributor:
   receivers:
@@ -12,10 +11,7 @@ distributor:
           endpoint: 0.0.0.0:4317
 
 ingester:
-  max_block_duration: 10m
-  lifecycler:
-    ring:
-      replication_factor: 1
+  max_block_duration: 5m
 
 storage:
   trace:
@@ -24,26 +20,39 @@ storage:
       path: /var/tempo/traces
     wal:
       path: /var/tempo/wal
-    cache: memcached
-    memcached:
-      consistent_hash: true
-      batch_size: 1024
-      parallelism: 100
-      update_interval: 1m
-      max_idle_conns: 100
+    pool:
+      max_workers: 100
+      queue_depth: 10000
 
-# Retention policy: keep traces for 24 hours
-retention: 24h
+metrics_generator:
+  registry:
+    external_labels:
+      source: tempo
+      cluster: clisonix
+  storage:
+    path: /var/tempo/generator/wal
+  processor:
+    service_graphs:
+      dimensions:
+        - resource.service.name
+    span_metrics:
+      dimensions:
+        - resource.service.name
+        - span.name
+        - span.kind
+        - status.code
 
-# Metrics configuration
-metrics:
-  enabled: true
-  per_tenant_state: true
+compactor:
+  compaction:
+    compacted_block_retention: 48h
 
-# Logger configuration
-logger:
-  level: info
+querier:
+  frontend_worker:
+    frontend_address: localhost:9095
 
-# Query configuration
-query:
-  max_search_bytes: 50000000
+query_frontend:
+  search:
+    max_duration: 0s
+  trace_by_id:
+    query_shards: 50
+

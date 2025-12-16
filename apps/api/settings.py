@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Cloud Settings
 Industrial-grade configuration with Stripe integration and plan quotas
 """

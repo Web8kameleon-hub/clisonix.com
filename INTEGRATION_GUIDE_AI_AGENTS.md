@@ -112,7 +112,7 @@
 
 ### Option 1: Using Docker (Recommended)
 ```bash
-cd C:\neurosonix-cloud
+cd C:\clisonix-cloud
 docker-compose -f docker-compose.yml up prometheus -d
 ```
 

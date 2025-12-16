@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix API Routes
 Real EEG processing and brain-to-audio conversion endpoints
 """

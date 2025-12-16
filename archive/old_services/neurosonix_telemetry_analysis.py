@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Real-time Clisonix Telemetry Analysis with Live API Integration"""
 
 from __future__ import annotations

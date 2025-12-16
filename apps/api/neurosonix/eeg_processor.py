@@ -1,4 +1,4 @@
-﻿"""
+"""
 Clisonix Industrial EEG Processor
 Advanced real-time processing of EEG signals with industrial-grade algorithms
 Business: Ledjan Ahmati - WEB8euroweb GmbH

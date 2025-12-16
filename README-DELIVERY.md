@@ -250,7 +250,7 @@ const health = await client.health();
 
 ## 📁 File Locations
 
-All files in: **c:\neurosonix-cloud\**
+All files in: **c:\clisonix-cloud\**
 
 ### APIs
 
@@ -455,7 +455,7 @@ You now have everything needed for production deployment:
 
 ## 🎉 Ready to Launch
 
-All artifacts are located in: **c:\neurosonix-cloud\**
+All artifacts are located in: **c:\clisonix-cloud\**
 
 **Start with**: `INDEX.md`
 

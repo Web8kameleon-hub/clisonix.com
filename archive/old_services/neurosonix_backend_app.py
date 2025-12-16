@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Shembull pÃ«rdorimi pÃ«r ColoredLoggingMiddleware."""
 
 from fastapi import FastAPI

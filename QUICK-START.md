@@ -4,7 +4,7 @@
 
 ### Option 1: Use Master Launcher (RECOMMENDED)
 ```powershell
-cd c:\neurosonix-cloud
+cd c:\clisonix-cloud
 
 # Full system with all 11 services in separate windows
 .\MASTER-LAUNCH-FULL.ps1 -Clean -Monitor
@@ -15,7 +15,7 @@ cd c:\neurosonix-cloud
 
 ### Option 2: Traditional npm dev
 ```powershell
-cd c:\neurosonix-cloud
+cd c:\clisonix-cloud
 npm run dev
 ```
 
@@ -25,14 +25,14 @@ npm run dev
 
 **WRONG (will fail):**
 ```powershell
-PS C:\neurosonix-cloud> MASTER-LAUNCH.ps1
-PS C:\neurosonix-cloud> start-all.ps1
+PS C:\clisonix-cloud> MASTER-LAUNCH.ps1
+PS C:\clisonix-cloud> start-all.ps1
 ```
 
 **CORRECT (use `./`):**
 ```powershell
-PS C:\neurosonix-cloud> .\MASTER-LAUNCH.ps1
-PS C:\neurosonix-cloud> .\MASTER-LAUNCH-FULL.ps1
+PS C:\clisonix-cloud> .\MASTER-LAUNCH.ps1
+PS C:\clisonix-cloud> .\MASTER-LAUNCH-FULL.ps1
 ```
 
 The `./` tells PowerShell to run scripts from the current directory.
@@ -112,6 +112,6 @@ Each service stays in its window - scroll to see output
 
 🚀 **Next Command:**
 ```powershell
-cd c:\neurosonix-cloud
+cd c:\clisonix-cloud
 .\MASTER-LAUNCH-FULL.ps1 -Clean -Monitor
 ```

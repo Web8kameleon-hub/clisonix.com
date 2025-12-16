@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Clisonix INDUSTRIAL PAYMENT MODELS
  * ===================================
  * SQLAlchemy-style models pÃ«r pagesa industriale

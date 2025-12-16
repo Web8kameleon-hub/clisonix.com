@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ALBA Collector Server â€” Connected Mode
  * ------------------------------------------------------
  * Ky version i ALBA Collector lidhet direkt me backend-in e Clisonix Cloud.

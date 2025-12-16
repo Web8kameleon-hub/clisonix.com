@@ -55,7 +55,7 @@ scrape_configs:
 
   - job_name: 'alba'
     static_configs:
-      - targets: ['alba:5555']
+      - targets: ['alba:5050']
         labels:
           service: 'alba'
           tier: 'saas'
@@ -63,7 +63,7 @@ scrape_configs:
 
   - job_name: 'albi'
     static_configs:
-      - targets: ['albi:6666']
+      - targets: ['albi:6060']
         labels:
           service: 'albi'
           tier: 'saas'
@@ -71,7 +71,7 @@ scrape_configs:
 
   - job_name: 'jona'
     static_configs:
-      - targets: ['jona:7777']
+      - targets: ['jona:7070']
         labels:
           service: 'jona'
           tier: 'saas'

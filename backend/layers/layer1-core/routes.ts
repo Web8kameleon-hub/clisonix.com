@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import os from "os";
 import { AppConfig } from "../../config";
 
