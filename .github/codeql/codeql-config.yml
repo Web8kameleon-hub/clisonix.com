@@ -1,0 +1,15 @@
+name: "CodeQL Config (Clisonix Cloud)"
+disable-default-queries: false
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
+paths:
+  - apps
+  - api
+paths-ignore:
+  - node_modules
+  - __pycache__
+  - test
+  - tests
+  - spec
+  - specs
