@@ -103,8 +103,8 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
           <button
             onClick={clearCommands}
             className={asiButton({ 
-              intent: 'ghost', 
-              size: 'xs' 
+              variant: 'ghost',
+              size: 'sm' 
             })}
           >
             Clear

@@ -27,12 +27,13 @@ export default function Home() {
         let jonaData: any = null
 
         try {
-          const asiStatusRes = await fetch(`${API_BASE || ''}/asi/status`)
+          const asiStatusRes = await fetch(`/api/asi-status`)
           if (asiStatusRes.ok) {
             const asiData = await asiStatusRes.json()
-            albiData = asiData.trinity?.albi
-            albaData = asiData.trinity?.alba
-            jonaData = asiData.trinity?.jona
+            const trinity = asiData.asi_status?.trinity || asiData.asi_status
+            albiData = trinity?.albi
+            albaData = trinity?.alba
+            jonaData = trinity?.jona
           }
         } catch (e) {
           console.warn('Failed to fetch real ASI metrics from Prometheus:', e)
