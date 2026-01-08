@@ -27,12 +27,10 @@ interface SandboxShieldProps {
 }
 
 export function SandboxShield({ className }: SandboxShieldProps) {
-  const { 
-    jona, 
-    sandbox, 
-    reportViolation,
-    resetSystem 
-  } = useASIStore();
+  const store = useASIStore();
+  const jona = store.jona ?? { ethics: 'moderate', violations: [] };
+  const sandbox = store.sandbox ?? { threatLevel: 'low', isActive: false };
+  const { reportViolation, resetSystem } = store;
 
   const getThreatLevelColor = (level: string) => {
     switch (level) {
