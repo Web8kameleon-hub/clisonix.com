@@ -7,7 +7,7 @@ Industrial Backend & Payment System
 
 **Business Information:**
 
-- **Owner:** [Contact for details]
+- **Owner:** Ledjan Ahmati
 - **Company:** WEB8euroweb GmbH
 - **SEPA IBAN:** `${SEPA_IBAN}` (Configured via secrets)
 - **PayPal:** `${PAYPAL_EMAIL}` (Configured via secrets)
@@ -374,3 +374,4 @@ Ledjan Ahmati - WEB8euroweb GmbH**
 - Payment system status at `/billing/stats`
 
 **No Mock Data:** This is an industrial-grade backend using real business integration, actual system monitoring, and live payment processing. All metrics, business information, and processing capabilities are real and functional. - FastAPI + Worker + Docker Compose
+
