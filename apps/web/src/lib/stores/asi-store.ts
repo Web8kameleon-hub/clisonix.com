@@ -39,6 +39,8 @@ interface ASIState {
   addMessage: (text: string) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  reportViolation: (violation: string) => void;
+  resetSystem: () => void;
 }
 
 export const useASIStore = create<ASIState>((set) => ({
@@ -84,4 +86,23 @@ export const useASIStore = create<ASIState>((set) => ({
   
   setLoading: (loading) => set({ isLoading: loading }),
   setError: (error) => set({ error }),
+
+  reportViolation: (violation) =>
+    set((state) => ({
+      sandbox: {
+        ...state.sandbox,
+        violations: [...(state.sandbox.violations || []), violation],
+        threatLevel: (state.sandbox.violations?.length ?? 0) >= 2 ? 'high' : 'elevated',
+      },
+    })),
+
+  resetSystem: () =>
+    set({
+      alba: { status: 'active', workload: 15, lastPing: new Date() },
+      albi: { status: 'active', consciousness: 'awake', creativity: 85, insights: ['Neural patterns analyzed', 'EEG data processed'] },
+      jona: { status: 'active', protection: 'enabled', ethics: 'strict', violations: [] },
+      sandbox: { status: 'active', workload: 5, violations: [], threatLevel: 'low', active: true, lastPing: new Date() },
+      commands: [],
+      error: null,
+    }),
 }));
