@@ -80,7 +80,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
           <span className="text-sm text-gray-300">Status:</span>
           <div className={statusBadge({ 
             status: sandbox?.active ? 'active' : 'inactive',
-            size: 'md'
+            size: 'default'
           })}>
             {sandbox?.active ? 'AKTIV' : 'JOAKTIV'}
           </div>
@@ -90,7 +90,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
           <span className="text-sm text-gray-300">Niveli i Kërcënimit:</span>
           <div className={statusBadge({ 
             status: getThreatLevelColor(sandbox?.threatLevel ?? 'low'),
-            size: 'md'
+            size: 'default'
           })}>
             {(sandbox?.threatLevel ?? 'low').toUpperCase()}
           </div>
@@ -127,7 +127,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
           </span>
         </div>
         
-        <div className={progressBar({ size: 'md' })}>
+        <div className={progressBar({ size: 'default' })}>
           <motion.div
             initial={{ width: 0 }}
             animate={{ 
@@ -148,13 +148,13 @@ export function SandboxShield({ className }: SandboxShieldProps) {
       </div>
 
       {/* Recent Violations */}
-      {jona.violations.length > 0 && (
+      {(jona.violations ?? []).length > 0 && (
         <div className="mb-6">
           <h3 className="text-sm font-semibold text-gray-300 mb-2">
             🚨 Shkelje të Fundit:
           </h3>
           <div className="space-y-1 max-h-32 overflow-y-auto">
-            {jona.violations.slice(-3).map((violation, index) => (
+            {(jona.violations ?? []).slice(-3).map((violation, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: -10 }}
@@ -175,11 +175,13 @@ export function SandboxShield({ className }: SandboxShieldProps) {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleEmergencyStop}
-          className={asiButton({ 
-            intent: 'danger', 
-            size: 'md',
-            fullWidth: true
-          })}
+          className={clsx(
+            asiButton({
+              variant: 'destructive',
+              size: 'default'
+            }),
+            'w-full'
+          )}
         >
           🛑 STOP EMERGJENCIAL
         </motion.button>
@@ -189,7 +191,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className={asiButton({ 
-              intent: sandbox.active ? 'warning' : 'success', 
+              variant: sandbox.active ? 'destructive' : 'default', 
               size: 'sm'
             })}
           >
@@ -201,7 +203,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
             whileTap={{ scale: 0.98 }}
             onClick={resetSystem}
             className={asiButton({ 
-              intent: 'secondary', 
+              variant: 'secondary', 
               size: 'sm'
             })}
           >
