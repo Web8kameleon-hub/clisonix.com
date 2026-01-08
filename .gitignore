@@ -1,6 +1,10 @@
 ﻿# Clisonix Cloud Industrial Backend - .gitignore
 # SECURITY: Never commit sensitive data!
 
+# Embedded Git Repositories (causes CI submodule issues)
+clisonix-repo/
+research/generated_cycles_v12/grafana-ml-ecosystem/
+
 # Environment Variables (SENSITIVE DATA)
 .env
 .env.*
