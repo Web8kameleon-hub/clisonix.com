@@ -12,8 +12,17 @@ const nextConfig = {
   transpilePackages: ['framer-motion'],
   staticPageGenerationTimeout: 600,
 
+  experimental: {
+    webpackBuildWorker: false,
+  },
+
   webpack: (config, { isServer }) => {
     config.cache = false;
+    // Add path aliases
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': require('path').resolve(__dirname, 'src'),
+    };
     return config;
   },
   eslint: {

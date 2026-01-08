@@ -1,1 +1,83 @@
- de
+version: "3.9"
+
+services:
+  # ==========================
+  # DATABASES
+  # ==========================
+  postgres:
+    image: postgres:16-alpine
+    container_name: clisonix-postgres
+    environment:
+      POSTGRES_USER: clisonix
+      POSTGRES_PASSWORD: clisonix
+      POSTGRES_DB: clisonixdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clisonix"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: clisonix-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ==========================
+  # API BACKEND
+  # ==========================
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: clisonix-api
+    environment:
+      PYTHONUNBUFFERED: "1"
+      DATABASE_URL: "postgresql://clisonix:clisonix@postgres:5432/clisonixdb"
+      REDIS_URL: "redis://redis:6379/0"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ==========================
+  # FRONTEND
+  # ==========================
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: clisonix-web
+    environment:
+      NODE_ENV: "production"
+      NEXT_PUBLIC_API_BASE: "http://localhost:8000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge

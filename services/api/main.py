@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from .routers import bioscience, clinical, concept, graph, search, telemetry
+from routers import bioscience, clinical, concept, graph, search, telemetry
 
 app = FastAPI(title="clisonix Knowledge Fabric API")
 app.include_router(search.router)

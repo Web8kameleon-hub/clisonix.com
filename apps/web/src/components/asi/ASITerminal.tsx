@@ -39,13 +39,20 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const terminalEndRef = useRef<HTMLDivElement>(null);
   
-  const { 
-    commands, 
-    executeCommand, 
-    clearCommands,
-    alba,
-    sandbox
-  } = useASIStore();
+  const store = useASIStore();
+  interface Command {
+    id: string;
+    text: string;
+    status: 'completed' | 'rejected' | 'executing' | string;
+    timestamp: Date;
+    output?: string;
+  }
+
+  const commands: Command[] = store.commands ?? [];
+  const executeCommand = store.executeCommand;
+  const clearCommands = store.clearCommands;
+  const alba = store.alba ?? { status: 'inactive' as const };
+  const sandbox = store.sandbox ?? { status: 'inactive' as const, violations: [] };
 
   // Auto scroll to bottom when new commands are added
   useEffect(() => {
@@ -73,10 +80,10 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
     }
   };
 
-  const getInputState = () => {
-    if (alba.status === 'active') return 'processing';
-    if (sandbox.violations > 0) return 'error';
-    return 'normal';
+  const getInputState = (): 'default' | 'focused' | 'error' | null | undefined => {
+    if (alba?.status === 'active') return 'default';
+    if ((sandbox?.violations?.length ?? 0) > 0) return 'error';
+    return 'default';
   };
 
   return (
@@ -95,10 +102,10 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
         </div>
         <div className="flex items-center space-x-2">
           <div className={statusBadge({ 
-            status: alba.status === 'active' ? 'processing' : 'active',
+            status: alba?.status === 'active' ? 'processing' : 'active',
             size: 'sm'
           })}>
-            Alba {alba.status}
+            Alba {alba?.status ?? 'offline'}
           </div>
           <button
             onClick={clearCommands}
@@ -202,8 +209,8 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
               whileTap={{ scale: 0.95 }}
               onClick={() => handleQuickCommand(cmd)}
               className={asiButton({ 
-                intent: 'ghost', 
-                size: 'xs'
+                variant: 'ghost',
+                size: 'sm'
               })}
             >
               {label}
@@ -234,8 +241,7 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
             whileTap={{ scale: 0.95 }}
             disabled={!input.trim() || alba.status === 'active'}
             className={asiButton({ 
-              intent: alba.status === 'active' ? 'secondary' : 'primary',
-              state: alba.status === 'active' ? 'processing' : 'idle'
+              variant: alba.status === 'active' ? 'secondary' : 'default'
             })}
           >
             {alba.status === 'active' ? 'Duke procesuar...' : 'Ekzekuto'}
@@ -243,16 +249,18 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
         </div>
 
         {/* Input Hint */}
-        {isInputFocused && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="mt-2 text-xs text-gray-500"
-          >
-            💡 Provoni: &quot;monitor network&quot;, &quot;scan security&quot;, &quot;backup files&quot;, &quot;optimize system&quot;
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {isInputFocused && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mt-2 text-xs text-gray-500"
+            >
+              💡 Provoni: &quot;monitor network&quot;, &quot;scan security&quot;, &quot;backup files&quot;, &quot;optimize system&quot;
+            </motion.div>
+          )}
+        </AnimatePresence>
       </form>
     </div>
   );

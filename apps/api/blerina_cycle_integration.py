@@ -18,7 +18,7 @@ class BlerinaCycleIntegration:
     async def create_blerina_cycle(
         self,
         domain: str = "media",
-        youtube_query: str = "neurosonix",
+        youtube_query: str = "clisonix",
         interval: int = 3600,  # 1 hour
         alignment: str = "moderate"
     ) -> Dict[str, Any]:

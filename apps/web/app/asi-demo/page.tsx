@@ -45,12 +45,19 @@ function ClientTimeDisplay({ timestamp }: { timestamp: number }) {
 export default function ASIDemoPage() {
   const { alba, albi, jona, sandbox } = useASIStore();
 
+  const sandboxStatus = sandbox.status ?? 'inactive';
+  const sandboxIsActive = sandbox.active ?? sandboxStatus === 'active';
+  const sandboxThreatLevel = sandbox.threatLevel ?? 'low';
+  const sandboxViolationCount = Array.isArray(sandbox.violations)
+    ? sandbox.violations.length
+    : sandbox.violations ?? 0;
+
   const agents = [
     {
       name: 'Alba',
       role: 'Network Infrastructure Monitor',
       status: alba.status,
-      health: 100 - alba.workload,
+      health: 100 - (alba.workload ?? 0),
       color: '#0ea5e9',
       description: 'Monitoron rrjetin dhe infrastrukturën',
       cardStyle: agentCardAlba
@@ -59,7 +66,7 @@ export default function ASIDemoPage() {
       name: 'Albi',
       role: 'Intelligence Enhancement Engine',
       status: albi.consciousness === 'awake' ? 'active' : 'inactive',
-      health: albi.creativity,
+      health: albi.creativity ?? 50,
       color: '#10b981',
       description: 'Inteligjenca artificiale dhe kreativiteti',
       cardStyle: agentCardAlbi
@@ -127,16 +134,16 @@ export default function ASIDemoPage() {
               🌐 Sistema Online
             </div>
             <div className={statusBadge({ 
-              status: sandbox.active ? 'active' : 'error', 
+              status: sandboxIsActive ? 'active' : 'error', 
               size: 'lg' 
             })}>
-              🔐 Sandbox {sandbox.active ? 'Aktiv' : 'Joaktiv'}
+              🔐 Sandbox {sandboxIsActive ? 'Aktiv' : 'Joaktiv'}
             </div>
             <div className={statusBadge({ 
-              status: sandbox.threatLevel === 'low' ? 'active' : 'warning', 
+              status: sandboxThreatLevel === 'low' ? 'active' : 'warning', 
               size: 'lg' 
             })}>
-              🛡️ Siguria {sandbox.threatLevel === 'low' ? 'Normale' : 'Kërcënim'}
+              🛡️ Siguria {sandboxThreatLevel === 'low' ? 'Normale' : 'Kërcënim'}
             </div>
           </motion.div>
         </motion.div>
@@ -170,7 +177,7 @@ export default function ASIDemoPage() {
                 </div>
                 <div className={statusBadge({ 
                   status: getStatusBadgeVariant(agent.status) as any,
-                  size: 'md'
+                  size: 'lg'
                 })}>
                   {agent.status.toUpperCase()}
                 </div>
@@ -206,13 +213,13 @@ export default function ASIDemoPage() {
               {/* Agent Specific Info */}
               <div className="mt-4 pt-4 border-t border-gray-700 text-xs text-gray-400">
                 {agent.name === 'Alba' && (
-                  <div>Workload: {alba.workload}% | Last Ping: <ClientTimeDisplay timestamp={alba.lastPing} /></div>
+                  <div>Workload: {alba.workload ?? 0}% | Last Ping: <ClientTimeDisplay timestamp={alba.lastPing?.getTime() ?? Date.now()} /></div>
                 )}
                 {agent.name === 'Albi' && (
-                  <div>Insights: {albi.insights.length} | Creativity: {albi.creativity}%</div>
+                  <div>Insights: {albi.insights?.length ?? 0} | Creativity: {albi.creativity ?? 0}%</div>
                 )}
                 {agent.name === 'Jona' && (
-                  <div>Ethics: {jona.ethics} | Violations: {jona.violations.length}</div>
+                  <div>Ethics: {jona.ethics ?? 'unknown'} | Violations: {jona.violations?.length ?? 0}</div>
                 )}
               </div>
             </motion.div>
@@ -254,14 +261,14 @@ export default function ASIDemoPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold text-sky-400">
-                {100 - alba.workload}%
+                {100 - (alba.workload ?? 0)}%
               </div>
               <div className="text-sm text-gray-400">Alba Health</div>
             </div>
             
             <div>
               <div className="text-2xl font-bold text-emerald-400">
-                {albi.creativity}%
+                {albi.creativity ?? 0}%
               </div>
               <div className="text-sm text-gray-400">Albi Creativity</div>
             </div>
@@ -275,7 +282,7 @@ export default function ASIDemoPage() {
             
             <div>
               <div className="text-2xl font-bold text-red-400">
-                {sandbox.violations}
+                {sandboxViolationCount}
               </div>
               <div className="text-sm text-gray-400">Violations</div>
             </div>

@@ -5,14 +5,14 @@ const API_BASE = (process.env.NEXT_PUBLIC_API_BASE || DEFAULT_BASE).replace(/\/$
 
 export async function GET() {
   try {
-    const upstream = await fetch(`${API_BASE}/api/system-status`, {
+    const upstream = await fetch(`${API_BASE}/status`, {
       headers: { Accept: 'application/json' },
       cache: 'no-store',
     })
 
     if (!upstream.ok) {
       const body = await upstream.text()
-      throw new Error(`Upstream ${API_BASE}/api/system-status responded ${upstream.status}: ${body}`)
+      throw new Error(`Upstream ${API_BASE}/status responded ${upstream.status}: ${body}`)
     }
 
     const payload = await upstream.json()

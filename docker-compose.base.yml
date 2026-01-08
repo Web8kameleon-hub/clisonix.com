@@ -1,16 +1,16 @@
-# =====================================================
+# =================================================
 # DOCKER COMPOSE - BASE CONFIGURATION
-# =====================================================
-# Konfigurime të përbashkëta që përdoren nga të gjitha
+# =================================================
+# Konfigurime te perbashketa qe perdoren nga te gjitha
 # environment (dev, staging, prod)
 # Use with: docker-compose -f docker-compose.base.yml -f docker-compose.dev.yml up
-# =====================================================
+# =================================================
 
 version: "3.9"
 
-# =====================================================
+# =================================================
 # YAML ANCHORS - DRY Configuration
-# =====================================================
+# =================================================
 x-common-variables: &common-variables
   TZ: Europe/Tirane
   LANG: en_US.UTF-8
@@ -44,13 +44,10 @@ x-logging-defaults: &logging-defaults
       max-size: "10m"
       max-file: "3"
 
-# =====================================================
+# =================================================
 # SERVICES BASE CONFIGURATION
-# =====================================================
+# =================================================
 services:
-  # ==========================
-  # DATABASES
-  # ==========================
   postgres:
     image: postgres:${POSTGRES_VERSION:-16}
     container_name: clisonix-postgres
@@ -81,9 +78,6 @@ services:
       test: ["CMD", "redis-cli", "ping"]
     <<: [*restart-policy, *logging-defaults]
 
-  # ==========================
-  # OBJECT STORAGE
-  # ==========================
   minio:
     image: minio/minio:${MINIO_VERSION:-latest}
     container_name: clisonix-minio
@@ -99,9 +93,6 @@ services:
       - "${MINIO_CONSOLE_PORT:-9001}:9001"
     <<: [*restart-policy, *logging-defaults]
 
-  # ==========================
-  # MONITORING - VICTORIA METRICS
-  # ==========================
   victoria-metrics:
     image: victoriametrics/victoria-metrics:${VICTORIA_METRICS_VERSION:-latest}
     container_name: clisonix-victoria-metrics
@@ -117,9 +108,6 @@ services:
       - victoria_data:/victoria-metrics-data
     <<: [*restart-policy, *logging-defaults]
 
-  # ==========================
-  # VISUALIZATION - GRAFANA
-  # ==========================
   grafana:
     image: grafana/grafana:${GRAFANA_VERSION:-latest}
     container_name: clisonix-grafana
@@ -140,9 +128,6 @@ services:
       - victoria-metrics
     <<: [*restart-policy, *logging-defaults]
 
-  # ==========================
-  # SEARCH & ANALYTICS - ELASTICSEARCH
-  # ==========================
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION:-8.11.0}
     container_name: clisonix-elasticsearch
@@ -158,9 +143,6 @@ services:
       - "${ELASTICSEARCH_PORT:-9200}:9200"
     <<: [*restart-policy, *logging-defaults]
 
-  # ==========================
-  # LOGGING - LOKI
-  # ==========================
   loki:
     image: grafana/loki:${LOKI_VERSION:-latest}
     container_name: clisonix-loki
@@ -173,9 +155,9 @@ services:
       - loki_data:/loki
     <<: [*restart-policy, *logging-defaults]
 
-# =====================================================
+# =================================================
 # VOLUMES
-# =====================================================
+# =================================================
 volumes:
   postgres_data:
   redis_data:
@@ -185,11 +167,10 @@ volumes:
   elasticsearch_data:
   loki_data:
 
-# =====================================================
+# =================================================
 # NETWORKS
-# =====================================================
+# =================================================
 networks:
   default:
     name: clisonix-network
     driver: bridge
-
