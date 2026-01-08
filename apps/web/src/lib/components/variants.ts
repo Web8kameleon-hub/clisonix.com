@@ -78,7 +78,8 @@ export const progressBar = cva(
       size: {
         default: 'h-2.5',
         sm: 'h-2',
-        lg: 'h-3',
+        md: 'h-3',
+        lg: 'h-4',
       },
     },
     defaultVariants: {
