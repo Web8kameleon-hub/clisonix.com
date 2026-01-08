@@ -59,7 +59,7 @@ export default function ASIDemoPage() {
       status: alba.status,
       health: 100 - (alba.workload ?? 0),
       color: '#0ea5e9',
-      description: 'Monitoron rrjetin dhe infrastrukturën',
+      description: 'Monitors network and infrastructure',
       cardStyle: agentCardAlba
     },
     {
@@ -68,7 +68,7 @@ export default function ASIDemoPage() {
       status: albi.consciousness === 'awake' ? 'active' : 'inactive',
       health: albi.creativity ?? 50,
       color: '#10b981',
-      description: 'Inteligjenca artificiale dhe kreativiteti',
+      description: 'Artificial intelligence and creativity',
       cardStyle: agentCardAlbi
     },
     {
@@ -77,7 +77,7 @@ export default function ASIDemoPage() {
       status: jona.protection === 'enabled' ? 'active' : 'inactive',
       health: jona.ethics === 'strict' ? 100 : jona.ethics === 'moderate' ? 75 : 50,
       color: '#8b5cf6',
-      description: 'Mbrojtja dhe etika e sistemit',
+      description: 'System protection and ethics',
       cardStyle: agentCardJona
     }
   ];
@@ -120,8 +120,8 @@ export default function ASIDemoPage() {
             transition={{ delay: 0.5 }}
             className="text-xl text-slate-300 max-w-3xl mx-auto mb-6"
           >
-            Sistemi i parë i <span className="text-cyan-400">Inteligjencës Artificiale të Përgjithshme</span> i 
-            ndërtuar mbi themelet e <span className="text-purple-400">dashurisë</span>, <span className="text-green-400">mbrojtjes</span> dhe <span className="text-sky-400">bashkëpunimit</span>
+            The world's first <span className="text-cyan-400">Artificial General Intelligence</span> system 
+            built on foundations of <span className="text-purple-400">love</span>, <span className="text-green-400">protection</span> and <span className="text-sky-400">cooperation</span>
           </motion.p>
 
           <motion.div
@@ -131,19 +131,19 @@ export default function ASIDemoPage() {
             className="flex flex-wrap justify-center gap-4 mb-8"
           >
             <div className={statusBadge({ status: 'active', size: 'lg' })}>
-              🌐 Sistema Online
+              🌐 System Online
             </div>
             <div className={statusBadge({ 
               status: sandboxIsActive ? 'active' : 'error', 
               size: 'lg' 
             })}>
-              🔐 Sandbox {sandboxIsActive ? 'Aktiv' : 'Joaktiv'}
+              🔐 Sandbox {sandboxIsActive ? 'Active' : 'Inactive'}
             </div>
             <div className={statusBadge({ 
               status: sandboxThreatLevel === 'low' ? 'active' : 'warning', 
               size: 'lg' 
             })}>
-              🛡️ Siguria {sandboxThreatLevel === 'low' ? 'Normale' : 'Kërcënim'}
+              🛡️ Security {sandboxThreatLevel === 'low' ? 'Normal' : 'Threat'}
             </div>
           </motion.div>
         </motion.div>
@@ -256,7 +256,7 @@ export default function ASIDemoPage() {
           transition={{ delay: 0.6 }}
           className="bg-gray-900/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 mb-8"
         >
-          <h3 className="text-lg font-semibold text-center mb-4">📊 Statistikat e Sistemit</h3>
+          <h3 className="text-lg font-semibold text-center mb-4">📊 System Statistics</h3>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div>
@@ -300,12 +300,12 @@ export default function ASIDemoPage() {
             🚀 <span className="text-cyan-400">Powered by Trinity Architecture</span>
           </p>
           <p>
-            <span className="text-sky-400">Alba</span> (Trupi) • 
-            <span className="text-emerald-400"> Albi</span> (Shpirti) • 
-            <span className="text-purple-400"> Jona</span> (Zemra)
+            <span className="text-sky-400">Alba</span> (Body) • 
+            <span className="text-emerald-400"> Albi</span> (Spirit) • 
+            <span className="text-purple-400"> Jona</span> (Heart)
           </p>
           <p className="pt-2">
-            🔒 Sandbox i aktivizuar • ♻️ Etikë e rreptë • 💝 Mbrojtje e plotë
+            🔒 Sandbox enabled • ♻️ Strict ethics • 💝 Full protection
           </p>
           <p className="text-xs text-gray-600 pt-4">
             Clisonix ASI Demo v2.1.0 • Built with 💜 using Zustand + Vanilla Extract + Framer Motion + CVA

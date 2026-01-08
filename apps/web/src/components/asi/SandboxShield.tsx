@@ -43,10 +43,10 @@ export function SandboxShield({ className }: SandboxShieldProps) {
 
   const getEthicsDescription = (ethics?: string) => {
     switch (ethics) {
-      case 'strict': return '🔒 Mbrojtje maksimale - Zero tolerance për rreziqe';
-      case 'moderate': return '⚖️ Balancë mes sigurisë dhe funksionalitetit';
-      case 'flexible': return '🔓 Fleksibilitet i shtuar me monitorim të kujdesshëm';
-      default: return '🔐 Konfigurimi i paracaktuar i sigurisë';
+      case 'strict': return '🔒 Maximum protection - Zero tolerance for risks';
+      case 'moderate': return '⚖️ Balance between security and functionality';
+      case 'flexible': return '🔓 Enhanced flexibility with careful monitoring';
+      default: return '🔐 Default security configuration';
     }
   };
 
@@ -69,7 +69,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
             Jona Sandbox
           </h2>
           <p className="text-sm text-gray-400">
-            Sistemi i Mbrojtjes dhe Etikës
+            Safety & Ethics System
           </p>
         </motion.div>
       </div>
@@ -87,7 +87,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-300">Niveli i Kërcënimit:</span>
+          <span className="text-sm text-gray-300">Threat Level:</span>
           <div className={statusBadge({ 
             status: getThreatLevelColor(sandbox?.threatLevel ?? 'low'),
             size: 'default'
@@ -97,7 +97,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-300">Shkeljet:</span>
+          <span className="text-sm text-gray-300">Violations:</span>
           <span className={`text-sm font-mono ${
             (sandbox?.violations?.length ?? 0) === 0 ? 'text-green-400' :
               (sandbox?.violations?.length ?? 0) < 5 ? 'text-yellow-400' : 'text-red-400'
@@ -107,7 +107,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-300">Etika:</span>
+          <span className="text-sm text-gray-300">Ethics:</span>
           <div className={statusBadge({ 
             status: jona?.ethics === 'strict' ? 'active' : 'warning',
             size: 'sm'
@@ -120,7 +120,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
       {/* Ethics Level Progress */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-gray-300">Niveli i Etikës:</span>
+          <span className="text-sm text-gray-300">Ethics Level:</span>
           <span className="text-xs text-gray-500">
             {jona.ethics === 'strict' ? '100%' : 
              jona.ethics === 'moderate' ? '70%' : '40%'}
@@ -151,7 +151,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
       {(jona.violations ?? []).length > 0 && (
         <div className="mb-6">
           <h3 className="text-sm font-semibold text-gray-300 mb-2">
-            🚨 Shkelje të Fundit:
+            🚨 Recent Violations:
           </h3>
           <div className="space-y-1 max-h-32 overflow-y-auto">
             {(jona.violations ?? []).slice(-3).map((violation, index) => (
@@ -183,7 +183,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
             'w-full'
           )}
         >
-          🛑 STOP EMERGJENCIAL
+          🛑 EMERGENCY STOP
         </motion.button>
 
         <div className="grid grid-cols-2 gap-2">
@@ -195,7 +195,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
               size: 'sm'
             })}
           >
-            {sandbox.active ? 'Çaktivizo' : 'Aktivizo'}
+            {sandbox.active ? 'Deactivate' : 'Activate'}
           </motion.button>
 
           <motion.button
@@ -215,7 +215,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
       {/* Real-time Monitor */}
       <div className="mt-6 pt-4 border-t border-purple-500/20">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-400">Monitorim Real-time:</span>
+          <span className="text-xs text-gray-400">Real-time Monitoring:</span>
           <motion.div
             animate={{ 
               scale: [1, 1.1, 1],
@@ -233,14 +233,14 @@ export function SandboxShield({ className }: SandboxShieldProps) {
         <div className="text-xs text-gray-500 space-y-1">
           {sandbox.active && (
             <>
-              <div>✅ Komanda po monitorohen</div>
-              <div>🔍 Patterns po analizohen</div>
-              <div>🛡️ Mbrojtja është aktive</div>
+              <div>✅ Commands being monitored</div>
+              <div>🔍 Patterns being analyzed</div>
+              <div>🛡️ Protection is active</div>
             </>
           )}
           {!sandbox.active && (
             <div className="text-red-400">
-              ⚠️ Sandbox është i çaktivizuar
+              ⚠️ Sandbox is deactivated
             </div>
           )}
         </div>
@@ -249,7 +249,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
       {/* Jona Signature */}
       <div className="mt-4 text-center">
         <div className="text-xs text-purple-400/70">
-          💜 Me dashuri nga Jona
+          💜 With love from Jona
         </div>
       </div>
     </div>
