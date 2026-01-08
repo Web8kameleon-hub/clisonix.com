@@ -81,40 +81,40 @@ export function SandboxShield({ className }: SandboxShieldProps) {
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-300">Status:</span>
           <div className={statusBadge({ 
-            status: sandbox.active ? 'active' : 'inactive',
+            status: sandbox?.active ? 'active' : 'inactive',
             size: 'md'
           })}>
-            {sandbox.active ? 'AKTIV' : 'JOAKTIV'}
+            {sandbox?.active ? 'AKTIV' : 'JOAKTIV'}
           </div>
         </div>
 
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-300">Niveli i Kërcënimit:</span>
           <div className={statusBadge({ 
-            status: getThreatLevelColor(sandbox.threatLevel),
+            status: getThreatLevelColor(sandbox?.threatLevel ?? 'low'),
             size: 'md'
           })}>
-            {sandbox.threatLevel.toUpperCase()}
+            {(sandbox?.threatLevel ?? 'low').toUpperCase()}
           </div>
         </div>
 
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-300">Shkeljet:</span>
           <span className={`text-sm font-mono ${
-            sandbox.violations === 0 ? 'text-green-400' : 
-            sandbox.violations < 5 ? 'text-yellow-400' : 'text-red-400'
+            (sandbox?.violations?.length ?? 0) === 0 ? 'text-green-400' :
+              (sandbox?.violations?.length ?? 0) < 5 ? 'text-yellow-400' : 'text-red-400'
           }`}>
-            {sandbox.violations}
+            {sandbox?.violations?.length ?? 0}
           </span>
         </div>
 
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-300">Etika:</span>
           <div className={statusBadge({ 
-            status: jona.ethics === 'strict' ? 'active' : 'warning',
+            status: jona?.ethics === 'strict' ? 'active' : 'warning',
             size: 'sm'
           })}>
-            {jona.ethics.toUpperCase()}
+            {(jona?.ethics ?? 'strict').toUpperCase()}
           </div>
         </div>
       </div>
