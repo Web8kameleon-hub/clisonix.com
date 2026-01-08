@@ -138,8 +138,8 @@ export function SandboxShield({ className }: SandboxShieldProps) {
             }}
             transition={{ duration: 1, delay: 0.5 }}
             className={progressBarFill({ 
-              color: jona.ethics === 'strict' ? 'green' : 
-                     jona.ethics === 'moderate' ? 'yellow' : 'red'
+              color: jona.ethics === 'strict' ? 'success' :
+                jona.ethics === 'moderate' ? 'warning' : 'error'
             })}
           />
         </div>
