@@ -43,7 +43,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
     }
   };
 
-  const getEthicsDescription = (ethics: string) => {
+  const getEthicsDescription = (ethics?: string) => {
     switch (ethics) {
       case 'strict': return '🔒 Mbrojtje maksimale - Zero tolerance për rreziqe';
       case 'moderate': return '⚖️ Balancë mes sigurisë dhe funksionalitetit';
