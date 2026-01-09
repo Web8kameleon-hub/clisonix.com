@@ -75,7 +75,7 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
 
   const getInputState = () => {
     if (alba.status === 'active') return 'processing';
-    if (sandbox.violations > 0) return 'error';
+    if ((sandbox.violations?.length ?? 0) > 0) return 'error';
     return 'normal';
   };
 
