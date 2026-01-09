@@ -30,7 +30,8 @@ export default function WeatherDashboard() {
     const fetchWeatherData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('http://localhost:8000/api/weather/multiple-cities');
+        // Use relative path - Next.js rewrites will proxy to backend
+        const response = await fetch('/api/weather/multiple-cities');
         
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
@@ -105,7 +106,7 @@ export default function WeatherDashboard() {
           <div className="text-6xl mb-4">⚠️</div>
           <h2 className="text-3xl font-bold mb-2">Error Loading Weather</h2>
           <p className="text-gray-300 mb-6">{error}</p>
-          <p className="text-gray-400 text-sm">Make sure backend API is running on localhost:8000</p>
+          <p className="text-gray-400 text-sm">Backend API connection issue. Please try again.</p>
           <Link href="/" className="text-teal-400 hover:text-teal-300 mt-4 inline-block">
             ← Back Home
           </Link>

@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000'
+// Use internal Docker network URL for server-side requests
+const API_BASE = process.env.API_INTERNAL_URL || process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000'
 
 export async function GET() {
   try {
-    const upstream = await fetch(`${API_BASE}/api/asi-status`, {
+    // Backend uses /asi/status NOT /api/asi-status
+    const upstream = await fetch(`${API_BASE}/asi/status`, {
       headers: { Accept: 'application/json' },
       cache: 'no-store',
     })

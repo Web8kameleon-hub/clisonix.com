@@ -27,6 +27,7 @@ export default function CryptoDashboard() {
     const fetchCryptoData = async () => {
       try {
         setIsLoading(true);
+        // Use relative path - Next.js rewrites will proxy to backend
         const response = await fetch('/api/crypto/market');
         
         if (!response.ok) {
@@ -86,7 +87,7 @@ export default function CryptoDashboard() {
           <div className="text-6xl mb-4">⚠️</div>
           <h2 className="text-3xl font-bold mb-2">Error Loading Data</h2>
           <p className="text-gray-300 mb-6">{error}</p>
-          <p className="text-gray-400 text-sm">Make sure backend API is running on localhost:8000</p>
+          <p className="text-gray-400 text-sm">Backend API connection issue. Please try again.</p>
           <Link href="/" className="text-teal-400 hover:text-teal-300 mt-4 inline-block">
             ← Back Home
           </Link>
