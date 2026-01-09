@@ -1,0 +1,247 @@
+version: "3.9"
+
+services:
+  # ==========================
+  # DATABASES
+  # ==========================
+  postgres:
+    image: postgres:16-alpine
+    container_name: clisonix-postgres
+    environment:
+      POSTGRES_USER: clisonix
+      POSTGRES_PASSWORD: clisonix
+      POSTGRES_DB: clisonixdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clisonix"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - clisonix-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: clisonix-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - clisonix-net
+
+  # ==========================
+  # TRINITY AGENTS
+  # ==========================
+  alba:
+    image: python:3.11-slim
+    container_name: clisonix-alba
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: >
+      bash -c "pip install --no-cache-dir -q
+      uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client 
+      opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi 
+      opentelemetry-instrumentation-httpx opentelemetry-instrumentation-requests
+      opentelemetry-instrumentation-aiohttp-client opentelemetry-instrumentation-logging
+      opentelemetry-exporter-otlp opentelemetry-exporter-otlp-proto-http && 
+      python alba_service_5555.py"
+    ports:
+      - "5050:5050"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql://clisonix:clisonix@postgres:5432/clisonixdb
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - OTEL_SERVICE_NAME=alba
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - clisonix-net
+
+  albi:
+    image: python:3.11-slim
+    container_name: clisonix-albi
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: >
+      bash -c "pip install --no-cache-dir -q
+      uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client 
+      opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi 
+      opentelemetry-instrumentation-httpx opentelemetry-instrumentation-requests
+      opentelemetry-instrumentation-aiohttp-client opentelemetry-instrumentation-logging
+      opentelemetry-exporter-otlp opentelemetry-exporter-otlp-proto-http && 
+      python albi_service_6666.py"
+    ports:
+      - "6060:6060"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql://clisonix:clisonix@postgres:5432/clisonixdb
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - OTEL_SERVICE_NAME=albi
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - clisonix-net
+
+  jona:
+    image: python:3.11-slim
+    container_name: clisonix-jona
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: >
+      bash -c "pip install --no-cache-dir -q
+      uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client 
+      opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi 
+      opentelemetry-instrumentation-httpx opentelemetry-instrumentation-requests
+      opentelemetry-instrumentation-aiohttp-client opentelemetry-instrumentation-logging
+      opentelemetry-exporter-otlp opentelemetry-exporter-otlp-proto-http && 
+      python jona_service_7777.py"
+    ports:
+      - "7070:7070"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql://clisonix:clisonix@postgres:5432/clisonixdb
+      - ALBA_URL=http://alba:5555
+      - ALBI_URL=http://albi:6666
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - OTEL_SERVICE_NAME=jona
+    depends_on:
+      - alba
+      - albi
+    restart: unless-stopped
+    networks:
+      - clisonix-net
+
+  # ==========================
+  # API BACKEND
+  # ==========================
+  api:
+    image: python:3.11-slim
+    container_name: clisonix-api
+    working_dir: /app
+    volumes:
+      - ./apps/api:/app
+    command: >
+      bash -c "pip install --no-cache-dir -r requirements.txt 2>/dev/null && 
+      uvicorn main:app --host 0.0.0.0 --port 8000"
+    environment:
+      PYTHONUNBUFFERED: "1"
+      DATABASE_URL: "postgresql://clisonix:clisonix@postgres:5432/clisonixdb"
+      REDIS_URL: "redis://redis:6379/0"
+      ALBA_URL: "http://alba:5555"
+      ALBI_URL: "http://albi:6666"
+      JONA_URL: "http://jona:7070"
+      # GROQ_API_KEY set via environment variable on server
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    restart: unless-stopped
+    networks:
+      - clisonix-net
+
+  # ==========================
+  # FRONTEND
+  # ==========================
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: clisonix-web
+    environment:
+      NODE_ENV: "production"
+      API_INTERNAL_URL: "http://api:8000"
+      NEXT_PUBLIC_API_BASE: "/api"
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - clisonix-net
+
+  # ==========================
+  # MONITORING STACK
+  # ==========================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: clisonix-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    restart: unless-stopped
+    networks:
+      - clisonix-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: clisonix-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=clisonix2025
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=https://grafana.clisonix.com
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: unless-stopped
+    networks:
+      - clisonix-net
+
+  # ==========================
+  # TRACING (Optional)
+  # ==========================
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: clisonix-jaeger
+    ports:
+      - "16686:16686"  # UI
+      - "4317:4317"    # OTLP gRPC
+      - "4318:4318"    # OTLP HTTP
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    restart: unless-stopped
+    networks:
+      - clisonix-net
+
+networks:
+  clisonix-net:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:
