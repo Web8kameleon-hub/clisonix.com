@@ -39,20 +39,13 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const terminalEndRef = useRef<HTMLDivElement>(null);
   
-  const store = useASIStore();
-  interface Command {
-    id: string;
-    text: string;
-    status: 'completed' | 'rejected' | 'executing' | string;
-    timestamp: Date;
-    output?: string;
-  }
-
-  const commands: Command[] = store.commands ?? [];
-  const executeCommand = store.executeCommand;
-  const clearCommands = store.clearCommands;
-  const alba = store.alba ?? { status: 'inactive' as const };
-  const sandbox = store.sandbox ?? { status: 'inactive' as const, violations: [] };
+  const { 
+    commands, 
+    executeCommand, 
+    clearCommands,
+    alba,
+    sandbox
+  } = useASIStore();
 
   // Auto scroll to bottom when new commands are added
   useEffect(() => {
@@ -80,10 +73,10 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
     }
   };
 
-  const getInputState = (): 'default' | 'focused' | 'error' | null | undefined => {
-    if (alba?.status === 'active') return 'default';
-    if ((sandbox?.violations?.length ?? 0) > 0) return 'error';
-    return 'default';
+  const getInputState = () => {
+    if (alba.status === 'active') return 'processing';
+    if (sandbox.violations > 0) return 'error';
+    return 'normal';
   };
 
   return (
@@ -102,10 +95,10 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
         </div>
         <div className="flex items-center space-x-2">
           <div className={statusBadge({ 
-            status: alba?.status === 'active' ? 'processing' : 'active',
+            status: alba.status === 'active' ? 'processing' : 'active',
             size: 'sm'
           })}>
-            Alba {alba?.status ?? 'offline'}
+            Alba {alba.status}
           </div>
           <button
             onClick={clearCommands}
@@ -133,7 +126,7 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
             <div>🌐 <span className="text-sky-400">Alba Network</span> Monitoring</div>
             <div>💡 <span className="text-emerald-400">Albi Intelligence</span> Ready</div>
             <div className="pt-2 text-xs">
-              Shkruani një komandë për të filluar...
+              Type a command to get started...
             </div>
           </motion.div>
         )}
@@ -160,14 +153,14 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
                     </span>
                   </div>
                   
-                  {command.output && (
+                  {command.result && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       transition={{ delay: 0.2 }}
                       className="text-sm text-gray-300 font-mono ml-4 pl-4 border-l border-gray-600"
                     >
-                      {command.output.split('\n').map((line, lineIndex) => (
+                      {command.result.split('\n').map((line, lineIndex) => (
                         <div key={lineIndex} className="mb-1">
                           {line}
                         </div>
@@ -194,13 +187,13 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
 
       {/* Quick Commands */}
       <div className="px-6 pb-4">
-        <div className="text-xs text-gray-500 mb-2">Komanda të shpejta:</div>
+        <div className="text-xs text-gray-500 mb-2">Quick Commands:</div>
         <div className="flex flex-wrap gap-2">
           {[
             { cmd: 'status', label: 'Status' },
-            { cmd: 'analyze system', label: 'Analizë' },
-            { cmd: 'health check', label: 'Shëndeti' },
-            { cmd: 'optimize performance', label: 'Optimizim' },
+            { cmd: 'analyze system', label: 'Analyze' },
+            { cmd: 'health check', label: 'Health' },
+            { cmd: 'optimize performance', label: 'Optimize' },
             { cmd: 'backup data', label: 'Backup' }
           ].map(({ cmd, label }) => (
             <motion.button
@@ -209,8 +202,8 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
               whileTap={{ scale: 0.95 }}
               onClick={() => handleQuickCommand(cmd)}
               className={asiButton({ 
-                variant: 'ghost',
-                size: 'sm'
+                intent: 'ghost', 
+                size: 'xs'
               })}
             >
               {label}
@@ -228,39 +221,37 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
             onChange={(e) => setInput(e.target.value)}
             onFocus={() => setIsInputFocused(true)}
             onBlur={() => setIsInputFocused(false)}
-            placeholder="Shkruani komandën tuaj këtu... (p.sh: 'analyze data', 'system status')"
+            placeholder="Type your command here... (e.g. 'analyze data', 'system status')"
             className={commandInputVariants({ 
               state: getInputState()
             })}
-            disabled={alba.status === 'active'}
           />
           
           <motion.button
             type="submit"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            disabled={!input.trim() || alba.status === 'active'}
+            disabled={!input.trim()}
             className={asiButton({ 
-              variant: alba.status === 'active' ? 'secondary' : 'default'
+              intent: 'primary',
+              state: 'idle'
             })}
           >
-            {alba.status === 'active' ? 'Duke procesuar...' : 'Ekzekuto'}
+            Execute
           </motion.button>
         </div>
 
         {/* Input Hint */}
-        <AnimatePresence>
-          {isInputFocused && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="mt-2 text-xs text-gray-500"
-            >
-              💡 Provoni: &quot;monitor network&quot;, &quot;scan security&quot;, &quot;backup files&quot;, &quot;optimize system&quot;
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {isInputFocused && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="mt-2 text-xs text-gray-500"
+          >
+            💡 Try: &quot;monitor network&quot;, &quot;scan security&quot;, &quot;backup files&quot;, &quot;optimize system&quot;
+          </motion.div>
+        )}
       </form>
     </div>
   );
