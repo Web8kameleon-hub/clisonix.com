@@ -73,10 +73,9 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
     }
   };
 
-  const getInputState = () => {
-    if (alba.status === 'active') return 'processing';
+  const getInputState = (): 'default' | 'error' | 'focused' => {
     if ((sandbox.violations?.length ?? 0) > 0) return 'error';
-    return 'normal';
+    return 'default';
   };
 
   return (
