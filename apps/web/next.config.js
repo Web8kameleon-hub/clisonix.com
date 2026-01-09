@@ -1,9 +1,9 @@
 /**
  * Normalized next.config.js – single source of truth for rewrites
- * Rewrites /api/:path* to NEXT_PUBLIC_API_BASE (dev) or preserved host routes
+ * Rewrites /api/:path* to backend API (localhost:8000 in dev, clisonix-api:8000 in Docker)
  */
-// Default to the API the monorepo dev starts on (8000). Use NEXT_PUBLIC_API_BASE to override.
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
+// In Docker, use internal network. Otherwise default to localhost
+const API_BASE = process.env.API_INTERNAL_URL || process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
 const INTERNAL_API_HEADER = 'x-Clisonix-internal';
 
 /** @type {import('next').NextConfig} */
