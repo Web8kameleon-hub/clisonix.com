@@ -203,7 +203,7 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
               onClick={() => handleQuickCommand(cmd)}
               className={asiButton({ 
                 intent: 'ghost', 
-                size: 'xs'
+                size: 'sm'
               })}
             >
               {label}
