@@ -213,7 +213,7 @@ export default function ASIDemoPage() {
               {/* Agent Specific Info */}
               <div className="mt-4 pt-4 border-t border-gray-700 text-xs text-gray-400">
                 {agent.name === 'Alba' && (
-                  <div>Workload: {alba.workload ?? 0}% | Last Ping: <ClientTimeDisplay timestamp={alba.lastPing?.getTime() ?? Date.now()} /></div>
+                  <div>Workload: {alba.workload ?? 0}% | Last Ping: <ClientTimeDisplay timestamp={alba.lastPing ?? Date.now()} /></div>
                 )}
                 {agent.name === 'Albi' && (
                   <div>Insights: {albi.insights?.length ?? 0} | Creativity: {albi.creativity ?? 0}%</div>
