@@ -30,7 +30,6 @@ export function SandboxShield({ className }: SandboxShieldProps) {
   const store = useASIStore();
   const jona = store.jona ?? { ethics: 'moderate', violations: [] };
   const sandbox = store.sandbox ?? { threatLevel: 'low', isActive: false };
-  const { reportViolation, resetSystem } = store;
 
   const getThreatLevelColor = (level: string) => {
     switch (level) {
@@ -51,7 +50,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
   };
 
   const handleEmergencyStop = () => {
-    reportViolation('Emergency stop activated by user');
+    console.log('Emergency stop activated by user');
     // In a real system, this would halt all operations
   };
 
@@ -201,7 +200,7 @@ export function SandboxShield({ className }: SandboxShieldProps) {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={resetSystem}
+            onClick={() => console.log('System reset requested')}
             className={asiButton({ 
               variant: 'secondary', 
               size: 'sm'
