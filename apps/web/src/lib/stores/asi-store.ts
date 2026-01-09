@@ -77,7 +77,7 @@ export const useASIStore = create<ASIState>((set, get) => ({
       const commandMap: Record<string, string> = {
         'status': '/asi-status',
         'analyze system': '/asi-status',
-        'health check': '/health',
+        'health check': '/asi-status',
         'optimize performance': '/asi-status',
         'backup data': '/asi-status',
       };
