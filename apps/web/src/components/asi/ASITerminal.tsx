@@ -202,7 +202,7 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
               whileTap={{ scale: 0.95 }}
               onClick={() => handleQuickCommand(cmd)}
               className={asiButton({ 
-                intent: 'ghost', 
+                variant: 'ghost', 
                 size: 'sm'
               })}
             >
@@ -233,8 +233,8 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
             whileTap={{ scale: 0.95 }}
             disabled={!input.trim()}
             className={asiButton({ 
-              intent: 'primary',
-              state: 'idle'
+              variant: 'default',
+              size: 'default'
             })}
           >
             Execute
