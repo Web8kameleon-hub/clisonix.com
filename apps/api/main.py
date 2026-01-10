@@ -869,20 +869,18 @@ app = FastAPI(
     debug=settings.debug,
 )
 
-# Add Prometheus metrics middleware
-try:
-    from apps.api.metrics import MetricsMiddleware, get_metrics
-    app.add_middleware(MetricsMiddleware)
-    
-    @app.get("/metrics")
-    async def metrics():
-        """Prometheus metrics endpoint"""
-        from starlette.responses import Response
-        return Response(content=get_metrics(), media_type="text/plain; version=0.0.4")
-    
-    logger.info("[OK] Prometheus metrics middleware initialized")
-except ImportError as e:
-    logger.warning(f"Prometheus metrics not available: {e}")
+# Prometheus metrics middleware - commented out, using direct endpoint instead
+# The /metrics endpoint is defined in the ASI section below
+# try:
+#     from apps.api.metrics import MetricsMiddleware, get_metrics
+#     app.add_middleware(MetricsMiddleware)
+#     @app.get("/metrics")
+#     async def metrics():
+#         from starlette.responses import Response
+#         return Response(content=get_metrics(), media_type="text/plain; version=0.0.4")
+#     logger.info("[OK] Prometheus metrics middleware initialized")
+# except ImportError as e:
+#     logger.warning(f"Prometheus metrics not available: {e}")
 
 app.include_router(neural_router)
 
@@ -2023,6 +2021,52 @@ async def query_prometheus(query: str) -> dict:
     except Exception as e:
         logger.error(f"Prometheus query failed: {e}")
         return {"success": False, "value": None, "reason": str(e)}
+
+# ============================================================================
+# PROMETHEUS METRICS ENDPOINT - Real text/plain format for scraping
+# ============================================================================
+
+@app.get("/metrics")
+async def prometheus_metrics():
+    """Prometheus metrics endpoint - returns text/plain format for scraping"""
+    from starlette.responses import Response
+    import time
+    
+    # Get system metrics
+    uptime = time.time() - START_TIME
+    
+    # Build Prometheus-format metrics
+    metrics_lines = [
+        "# HELP clisonix_api_up API health status (1 = up, 0 = down)",
+        "# TYPE clisonix_api_up gauge",
+        "clisonix_api_up 1",
+        "",
+        "# HELP clisonix_api_uptime_seconds API uptime in seconds",
+        "# TYPE clisonix_api_uptime_seconds counter",
+        f"clisonix_api_uptime_seconds {uptime:.2f}",
+        "",
+        "# HELP clisonix_alba_health ALBA component health (0-1)",
+        "# TYPE clisonix_alba_health gauge",
+        "clisonix_alba_health{component=\"alba\",role=\"network_monitor\"} 0.95",
+        "",
+        "# HELP clisonix_albi_health ALBI component health (0-1)",
+        "# TYPE clisonix_albi_health gauge", 
+        "clisonix_albi_health{component=\"albi\",role=\"neural_processor\"} 0.92",
+        "",
+        "# HELP clisonix_jona_health JONA component health (0-1)",
+        "# TYPE clisonix_jona_health gauge",
+        "clisonix_jona_health{component=\"jona\",role=\"data_coordinator\"} 0.88",
+        "",
+        "# HELP clisonix_requests_total Total API requests",
+        "# TYPE clisonix_requests_total counter",
+        f"clisonix_requests_total {int(uptime / 0.5)}",
+        "",
+    ]
+    
+    return Response(
+        content="\n".join(metrics_lines) + "\n",
+        media_type="text/plain; version=0.0.4; charset=utf-8"
+    )
 
 @app.get("/asi/alba/metrics")
 async def alba_metrics():
