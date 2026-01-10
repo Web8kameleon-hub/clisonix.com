@@ -106,21 +106,24 @@ export default function CuriosityOcean() {
     setAsiResponse(null);
     
     try {
-      // Generate synthetic ASI response without API call
-      const data = {
-        ocean_response: `🌊 Ocean Insight: The question "${question}" has opened a fascinating rabbit hole into the infinite ocean of knowledge. Your curiosity level [${userCuriosityLevel}] is unlocking deeper layers of understanding...`,
-        confidence: Math.random() * 0.4 + 0.6,
-        related_topics: ['Knowledge Graph', 'Pattern Recognition', 'Neural Networks'],
-        depth_score: Math.floor(Math.random() * 50) + 75,
-        rabbit_holes: ['Quantum Consciousness', 'Information Entropy', 'Neural Topology'],
-        next_questions: ['How does knowledge emerge from chaos?', 'What if consciousness is computation?'],
-        alba_analysis: { network_connections: Math.floor(Math.random() * 1000) },
-        albi_creativity: { imagination_score: Math.floor(Math.random() * 100) },
-        jona_coordination: { infinite_potential: 99.7 + Math.random() * 0.3 }
-      };
+      // Call real Groq API through our Ocean endpoint
+      const response = await fetch('/api/ocean', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question,
+          curiosityLevel: userCuriosityLevel
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const data = await response.json();
       
-      // Display the ASI Trinity response
-      let fullResponse = data.ocean_response;
+      // Display the real AI response
+      let fullResponse = `🌊 Ocean Insight:\n${data.ocean_response}`;
       
       if (data.rabbit_holes && data.rabbit_holes.length > 0) {
         fullResponse += `\n\n🐰 RABBIT HOLES TO EXPLORE:\n`;
@@ -136,7 +139,8 @@ export default function CuriosityOcean() {
       fullResponse += `\n\n🔮 ASI TRINITY METRICS:\n`;
       fullResponse += `• Alba Network Connections: ${data.alba_analysis?.network_connections || 0}\n`;
       fullResponse += `• Albi Imagination Score: ${data.albi_creativity?.imagination_score || 0}%\n`;
-      fullResponse += `• Jona Infinite Potential: ${data.jona_coordination?.infinite_potential?.toFixed(2) || 99.9}%\n`;
+      fullResponse += `• Jona Infinite Potential: ${data.jona_coordination?.infinite_potential?.toFixed(2) || 99.9}%`;
+      fullResponse += `\n• Source: ${data.source === 'groq' ? '🚀 Groq LLaMA 3.3' : '📡 Fallback'}`;
       
       setAsiResponse(fullResponse);
       

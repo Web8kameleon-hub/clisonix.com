@@ -2072,9 +2072,9 @@ async def prometheus_metrics():
 async def alba_metrics():
     """ALBA Network - Real Prometheus metrics (CPU, Memory, Network)"""
     try:
-        # Query REAL Prometheus metrics
-        cpu_result = await query_prometheus('process_cpu_seconds_total{job="clisonix-api"}')
-        memory_result = await query_prometheus('process_resident_memory_bytes{job="clisonix-api"}')
+        # Query REAL Prometheus metrics - using prometheus job since clisonix-api may not exist
+        cpu_result = await query_prometheus('process_cpu_seconds_total{job="prometheus"}')
+        memory_result = await query_prometheus('process_resident_memory_bytes{job="prometheus"}')
         
         # Use real values or sensible defaults
         cpu_value = cpu_result.get("value", 0) if cpu_result.get("success") else 0

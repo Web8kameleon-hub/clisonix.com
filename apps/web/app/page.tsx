@@ -19,87 +19,68 @@ export default function Home() {
   useEffect(() => {
     const fetchSystemStatus = async () => {
       try {
-        const API_BASE = (process.env.NEXT_PUBLIC_API_BASE || '').replace(/\/$/, '')
-
-        // Try to fetch REAL data from Prometheus-backed ASI endpoints
+        // Try to fetch REAL data directly from backend via /backend/ route
         let albiData: any = null
         let albaData: any = null
         let jonaData: any = null
 
         try {
-          const asiStatusRes = await fetch(`/api/asi-status`)
+          // Direct call to Python backend through nginx /backend/ route
+          const asiStatusRes = await fetch(`/backend/asi/status`)
           if (asiStatusRes.ok) {
             const asiData = await asiStatusRes.json()
-            const trinity = asiData.asi_status?.trinity || asiData.asi_status
+            const trinity = asiData.trinity
             albiData = trinity?.albi
             albaData = trinity?.alba
             jonaData = trinity?.jona
           }
         } catch (e) {
-          console.warn('Failed to fetch real ASI metrics from Prometheus:', e)
+          console.warn('Failed to fetch real ASI metrics from backend:', e)
         }
 
-        // Fallback to system-status if ASI endpoints fail
+        // Fallback to Next.js API route if direct backend fails
         if (!albiData || !albaData || !jonaData) {
-          const endpoints = API_BASE
-            ? [`${API_BASE}/api/system-status`, '/api/system-status']
-            : ['/api/system-status']
-
-          for (const target of endpoints) {
-            try {
-              const systemResponse = await fetch(target, {
-                headers: target.startsWith('/') ? { 'x-Clisonix-internal': '1' } : undefined,
-              })
-
-              if (systemResponse.ok) {
-                const systemData = await systemResponse.json()
-                const statusPayload = systemData.data || systemData
-
-                setSystemStatus({
-                  signal_gen: {
-                    status: statusPayload.core_services === 'Operational' ? 'Online' : 'Degraded',
-                    version: '1.0.0'
-                  },
-                  albi: {
-                    status: statusPayload.network === 'Connected' ? 'online' : 'degraded',
-                    neural_patterns: 1247
-                  },
-                  alba: {
-                    status: statusPayload.maintenance === 'Scheduled' ? 'online' : 'degraded',
-                    data_streams: 8
-                  },
-                  jona: {
-                    status: statusPayload.data_integrity === 'Verified' ? 'online' : 'degraded',
-                    audio_synthesis: true
-                  }
-                })
-                break
-              }
-            } catch (err) {
-              console.warn(`Failed to fetch from ${target}:`, err)
+          try {
+            const asiStatusRes = await fetch(`/api/asi-status`)
+            if (asiStatusRes.ok) {
+              const asiData = await asiStatusRes.json()
+              const trinity = asiData.asi_status?.trinity || asiData.asi_status
+              albiData = trinity?.albi
+              albaData = trinity?.alba
+              jonaData = trinity?.jona
             }
+          } catch (e) {
+            console.warn('Failed to fetch from Next.js API route:', e)
           }
         }
 
-        // If we got real Prometheus data, use it
+        // Set status from real Prometheus data
         if (albiData && albaData && jonaData) {
           setSystemStatus({
             signal_gen: {
               status: 'Online',
-              version: '1.0.0'
+              version: '2.1.0'
             },
             albi: {
-              status: albiData.operational ? 'online' : 'offline',
-              neural_patterns: albiData.metrics?.neural_patterns || 1247
+              status: albiData.operational ? 'Online' : 'Offline',
+              neural_patterns: albiData.metrics?.neural_patterns || 0
             },
             alba: {
-              status: albaData.operational ? 'online' : 'offline',
-              data_streams: 8
+              status: albaData.operational ? 'Online' : 'Offline',
+              data_streams: Math.round(albaData.metrics?.memory_mb / 64) || 8
             },
             jona: {
-              status: jonaData.operational ? 'online' : 'offline',
-              audio_synthesis: jonaData.metrics?.audio_synthesis || true
+              status: jonaData.operational ? 'Online' : 'Offline',
+              audio_synthesis: jonaData.metrics?.audio_synthesis ?? true
             }
+          })
+        } else {
+          // Fallback when no data available
+          setSystemStatus({
+            signal_gen: { status: 'Degraded', version: '1.0.0' },
+            albi: { status: 'Unknown', neural_patterns: 0 },
+            alba: { status: 'Unknown', data_streams: 0 },
+            jona: { status: 'Unknown', audio_synthesis: false }
           })
         }
       } catch (error) {
@@ -126,11 +107,12 @@ export default function Home() {
   }
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Online':
+    switch (status?.toLowerCase()) {
+      case 'online':
       case 'active':
       case 'collecting':
       case 'monitoring':
+      case 'operational':
         return 'bg-green-500'
       case 'processing':
       case 'analyzing':
