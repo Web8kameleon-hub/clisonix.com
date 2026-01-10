@@ -3,12 +3,12 @@ services:
   frontend:
     build:
       context: ./apps/web
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     container_name: clisonix-web
     ports:
       - "3000"
     environment:
-      - API_BASE=http://api:8000
+      - NODE_ENV=production
     depends_on:
       - api
     restart: unless-stopped

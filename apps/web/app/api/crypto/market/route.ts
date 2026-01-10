@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000'
-
 export async function GET() {
   try {
-    const upstream = await fetch(`${API_BASE}/api/crypto/market`, {
+    const upstream = await fetch(`http://api:8000/api/crypto/market`, {
       headers: { Accept: 'application/json' },
       cache: 'no-store',
     })
