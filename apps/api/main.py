@@ -50,6 +50,7 @@ except Exception:
 
 # HTTP
 import requests
+import httpx
 
 # --- Brain Router Initialization (must come after imports) ---
 brain_router = APIRouter(prefix="/brain", tags=["brain"])
@@ -1996,10 +1997,13 @@ except Exception as e:
 # PROMETHEUS REAL METRICS QUERY ENDPOINTS
 # ============================================================================
 
+# Prometheus URL - use Docker network name or localhost for dev
+PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://clisonix-prometheus-1:9090")
+
 async def query_prometheus(query: str) -> dict:
     """Query Prometheus for real metrics"""
     try:
-        url = "http://localhost:9090/api/v1/query"
+        url = f"{PROMETHEUS_URL}/api/v1/query"
         params = {"query": query}
         response = requests.get(url, params=params, timeout=5)
         response.raise_for_status()
@@ -2024,11 +2028,17 @@ async def query_prometheus(query: str) -> dict:
 async def alba_metrics():
     """ALBA Network - Real Prometheus metrics (CPU, Memory, Network)"""
     try:
-        # Skip Prometheus queries if not available - return defaults
-        cpu_value = 45.0
-        memory_value = 512.0
+        # Query REAL Prometheus metrics
+        cpu_result = await query_prometheus('process_cpu_seconds_total{job="clisonix-api"}')
+        memory_result = await query_prometheus('process_resident_memory_bytes{job="clisonix-api"}')
         
-        health = min(100, max(0, 100 - (cpu_value + (memory_value / 2048) * 50) / 2)) / 100
+        # Use real values or sensible defaults
+        cpu_value = cpu_result.get("value", 0) if cpu_result.get("success") else 0
+        memory_bytes = memory_result.get("value", 0) if memory_result.get("success") else 0
+        memory_value = memory_bytes / (1024 * 1024)  # Convert to MB
+        
+        # Calculate health based on real metrics
+        health = min(100, max(0, 100 - (min(cpu_value * 10, 50) + min(memory_value / 2048 * 50, 50)))) / 100
         
         return {
             "timestamp": utcnow(),
@@ -2037,10 +2047,11 @@ async def alba_metrics():
                 "role": "network_monitor",
                 "health": round(health, 3),
                 "metrics": {
-                    "cpu_percent": round(cpu_value, 2),
+                    "cpu_percent": round(cpu_value * 100, 2),
                     "memory_mb": round(memory_value, 1),
                     "latency_ms": round(12.3, 1)
-                }
+                },
+                "data_source": "prometheus" if cpu_result.get("success") else "fallback"
             }
         }
     except Exception as e:
@@ -2051,8 +2062,12 @@ async def alba_metrics():
 async def albi_metrics():
     """ALBI Neural - Real Prometheus metrics (Process performance)"""
     try:
-        # Using mock values instead of Prometheus queries (Prometheus not running in local dev)
-        goroutines_value = 50.0
+        # Query REAL Prometheus metrics
+        goroutines_result = await query_prometheus('go_goroutines{job="prometheus"}')
+        gc_result = await query_prometheus('go_gc_duration_seconds_count{job="prometheus"}')
+        
+        goroutines_value = goroutines_result.get("value", 50) if goroutines_result.get("success") else 50
+        gc_value = gc_result.get("value", 12.5) if gc_result.get("success") else 12.5
         
         # Normalize goroutines to neural health (0-100)
         neural_health = min(100, (goroutines_value / 2)) / 100
@@ -2067,8 +2082,9 @@ async def albi_metrics():
                     "goroutines": int(goroutines_value),
                     "neural_patterns": int(1247 + (goroutines_value / 5)),
                     "processing_efficiency": round(neural_health, 3),
-                    "gc_operations": 12.5
-                }
+                    "gc_operations": round(gc_value, 1)
+                },
+                "data_source": "prometheus" if goroutines_result.get("success") else "fallback"
             }
         }
     except Exception as e:
@@ -2079,8 +2095,11 @@ async def albi_metrics():
 async def jona_metrics():
     """JONA Coordination - Real Prometheus metrics (HTTP requests, uptime)"""
     try:
-        # Using mock values instead of Prometheus queries (Prometheus not running in local dev)
-        requests_value = 800.0
+        # Query REAL Prometheus metrics
+        requests_result = await query_prometheus('promhttp_metric_handler_requests_total{job="prometheus"}')
+        uptime_result = await query_prometheus('process_start_time_seconds{job="clisonix-api"}')
+        
+        requests_value = requests_result.get("value", 100) if requests_result.get("success") else 100
         
         # Normalize coordination health based on request throughput
         coordination_health = min(100, 50 + (requests_value / 20)) / 100
@@ -2096,7 +2115,8 @@ async def jona_metrics():
                     "infinite_potential": round(coordination_health * 100, 2),
                     "audio_synthesis": True,
                     "coordination_score": round(coordination_health * 100, 1)
-                }
+                },
+                "data_source": "prometheus" if requests_result.get("success") else "fallback"
             }
         }
     except Exception as e:
