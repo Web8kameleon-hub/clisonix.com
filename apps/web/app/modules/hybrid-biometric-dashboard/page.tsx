@@ -59,7 +59,7 @@ export default function HybridBiometricDashboard({
       });
 
       if (res.ok) {
-        const data = await res.json();
+        await res.json();
         setIsSessionActive(true);
         setSyncStatus('connected');
       }

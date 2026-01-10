@@ -95,6 +95,14 @@ except ImportError:
 
 from metrics import MetricsMiddleware, get_metrics
 
+# Curiosity Ocean - Groq + Hybrid Biometric Integration
+try:
+    from .ocean_routes import router as ocean_router
+    _OCEAN_AVAILABLE = True
+except ImportError:
+    _OCEAN_AVAILABLE = False
+    ocean_router = None
+
 # --- API Key System for Monetization ---
 import secrets
 import hashlib
@@ -2418,6 +2426,16 @@ try:
     logger.info("[OK] ULTRA Reporting module routes loaded - Excel/PowerPoint/Dashboard generation")
 except Exception as e:
     logger.warning(f"ULTRA Reporting routes not loaded: {e}")
+
+# Curiosity Ocean - Groq LLM + Hybrid Biometric API Integration
+try:
+    if _OCEAN_AVAILABLE and ocean_router:
+        app.include_router(ocean_router)
+        logger.info("✅ Curiosity Ocean routes loaded - Groq LLM + Hybrid Biometric integration")
+    else:
+        logger.warning("Ocean routes not available")
+except Exception as e:
+    logger.warning(f"Ocean routes not loaded: {e}")
 
 # ASI Trinity System Routes
 # ============================================================================

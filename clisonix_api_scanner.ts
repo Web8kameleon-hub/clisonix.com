@@ -309,7 +309,7 @@ class ClisonixAPIScanner extends EventEmitter {
      * Gjenerim i specifikimit OpenAPI
      */
     private async generateOpenAPISpec(): Promise<any> {
-        const spec = {
+        const spec: any = {
             openapi: '3.0.3',
             info: {
                 title: 'Clisonix Cloud API',
@@ -359,7 +359,7 @@ class ClisonixAPIScanner extends EventEmitter {
      * Gjenerim i Postman collection
      */
     private async generatePostmanCollection(): Promise<any> {
-        const collection = {
+        const collection: any = {
             info: {
                 name: 'Clisonix Cloud API',
                 description: 'Collection për testimin e Clisonix Cloud API',
@@ -377,7 +377,7 @@ class ClisonixAPIScanner extends EventEmitter {
         const groupedEndpoints = this.groupByPath();
 
         for (const [basePath, endpoints] of Object.entries(groupedEndpoints)) {
-            const folder = {
+            const folder: any = {
                 name: basePath,
                 item: []
             };
