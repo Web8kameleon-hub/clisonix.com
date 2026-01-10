@@ -142,7 +142,7 @@ export class PhoneSensorCollector {
     return 36.5 + (Math.random() - 0.5) * 2; // Normal body temp
   }
 
-  getCurrentData(): PhoneSensorData {
+  async getCurrentData(): Promise<PhoneSensorData> {
     return {
       accelerometer: this.accelerometerData[this.accelerometerData.length - 1] || {
         x: 0,
@@ -156,7 +156,7 @@ export class PhoneSensorCollector {
         z: 0,
         timestamp: Date.now(),
       },
-      heartRate: await this.estimateHeartRate(),
+      heartRate: { ...(await this.estimateHeartRate()), timestamp: Date.now() },
       temperature: { celsius: await this.readTemperature(), timestamp: Date.now() },
     };
   }
@@ -371,7 +371,7 @@ export class HybridBiometricSessionManager {
           this.currentSession.clinicalData = await this.clinicIntegration!.fetchAllDevicesData();
           this.currentSession.syncStatus = 'synced';
         }
-      }, this.clinicIntegration?.config.syncInterval || 5000);
+      }, (this.clinicIntegration as any)?.config?.syncInterval || 5000);
     }
 
     return this.currentSession;
@@ -384,7 +384,7 @@ export class HybridBiometricSessionManager {
     this.clinicIntegration?.stopRealTimeStream();
 
     if (this.syncInterval) {
-      clearInterval(this.syncInterval);
+      clearInterval(this.syncInterval as any);
     }
 
     this.currentSession.endTime = Date.now();
