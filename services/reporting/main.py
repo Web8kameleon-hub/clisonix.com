@@ -52,10 +52,38 @@ try:
 except ImportError:
     PSUTIL_AVAILABLE = False
 
+# Docker SDK
+try:
+    import docker
+    DOCKER_SDK_AVAILABLE = True
+    docker_client = docker.from_env()
+except Exception:
+    DOCKER_SDK_AVAILABLE = False
+    docker_client = None
+
 
 def get_docker_containers_real():
-    """Merr container-ët REAL nga Docker"""
+    """Merr container-ët REAL nga Docker SDK"""
     containers = []
+    
+    # Provo Docker SDK së pari
+    if DOCKER_SDK_AVAILABLE and docker_client:
+        try:
+            for c in docker_client.containers.list():
+                containers.append({
+                    "name": c.name,
+                    "status": c.status,
+                    "ports": str(c.ports)[:60] if c.ports else "-",
+                    "image": c.image.tags[0] if c.image.tags else str(c.image.id)[:20],
+                    "container_id": c.short_id,
+                    "healthy": c.status == "running",
+                    "uptime": c.attrs.get("State", {}).get("StartedAt", "")[:19]
+                })
+            return containers
+        except Exception as e:
+            logger.error(f"Docker SDK error: {e}")
+    
+    # Fallback: subprocess (nëse Docker CLI ekziston)
     try:
         result = subprocess.run(
             ["docker", "ps", "--format", "{{.Names}}|{{.Status}}|{{.Ports}}|{{.Image}}|{{.ID}}"],
@@ -84,6 +112,38 @@ def get_docker_containers_real():
 def get_docker_stats_real():
     """Merr CPU/Memory stats REAL për çdo container"""
     stats = []
+    
+    # Provo Docker SDK së pari
+    if DOCKER_SDK_AVAILABLE and docker_client:
+        try:
+            for c in docker_client.containers.list():
+                try:
+                    s = c.stats(stream=False)
+                    # Calculate CPU %
+                    cpu_delta = s['cpu_stats']['cpu_usage']['total_usage'] - s['precpu_stats']['cpu_usage']['total_usage']
+                    system_delta = s['cpu_stats']['system_cpu_usage'] - s['precpu_stats']['system_cpu_usage']
+                    cpu_percent = (cpu_delta / system_delta) * 100 if system_delta > 0 else 0
+                    
+                    # Calculate Memory
+                    mem_usage = s['memory_stats'].get('usage', 0) / (1024*1024)
+                    mem_limit = s['memory_stats'].get('limit', 1) / (1024*1024)
+                    mem_percent = (mem_usage / mem_limit) * 100 if mem_limit > 0 else 0
+                    
+                    stats.append({
+                        "container": c.name,
+                        "cpu": f"{cpu_percent:.2f}%",
+                        "mem_usage": f"{mem_usage:.1f}MiB / {mem_limit:.0f}MiB",
+                        "mem_percent": f"{mem_percent:.2f}%",
+                        "net_io": "N/A",
+                        "block_io": "N/A"
+                    })
+                except Exception as e:
+                    logger.error(f"Stats error for {c.name}: {e}")
+            return stats
+        except Exception as e:
+            logger.error(f"Docker SDK stats error: {e}")
+    
+    # Fallback: subprocess
     try:
         result = subprocess.run(
             ["docker", "stats", "--no-stream", "--format", 
