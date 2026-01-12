@@ -3,8 +3,7 @@
  * Production-ready with API rewrites for backend proxy
  */
 
-// PRODUCTION: Use Docker internal network
-// For local dev, set NEXT_PUBLIC_API_BASE=http://localhost:8000
+// PRODUCTION: Docker network. LOCAL DEV: Set NEXT_PUBLIC_API_BASE=http://localhost:8000
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://clisonix-api:8000';
 
 /** @type {import('next').NextConfig} */
@@ -65,6 +64,16 @@ const nextConfig = {
       {
         source: '/asi/:path*',
         destination: `${API_BASE}/asi/:path*`,
+      },
+      // Backend proxy (for direct backend calls)
+      {
+        source: '/backend/:path*',
+        destination: `${API_BASE}/:path*`,
+      },
+      // Backend status specifically
+      {
+        source: '/backend/status',
+        destination: `${API_BASE}/health`,
       },
     ];
   },

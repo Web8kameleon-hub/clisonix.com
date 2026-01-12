@@ -139,6 +139,48 @@ export default function ModulesPage() {
         'Real-time spectrum display'
       ],
       route: '/modules/spectrum-analyzer'
+    },
+    {
+      id: 'excel-dashboard',
+      name: '📗 Excel Dashboard',
+      description: 'Production-ready Excel integration with Office Scripts and API monitoring',
+      status: 'active' as const,
+      capabilities: [
+        '71 API endpoints tracking',
+        'Office Scripts automation',
+        'Drop-down validation lists',
+        'Conditional formatting',
+        'Power Automate integration'
+      ],
+      route: '/modules/excel-dashboard'
+    },
+    {
+      id: 'functions-registry',
+      name: '⚙️ Functions Registry',
+      description: 'Complete registry of all Python and Office Script functions',
+      status: 'active' as const,
+      capabilities: [
+        'Python function tracking',
+        'Office Scripts catalog',
+        'Parameter documentation',
+        'Return type mapping',
+        'Status monitoring'
+      ],
+      route: '/modules/functions-registry'
+    },
+    {
+      id: 'protocol-kitchen',
+      name: '🔬 Protocol Kitchen AI',
+      description: 'System Architecture Pipeline - Parser, Matrix, Agents, Labs & Enforcement',
+      status: 'active' as const,
+      capabilities: [
+        'Parser Layer - Protocol Detection',
+        'Ultra Matrix - Layer × Depth',
+        'Agent Layer - Auto Rules',
+        'Labs Layer - Experiment & Tune',
+        'Enforcement - Canonical API'
+      ],
+      route: '/modules/protocol-kitchen'
     }
   ]
 

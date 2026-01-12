@@ -2,6 +2,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { RequestLogger } from "../src/components/telemetry/RequestLogger";
+import AboutSidebar from "../src/components/AboutSidebar";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -36,6 +37,7 @@ export default function RootLayout({
           </span>
         </div>
         <RequestLogger />
+        <AboutSidebar />
         {children}
       </body>
     </html>

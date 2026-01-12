@@ -26,16 +26,32 @@ export default function Home() {
 
         try {
           // Direct call to Python backend through nginx /backend/ route
-          const asiStatusRes = await fetch(`/api/asi-status`)
+          const asiStatusRes = await fetch(`/backend/asi/status`)
           if (asiStatusRes.ok) {
             const asiData = await asiStatusRes.json()
-            const trinity = asiData.asi_status?.trinity || asiData.asi_status
+            const trinity = asiData.trinity
             albiData = trinity?.albi
             albaData = trinity?.alba
             jonaData = trinity?.jona
           }
         } catch (e) {
-          console.warn('Failed to fetch ASI metrics:', e)
+          console.warn('Failed to fetch real ASI metrics from backend:', e)
+        }
+
+        // Fallback to Next.js API route if direct backend fails
+        if (!albiData || !albaData || !jonaData) {
+          try {
+            const asiStatusRes = await fetch(`/api/asi-status`)
+            if (asiStatusRes.ok) {
+              const asiData = await asiStatusRes.json()
+              const trinity = asiData.asi_status?.trinity || asiData.asi_status
+              albiData = trinity?.albi
+              albaData = trinity?.alba
+              jonaData = trinity?.jona
+            }
+          } catch (e) {
+            console.warn('Failed to fetch from Next.js API route:', e)
+          }
         }
 
         // Set status from real Prometheus data
@@ -269,12 +285,12 @@ export default function Home() {
               <div className="text-sm text-gray-300">Begin EEG to audio</div>
             </button>
             
-            <a href="http://localhost:3001" target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 hover:from-emerald-500/30 hover:to-green-500/30 rounded-lg p-4 text-white font-medium transition-all duration-300 border border-emerald-500/30">
+            <a href="/grafana/" target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 hover:from-emerald-500/30 hover:to-green-500/30 rounded-lg p-4 text-white font-medium transition-all duration-300 border border-emerald-500/30">
               <div className="text-lg">📊 Grafana Dashboards</div>
-              <div className="text-sm text-gray-300">Real-time monitoring (admin/admin)</div>
+              <div className="text-sm text-gray-300">Real-time monitoring (admin/clisonix2025)</div>
             </a>
 
-            <a href="http://localhost:9090" target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-orange-500/20 to-red-500/20 hover:from-orange-500/30 hover:to-red-500/30 rounded-lg p-4 text-white font-medium transition-all duration-300 border border-orange-500/30">
+            <a href="/prometheus/" target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-orange-500/20 to-red-500/20 hover:from-orange-500/30 hover:to-red-500/30 rounded-lg p-4 text-white font-medium transition-all duration-300 border border-orange-500/30">
               <div className="text-lg">⚙️ Prometheus Metrics</div>
               <div className="text-sm text-gray-300">Raw metrics database</div>
             </a>
@@ -290,17 +306,17 @@ export default function Home() {
             <div className="bg-white/5 rounded-lg p-4 border border-white/10">
               <div className="text-sm font-semibold text-cyan-400 mb-2">🧠 ALBI Neural</div>
               <p className="text-xs text-gray-400 mb-3">Processing goroutines, neural pattern detection, AI efficiency metrics from actual system</p>
-              <a href="/api/asi/albi/metrics" className="text-xs text-cyan-400 hover:text-cyan-300">→ Real metrics endpoint</a>
+              <a href="/backend/asi/albi/metrics" className="text-xs text-cyan-400 hover:text-cyan-300">→ Real metrics endpoint</a>
             </div>
             <div className="bg-white/5 rounded-lg p-4 border border-white/10">
               <div className="text-sm font-semibold text-emerald-400 mb-2">📊 ALBA Network</div>
               <p className="text-xs text-gray-400 mb-3">CPU usage, memory, network latency from actual system monitoring</p>
-              <a href="/api/asi/alba/metrics" className="text-xs text-emerald-400 hover:text-emerald-300">→ Real metrics endpoint</a>
+              <a href="/backend/asi/alba/metrics" className="text-xs text-emerald-400 hover:text-emerald-300">→ Real metrics endpoint</a>
             </div>
             <div className="bg-white/5 rounded-lg p-4 border border-white/10">
               <div className="text-sm font-semibold text-purple-400 mb-2">🛡️ JONA Coordination</div>
               <p className="text-xs text-gray-400 mb-3">Request throughput, uptime, coordination efficiency from live system</p>
-              <a href="/api/asi/jona/metrics" className="text-xs text-purple-400 hover:text-purple-300">→ Real metrics endpoint</a>
+              <a href="/backend/asi/jona/metrics" className="text-xs text-purple-400 hover:text-purple-300">→ Real metrics endpoint</a>
             </div>
           </div>
         </div>
