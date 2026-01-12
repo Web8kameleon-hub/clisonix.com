@@ -269,12 +269,12 @@ export default function Home() {
               <div className="text-sm text-gray-300">Begin EEG to audio</div>
             </button>
             
-            <a href="http://localhost:3001" target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 hover:from-emerald-500/30 hover:to-green-500/30 rounded-lg p-4 text-white font-medium transition-all duration-300 border border-emerald-500/30">
+            <a href="http://46.224.205.183:3001" target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 hover:from-emerald-500/30 hover:to-green-500/30 rounded-lg p-4 text-white font-medium transition-all duration-300 border border-emerald-500/30">
               <div className="text-lg">📊 Grafana Dashboards</div>
               <div className="text-sm text-gray-300">Real-time monitoring (admin/admin)</div>
             </a>
 
-            <a href="http://localhost:9090" target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-orange-500/20 to-red-500/20 hover:from-orange-500/30 hover:to-red-500/30 rounded-lg p-4 text-white font-medium transition-all duration-300 border border-orange-500/30">
+            <a href="http://46.224.205.183:9090" target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-orange-500/20 to-red-500/20 hover:from-orange-500/30 hover:to-red-500/30 rounded-lg p-4 text-white font-medium transition-all duration-300 border border-orange-500/30">
               <div className="text-lg">⚙️ Prometheus Metrics</div>
               <div className="text-sm text-gray-300">Raw metrics database</div>
             </a>

@@ -340,19 +340,19 @@ export default function ReportingDashboard() {
       {
         title: 'Grafana Visualization Layer',
         description: 'Custom dashboards, traces & logs (Loki + Tempo integration).',
-        url: 'http://localhost:3001',
+        url: 'http://46.224.205.183:3001',
         accent: 'bg-gradient-to-r from-emerald-500/20 via-cyan-500/30 to-sky-500/20',
       },
       {
         title: 'Prometheus Core Metrics',
         description: 'Raw metric queries, alerting rules and scrape targets.',
-        url: 'http://localhost:9090',
+        url: 'http://46.224.205.183:9090',
         accent: 'bg-gradient-to-r from-purple-500/20 via-violet-500/30 to-indigo-500/20',
       },
       {
         title: 'VictoriaMetrics Warehouse',
         description: 'Long-term storage + high-cardinality queries at scale.',
-        url: 'http://localhost:8428',
+        url: 'http://46.224.205.183:8428',
         accent: 'bg-gradient-to-r from-orange-500/20 via-amber-500/30 to-yellow-500/20',
       },
       {

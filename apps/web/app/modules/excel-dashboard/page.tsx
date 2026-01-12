@@ -109,7 +109,7 @@ export default function ExcelDashboardPage() {
           </Link>
 
           <a 
-            href="http://localhost:3001"
+            href="http://46.224.205.183:3001"
             target="_blank"
             className="bg-slate-800/80 hover:bg-slate-700 border border-slate-600 text-white rounded-xl p-6 text-center transition-all transform hover:scale-105"
           >
