@@ -85,7 +85,7 @@
             height: 100%;
             background: linear-gradient(90deg, #FF8C00, #FF6B00);
             border-radius: 6px;
-            width: {{USAGE_PERCENT}}%;
+            /* width will be set inline for dynamic value */
             transition: width 0.3s ease;
         }
         .usage-details {
@@ -230,7 +230,7 @@
                     <span class="usage-percentage">{{USAGE_PERCENT}}%</span>
                 </div>
                 <div class="progress-bar">
-                    <div class="progress-fill"></div>
+                    <div class="progress-fill" style="width: 70%;"></div>
                 </div>
                 <div class="usage-details">
                     <span>{{USED_REQUESTS}} requests used</span>
