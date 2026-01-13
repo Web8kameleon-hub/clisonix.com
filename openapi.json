@@ -24,13 +24,28 @@
       "variables": {}
     },
     {
+      "url": "http://46.224.205.183:8000",
+      "description": "Production - Hetzner Cloud",
+      "variables": { }
+    },
+    {
       "url": "https://api.clisonix.cloud",
-      "description": "Production",
+      "description": "Production - Domain (Coming Soon)",
       "variables": {}
     },
     {
-      "url": "https://sandbox.clisonix.cloud",
-      "description": "Sandbox Testing",
+      "url": "http://46.224.205.183:8001",
+      "description": "Reporting Microservice",
+      "variables": { }
+    },
+    {
+      "url": "http://46.224.205.183:8002",
+      "description": "Excel Microservice",
+      "variables": { }
+    },
+    {
+      "url": "http://localhost:8000",
+      "description": "Local Development",
       "variables": {}
     }
   ],

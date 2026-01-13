@@ -1,0 +1,49 @@
+{
+  "id": "clisonix-production",
+  "name": "Clisonix Production (Hetzner)",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "http://46.224.205.183:8000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "reporting_url",
+      "value": "http://46.224.205.183:8001",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "excel_url",
+      "value": "http://46.224.205.183:8002",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "frontend_url",
+      "value": "http://46.224.205.183:3000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "grafana_url",
+      "value": "http://46.224.205.183:3001",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "api_key",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}
