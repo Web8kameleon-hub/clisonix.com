@@ -70,15 +70,38 @@ def get_docker_containers_real():
     if DOCKER_SDK_AVAILABLE and docker_client:
         try:
             for c in docker_client.containers.list():
-                containers.append({
-                    "name": c.name,
-                    "status": c.status,
-                    "ports": str(c.ports)[:60] if c.ports else "-",
-                    "image": c.image.tags[0] if c.image.tags else str(c.image.id)[:20],
-                    "container_id": c.short_id,
-                    "healthy": c.status == "running",
-                    "uptime": c.attrs.get("State", {}).get("StartedAt", "")[:19]
-                })
+                try:
+                    # Merr image name me kujdes
+                    image_name = "unknown"
+                    try:
+                        if c.image and c.image.tags:
+                            image_name = c.image.tags[0]
+                        elif c.image:
+                            image_name = str(c.image.short_id)[:20]
+                    except Exception:
+                        image_name = c.attrs.get("Config", {}).get("Image", "unknown")
+                    
+                    containers.append({
+                        "name": c.name,
+                        "status": c.status,
+                        "ports": str(c.ports)[:60] if c.ports else "-",
+                        "image": image_name,
+                        "container_id": c.short_id,
+                        "healthy": c.status == "running",
+                        "uptime": c.attrs.get("State", {}).get("StartedAt", "")[:19]
+                    })
+                except Exception as e:
+                    logger.warning(f"Error processing container {c.name}: {e}")
+                    # Shto container edhe nëse ka error
+                    containers.append({
+                        "name": c.name,
+                        "status": c.status,
+                        "ports": "-",
+                        "image": "unknown",
+                        "container_id": c.short_id if hasattr(c, 'short_id') else "unknown",
+                        "healthy": c.status == "running" if hasattr(c, 'status') else False,
+                        "uptime": ""
+                    })
             return containers
         except Exception as e:
             logger.error(f"Docker SDK error: {e}")
