@@ -239,6 +239,7 @@ def get_api_endpoints_real():
 
 
 @app.get("/health")
+@app.get("/api/reporting/health")  # Alias for frontend compatibility
 async def health():
     return {
         "status": "healthy",
@@ -246,6 +247,27 @@ async def health():
         "excel_available": EXCEL_AVAILABLE,
         "psutil_available": PSUTIL_AVAILABLE,
         "timestamp": datetime.now().isoformat()
+    }
+
+
+@app.get("/status")
+async def status():
+    """Status endpoint for compatibility with frontend"""
+    containers = get_docker_containers_real()
+    system = get_system_metrics_real() if PSUTIL_AVAILABLE else {}
+    return {
+        "status": "active",
+        "service": "reporting-microservice",
+        "uptime": system.get("uptime_formatted", "unknown"),
+        "timestamp": datetime.now().isoformat(),
+        "containers": {
+            "total": len(containers),
+            "healthy": sum(1 for c in containers if c.get("healthy"))
+        },
+        "system": {
+            "cpu_percent": system.get("cpu_percent", 0),
+            "memory_percent": system.get("memory_percent", 0)
+        }
     }
 
 

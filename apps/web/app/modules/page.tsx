@@ -43,12 +43,20 @@ export default function ModulesPage() {
   // Check all API statuses
   const checkAPIStatuses = async () => {
     setIsCheckingAPIs(true)
-    const baseUrl = 'https://clisonix.com'
+    // Use Hetzner IP directly - HTTPS not configured yet
+    const mainApi = 'http://46.224.205.183:8000'
+    const reportingApi = 'http://46.224.205.183:8001'
 
     const newStatuses = await Promise.all(
       apiStatuses.map(async (api) => {
         const startTime = Date.now()
         try {
+          // Route to correct microservice based on endpoint
+          let baseUrl = mainApi
+          if (api.endpoint.includes('/api/reporting/') || api.endpoint.includes('docker') || api.endpoint.includes('export')) {
+            baseUrl = reportingApi
+          }
+          
           const response = await fetch(`${baseUrl}${api.endpoint}`, {
             method: 'GET',
             signal: AbortSignal.timeout(5000),
