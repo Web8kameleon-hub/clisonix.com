@@ -58,7 +58,7 @@ export default function ModulesPage() {
           if (response.ok) {
             return {
               ...api,
-              status: responseTime < 1000 ? 'online' : 'degraded' as const,
+              status: (responseTime < 1000 ? 'online' : 'degraded') as 'online' | 'degraded',
               responseTime,
               lastChecked: new Date().toLocaleTimeString()
             }
