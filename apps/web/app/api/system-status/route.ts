@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
 
 // PRODUCTION: Hetzner server IP / clisonix.com
-// Port 8001 = reporting microservice
-const HETZNER_API = 'http://46.224.205.183:8001'
-const API_BASE = (process.env.NEXT_PUBLIC_API_BASE || process.env.API_INTERNAL_URL || HETZNER_API).replace(/\/$/, '')
+// Port 8000 = Main API (has /status endpoint)
+// Port 8001 = Reporting microservice
+const MAIN_API = 'http://46.224.205.183:8000'
+const API_BASE = (process.env.NEXT_PUBLIC_API_BASE || process.env.API_INTERNAL_URL || MAIN_API).replace(/\/$/, '')
 
 export async function GET() {
   try {
