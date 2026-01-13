@@ -81,6 +81,22 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # ==========================
+  # VICTORIAMETRICS (Long-term Storage)
+  # ==========================
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:v1.96.0
+    container_name: clisonix-victoriametrics
+    ports:
+      - "8428:8428"
+    volumes:
+      - ./data/victoriametrics:/victoria-metrics-data
+    command:
+      - "-storageDataPath=/victoria-metrics-data"
+      - "-retentionPeriod=12"
+      - "-httpListenAddr=:8428"
+    restart: unless-stopped
+
 networks:
   default:
     driver: bridge

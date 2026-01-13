@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 
-const API_BASE = process.env.API_INTERNAL_URL || process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000'
+// PRODUCTION: Hetzner server IP / clisonix.com
+const HETZNER_API = 'http://46.224.205.183:8001'
+const API_BASE = process.env.API_INTERNAL_URL || process.env.NEXT_PUBLIC_API_BASE || HETZNER_API
 
 export async function GET() {
   try {

@@ -14,6 +14,14 @@ interface ModuleStatus {
   jona: 'monitoring' | 'synthesizing' | 'offline'
 }
 
+interface APIStatus {
+  name: string
+  endpoint: string
+  status: 'online' | 'degraded' | 'offline'
+  responseTime?: number
+  lastChecked?: string
+}
+
 export default function ModulesPage() {
   const [moduleStatus, setModuleStatus] = useState<ModuleStatus>({
     albi: 'offline',
@@ -21,7 +29,58 @@ export default function ModulesPage() {
     jona: 'offline'
   })
 
+  const [apiStatuses, setApiStatuses] = useState<APIStatus[]>([
+    { name: 'Reporting Dashboard', endpoint: '/api/reporting/dashboard', status: 'offline' },
+    { name: 'System Status', endpoint: '/api/system-status', status: 'offline' },
+    { name: 'Core Health', endpoint: '/health', status: 'offline' },
+    { name: 'Reporting Health', endpoint: '/api/reporting/health', status: 'offline' },
+    { name: 'Docker Containers', endpoint: '/api/reporting/docker-containers', status: 'offline' },
+    { name: 'Excel Export', endpoint: '/api/reporting/export-excel', status: 'offline' },
+  ])
+
+  const [isCheckingAPIs, setIsCheckingAPIs] = useState(false)
+
+  // Check all API statuses
+  const checkAPIStatuses = async () => {
+    setIsCheckingAPIs(true)
+    const baseUrl = 'https://clisonix.com'
+
+    const newStatuses = await Promise.all(
+      apiStatuses.map(async (api) => {
+        const startTime = Date.now()
+        try {
+          const response = await fetch(`${baseUrl}${api.endpoint}`, {
+            method: 'GET',
+            signal: AbortSignal.timeout(5000),
+          })
+          const responseTime = Date.now() - startTime
+
+          if (response.ok) {
+            return {
+              ...api,
+              status: responseTime < 1000 ? 'online' : 'degraded' as const,
+              responseTime,
+              lastChecked: new Date().toLocaleTimeString()
+            }
+          } else if (response.status >= 500) {
+            return { ...api, status: 'offline' as const, responseTime, lastChecked: new Date().toLocaleTimeString() }
+          } else {
+            return { ...api, status: 'degraded' as const, responseTime, lastChecked: new Date().toLocaleTimeString() }
+          }
+        } catch {
+          return { ...api, status: 'offline' as const, lastChecked: new Date().toLocaleTimeString() }
+        }
+      })
+    )
+
+    setApiStatuses(newStatuses)
+    setIsCheckingAPIs(false)
+  }
+
   useEffect(() => {
+    // Check API statuses on mount
+    checkAPIStatuses()
+
     // Simulate checking module status
     const checkModuleStatus = async () => {
       try {
@@ -38,7 +97,11 @@ export default function ModulesPage() {
 
     checkModuleStatus()
     const interval = setInterval(checkModuleStatus, 5000)
-    return () => clearInterval(interval)
+    const apiInterval = setInterval(checkAPIStatuses, 30000) // Check APIs every 30s
+    return () => {
+      clearInterval(interval)
+      clearInterval(apiInterval)
+    }
   }, [])
 
   const modules = [
@@ -211,8 +274,102 @@ export default function ModulesPage() {
     }
   }
 
+  const getAPIStatusColor = (status: string) => {
+    switch (status) {
+      case 'online': return 'bg-green-500'
+      case 'degraded': return 'bg-orange-500'
+      default: return 'bg-red-500'
+    }
+  }
+
+  const getAPIStatusBadge = (status: string) => {
+    switch (status) {
+      case 'online': return { bg: 'bg-green-500/20', text: 'text-green-400', border: 'border-green-500/50', label: '● ONLINE' }
+      case 'degraded': return { bg: 'bg-orange-500/20', text: 'text-orange-400', border: 'border-orange-500/50', label: '◐ DEGRADED' }
+      default: return { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/50', label: '○ OFFLINE' }
+    }
+  }
+
+  const overallStatus = apiStatuses.every(a => a.status === 'online')
+    ? 'online'
+    : apiStatuses.some(a => a.status === 'online')
+      ? 'degraded'
+      : 'offline'
+
   return (
     <div className="space-y-8">
+      {/* API Status Panel - URGENT */}
+      <div className={`rounded-2xl p-6 border-2 ${overallStatus === 'online' ? 'bg-green-500/10 border-green-500/50' :
+          overallStatus === 'degraded' ? 'bg-orange-500/10 border-orange-500/50' :
+            'bg-red-500/10 border-red-500/50'
+        }`}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div className={`w-4 h-4 rounded-full animate-pulse ${getAPIStatusColor(overallStatus)}`}></div>
+            <h2 className="text-2xl font-bold text-white">
+              🚦 API Status Monitor
+            </h2>
+            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${overallStatus === 'online' ? 'bg-green-500/30 text-green-300' :
+                overallStatus === 'degraded' ? 'bg-orange-500/30 text-orange-300' :
+                  'bg-red-500/30 text-red-300'
+              }`}>
+              {overallStatus === 'online' ? 'ALL SYSTEMS GO' : overallStatus === 'degraded' ? 'PARTIAL OUTAGE' : 'SYSTEMS DOWN'}
+            </span>
+          </div>
+          <button
+            onClick={checkAPIStatuses}
+            disabled={isCheckingAPIs}
+            className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm text-white transition-all disabled:opacity-50"
+          >
+            {isCheckingAPIs ? '⏳ Checking...' : '🔄 Refresh'}
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {apiStatuses.map((api, idx) => {
+            const badge = getAPIStatusBadge(api.status)
+            return (
+              <div
+                key={idx}
+                className={`p-4 rounded-xl ${badge.bg} border ${badge.border} transition-all hover:scale-102`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-white text-sm">{api.name}</span>
+                  <span className={`text-xs font-bold ${badge.text}`}>{badge.label}</span>
+                </div>
+                <div className="text-xs text-gray-400 font-mono truncate">{api.endpoint}</div>
+                <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+                  {api.responseTime && (
+                    <span className={api.responseTime < 500 ? 'text-green-400' : api.responseTime < 1000 ? 'text-orange-400' : 'text-red-400'}>
+                      ⚡ {api.responseTime}ms
+                    </span>
+                  )}
+                  {api.lastChecked && <span>🕐 {api.lastChecked}</span>}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between">
+          <div className="flex items-center space-x-4 text-xs">
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <span className="text-gray-400">Online</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+              <span className="text-gray-400">Degraded</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 rounded-full bg-red-500"></div>
+              <span className="text-gray-400">Offline</span>
+            </div>
+          </div>
+          <span className="text-xs text-gray-500">Auto-refresh every 30s</span>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="text-center bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
         <h1 className="text-4xl font-bold text-white mb-4 bg-gradient-to-r from-cyan-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent">

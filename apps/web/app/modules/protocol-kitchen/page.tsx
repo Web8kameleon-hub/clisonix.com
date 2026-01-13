@@ -1,11 +1,11 @@
 /**
  * 🔬 Protocol Kitchen AI - System Architecture
- * Frontend Module për Protocol Kitchen
+ * Frontend Module për Protocol Kitchen - LIVE DATA
  */
 
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 type LayerStatus = 'idle' | 'processing' | 'complete' | 'error'
@@ -19,7 +19,63 @@ interface Layer {
   metrics?: { [key: string]: number | string }
 }
 
+interface ContainerInfo {
+  name: string
+  status: string
+  image: string
+  created: string
+  ports: string
+}
+
+interface SystemMetrics {
+  cpu_percent: number
+  memory_percent: number
+  disk_percent: number
+}
+
+const API_BASE = 'https://clisonix.com'
+
 export default function ProtocolKitchenPage() {
+  const [containers, setContainers] = useState<ContainerInfo[]>([])
+  const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
+
+  // Fetch real data from server
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [containersRes, metricsRes] = await Promise.all([
+          fetch(`${API_BASE}/api/reporting/docker-containers`),
+          fetch(`${API_BASE}/api/reporting/system-metrics`)
+        ])
+
+        if (containersRes.ok) {
+          const data = await containersRes.json()
+          setContainers(data.containers || [])
+        }
+
+        if (metricsRes.ok) {
+          const data = await metricsRes.json()
+          setSystemMetrics(data)
+        }
+
+        setLastUpdate(new Date())
+        setLoading(false)
+      } catch (error) {
+        console.error('Failed to fetch data:', error)
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+    const interval = setInterval(fetchData, 5000) // Refresh every 5 seconds
+    return () => clearInterval(interval)
+  }, [])
+
+  const runningContainers = containers.filter(c => c.status?.includes('running') || c.status?.includes('Up')).length
+  const totalContainers = containers.length
+
   const [layers, setLayers] = useState<Layer[]>([
     { 
       id: 'parser', 
@@ -35,7 +91,7 @@ export default function ProtocolKitchenPage() {
       icon: '📊',
       status: 'idle',
       description: 'Excel/DB - Standardized Rows, ID/Protocol/Layer/Depth',
-      metrics: { rows: 71, columns: 19 }
+      metrics: { rows: 0, columns: 0 }
     },
     { 
       id: 'ultra-matrix', 
@@ -43,7 +99,7 @@ export default function ProtocolKitchenPage() {
       icon: '🔷',
       status: 'idle',
       description: 'Layer × Depth, Protocol Matrix, Focus Channels',
-      metrics: { depth: 5, channels: 12 }
+      metrics: { depth: 0, channels: 0 }
     },
     { 
       id: 'agent', 
@@ -51,7 +107,7 @@ export default function ProtocolKitchenPage() {
       icon: '🤖',
       status: 'idle',
       description: 'Decide Depth Stop, Escalate Protocol, Enforce Auto Rules',
-      metrics: { rules: 24, active: 0 }
+      metrics: { rules: 0, active: 0 }
     },
     { 
       id: 'labs', 
@@ -67,7 +123,7 @@ export default function ProtocolKitchenPage() {
       icon: '📈',
       status: 'idle',
       description: 'Measure Anomalies, Update Alignment Score',
-      metrics: { anomalies: 0, score: 95 }
+      metrics: { anomalies: 0, score: 0 }
     },
     { 
       id: 'output', 
@@ -75,9 +131,29 @@ export default function ProtocolKitchenPage() {
       icon: '📦',
       status: 'idle',
       description: 'API, Doc/SDK, Ready Product',
-      metrics: { apis: 71, docs: 12 }
+      metrics: { apis: 0, docs: 0 }
     },
   ])
+
+  // Update layers with real data
+  useEffect(() => {
+    if (containers.length > 0 && systemMetrics) {
+      setLayers(prev => prev.map(layer => {
+        switch (layer.id) {
+          case 'reference':
+            return { ...layer, metrics: { rows: totalContainers, columns: 5 }, status: 'complete' }
+          case 'ultra-matrix':
+            return { ...layer, metrics: { depth: runningContainers, channels: totalContainers }, status: 'complete' }
+          case 'metrics':
+            return { ...layer, metrics: { cpu: `${systemMetrics.cpu_percent.toFixed(1)}%`, ram: `${systemMetrics.memory_percent.toFixed(1)}%` }, status: 'complete' }
+          case 'output':
+            return { ...layer, metrics: { containers: runningContainers, healthy: runningContainers }, status: 'complete' }
+          default:
+            return layer
+        }
+      }))
+    }
+  }, [containers, systemMetrics, runningContainers, totalContainers])
 
   const [inputData, setInputData] = useState('')
   const [processing, setProcessing] = useState(false)
@@ -265,6 +341,78 @@ export default function ProtocolKitchenPage() {
               <span>Output</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* LIVE Docker Containers Panel */}
+      <div className="max-w-7xl mx-auto mt-8">
+        <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+              🐳 LIVE Docker Containers
+              {loading && <span className="animate-pulse text-yellow-400">Loading...</span>}
+            </h2>
+            <div className="flex items-center gap-4">
+              <span className="text-green-400 font-bold text-xl">
+                {runningContainers}/{totalContainers} Running
+              </span>
+              {lastUpdate && (
+                <span className="text-gray-500 text-sm">
+                  Updated: {lastUpdate.toLocaleTimeString()}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* System Metrics */}
+          {systemMetrics && (
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 border border-blue-500 rounded-xl p-4 text-center">
+                <div className="text-3xl font-bold text-blue-400">{systemMetrics.cpu_percent.toFixed(1)}%</div>
+                <div className="text-gray-400">CPU Usage</div>
+              </div>
+              <div className="bg-gradient-to-br from-green-600/20 to-green-800/20 border border-green-500 rounded-xl p-4 text-center">
+                <div className="text-3xl font-bold text-green-400">{systemMetrics.memory_percent.toFixed(1)}%</div>
+                <div className="text-gray-400">RAM Usage</div>
+              </div>
+              <div className="bg-gradient-to-br from-purple-600/20 to-purple-800/20 border border-purple-500 rounded-xl p-4 text-center">
+                <div className="text-3xl font-bold text-purple-400">{systemMetrics.disk_percent.toFixed(1)}%</div>
+                <div className="text-gray-400">Disk Usage</div>
+              </div>
+            </div>
+          )}
+
+          {/* Containers Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {containers.map((container, idx) => {
+              const isRunning = container.status?.includes('running') || container.status?.includes('Up')
+              return (
+                <div
+                  key={idx}
+                  className={`border-2 rounded-xl p-4 transition-all ${isRunning
+                      ? 'bg-green-900/20 border-green-500'
+                      : 'bg-red-900/20 border-red-500'
+                    }`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`w-3 h-3 rounded-full ${isRunning ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
+                    <h3 className="text-white font-bold truncate">{container.name}</h3>
+                  </div>
+                  <div className="text-gray-400 text-sm">
+                    <div>Status: <span className={isRunning ? 'text-green-400' : 'text-red-400'}>{container.status}</span></div>
+                    <div className="truncate">Image: {container.image}</div>
+                    {container.ports && <div className="text-blue-400 truncate">Ports: {container.ports}</div>}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {containers.length === 0 && !loading && (
+            <div className="text-center py-8 text-gray-400">
+              No containers found. Make sure the server is running.
+            </div>
+          )}
         </div>
       </div>
     </div>

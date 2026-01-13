@@ -3,8 +3,11 @@
  * Production-ready with API rewrites for backend proxy
  */
 
-// PRODUCTION: Docker network. LOCAL DEV: Set NEXT_PUBLIC_API_BASE=http://localhost:8000
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://clisonix-api:8000';
+// PRODUCTION: Hetzner Server IP (46.224.205.183 / clisonix.com)
+// Docker network: 'http://clisonix-api:8000' for internal container communication
+// External: 'http://46.224.205.183:8000' for direct access
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://46.224.205.183:8000';
+const REPORTING_BASE = process.env.API_INTERNAL_URL || 'http://46.224.205.183:8001';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -74,6 +77,25 @@ const nextConfig = {
       {
         source: '/backend/status',
         destination: `${API_BASE}/health`,
+      },
+      // ===== REPORTING API (Port 8001) =====
+      // Docker containers
+      {
+        source: '/api/reporting/:path*',
+        destination: `${REPORTING_BASE}/api/reporting/:path*`,
+      },
+      // Direct docker stats
+      {
+        source: '/api/docker-containers',
+        destination: `${REPORTING_BASE}/api/reporting/docker-containers`,
+      },
+      {
+        source: '/api/docker-stats',
+        destination: `${REPORTING_BASE}/api/reporting/docker-stats`,
+      },
+      {
+        source: '/api/system-metrics',
+        destination: `${REPORTING_BASE}/api/reporting/system-metrics`,
       },
     ];
   },

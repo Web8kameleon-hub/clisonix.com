@@ -172,21 +172,18 @@ def _serialize_payload(request: Request, payload: Dict[str, Any]) -> Response:
     return JSONResponse(payload)
 
 
-@router.post("/export-excel")
-async def export_excel(request: ExportRequest, background_tasks: BackgroundTasks) -> Dict[str, Any]:
+@router.get("/export-excel")
+async def export_excel(background_tasks: BackgroundTasks) -> Response:
     """
     Eksporto metriken në Excel me grafike, pivot tabela, dhe SLA tracking
-    
-    Returns:
-        - file_path: Stegu i file-it të gjeneruar
-        - download_url: URL për download-imin
+    Kthen file-in direkt për download
     """
     try:
         # Generate Excel file
-        excel_exporter = UltraExcelExporter(request.title)
+        excel_exporter = UltraExcelExporter("Clisonix Cloud Metrics Report")
         
         # Fetch mock metrics (in real implementation, query VictoriaMetrics)
-        snapshots = _get_mock_metrics(hours=request.date_range_hours)
+        snapshots = _get_mock_metrics(hours=24)
         excel_exporter.add_metrics(snapshots)
         
         # Save file
@@ -196,17 +193,15 @@ async def export_excel(request: ExportRequest, background_tasks: BackgroundTasks
         
         excel_exporter.save(str(filepath))
         
-        file_size = filepath.stat().st_size
+        # Read file and return as download
+        with open(filepath, 'rb') as f:
+            content = f.read()
         
-        return {
-            "success": True,
-            "file_path": str(filepath),
-            "filename": filename,
-            "size_bytes": file_size,
-            "download_url": f"/api/reporting/download/{filename}",
-            "generated_at": datetime.now().isoformat(),
-            "message": f"✓ Excel report generated successfully: {filename}"
-        }
+        return Response(
+            content=content,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
         
     except Exception as e:
         logger.error(f"Excel export failed: {str(e)}")
@@ -216,21 +211,15 @@ async def export_excel(request: ExportRequest, background_tasks: BackgroundTasks
         )
 
 
-@router.post("/export-pptx")
-async def export_powerpoint(request: ExportRequest, background_tasks: BackgroundTasks) -> Dict[str, Any]:
+@router.get("/export-pptx")
+async def export_powerpoint(background_tasks: BackgroundTasks) -> Response:
     """
     Eksporto metriken në PowerPoint presentation
-    
-    Includes:
-    - Title slide
-    - Metrics summary
-    - SLA status
-    - Active alerts
-    - Trend analysis
+    Kthen file-in direkt për download
     """
     try:
         # Generate PowerPoint
-        ppt_gen = UltraPowerPointGenerator(request.title)
+        ppt_gen = UltraPowerPointGenerator("Clisonix Cloud Metrics Report")
         
         # Add slides
         ppt_gen.add_title_slide("Enterprise Metrics & SLA Tracking Report")
@@ -242,16 +231,13 @@ async def export_powerpoint(request: ExportRequest, background_tasks: Background
             "docs_per_day": "2,400"
         }
         ppt_gen.add_metrics_slide(metrics)
+        ppt_gen.add_sla_slide()
         
-        if request.include_sla:
-            ppt_gen.add_sla_slide()
-            
-        if request.include_alerts:
-            alerts = [
-                {"severity": "INFO", "message": "High request volume", "timestamp": "2 min ago"},
-                {"severity": "WARNING", "message": "Memory usage above 70%", "timestamp": "5 min ago"},
-            ]
-            ppt_gen.add_alerts_slide(alerts)
+        alerts = [
+            {"severity": "INFO", "message": "High request volume", "timestamp": "2 min ago"},
+            {"severity": "WARNING", "message": "Memory usage above 70%", "timestamp": "5 min ago"},
+        ]
+        ppt_gen.add_alerts_slide(alerts)
         
         # Save file
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -260,17 +246,15 @@ async def export_powerpoint(request: ExportRequest, background_tasks: Background
         
         ppt_gen.save(str(filepath))
         
-        file_size = filepath.stat().st_size
+        # Read file and return as download
+        with open(filepath, 'rb') as f:
+            content = f.read()
         
-        return {
-            "success": True,
-            "file_path": str(filepath),
-            "filename": filename,
-            "size_bytes": file_size,
-            "download_url": f"/api/reporting/download/{filename}",
-            "generated_at": datetime.now().isoformat(),
-            "message": f"✓ PowerPoint presentation generated: {filename}"
-        }
+        return Response(
+            content=content,
+            media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
         
     except Exception as e:
         logger.error(f"PowerPoint export failed: {str(e)}")

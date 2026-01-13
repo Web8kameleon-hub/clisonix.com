@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server'
 
-const DEFAULT_BASE = 'http://localhost:8000'
-const API_BASE = (process.env.NEXT_PUBLIC_API_BASE || DEFAULT_BASE).replace(/\/$/, '')
+// PRODUCTION: Hetzner server IP / clisonix.com
+// Port 8001 = reporting microservice
+const HETZNER_API = 'http://46.224.205.183:8001'
+const API_BASE = (process.env.NEXT_PUBLIC_API_BASE || process.env.API_INTERNAL_URL || HETZNER_API).replace(/\/$/, '')
 
 export async function GET() {
   try {

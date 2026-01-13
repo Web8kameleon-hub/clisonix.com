@@ -1984,7 +1984,7 @@ except Exception as e:
 
 # Import and include ULTRA REPORTING routes
 try:
-    from apps.api.reporting_api import router as reporting_router
+    from reporting_api import router as reporting_router
     app.include_router(reporting_router)
     logger.info("[OK] ULTRA Reporting module routes loaded - Excel/PowerPoint/Dashboard generation")
 except Exception as e:
