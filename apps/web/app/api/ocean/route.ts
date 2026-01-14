@@ -29,13 +29,18 @@ export async function POST(request: Request) {
       // Call backend hybrid API
       const backendUrl = `${BACKEND_API_URL}/api/ai/curiosity-ocean?question=${encodeURIComponent(question)}&mode=${mode}`
       
+      console.log('[Ocean API] Calling:', backendUrl)
+      
       const response = await fetch(backendUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       })
 
+      console.log('[Ocean API] Response status:', response.status)
+
       if (response.ok) {
         const data = await response.json()
+        console.log('[Ocean API] Got data:', JSON.stringify(data).substring(0, 200))
         
         // Transform backend response to clean client format
         return NextResponse.json({
@@ -44,9 +49,12 @@ export async function POST(request: Request) {
           next_questions: generateFollowUps(question, mode),
           mode: mode
         })
+      } else {
+        console.log('[Ocean API] Response not ok:', response.status)
       }
-    } catch {
+    } catch (err) {
       // Backend unavailable - fall through to local fallback
+      console.error('[Ocean API] Error:', err)
     }
 
     // Local fallback when backend unreachable
