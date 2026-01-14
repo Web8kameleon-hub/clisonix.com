@@ -869,6 +869,38 @@ app = FastAPI(
     debug=settings.debug,
 )
 
+# =============================================================================
+# UNIFIED STATUS LAYER - Solves 3 Critical Problems:
+# 1. Rate Limiting (60 req/min per IP)
+# 2. Intelligent Caching (10-30s for status endpoints)
+# 3. Global Error Handling (404/5xx tracking)
+# =============================================================================
+try:
+    from apps.api.unified_status_layer import (
+        unified_router,
+        CachingMiddleware,
+        RateLimitMiddleware,
+        NotFoundMiddleware,
+        status_cache,
+        error_handler
+    )
+    
+    # Add unified status router (/api/system/health)
+    app.include_router(unified_router)
+    
+    # Add middlewares (order matters - first added = last executed)
+    # So: Request -> RateLimit -> Caching -> NotFound -> Response
+    app.add_middleware(NotFoundMiddleware)
+    app.add_middleware(CachingMiddleware)
+    # Note: RateLimitMiddleware disabled - using existing simple_rate_limit below
+    # app.add_middleware(RateLimitMiddleware)
+    
+    logger.info("✅ Unified Status Layer initialized - Caching, Error Handling active")
+except ImportError as e:
+    logger.warning(f"⚠️ Unified Status Layer not available: {e}")
+    status_cache = None
+    error_handler = None
+
 # Prometheus metrics middleware - commented out, using direct endpoint instead
 # The /metrics endpoint is defined in the ASI section below
 # try:
@@ -1427,11 +1459,12 @@ RATE_BUCKET: Dict[str, list] = {}
 async def simple_rate_limit(request: Request, call_next):
     ip = request.headers.get("X-Forwarded-For", "").split(",")[0].strip() or \
          request.headers.get("X-Real-IP") or \
+         request.headers.get("CF-Connecting-IP") or \
          (request.client.host if request.client else "unknown")
 
     now = time.time()
     window = 60.0
-    limit = 120  # req/min (real counter)
+    limit = 60  # REDUCED from 120 to 60 req/min to stop excessive polling
 
     # purge old
     bucket = [t for t in RATE_BUCKET.get(ip, []) if now - t < window]
@@ -1443,8 +1476,8 @@ async def simple_rate_limit(request: Request, call_next):
             request,
             429,
             "RATE_LIMIT",
-            "Too many requests",
-            details={"retry_after": int(window)},
+            "Too many requests - limit is 60 per minute",
+            details={"retry_after": int(window), "current_count": len(bucket)},
         )
         response.headers["Retry-After"] = str(int(window))
         return response
