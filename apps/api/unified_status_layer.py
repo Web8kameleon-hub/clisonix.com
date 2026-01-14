@@ -407,15 +407,32 @@ async def unified_health_endpoint(request: Request):
 async def _check_all_services() -> List[Dict[str, Any]]:
     """Check all microservices health with timeout"""
     import httpx
+    import os
     
-    services = [
-        {"name": "api", "url": "http://127.0.0.1:8000/health", "critical": True},
-        {"name": "web", "url": "http://127.0.0.1:3000", "critical": True},
-        {"name": "core", "url": "http://127.0.0.1:8002/health", "critical": False},
-        {"name": "excel", "url": "http://127.0.0.1:8001/health", "critical": False},
-        {"name": "marketplace", "url": "http://127.0.0.1:8003/health", "critical": False},
-        {"name": "balancer", "url": "http://127.0.0.1:8091/health", "critical": False},
-    ]
+    # Detect if running in Docker (container names) or locally (localhost)
+    in_docker = os.path.exists('/.dockerenv') or os.environ.get('DOCKER_CONTAINER', False)
+    
+    if in_docker:
+        # Use Docker container names with INTERNAL ports
+        # Note: Internal ports differ from external mapped ports
+        services = [
+            {"name": "api", "url": "http://clisonix-api:8000/health", "critical": True},
+            {"name": "web", "url": "http://clisonix-web:3000", "critical": True},
+            {"name": "core", "url": "http://clisonix-core:8000/", "critical": False},  # Internal 8000
+            {"name": "excel", "url": "http://clisonix-excel:8002/", "critical": False},  # Internal 8002
+            {"name": "marketplace", "url": "http://clisonix-marketplace:8004/", "critical": False},  # Internal 8004
+            {"name": "balancer", "url": "http://clisonix-balancer:8091/", "critical": False},
+        ]
+    else:
+        # Use localhost with EXTERNAL ports (for local development)
+        services = [
+            {"name": "api", "url": "http://127.0.0.1:8000/health", "critical": True},
+            {"name": "web", "url": "http://127.0.0.1:3000", "critical": True},
+            {"name": "core", "url": "http://127.0.0.1:8002/", "critical": False},
+            {"name": "excel", "url": "http://127.0.0.1:8001/", "critical": False},
+            {"name": "marketplace", "url": "http://127.0.0.1:8003/", "critical": False},
+            {"name": "balancer", "url": "http://127.0.0.1:8091/", "critical": False},
+        ]
     
     results = []
     
