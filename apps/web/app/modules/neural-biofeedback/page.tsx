@@ -60,7 +60,7 @@ const ENDPOINTS: EndpointConfig[] = [
   { name: 'Beta Training', method: 'GET', path: '/api/biofeedback/beta', description: 'Beta wave training data' },
 ];
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://46.224.205.183:8000';
 
 export default function NeuralBiofeedbackPage() {
   const [selectedEndpoint, setSelectedEndpoint] = useState<EndpointConfig>(ENDPOINTS[0]);

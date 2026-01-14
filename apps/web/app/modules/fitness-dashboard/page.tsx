@@ -64,7 +64,7 @@ const ENDPOINTS: EndpointConfig[] = [
   { name: 'Achievements', method: 'GET', path: '/api/fitness/achievements', description: 'User achievements' },
 ];
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://46.224.205.183:8000';
 
 export default function FitnessDashboardPage() {
   const [selectedEndpoint, setSelectedEndpoint] = useState<EndpointConfig>(ENDPOINTS[0]);

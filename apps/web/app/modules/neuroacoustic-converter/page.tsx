@@ -62,7 +62,7 @@ const ENDPOINTS: EndpointConfig[] = [
   { name: 'Export Audio', method: 'POST', path: '/api/neuroacoustic/export', description: 'Export audio file' },
 ];
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://46.224.205.183:8000';
 
 export default function NeuroacousticConverterPage() {
   const [selectedEndpoint, setSelectedEndpoint] = useState<EndpointConfig>(ENDPOINTS[0]);

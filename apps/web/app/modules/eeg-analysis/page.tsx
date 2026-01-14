@@ -54,7 +54,7 @@ const ENDPOINTS: EndpointConfig[] = [
     { name: 'ALBI Health', method: 'GET', path: '/api/albi/health', description: 'ALBI service health status' },
 ];
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://46.224.205.183:8000';
 
 export default function EEGAnalysisPage() {
     const [selectedEndpoint, setSelectedEndpoint] = useState<EndpointConfig>(ENDPOINTS[0]);
