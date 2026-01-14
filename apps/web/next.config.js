@@ -15,6 +15,85 @@ const nextConfig = {
   transpilePackages: ['framer-motion'],
   staticPageGenerationTimeout: 600,
 
+  // ==========================================================================
+  // IMAGE OPTIMIZATION (85% size reduction with WebP/AVIF)
+  // ==========================================================================
+  images: {
+    // Enable modern formats
+    formats: ['image/avif', 'image/webp'],
+
+    // Allowed image domains
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'clisonix.com',
+      },
+      {
+        protocol: 'http',
+        hostname: '46.224.205.183',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.githubusercontent.com',
+      },
+    ],
+
+    // Responsive image sizes
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+
+    // Optimization quality (75 is good balance)
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days cache
+  },
+
+  // ==========================================================================
+  // COMPRESSION & PERFORMANCE
+  // ==========================================================================
+  compress: true,
+  poweredByHeader: false, // Security: hide X-Powered-By
+
+  // Output optimization
+  output: 'standalone', // For Docker deployment
+
+  // Experimental features for better performance
+  experimental: {
+    optimizeCss: true, // Minify CSS
+  },
+
+  // ==========================================================================
+  // SECURITY HEADERS
+  // ==========================================================================
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
+      },
+      // Cache static assets aggressively
+      {
+        source: '/static/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+    ];
+  },
+
   // CRITICAL: Proxy API requests to backend
   async rewrites() {
     return [
