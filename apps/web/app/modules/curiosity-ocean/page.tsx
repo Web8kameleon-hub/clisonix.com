@@ -31,7 +31,9 @@ interface OceanStatus {
   creativity_unleashed: number;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// Ocean API is a Next.js route handler, not backend API
+const OCEAN_API = '/api/ocean';
+const BACKEND_API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 const SUGGESTED_QUESTIONS = [
   "What is consciousness and can AI achieve it?",
@@ -62,19 +64,7 @@ export default function CuriosityOceanChat() {
 
   // Fetch ocean status on mount
   useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/api/ocean/status`);
-        if (res.ok) {
-          const data = await res.json();
-          setOceanStatus(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch ocean status:', error);
-      }
-    };
-    fetchStatus();
-
+    // Status endpoint not needed - Ocean is always ready
     // Add welcome message
     setMessages([{
       id: 'welcome',
@@ -102,7 +92,8 @@ export default function CuriosityOceanChat() {
     try {
       const startTime = performance.now();
       
-      const res = await fetch(`${API_BASE}/api/ocean`, {
+      // Use Next.js API route (not backend)
+      const res = await fetch(OCEAN_API, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -396,7 +387,7 @@ export default function CuriosityOceanChat() {
           </div>
           
           <p className="text-xs text-gray-500 mt-2 text-center">
-            Powered by ASI Trinity • Real API at {API_BASE}/api/ocean • No simulated responses
+            Powered by ASI Trinity • Real API at /api/ocean • No simulated responses
           </p>
         </div>
       </div>
