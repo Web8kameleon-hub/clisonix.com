@@ -11,7 +11,8 @@ import { NextResponse } from 'next/server'
  * No sensitive info exposed to client
  */
 
-const BACKEND_API_URL = process.env.BACKEND_API_URL || 'http://localhost:8000'
+// In Docker: use container name, outside Docker: use localhost
+const BACKEND_API_URL = process.env.BACKEND_API_URL || 'http://clisonix-api:8000'
 
 export async function POST(request: Request) {
   try {
