@@ -2,13 +2,11 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Compass, Send, Brain, Sparkles, Lightbulb, RefreshCw, ChevronRight, Loader2 } from 'lucide-react';
+import { Compass, Send, Sparkles, Lightbulb, RefreshCw, ChevronRight, Loader2 } from 'lucide-react';
 
 /**
  * CURIOSITY OCEAN - Interactive AI Chat
- * Real conversational interface powered by ASI Trinity
- * 
- * Uses /api/ocean endpoint for real AI responses
+ * Hybrid System: Internal metrics + External AI conversations
  */
 
 interface Message {
@@ -18,42 +16,25 @@ interface Message {
   timestamp: Date;
   rabbitHoles?: string[];
   nextQuestions?: string[];
-  processingTime?: number;
-  albaAnalysis?: { network_connections: number; patterns_found: number };
-  albiCreativity?: { imagination_score: number; art_potential: number };
-  jonaCoordination?: { infinite_potential: number; harmony_level: number };
 }
-
-interface OceanStatus {
-  status: string;
-  questions_explored: number;
-  knowledge_depth: number;
-  creativity_unleashed: number;
-}
-
-// Ocean API is a Next.js route handler, not backend API
-const OCEAN_API = '/api/ocean';
-const BACKEND_API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 const SUGGESTED_QUESTIONS = [
-  "What is consciousness and can AI achieve it?",
+  "What is consciousness?",
   "How does the brain process music?",
-  "What are neural oscillations?",
   "Explain quantum computing simply",
-  "How does memory work in the brain?",
+  "How does memory work?",
   "What is neuroplasticity?",
+  "How do neural networks learn?",
 ];
 
 export default function CuriosityOceanChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [oceanStatus, setOceanStatus] = useState<OceanStatus | null>(null);
   const [curiosityLevel, setCuriosityLevel] = useState<'curious' | 'wild' | 'chaos' | 'genius'>('curious');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-scroll to bottom
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -62,14 +43,11 @@ export default function CuriosityOceanChat() {
     scrollToBottom();
   }, [messages]);
 
-  // Fetch ocean status on mount
   useEffect(() => {
-    // Status endpoint not needed - Ocean is always ready
-    // Add welcome message
     setMessages([{
       id: 'welcome',
       type: 'ai',
-      content: "🌊 Welcome to Curiosity Ocean! I'm powered by the ASI Trinity (ALBA, ALBI, JONA). Ask me anything and let's explore the depths of knowledge together. What sparks your curiosity today?",
+      content: "🌊 Welcome to Curiosity Ocean! Ask me anything and let's explore the depths of knowledge together. What sparks your curiosity today?",
       timestamp: new Date(),
     }]);
   }, []);
@@ -90,22 +68,14 @@ export default function CuriosityOceanChat() {
     setIsLoading(true);
 
     try {
-      const startTime = performance.now();
-      
-      // Use Next.js API route (not backend)
-      const res = await fetch(OCEAN_API, {
+      const res = await fetch('/api/ocean', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           question: messageText,
           curiosity_level: curiosityLevel,
         }),
       });
-
-      const endTime = performance.now();
-      const processingTime = Math.round(endTime - startTime);
 
       if (res.ok) {
         const data = await res.json();
@@ -113,34 +83,27 @@ export default function CuriosityOceanChat() {
         const aiMessage: Message = {
           id: `ai-${Date.now()}`,
           type: 'ai',
-          content: data.ocean_response || data.response || "I'm pondering your question...",
+          content: data.ocean_response || "I'm pondering your question...",
           timestamp: new Date(),
           rabbitHoles: data.rabbit_holes,
           nextQuestions: data.next_questions,
-          processingTime,
-          albaAnalysis: data.alba_analysis,
-          albiCreativity: data.albi_creativity,
-          jonaCoordination: data.jona_coordination,
         };
 
         setMessages(prev => [...prev, aiMessage]);
       } else {
-        // Handle error response
-        const errorData = await res.json().catch(() => ({}));
         const errorMessage: Message = {
           id: `error-${Date.now()}`,
           type: 'ai',
-          content: `⚠️ ${errorData.detail || errorData.message || 'Failed to get response. The Ocean might be experiencing turbulence.'}`,
+          content: '🌊 The Ocean is experiencing turbulence. Please try again.',
           timestamp: new Date(),
-          processingTime,
         };
         setMessages(prev => [...prev, errorMessage]);
       }
-    } catch (error) {
+    } catch {
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         type: 'ai',
-        content: `🌊 Connection lost to the Ocean depths. Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        content: '🌊 Connection interrupted. Please try again.',
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -180,12 +143,11 @@ export default function CuriosityOceanChat() {
               <Compass className="w-8 h-8 text-cyan-400" />
               <div>
                 <h1 className="text-xl font-bold text-white">Curiosity Ocean</h1>
-                <p className="text-xs text-gray-400">Infinite Knowledge Engine • ASI Trinity Powered</p>
+                <p className="text-xs text-gray-400">Infinite Knowledge Engine</p>
               </div>
             </div>
             
             <div className="flex items-center gap-3">
-              {/* Curiosity Level Selector */}
               <select
                 value={curiosityLevel}
                 onChange={(e) => setCuriosityLevel(e.target.value as any)}
@@ -206,19 +168,6 @@ export default function CuriosityOceanChat() {
               </button>
             </div>
           </div>
-
-          {/* Status Bar */}
-          {oceanStatus && (
-            <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
-              <span className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                {oceanStatus.status}
-              </span>
-              <span>🔍 {oceanStatus.questions_explored} explored</span>
-              <span>📚 Depth: {oceanStatus.knowledge_depth}</span>
-              <span>✨ Creativity: {oceanStatus.creativity_unleashed}</span>
-            </div>
-          )}
         </div>
       </div>
 
@@ -241,20 +190,17 @@ export default function CuriosityOceanChat() {
                   <div className="flex items-center gap-2 mb-2 text-cyan-400">
                     <Sparkles className="w-4 h-4" />
                     <span className="text-xs font-medium">Curiosity Ocean</span>
-                    {message.processingTime && (
-                      <span className="text-xs text-gray-500">• {message.processingTime}ms</span>
-                    )}
                   </div>
                 )}
                 
                 <div className="whitespace-pre-wrap">{message.content}</div>
 
-                {/* Rabbit Holes */}
+                {/* Explore Further */}
                 {message.rabbitHoles && message.rabbitHoles.length > 0 && (
                   <div className="mt-4 pt-3 border-t border-white/10">
                     <p className="text-xs text-cyan-400 mb-2 flex items-center gap-1">
                       <Lightbulb className="w-3 h-3" />
-                      Rabbit Holes to Explore:
+                      Explore further:
                     </p>
                     <div className="space-y-1">
                       {message.rabbitHoles.map((hole, idx) => (
@@ -289,33 +235,6 @@ export default function CuriosityOceanChat() {
                   </div>
                 )}
 
-                {/* ASI Analysis */}
-                {(message.albaAnalysis || message.albiCreativity || message.jonaCoordination) && (
-                  <div className="mt-3 pt-3 border-t border-white/10 grid grid-cols-3 gap-2 text-xs">
-                    {message.albaAnalysis && (
-                      <div className="text-center">
-                        <Brain className="w-4 h-4 mx-auto text-blue-400 mb-1" />
-                        <p className="text-gray-500">ALBA</p>
-                        <p className="text-blue-400">{message.albaAnalysis.patterns_found} patterns</p>
-                      </div>
-                    )}
-                    {message.albiCreativity && (
-                      <div className="text-center">
-                        <Sparkles className="w-4 h-4 mx-auto text-purple-400 mb-1" />
-                        <p className="text-gray-500">ALBI</p>
-                        <p className="text-purple-400">{message.albiCreativity.imagination_score}% creative</p>
-                      </div>
-                    )}
-                    {message.jonaCoordination && (
-                      <div className="text-center">
-                        <Compass className="w-4 h-4 mx-auto text-cyan-400 mb-1" />
-                        <p className="text-gray-500">JONA</p>
-                        <p className="text-cyan-400">{message.jonaCoordination.harmony_level}% harmony</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
                 <div className="mt-2 text-xs text-gray-500">
                   {message.timestamp.toLocaleTimeString()}
                 </div>
@@ -329,7 +248,7 @@ export default function CuriosityOceanChat() {
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl rounded-bl-md p-4 border border-white/10">
                 <div className="flex items-center gap-2 text-cyan-400">
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-sm">Diving into the depths...</span>
+                  <span className="text-sm">Thinking...</span>
                 </div>
               </div>
             </div>
@@ -339,10 +258,10 @@ export default function CuriosityOceanChat() {
         </div>
       </div>
 
-      {/* Suggested Questions (when no messages except welcome) */}
+      {/* Suggested Questions */}
       {messages.length <= 1 && (
         <div className="max-w-4xl mx-auto px-4 pb-4">
-          <p className="text-sm text-gray-400 mb-3">💡 Suggested questions:</p>
+          <p className="text-sm text-gray-400 mb-3">💡 Try asking:</p>
           <div className="flex flex-wrap gap-2">
             {SUGGESTED_QUESTIONS.map((q, idx) => (
               <button
@@ -368,7 +287,7 @@ export default function CuriosityOceanChat() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask anything... Let curiosity guide you 🌊"
+                placeholder="Ask anything... 🌊"
                 className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 pr-12 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50"
                 disabled={isLoading}
               />
@@ -385,10 +304,6 @@ export default function CuriosityOceanChat() {
               </button>
             </div>
           </div>
-          
-          <p className="text-xs text-gray-500 mt-2 text-center">
-            Powered by ASI Trinity • Real API at /api/ocean • No simulated responses
-          </p>
         </div>
       </div>
     </div>
