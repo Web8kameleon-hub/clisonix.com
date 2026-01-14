@@ -69,7 +69,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          # Note: cache disabled - no package-lock.json in repo
 
       - name: Install Python dependencies
         if: matrix.language == 'python'
@@ -79,7 +79,15 @@ jobs:
       - name: Install Node dependencies
         if: matrix.language == 'javascript'
         run: |
-          npm ci 2>/dev/null || echo "⚠️  No Node dependencies found"
+          # Try npm ci first (requires package-lock.json), fallback to npm install
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          elif [ -f "package.json" ]; then
+            npm install --legacy-peer-deps
+          else
+            echo "⚠️  No Node package files found"
+          fi
+        continue-on-error: true
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
