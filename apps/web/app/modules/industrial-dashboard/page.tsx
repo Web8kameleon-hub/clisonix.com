@@ -48,11 +48,11 @@ export default function IndustrialDashboard() {
       try {
         // Fetch REAL ASI metrics from Prometheus
         const [statusRes, healthRes, albaRes, albiRes, jonaRes] = await Promise.allSettled([
-          fetch('/asi/status'),
-          fetch('/asi/health'),
-          fetch('/asi/alba/metrics'),
-          fetch('/asi/albi/metrics'),
-          fetch('/asi/jona/metrics')
+          fetch('/api/asi/status'),
+          fetch('/api/asi/health'),
+          fetch('/api/asi/alba/metrics'),
+          fetch('/api/asi/albi/metrics'),
+          fetch('/api/asi/jona/metrics')
         ]);
 
         // Process status

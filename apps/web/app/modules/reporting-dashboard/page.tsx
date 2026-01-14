@@ -347,6 +347,86 @@ export default function UltraReportingDashboard() {
                 ))}
               </div>
             </div>
+
+            {/* ASI Trinity Architecture */}
+            <div className="p-6 rounded-xl bg-gradient-to-br from-gray-800/70 to-gray-900/70 border border-cyan-500/30">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <span className="w-3 h-3 bg-cyan-500 rounded-full animate-pulse"></span>
+                ASI Trinity Architecture - Real Metrics
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* ALBA Network */}
+                <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-emerald-400 font-medium">📊 ALBA Network</span>
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                  </div>
+                  <p className="text-xs text-gray-400 mb-3">CPU usage, memory, network latency from actual system monitoring</p>
+                  <a 
+                    href="/api/asi/alba/metrics" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
+                  >
+                    → Real metrics endpoint
+                  </a>
+                </div>
+
+                {/* ALBI Neural */}
+                <div className="p-4 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-cyan-400 font-medium">🧠 ALBI Neural</span>
+                    <span className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></span>
+                  </div>
+                  <p className="text-xs text-gray-400 mb-3">Neural patterns, processing efficiency, goroutines from Prometheus</p>
+                  <a 
+                    href="/api/asi/albi/metrics" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
+                  >
+                    → Real metrics endpoint
+                  </a>
+                </div>
+
+                {/* JONA Coordination */}
+                <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-purple-400 font-medium">🛡️ JONA Coordination</span>
+                    <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
+                  </div>
+                  <p className="text-xs text-gray-400 mb-3">Request throughput, uptime, coordination efficiency from live system</p>
+                  <a 
+                    href="/api/asi/jona/metrics" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                  >
+                    → Real metrics endpoint
+                  </a>
+                </div>
+              </div>
+
+              {/* ASI Status Links */}
+              <div className="mt-4 pt-4 border-t border-gray-700/50 flex gap-4">
+                <a 
+                  href="/api/asi/status" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-gray-700/50 hover:bg-gray-600/50 text-cyan-400 text-sm rounded-lg transition-colors"
+                >
+                  View ASI Status
+                </a>
+                <a 
+                  href="/api/asi/health" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-gray-700/50 hover:bg-gray-600/50 text-green-400 text-sm rounded-lg transition-colors"
+                >
+                  View ASI Health
+                </a>
+              </div>
+            </div>
           </div>
         )}
 
