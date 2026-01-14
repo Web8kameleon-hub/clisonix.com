@@ -2090,6 +2090,7 @@ async def prometheus_metrics():
         media_type="text/plain; version=0.0.4; charset=utf-8"
     )
 
+@app.get("/api/asi/alba/metrics")
 @app.get("/asi/alba/metrics")
 async def alba_metrics():
     """ALBA Network - Real Prometheus metrics OR psutil (NO MOCK DATA)"""
@@ -2148,6 +2149,7 @@ async def alba_metrics():
         logger.error(f"ALBA metrics error: {e}")
         return {"error": str(e), "timestamp": utcnow()}
 
+@app.get("/api/asi/albi/metrics")
 @app.get("/asi/albi/metrics")
 async def albi_metrics():
     """ALBI Neural - Real metrics (Prometheus OR System psutil - NO MOCK DATA)"""
@@ -2208,6 +2210,7 @@ async def albi_metrics():
         logger.error(f"ALBI metrics error: {e}")
         return {"error": str(e), "timestamp": utcnow()}
 
+@app.get("/api/asi/jona/metrics")
 @app.get("/asi/jona/metrics")
 async def jona_metrics():
     """JONA Coordination - Real Prometheus metrics OR psutil (NO MOCK DATA)"""
@@ -2262,6 +2265,7 @@ async def jona_metrics():
         logger.error(f"JONA metrics error: {e}")
         return {"error": str(e), "timestamp": utcnow()}
 
+@app.get("/api/asi/status")
 @app.get("/asi/status")
 async def asi_status():
     """ASI Trinity architecture status - REAL data from Prometheus"""
@@ -2294,6 +2298,7 @@ async def asi_status():
             "data_source": "Fallback"
         }
 
+@app.get("/api/asi/health")
 @app.get("/asi/health")
 async def asi_health():
     """ASI system health check - REAL data from Prometheus"""
