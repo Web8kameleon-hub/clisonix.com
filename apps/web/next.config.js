@@ -61,7 +61,8 @@ const nextConfig = {
 
   // Experimental features for better performance
   experimental: {
-    optimizeCss: true, // Minify CSS
+    // optimizeCss disabled - requires critters module
+    // optimizeCss: true,
   },
 
   // ==========================================================================
