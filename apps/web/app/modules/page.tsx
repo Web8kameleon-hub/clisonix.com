@@ -42,10 +42,11 @@ export default function ModulesPage() {
   const [isExcelLoading, setIsExcelLoading] = useState(false)
 
   // Service URLs from environment or fallback
+  // Port mapping: api=8000, excel=8001, core=8002, marketplace=8003
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://46.224.205.183:8000';
-  const EXCEL_API = process.env.NEXT_PUBLIC_EXCEL_API_URL || 'http://46.224.205.183:8002';
-  const CORE_API = process.env.NEXT_PUBLIC_CORE_API_URL || 'http://46.224.205.183:8003';
-  const MARKETPLACE_API = process.env.NEXT_PUBLIC_MARKETPLACE_API_URL || 'http://46.224.205.183:8004';
+  const EXCEL_API = process.env.NEXT_PUBLIC_EXCEL_API_URL || 'http://46.224.205.183:8001';
+  const CORE_API = process.env.NEXT_PUBLIC_CORE_API_URL || 'http://46.224.205.183:8002';
+  const MARKETPLACE_API = process.env.NEXT_PUBLIC_MARKETPLACE_API_URL || 'http://46.224.205.183:8003';
 
   // Check all API statuses
   const checkAPIStatuses = async () => {
