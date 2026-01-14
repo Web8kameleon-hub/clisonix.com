@@ -1,297 +1,456 @@
-﻿/**
- * ALBI - EEG Analysis Module
- * Neural Frequency Laboratory Director - EEG Processing & Brain Signal Analysis
- */
+'use client';
 
-"use client"
+import { useState, useEffect, useCallback } from 'react';
+import { Activity, Brain, Waves, Radio, RefreshCw, Clock, CheckCircle, AlertCircle, Zap, Eye } from 'lucide-react';
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-
-interface EEGData {
-  timestamp: string
-  dominant_frequency: number
-  brain_state: string
-  neural_symphony_ready: boolean
-  signal_strength: number
-  frequencies: number[]
+// API Response Types
+interface EEGChannel {
+    name: string;
+    frequency: number;
+    amplitude: number;
+    quality: string;
 }
 
-interface AlbiStatus {
-  status: 'active' | 'processing' | 'learning' | 'offline'
-  neural_patterns_count: number
-  last_analysis: string
-  processing_queue: number
+interface BrainWave {
+    type: string;
+    range: string;
+    power: number;
+    dominant: boolean;
 }
+
+interface EEGAnalysisData {
+    session_id: string;
+    timestamp: string;
+    sampling_rate: number;
+    channels: EEGChannel[];
+    brain_waves: BrainWave[];
+    dominant_frequency: number;
+    brain_state: string;
+    signal_quality: number;
+    artifacts_detected: number;
+    analysis_duration_ms: number;
+}
+
+interface APIResponse {
+    success: boolean;
+    data: EEGAnalysisData | null;
+    error: string | null;
+    status: number;
+    responseTime: number;
+    timestamp: string;
+}
+
+interface EndpointConfig {
+    name: string;
+    method: string;
+    path: string;
+    description: string;
+}
+
+const ENDPOINTS: EndpointConfig[] = [
+    { name: 'EEG Analysis', method: 'GET', path: '/api/albi/eeg/analysis', description: 'Real-time EEG signal analysis' },
+    { name: 'Brain Waves', method: 'GET', path: '/api/albi/eeg/waves', description: 'Brain wave frequency bands' },
+    { name: 'Signal Quality', method: 'GET', path: '/api/albi/eeg/quality', description: 'Signal quality metrics' },
+    { name: 'ALBI Health', method: 'GET', path: '/api/albi/health', description: 'ALBI service health status' },
+];
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function EEGAnalysisPage() {
-  const [eegData, setEegData] = useState<EEGData | null>(null)
-  const [albiStatus, setAlbiStatus] = useState<AlbiStatus>({
-    status: 'offline',
-    neural_patterns_count: 0,
-    last_analysis: 'Never',
-    processing_queue: 0
-  })
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
+    const [selectedEndpoint, setSelectedEndpoint] = useState<EndpointConfig>(ENDPOINTS[0]);
+    const [response, setResponse] = useState<APIResponse | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [autoRefresh, setAutoRefresh] = useState(false);
+    const [requestHistory, setRequestHistory] = useState<APIResponse[]>([]);
 
-  useEffect(() => {
-    // Simulate ALBI status monitoring
-    const checkAlbiStatus = async () => {
-      try {
-        // Will connect to actual ALBI backend
-        setAlbiStatus({
-          status: 'active',
-          neural_patterns_count: 1247,
-          last_analysis: new Date().toLocaleTimeString(),
-          processing_queue: 3
-        })
-      } catch (error) {
-        console.error('ALBI status check failed:', error)
+    const executeRequest = useCallback(async (endpoint: EndpointConfig) => {
+        setIsLoading(true);
+        const startTime = performance.now();
+
+        try {
+        const res = await fetch(`${API_BASE}${endpoint.path}`, {
+            method: endpoint.method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            cache: 'no-store',
+        });
+
+        const endTime = performance.now();
+        const responseTime = Math.round(endTime - startTime);
+
+        let data = null;
+        let error = null;
+
+        try {
+            const jsonData = await res.json();
+            if (res.ok) {
+                data = jsonData;
+            } else {
+                error = jsonData.detail || jsonData.message || `HTTP ${res.status}`;
+            }
+      } catch {
+          error = 'Invalid JSON response';
       }
-    }
 
-    // Simulate EEG data stream
-    const streamEEGData = () => {
-      const mockData: EEGData = {
+        const apiResponse: APIResponse = {
+            success: res.ok,
+            data,
+            error,
+            status: res.status,
+            responseTime,
         timestamp: new Date().toISOString(),
-        dominant_frequency: Math.random() * 40 + 1, // 1-40 Hz
-        brain_state: getBrainState(Math.random() * 40 + 1),
-        neural_symphony_ready: Math.random() > 0.3,
-        signal_strength: Math.random() * 100,
-        frequencies: Array.from({ length: 10 }, () => Math.random() * 100)
-      }
-      setEegData(mockData)
+        };
+
+        setResponse(apiResponse);
+        setRequestHistory(prev => [apiResponse, ...prev].slice(0, 10));
+
+    } catch (err) {
+        const endTime = performance.now();
+        const apiResponse: APIResponse = {
+            success: false,
+            data: null,
+            error: err instanceof Error ? err.message : 'Network error',
+            status: 0,
+            responseTime: Math.round(endTime - startTime),
+            timestamp: new Date().toISOString(),
+        };
+        setResponse(apiResponse);
+        setRequestHistory(prev => [apiResponse, ...prev].slice(0, 10));
+    } finally {
+        setIsLoading(false);
     }
+  }, []);
 
-    checkAlbiStatus()
-    streamEEGData()
+    useEffect(() => {
+        executeRequest(selectedEndpoint);
+    }, []);
 
-    const statusInterval = setInterval(checkAlbiStatus, 5000)
-    const dataInterval = setInterval(streamEEGData, 1000)
+    useEffect(() => {
+        if (!autoRefresh) return;
+        const interval = setInterval(() => {
+            executeRequest(selectedEndpoint);
+        }, 2000);
+        return () => clearInterval(interval);
+    }, [autoRefresh, selectedEndpoint, executeRequest]);
 
-    return () => {
-      clearInterval(statusInterval)
-      clearInterval(dataInterval)
-    }
-  }, [])
+    const getStatusColor = (status: number) => {
+        if (status >= 200 && status < 300) return 'text-emerald-400';
+        if (status >= 400 && status < 500) return 'text-amber-400';
+        return 'text-red-400';
+    };
 
-  const getBrainState = (frequency: number): string => {
-    if (frequency < 4) return 'Deep Sleep (Delta)'
-    if (frequency < 8) return 'Light Sleep (Theta)'
-    if (frequency < 13) return 'Relaxed (Alpha)'
-    if (frequency < 30) return 'Focused (Beta)'
-    return 'High Activity (Gamma)'
-  }
+    const getStatusBadge = (status: number) => {
+        if (status >= 200 && status < 300) return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+        if (status >= 400 && status < 500) return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+        return 'bg-red-500/20 text-red-400 border-red-500/30';
+    };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'text-green-400'
-      case 'processing': return 'text-yellow-400'
-      case 'learning': return 'text-blue-400'
-      default: return 'text-red-400'
-    }
-  }
+    const getBrainStateColor = (state: string) => {
+        const colors: Record<string, string> = {
+            'relaxed': 'text-cyan-400',
+            'focused': 'text-emerald-400',
+            'alert': 'text-amber-400',
+            'drowsy': 'text-purple-400',
+            'meditative': 'text-indigo-400',
+        };
+        return colors[state?.toLowerCase()] || 'text-gray-400';
+    };
 
-  const startAnalysis = async () => {
-    setIsAnalyzing(true)
-    // Simulate analysis process
-    setTimeout(() => setIsAnalyzing(false), 3000)
-  }
+    const getWaveColor = (type: string) => {
+        const colors: Record<string, string> = {
+            'delta': 'bg-purple-500',
+            'theta': 'bg-indigo-500',
+            'alpha': 'bg-cyan-500',
+            'beta': 'bg-emerald-500',
+            'gamma': 'bg-amber-500',
+        };
+        return colors[type?.toLowerCase()] || 'bg-gray-500';
+    };
 
   return (
-    <div className="space-y-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 text-white p-6">
       {/* Header */}
-      <div className="flex items-center justify-between bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2 flex items-center">
-            🧠 ALBI - EEG Analysis
-          </h1>
-          <p className="text-gray-300">Neural Frequency Laboratory Director</p>
-          <div className="text-sm text-gray-400 mt-1">
-            Specialty: EEG Processing & Brain Signal Analysis
-          </div>
-        </div>
-        <div className="text-right">
-          <div className={`text-lg font-semibold ${getStatusColor(albiStatus.status)}`}>
-            {albiStatus.status.toUpperCase()}
-          </div>
-          <div className="text-sm text-gray-400">
-            {albiStatus.neural_patterns_count} neural patterns learned
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex space-x-2 text-sm">
-        <Link href="/modules" className="text-cyan-400 hover:text-cyan-300">
-          Modules
-        </Link>
-        <span className="text-gray-500">/</span>
-        <span className="text-white">EEG Analysis</span>
-      </div>
-
-      {/* Real-time EEG Data */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Live Brain State */}
-        <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-          <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
-            <span className="w-3 h-3 bg-green-500 rounded-full mr-3 animate-pulse"></span>
-            Live Brain State
-          </h3>
-          
-          {eegData && (
-            <div className="space-y-4">
-              <div className="bg-black/30 rounded-lg p-4">
-                <div className="text-2xl font-bold text-cyan-400 mb-2">
-                  {eegData.brain_state}
-                </div>
-                <div className="text-gray-300">
-                  Dominant Frequency: <span className="text-white font-mono">{eegData.dominant_frequency.toFixed(2)} Hz</span>
-                </div>
-                <div className="text-gray-300">
-                  Signal Strength: <span className="text-white font-mono">{eegData.signal_strength.toFixed(1)}%</span>
-                </div>
-              </div>
-
+          <div className="max-w-7xl mx-auto mb-8">
               <div className="flex items-center justify-between">
-                <span className="text-gray-400">Neural Symphony Ready:</span>
-                <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  eegData.neural_symphony_ready 
-                    ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                    : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                }`}>
-                  {eegData.neural_symphony_ready ? 'READY' : 'NOT READY'}
-                </div>
-              </div>
-
-              <div className="text-xs text-gray-500">
-                Last Update: {new Date(eegData.timestamp).toLocaleTimeString()}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Frequency Spectrum */}
-        <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-          <h3 className="text-xl font-semibold text-white mb-4">
-            Frequency Spectrum (FFT)
-          </h3>
-          
-          {eegData && (
-            <div className="space-y-3">
-              <div className="grid grid-cols-5 gap-2">
-                {eegData.frequencies.map((freq, idx) => (
-                  <div key={idx} className="text-center">
-                    <div 
-                      className="bg-gradient-to-t from-cyan-500 to-blue-500 rounded-sm mb-1"
-                      style={{ height: `${Math.max(freq, 5)}px` }}
-                    ></div>
-                    <div className="text-xs text-gray-400">{idx * 4}Hz</div>
+                  <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30">
+                          <Brain className="w-8 h-8 text-indigo-400" />
+                      </div>
+                      <div>
+                          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                              ALBI EEG Analysis
+                          </h1>
+                          <p className="text-slate-400 text-sm">Real-time brain wave analysis • Postman-Style API Interface</p>
+                      </div>
                   </div>
-                ))}
-              </div>
-              
-              <div className="text-xs text-gray-500 text-center mt-4">
-                Real-time FFT Analysis • 10 frequency bins • Updated every second
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ALBI Statistics */}
-      <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-        <h3 className="text-xl font-semibold text-white mb-4">
-          🤖 ALBI Performance Metrics
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-black/30 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-cyan-400">
-              {albiStatus.neural_patterns_count}
-            </div>
-            <div className="text-sm text-gray-400">Neural Patterns</div>
-          </div>
-          
-          <div className="bg-black/30 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-yellow-400">
-              {albiStatus.processing_queue}
-            </div>
-            <div className="text-sm text-gray-400">Processing Queue</div>
-          </div>
-          
-          <div className="bg-black/30 rounded-lg p-4 text-center">
-            <div className="text-lg font-bold text-green-400">
-              {albiStatus.last_analysis}
-            </div>
-            <div className="text-sm text-gray-400">Last Analysis</div>
-          </div>
-          
-          <div className="bg-black/30 rounded-lg p-4 text-center">
-            <div className={`text-lg font-bold ${getStatusColor(albiStatus.status)}`}>
-              {albiStatus.status.toUpperCase()}
-            </div>
-            <div className="text-sm text-gray-400">System Status</div>
+                  <div className="flex items-center gap-3">
+                      <button
+                          onClick={() => setAutoRefresh(!autoRefresh)}
+                          className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${autoRefresh
+                                  ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
+                                  : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-700/50'
+                              }`}
+                      >
+                          <RefreshCw className={`w-4 h-4 ${autoRefresh ? 'animate-spin' : ''}`} />
+                          {autoRefresh ? 'Live' : 'Auto'}
+                      </button>
           </div>
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-        <h3 className="text-xl font-semibold text-white mb-4">
-          Neural Analysis Controls
-        </h3>
-        
-        <div className="flex flex-wrap gap-4">
-          <button
-            onClick={startAnalysis}
-            disabled={isAnalyzing}
-            className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-              isAnalyzing
-                ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 cursor-not-allowed'
-                : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/30 hover:border-cyan-400/50'
-            }`}
-          >
-            {isAnalyzing ? '🔄 Analyzing...' : '🧠 Start Deep Analysis'}
-          </button>
-          
-          <button className="px-6 py-3 rounded-lg font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30 hover:bg-purple-500/30 hover:border-purple-400/50 transition-all duration-300">
-            📊 Export Neural Data
-          </button>
-          
-          <button className="px-6 py-3 rounded-lg font-medium bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 hover:border-green-400/50 transition-all duration-300">
-            🎵 Send to JONA (Audio Synthesis)
-          </button>
-        </div>
-      </div>
+          <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6">
+              {/* Sidebar - Endpoints */}
+              <div className="col-span-3 space-y-3">
+                  <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
+                      <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                          <Radio className="w-4 h-4 text-indigo-400" />
+                          API Endpoints
+                      </h3>
+                      <div className="space-y-2">
+                          {ENDPOINTS.map((endpoint) => (
+                              <button
+                                  key={endpoint.path}
+                                  onClick={() => {
+                                      setSelectedEndpoint(endpoint);
+                                      executeRequest(endpoint);
+                                  }}
+                                  className={`w-full text-left p-3 rounded-lg transition-all ${selectedEndpoint.path === endpoint.path
+                                          ? 'bg-indigo-500/20 border border-indigo-500/30'
+                                          : 'bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/50'
+                                      }`}
+                              >
+                                  <div className="flex items-center gap-2 mb-1">
+                                      <span className="px-2 py-0.5 text-xs font-mono rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                          {endpoint.method}
+                                      </span>
+                                      <span className="text-sm font-medium text-white">{endpoint.name}</span>
+                                  </div>
+                                  <p className="text-xs text-slate-500 font-mono truncate">{endpoint.path}</p>
+                              </button>
+                          ))}
+                      </div>
+                  </div>
 
-      {/* Recent Neural Patterns */}
-      <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-        <h3 className="text-xl font-semibold text-white mb-4">
-          Recently Detected Neural Patterns
-        </h3>
-        
-        <div className="space-y-3">
-          {[
-            { type: 'Alpha Wave Burst', frequency: '10.2 Hz', confidence: 94, time: '2 min ago' },
-            { type: 'Theta Pattern', frequency: '6.8 Hz', confidence: 87, time: '5 min ago' },
-            { type: 'Beta Spike', frequency: '18.5 Hz', confidence: 92, time: '7 min ago' },
-            { type: 'Gamma Activity', frequency: '35.1 Hz', confidence: 78, time: '12 min ago' },
-          ].map((pattern, idx) => (
-            <div key={idx} className="flex items-center justify-between bg-black/30 rounded-lg p-3">
-              <div>
-                <div className="text-white font-medium">{pattern.type}</div>
-                <div className="text-sm text-gray-400">{pattern.frequency} • {pattern.time}</div>
+                  {/* Request History */}
+                  <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
+                      <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-indigo-400" />
+                          Request History
+                      </h3>
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {requestHistory.length === 0 ? (
+                              <p className="text-xs text-slate-500 text-center py-4">No requests yet</p>
+                          ) : (
+                              requestHistory.map((req, idx) => (
+                                  <div key={idx} className="p-2 rounded-lg bg-slate-800/30 border border-slate-700/30">
+                                      <div className="flex items-center justify-between mb-1">
+                                          <span className={`text-xs font-mono ${getStatusColor(req.status)}`}>
+                                              {req.status || 'ERR'}
+                                          </span>
+                                          <span className="text-xs text-slate-500">{req.responseTime}ms</span>
+                                      </div>
+                                      <p className="text-xs text-slate-400">
+                                          {new Date(req.timestamp).toLocaleTimeString()}
+                                      </p>
+                                  </div>
+                              ))
+                          )}
+                      </div>
+                  </div>
               </div>
-              <div className="text-right">
-                <div className="text-cyan-400 font-mono">{pattern.confidence}%</div>
-                <div className="text-xs text-gray-500">Confidence</div>
+
+              {/* Main Content */}
+              <div className="col-span-9 space-y-6">
+                  {/* Request Bar */}
+                  <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
+                      <div className="flex items-center gap-3">
+                          <span className="px-3 py-1.5 text-sm font-mono rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                              {selectedEndpoint.method}
+                          </span>
+                          <div className="flex-1 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 font-mono text-sm text-slate-300">
+                              {API_BASE}{selectedEndpoint.path}
+                          </div>
+                          <button
+                              onClick={() => executeRequest(selectedEndpoint)}
+                              disabled={isLoading}
+                              className="px-6 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all disabled:opacity-50 flex items-center gap-2"
+                          >
+                              {isLoading ? (
+                                  <RefreshCw className="w-4 h-4 animate-spin" />
+                              ) : (
+                                  <Zap className="w-4 h-4" />
+                              )}
+                              Send
+                          </button>
+                      </div>
+                  </div>
+
+                  {/* Response Section */}
+                  {response && (
+                      <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 overflow-hidden">
+                          {/* Response Header */}
+                          <div className="px-4 py-3 border-b border-slate-800/50 flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                  <span className={`px-3 py-1 text-sm font-mono rounded-lg border ${getStatusBadge(response.status)}`}>
+                                      {response.status || 'Error'}
+                                  </span>
+                                  <span className="text-sm text-slate-400">
+                                      <Clock className="w-4 h-4 inline mr-1" />
+                                      {response.responseTime}ms
+                                  </span>
+                                  {response.success ? (
+                                      <span className="text-emerald-400 flex items-center gap-1 text-sm">
+                                          <CheckCircle className="w-4 h-4" /> Success
+                                      </span>
+                                  ) : (
+                                      <span className="text-red-400 flex items-center gap-1 text-sm">
+                                          <AlertCircle className="w-4 h-4" /> Failed
+                                      </span>
+                                  )}
+                </div>
+                              <span className="text-xs text-slate-500">
+                                  {new Date(response.timestamp).toLocaleString()}
+                              </span>
               </div>
-            </div>
-          ))}
-        </div>
+
+                          {/* Response Body */}
+                          <div className="p-4">
+                              {response.error ? (
+                                  <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400">
+                                      <p className="font-mono text-sm">{response.error}</p>
+                                  </div>
+                              ) : response.data ? (
+                                  <div className="space-y-6">
+                                      {/* EEG Visualization Cards */}
+                                      {response.data.brain_state && (
+                                          <div className="grid grid-cols-4 gap-4">
+                                              <div className="p-4 rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
+                                                  <div className="flex items-center gap-2 mb-2">
+                                                      <Brain className="w-5 h-5 text-indigo-400" />
+                                                      <span className="text-sm text-slate-400">Brain State</span>
+                                                      </div>
+                                                      <p className={`text-2xl font-bold capitalize ${getBrainStateColor(response.data.brain_state)}`}>
+                                                          {response.data.brain_state}
+                                                      </p>
+                                                  </div>
+                                                  <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20">
+                                                      <div className="flex items-center gap-2 mb-2">
+                                                          <Waves className="w-5 h-5 text-cyan-400" />
+                                                          <span className="text-sm text-slate-400">Dominant Freq</span>
+                                                      </div>
+                                                      <p className="text-2xl font-bold text-cyan-400">
+                                                          {response.data.dominant_frequency?.toFixed(1)} Hz
+                                                      </p>
+                                                  </div>
+                                                  <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20">
+                                                      <div className="flex items-center gap-2 mb-2">
+                                                          <Activity className="w-5 h-5 text-emerald-400" />
+                                                          <span className="text-sm text-slate-400">Signal Quality</span>
+                                                      </div>
+                                                      <p className="text-2xl font-bold text-emerald-400">
+                                                          {response.data.signal_quality}%
+                                                      </p>
+                                                  </div>
+                                                  <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+                                                      <div className="flex items-center gap-2 mb-2">
+                                                          <Eye className="w-5 h-5 text-amber-400" />
+                                                          <span className="text-sm text-slate-400">Artifacts</span>
+                                                      </div>
+                                                      <p className="text-2xl font-bold text-amber-400">
+                                                          {response.data.artifacts_detected}
+                                                      </p>
+                                                  </div>
+                                              </div>
+                                          )}
+
+                                          {/* Brain Waves Visualization */}
+                                          {response.data.brain_waves && response.data.brain_waves.length > 0 && (
+                                              <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
+                                                  <h4 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
+                                                      <Waves className="w-4 h-4 text-indigo-400" />
+                                                      Brain Wave Analysis
+                                                  </h4>
+                                                  <div className="space-y-3">
+                                                      {response.data.brain_waves.map((wave, idx) => (
+                                                          <div key={idx} className="flex items-center gap-4">
+                                                              <div className="w-20 text-sm font-medium text-slate-300 capitalize flex items-center gap-2">
+                                                                  {wave.dominant && <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>}
+                                                                  {wave.type}
+                                                              </div>
+                                  <div className="text-xs text-slate-500 w-24">{wave.range}</div>
+                                  <div className="flex-1 h-3 bg-slate-700/50 rounded-full overflow-hidden">
+                                      <div
+                                          className={`h-full ${getWaveColor(wave.type)} transition-all duration-500`}
+                                          style={{ width: `${wave.power}%` }}
+                                      />
+                                  </div>
+                                  <div className="w-16 text-right text-sm font-mono text-slate-400">
+                                      {wave.power.toFixed(1)}%
+                                  </div>
+                              </div>
+                          ))}
+                                                  </div>
+                                              </div>
+                                          )}
+
+                                          {/* Channels Grid */}
+                                          {response.data.channels && response.data.channels.length > 0 && (
+                                              <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
+                                                  <h4 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
+                                                      <Radio className="w-4 h-4 text-indigo-400" />
+                                                      EEG Channels ({response.data.channels.length})
+                                                  </h4>
+                                                  <div className="grid grid-cols-4 gap-3">
+                                                      {response.data.channels.map((channel, idx) => (
+                                                          <div key={idx} className="p-3 rounded-lg bg-slate-900/50 border border-slate-700/30">
+                                                              <div className="flex items-center justify-between mb-2">
+                                                                  <span className="font-mono text-sm text-white">{channel.name}</span>
+                                                                  <span className={`text-xs px-2 py-0.5 rounded ${channel.quality === 'good' ? 'bg-emerald-500/20 text-emerald-400' :
+                                                                          channel.quality === 'fair' ? 'bg-amber-500/20 text-amber-400' :
+                                                                              'bg-red-500/20 text-red-400'
+                                                                      }`}>
+                                                                      {channel.quality}
+                                                                  </span>
+                                                              </div>
+                                                              <div className="text-xs text-slate-400">
+                                                                  <span className="text-cyan-400">{channel.frequency.toFixed(1)} Hz</span>
+                                                                  <span className="mx-2">•</span>
+                                                                  <span>{channel.amplitude.toFixed(1)} µV</span>
+                                                              </div>
+                              </div>
+                          ))}
+                                                  </div>
+                                              </div>
+                                          )}
+
+                                          {/* Raw JSON Response */}
+                                          <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
+                                              <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                                                  <Eye className="w-4 h-4 text-indigo-400" />
+                                                  Raw JSON Response
+                                              </h4>
+                                              <pre className="p-4 bg-slate-950/50 rounded-lg overflow-x-auto text-xs font-mono text-slate-300 max-h-96 overflow-y-auto">
+                                                  {JSON.stringify(response.data, null, 2)}
+                                              </pre>
+                                          </div>
+                                      </div>
+                              ) : (
+                                  <p className="text-slate-500 text-center py-8">No data received</p>
+                              )}
+                          </div>
+                      </div>
+                  )}
+              </div>
+          </div>
+
+          {/* Footer */}
+          <div className="max-w-7xl mx-auto mt-8 text-center">
+              <p className="text-xs text-slate-600">
+                  ALBI EEG Analysis Module • Real API Data • No Mock Values
+              </p>
       </div>
     </div>
-  )
+  );
 }
-

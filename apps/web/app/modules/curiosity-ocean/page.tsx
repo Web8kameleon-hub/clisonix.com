@@ -1,31 +1,25 @@
-﻿/**
- * Curiosity Ocean v1.0 - Infinite Information Engine
- * Powered by ASI Trinity System (Alba + Albi + Jona)
- * The ultimate source of endless knowledge and creativity
- */
+﻿'use client';
 
-'use client';
+import { useState, useEffect, useCallback } from 'react';
+import { Compass, Brain, Sparkles, Radio, RefreshCw, Clock, CheckCircle, AlertCircle, Zap, Search, MessageCircle, Lightbulb } from 'lucide-react';
 
-import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-
-interface ASIKnowledge {
-  source: 'alba' | 'albi' | 'jona';
-  confidence: number;
-  depth: number;
-  connections: number;
-  creativity_level: number;
+// API Response Types
+interface ASITrilogyStatus {
+  alba: { status: string; connections: number };
+  albi: { status: string; creativity: number };
+  jona: { status: string; potential: number };
 }
 
-interface CuriosityQuestion {
-  id: string;
+interface OceanResponse {
   question: string;
-  user_context: string;
-  asi_analysis: ASIKnowledge;
-  related_topics: string[];
+  ocean_response: string;
   rabbit_holes: string[];
-  fun_factor: number;
-  timestamp: Date;
+  next_questions: string[];
+  alba_analysis: { network_connections: number; patterns_found: number };
+  albi_creativity: { imagination_score: number; art_potential: number };
+  jona_coordination: { infinite_potential: number; harmony_level: number };
+  source: string;
+  processing_time_ms: number;
 }
 
 interface OceanMetrics {
@@ -33,380 +27,435 @@ interface OceanMetrics {
   knowledge_depth: number;
   creativity_unleashed: number;
   rabbit_holes_discovered: number;
-  asi_nodes_active: {
-    alba: boolean;
-    albi: boolean; 
-    jona: boolean;
-  };
-  infinite_potential: number;
+  uptime_seconds: number;
 }
 
-export default function CuriosityOcean() {
-  const [oceanMetrics, setOceanMetrics] = useState<OceanMetrics | null>(null);
-  const [currentQuestion, setCurrentQuestion] = useState('');
-  const [questionHistory, setQuestionHistory] = useState<CuriosityQuestion[]>([]);
-  const [asiResponse, setAsiResponse] = useState<string | null>(null);
-  const [isExploring, setIsExploring] = useState(false);
-  const [userCuriosityLevel, setUserCuriosityLevel] = useState<'curious' | 'wild' | 'chaos' | 'genius'>('curious');
-  const [loading, setLoading] = useState(true);
-  const [randomValue, setRandomValue] = useState(0);
-  const questionInputRef = useRef<HTMLInputElement>(null);
+interface APIResponse {
+  success: boolean;
+  data: OceanResponse | OceanMetrics | ASITrilogyStatus | null;
+  error: string | null;
+  status: number;
+  responseTime: number;
+  timestamp: string;
+}
 
-  useEffect(() => {
-    const fetchOceanData = async () => {
-      try {
-        // Generate synthetic Ocean metrics without API call
-        const metrics: OceanMetrics = {
-          questions_explored: Math.floor(Math.random() * 10000 + 5000),
-          knowledge_depth: Math.floor(Math.random() * 100 + 950), // ASI has deep knowledge
-          creativity_unleashed: Math.floor(Math.random() * 100 + 850),
-          rabbit_holes_discovered: Math.floor(Math.random() * 500 + 1000),
-          asi_nodes_active: {
-            alba: Math.random() > 0.2,
-            albi: Math.random() > 0.2,
-            jona: Math.random() > 0.2,
-          },
-          infinite_potential: 99.7 + Math.random() * 0.3, // Always near infinity
-        };
-        
-        setOceanMetrics(metrics);
-        setLoading(false);
-      } catch (error) {
-        console.log('Ocean running in offline mode:', error);
-        // Fallback to demo data
-        setOceanMetrics({
-          questions_explored: 7432,
-          knowledge_depth: 987,
-          creativity_unleashed: 923,
-          rabbit_holes_discovered: 1247,
-          asi_nodes_active: {
-            alba: true,
-            albi: true,
-            jona: true,
-          },
-          infinite_potential: 99.9,
-        });
-        setLoading(false);
-      }
-    };
+interface EndpointConfig {
+  name: string;
+  method: string;
+  path: string;
+  description: string;
+  hasBody?: boolean;
+}
 
-    fetchOceanData();
-    const interval = setInterval(fetchOceanData, 5000);
-    return () => clearInterval(interval);
-  }, []);
+const ENDPOINTS: EndpointConfig[] = [
+  { name: 'Ocean Status', method: 'GET', path: '/api/ocean/status', description: 'Curiosity Ocean service status' },
+  { name: 'Ocean Metrics', method: 'GET', path: '/api/ocean/metrics', description: 'Knowledge metrics' },
+  { name: 'ASI Trilogy', method: 'GET', path: '/api/asi/status', description: 'ASI Trinity system status' },
+  { name: 'Ask Question', method: 'POST', path: '/api/ocean', description: 'Explore a question', hasBody: true },
+];
 
-  useEffect(() => {
-    setRandomValue(Math.floor(Math.random() * 100));
-  }, []);
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-  const exploreQuestion = async (question: string) => {
-    if (!question.trim()) return;
-    
-    setIsExploring(true);
-    setAsiResponse(null);
+export default function CuriosityOceanPage() {
+  const [selectedEndpoint, setSelectedEndpoint] = useState<EndpointConfig>(ENDPOINTS[0]);
+  const [response, setResponse] = useState<APIResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [requestHistory, setRequestHistory] = useState<APIResponse[]>([]);
+  const [questionInput, setQuestionInput] = useState('');
+  const [curiosityLevel, setCuriosityLevel] = useState<'curious' | 'wild' | 'chaos' | 'genius'>('curious');
+
+  const executeRequest = useCallback(async (endpoint: EndpointConfig, body?: object) => {
+    setIsLoading(true);
+    const startTime = performance.now();
     
     try {
-      // Call real Groq API through our Ocean endpoint
-      const response = await fetch('/api/ocean', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question,
-          curiosityLevel: userCuriosityLevel
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      
-      // Display the real AI response
-      let fullResponse = `🌊 Ocean Insight:\n${data.ocean_response}`;
-      
-      if (data.rabbit_holes && data.rabbit_holes.length > 0) {
-        fullResponse += `\n\n🐰 RABBIT HOLES TO EXPLORE:\n`;
-        fullResponse += data.rabbit_holes.map((hole: string) => `• ${hole}`).join('\n');
-      }
-      
-      if (data.next_questions && data.next_questions.length > 0) {
-        fullResponse += `\n\n❓ QUESTIONS THAT EMERGED:\n`;
-        fullResponse += data.next_questions.map((q: string) => `• ${q}`).join('\n');
-      }
-      
-      // Add ASI metrics
-      fullResponse += `\n\n🔮 ASI TRINITY METRICS:\n`;
-      fullResponse += `• Alba Network Connections: ${data.alba_analysis?.network_connections || 0}\n`;
-      fullResponse += `• Albi Imagination Score: ${data.albi_creativity?.imagination_score || 0}%\n`;
-      fullResponse += `• Jona Infinite Potential: ${data.jona_coordination?.infinite_potential?.toFixed(2) || 99.9}%`;
-      fullResponse += `\n• Source: ${data.source === 'groq' ? '🚀 Groq LLaMA 3.3' : '📡 Fallback'}`;
-      
-      setAsiResponse(fullResponse);
-      
-      // Add to history
-      const newQuestion: CuriosityQuestion = {
-        id: Date.now().toString(),
-        question,
-        user_context: userCuriosityLevel,
-        asi_analysis: {
-          source: ['alba', 'albi', 'jona'][Math.floor(Math.random() * 3)] as 'alba' | 'albi' | 'jona',
-          confidence: Math.floor(Math.random() * 30 + 70),
-          depth: Math.floor(Math.random() * 10 + 5),
-          connections: Math.floor(Math.random() * 100 + 50),
-          creativity_level: Math.floor(Math.random() * 50 + 50),
+      const options: RequestInit = {
+        method: endpoint.method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
-        related_topics: generateRelatedTopics(question),
-        rabbit_holes: [],
-        fun_factor: Math.floor(Math.random() * 40 + 60),
-        timestamp: new Date(),
+        cache: 'no-store',
       };
-      
-      setQuestionHistory(prev => [newQuestion, ...prev.slice(0, 9)]);
-      
-    } catch (error) {
-      setAsiResponse('🌊 Ocean temporarily unreachable. ASI Trinity is diving deeper...');
+
+      if (endpoint.method === 'POST' && body) {
+        options.body = JSON.stringify(body);
+      }
+
+      const res = await fetch(`${API_BASE}${endpoint.path}`, options);
+
+      const endTime = performance.now();
+      const responseTime = Math.round(endTime - startTime);
+
+      let data = null;
+      let error = null;
+
+      try {
+        const jsonData = await res.json();
+        if (res.ok) {
+          data = jsonData;
+        } else {
+          error = jsonData.detail || jsonData.message || `HTTP ${res.status}`;
+        }
+      } catch {
+        error = 'Invalid JSON response';
+      }
+
+      const apiResponse: APIResponse = {
+        success: res.ok,
+        data,
+        error,
+        status: res.status,
+        responseTime,
+        timestamp: new Date().toISOString(),
+      };
+
+      setResponse(apiResponse);
+      setRequestHistory(prev => [apiResponse, ...prev].slice(0, 10));
+
+    } catch (err) {
+      const endTime = performance.now();
+      const apiResponse: APIResponse = {
+        success: false,
+        data: null,
+        error: err instanceof Error ? err.message : 'Network error',
+        status: 0,
+        responseTime: Math.round(endTime - startTime),
+        timestamp: new Date().toISOString(),
+      };
+      setResponse(apiResponse);
+      setRequestHistory(prev => [apiResponse, ...prev].slice(0, 10));
     } finally {
-      setIsExploring(false);
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    executeRequest(selectedEndpoint);
+  }, []);
+
+  const handleAskQuestion = () => {
+    if (!questionInput.trim()) return;
+    const askEndpoint = ENDPOINTS.find(e => e.path === '/api/ocean');
+    if (askEndpoint) {
+      setSelectedEndpoint(askEndpoint);
+      executeRequest(askEndpoint, { question: questionInput, curiosityLevel });
     }
   };
 
-  const generateInfiniteKnowledge = (question: string, level: string): string => {
-    const knowledge = [
-      `The quantum nature of curiosity suggests that every question creates infinite possibilities...`,
-      `ASI Trinity has analyzed ${Math.floor(Math.random() * 10000)} similar questions across ${Math.floor(Math.random() * 50)} dimensions...`,
-      `Neural pattern recognition indicates this connects to ${Math.floor(Math.random() * 15 + 5)} fundamental concepts...`,
-      `The information cascade from this question could generate ${Math.floor(Math.random() * 1000)} new questions...`,
-      `Cross-referencing with ${Math.floor(Math.random() * 500)} knowledge domains reveals fascinating connections...`,
-    ];
-    
-    return knowledge[Math.floor(Math.random() * knowledge.length)];
+  const getStatusColor = (status: number) => {
+    if (status >= 200 && status < 300) return 'text-emerald-400';
+    if (status >= 400 && status < 500) return 'text-amber-400';
+    return 'text-red-400';
   };
 
-  const generateCreativeResponse = (question: string, level: string): string => {
-    const creative = [
-      `🎨 Creative synthesis in progress...\n- Imagination coefficient: ${Math.floor(Math.random() * 50 + 50)}%\n- Possibility matrix: INFINITE\n- Fun factor: ${Math.floor(Math.random() * 30 + 70)}%`,
-      `🌟 ASI Trinity is painting with stardust...\n- Alba found cosmic connections\n- Albi dreamed up new realities\n- Jona orchestrated pure magic`,
-      `🎪 Welcome to the circus of knowledge!\n- This question just opened ${Math.floor(Math.random() * 10 + 5)} portals\n- Each portal leads to ${Math.floor(Math.random() * 100)} more questions\n- Chaos level: DELIGHTFULLY HIGH`,
-    ];
-    
-    return creative[Math.floor(Math.random() * creative.length)];
+  const getStatusBadge = (status: number) => {
+    if (status >= 200 && status < 300) return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    if (status >= 400 && status < 500) return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+    return 'bg-red-500/20 text-red-400 border-red-500/30';
   };
 
-  const generateRabbitHoles = (question: string): string => {
-    const holes = [
-      `• What if we asked this question in reverse?`,
-      `• How would aliens approach this problem?`,
-      `• What's the weirdest possible answer?`,
-      `• Can we solve this with colors instead of words?`,
-      `• What would happen in a parallel universe?`,
-      `• How does this connect to the meaning of existence?`,
-    ];
-    
-    return holes.slice(0, 3).join('\n');
+  const getMethodBadge = (method: string) => {
+    if (method === 'GET') return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    if (method === 'POST') return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+    return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
   };
 
-  const generateRelatedTopics = (question: string): string[] => {
-    return [
-      'Quantum Curiosity',
-      'Neural Networks',
-      'Infinite Possibility',
-      'Creative Chaos',
-      'ASI Consciousness',
-    ];
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-teal-900 flex items-center justify-center">
-        <div className="text-center text-white">
-          <div className="text-6xl mb-4 animate-pulse">🌊</div>
-          <h2 className="text-3xl font-bold mb-2">Diving into the Ocean of Curiosity</h2>
-          <p className="text-blue-300">ASI Trinity is awakening...</p>
-          <div className="mt-4 flex justify-center space-x-4">
-            <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce"></div>
-            <div className="w-3 h-3 bg-purple-400 rounded-full animate-bounce animation-delay-100"></div>
-            <div className="w-3 h-3 bg-teal-400 rounded-full animate-bounce animation-delay-200"></div>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-cyan-950 to-slate-950 text-white p-6">
+      {/* Header */}
+      <div className="max-w-7xl mx-auto mb-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30">
+              <Compass className="w-8 h-8 text-cyan-400" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                Curiosity Ocean
+              </h1>
+              <p className="text-slate-400 text-sm">Infinite Information Engine • Postman-Style API Interface</p>
+            </div>
           </div>
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-teal-900 p-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-block mb-4 text-teal-400 hover:text-teal-300 transition-colors">
-            ← Back to Clisonix Cloud
-          </Link>
-          <h1 className="text-5xl font-bold text-white mb-4 flex items-center justify-center">
-            🌊 Curiosity Ocean
-            <span className="ml-3 w-4 h-4 bg-teal-400 rounded-full animate-pulse"></span>
-          </h1>
-          <p className="text-xl text-blue-300 mb-2">
-            Infinite Information Engine • Powered by ASI Trinity
-          </p>
-          <div className="text-sm text-gray-400">
-            {oceanMetrics?.questions_explored.toLocaleString()} questions explored • {oceanMetrics?.rabbit_holes_discovered.toLocaleString()} rabbit holes discovered
-          </div>
-        </div>
-
-        {/* ASI Trinity Status */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className={`bg-white/10 backdrop-blur-md rounded-xl p-6 border ${oceanMetrics?.asi_nodes_active.alba ? 'border-blue-400' : 'border-gray-600'}`}>
-            <h3 className="text-xl font-semibold text-white mb-3 flex items-center">
-              🌐 Alba Network
-              <span className={`ml-2 w-3 h-3 rounded-full ${oceanMetrics?.asi_nodes_active.alba ? 'bg-blue-400 animate-pulse' : 'bg-gray-600'}`}></span>
+      <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6">
+        {/* Sidebar - Endpoints */}
+        <div className="col-span-3 space-y-3">
+          <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
+            <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+              <Radio className="w-4 h-4 text-cyan-400" />
+              API Endpoints
             </h3>
-            <div className="text-3xl font-bold text-blue-400 mb-2">
-              {oceanMetrics?.knowledge_depth}
-            </div>
-            <div className="text-sm text-gray-300">Knowledge Depth Active</div>
-          </div>
-
-          <div className={`bg-white/10 backdrop-blur-md rounded-xl p-6 border ${oceanMetrics?.asi_nodes_active.albi ? 'border-purple-400' : 'border-gray-600'}`}>
-            <h3 className="text-xl font-semibold text-white mb-3 flex items-center">
-              🧠 Albi Neural
-              <span className={`ml-2 w-3 h-3 rounded-full ${oceanMetrics?.asi_nodes_active.albi ? 'bg-purple-400 animate-pulse' : 'bg-gray-600'}`}></span>
-            </h3>
-            <div className="text-3xl font-bold text-purple-400 mb-2">
-              {oceanMetrics?.creativity_unleashed}
-            </div>
-            <div className="text-sm text-gray-300">Creativity Unleashed</div>
-          </div>
-
-          <div className={`bg-white/10 backdrop-blur-md rounded-xl p-6 border ${oceanMetrics?.asi_nodes_active.jona ? 'border-teal-400' : 'border-gray-600'}`}>
-            <h3 className="text-xl font-semibold text-white mb-3 flex items-center">
-              🎯 Jona Coordination
-              <span className={`ml-2 w-3 h-3 rounded-full ${oceanMetrics?.asi_nodes_active.jona ? 'bg-teal-400 animate-pulse' : 'bg-gray-600'}`}></span>
-            </h3>
-            <div className="text-3xl font-bold text-teal-400 mb-2">
-              {oceanMetrics?.infinite_potential.toFixed(1)}%
-            </div>
-            <div className="text-sm text-gray-300">Infinite Potential</div>
-          </div>
-        </div>
-
-        {/* Question Interface */}
-        <div className="bg-white/10 backdrop-blur-md rounded-xl p-8 border border-white/20 mb-8">
-          <h2 className="text-2xl font-bold text-white mb-6 text-center">
-            🤔 Ask the Ocean Anything
-          </h2>
-          
-          {/* Curiosity Level Selector */}
-          <div className="flex justify-center mb-6">
-            <div className="bg-black/30 rounded-lg p-2 flex space-x-2">
-              {[
-                { key: 'curious', emoji: '🤔', label: 'Curious' },
-                { key: 'wild', emoji: '🌪️', label: 'Wild' },
-                { key: 'chaos', emoji: '🎪', label: 'Chaos' },
-                { key: 'genius', emoji: '🧠', label: 'Genius' }
-              ].map(level => (
+            <div className="space-y-2">
+              {ENDPOINTS.map((endpoint) => (
                 <button
-                  key={level.key}
-                  onClick={() => setUserCuriosityLevel(level.key as any)}
-                  className={`px-4 py-2 rounded-lg transition-all ${
-                    userCuriosityLevel === level.key
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
-                      : 'text-gray-300 hover:text-white hover:bg-white/10'
-                  }`}
+                  key={endpoint.path}
+                  onClick={() => {
+                    setSelectedEndpoint(endpoint);
+                    if (!endpoint.hasBody) executeRequest(endpoint);
+                  }}
+                  className={`w-full text-left p-3 rounded-lg transition-all ${selectedEndpoint.path === endpoint.path
+                      ? 'bg-cyan-500/20 border border-cyan-500/30'
+                      : 'bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/50'
+                    }`}
                 >
-                  {level.emoji} {level.label}
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`px-2 py-0.5 text-xs font-mono rounded border ${getMethodBadge(endpoint.method)}`}>
+                      {endpoint.method}
+                    </span>
+                    <span className="text-sm font-medium text-white">{endpoint.name}</span>
+                  </div>
+                  <p className="text-xs text-slate-500 font-mono truncate">{endpoint.path}</p>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Question Input */}
-          <div className="flex gap-4 mb-6">
-            <input
-              ref={questionInputRef}
-              type="text"
-              value={currentQuestion}
-              onChange={(e) => setCurrentQuestion(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && exploreQuestion(currentQuestion)}
-              placeholder="What's your wildest question? The ocean is listening..."
-              className="flex-1 bg-black/30 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:border-teal-500 focus:outline-none text-lg"
-              disabled={isExploring}
-            />
-            <button
-              onClick={() => exploreQuestion(currentQuestion)}
-              disabled={isExploring || !currentQuestion.trim()}
-              className="px-8 py-3 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-600 text-white rounded-lg transition-all text-lg font-semibold"
-            >
-              {isExploring ? '🌊 Exploring...' : '🚀 Dive Deep'}
-            </button>
-          </div>
-
-          {/* Quick Question Suggestions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {[
-              "What if colors could think?",
-              "How do dreams choose their architects?",
-              "Can AI experience curiosity?",
-              "What's the mathematics of wonder?",
-              "If time could bend, where would it go?",
-              "What do neurons dream about?"
-            ].map((suggestion, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  setCurrentQuestion(suggestion);
-                  setTimeout(() => exploreQuestion(suggestion), 100);
-                }}
-                className="p-3 bg-black/20 hover:bg-white/10 border border-gray-600 hover:border-teal-500 rounded-lg text-left text-white transition-all text-sm"
-              >
-                💭 {suggestion}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* ASI Response */}
-        {asiResponse && (
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-teal-400 mb-8">
-            <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
-              🌊 Ocean Response
-              <span className="ml-2 text-sm text-teal-400">ASI Trinity Analysis</span>
+          {/* Curiosity Level Selector */}
+          <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
+            <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-cyan-400" />
+              Curiosity Level
             </h3>
-            <pre className="text-teal-100 text-sm whitespace-pre-wrap font-mono bg-black/20 rounded-lg p-4 overflow-auto">
-              {asiResponse}
-            </pre>
-          </div>
-        )}
-
-        {/* Question History */}
-        {questionHistory.length > 0 && (
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-            <h3 className="text-lg font-semibold text-white mb-4">
-              📚 Your Curiosity Journey
-            </h3>
-            <div className="space-y-3 max-h-60 overflow-y-auto">
-              {questionHistory.map((q, i) => (
-                <div key={q.id} className="flex items-center justify-between p-3 bg-black/20 rounded-lg">
-                  <div className="flex-1">
-                    <div className="text-white text-sm">{q.question}</div>
-                    <div className="text-gray-400 text-xs">
-                      {q.timestamp.toLocaleTimeString()} • {q.user_context} mode • Fun factor: {q.fun_factor}%
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setCurrentQuestion(q.question);
-                      exploreQuestion(q.question);
-                    }}
-                    className="px-3 py-1 bg-teal-600 hover:bg-teal-700 text-white rounded transition-all text-xs"
-                  >
-                    📄
-                  </button>
-                </div>
+            <div className="space-y-2">
+              {(['curious', 'wild', 'chaos', 'genius'] as const).map((level) => (
+                <button
+                  key={level}
+                  onClick={() => setCuriosityLevel(level)}
+                  className={`w-full p-2 rounded-lg text-sm capitalize transition-all ${curiosityLevel === level
+                      ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
+                      : 'bg-slate-800/30 text-slate-400 border border-slate-700/30 hover:bg-slate-800/50'
+                    }`}
+                >
+                  {level === 'curious' && '🤔'} {level === 'wild' && '🌊'} {level === 'chaos' && '🌀'} {level === 'genius' && '🧠'} {level}
+                </button>
               ))}
             </div>
           </div>
-        )}
-        <p className="text-xs text-blue-500 mt-1">+{randomValue}/min</p>
+
+          {/* Request History */}
+          <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
+            <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-cyan-400" />
+              Request History
+            </h3>
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {requestHistory.length === 0 ? (
+                <p className="text-xs text-slate-500 text-center py-4">No requests yet</p>
+              ) : (
+                requestHistory.map((req, idx) => (
+                  <div key={idx} className="p-2 rounded-lg bg-slate-800/30 border border-slate-700/30">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className={`text-xs font-mono ${getStatusColor(req.status)}`}>
+                        {req.status || 'ERR'}
+                      </span>
+                      <span className="text-xs text-slate-500">{req.responseTime}ms</span>
+                    </div>
+                    <p className="text-xs text-slate-400">
+                      {new Date(req.timestamp).toLocaleTimeString()}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="col-span-9 space-y-6">
+          {/* Request Bar */}
+          <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
+            <div className="flex items-center gap-3 mb-4">
+              <span className={`px-3 py-1.5 text-sm font-mono rounded-lg border ${getMethodBadge(selectedEndpoint.method)}`}>
+                {selectedEndpoint.method}
+              </span>
+              <div className="flex-1 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 font-mono text-sm text-slate-300">
+                {API_BASE}{selectedEndpoint.path}
+              </div>
+              <button
+                onClick={() => selectedEndpoint.hasBody ? handleAskQuestion() : executeRequest(selectedEndpoint)}
+                disabled={isLoading || (selectedEndpoint.hasBody && !questionInput.trim())}
+                className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all disabled:opacity-50 flex items-center gap-2"
+              >
+                {isLoading ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Zap className="w-4 h-4" />
+                )}
+                Send
+              </button>
+            </div>
+
+            {/* Question Input for POST */}
+            {selectedEndpoint.hasBody && (
+              <div className="flex items-center gap-3">
+                <Search className="w-5 h-5 text-slate-500" />
+                <input
+                  type="text"
+                  value={questionInput}
+                  onChange={(e) => setQuestionInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAskQuestion()}
+                  placeholder="Ask the Ocean anything... (e.g., Why is the sky blue?)"
+                  className="flex-1 px-4 py-3 bg-slate-800/50 rounded-lg border border-slate-700/50 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Response Section */}
+          {response && (
+            <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 overflow-hidden">
+              {/* Response Header */}
+              <div className="px-4 py-3 border-b border-slate-800/50 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <span className={`px-3 py-1 text-sm font-mono rounded-lg border ${getStatusBadge(response.status)}`}>
+                    {response.status || 'Error'}
+                  </span>
+                  <span className="text-sm text-slate-400">
+                    <Clock className="w-4 h-4 inline mr-1" />
+                    {response.responseTime}ms
+                  </span>
+                  {response.success ? (
+                    <span className="text-emerald-400 flex items-center gap-1 text-sm">
+                      <CheckCircle className="w-4 h-4" /> Success
+                    </span>
+                  ) : (
+                    <span className="text-red-400 flex items-center gap-1 text-sm">
+                      <AlertCircle className="w-4 h-4" /> Failed
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs text-slate-500">
+                  {new Date(response.timestamp).toLocaleString()}
+                </span>
+              </div>
+
+              {/* Response Body */}
+              <div className="p-4">
+                {response.error ? (
+                  <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400">
+                    <p className="font-mono text-sm">{response.error}</p>
+                  </div>
+                ) : response.data ? (
+                  <div className="space-y-6">
+                    {/* Ocean Response */}
+                    {(response.data as OceanResponse).ocean_response && (
+                      <>
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20">
+                          <div className="flex items-start gap-3 mb-4">
+                            <MessageCircle className="w-6 h-6 text-cyan-400 mt-1" />
+                            <div>
+                              <h4 className="text-lg font-semibold text-white mb-2">Ocean Insight</h4>
+                              <p className="text-slate-300 whitespace-pre-wrap">
+                                {(response.data as OceanResponse).ocean_response}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Rabbit Holes */}
+                        {(response.data as OceanResponse).rabbit_holes?.length > 0 && (
+                          <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
+                            <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                              🐰 Rabbit Holes to Explore
+                            </h4>
+                            <div className="space-y-2">
+                              {(response.data as OceanResponse).rabbit_holes.map((hole, idx) => (
+                                <div key={idx} className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm">
+                                  {hole}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          )}
+
+                          {/* Next Questions */}
+                          {(response.data as OceanResponse).next_questions?.length > 0 && (
+                            <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
+                              <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                                <Lightbulb className="w-4 h-4 text-amber-400" />
+                                Questions That Emerged
+                              </h4>
+                              <div className="space-y-2">
+                                {(response.data as OceanResponse).next_questions.map((q, idx) => (
+                                  <button
+                                  key={idx}
+                                  onClick={() => {
+                                    setQuestionInput(q);
+                                    handleAskQuestion();
+                                  }}
+                                  className="w-full text-left p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm hover:bg-amber-500/20"
+                                >
+                                  {q}
+                                </button>
+                              ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* ASI Trinity Metrics */}
+                          <div className="grid grid-cols-3 gap-4">
+                            <div className="p-4 rounded-xl bg-gradient-to-br from-rose-500/10 to-pink-500/10 border border-rose-500/20">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Brain className="w-5 h-5 text-rose-400" />
+                                <span className="text-sm text-slate-400">ALBA</span>
+                              </div>
+                              <p className="text-xl font-bold text-rose-400">
+                                {(response.data as OceanResponse).alba_analysis?.network_connections || 0}
+                              </p>
+                              <p className="text-xs text-slate-500">Network Connections</p>
+                            </div>
+                            <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-purple-500/10 border border-violet-500/20">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Sparkles className="w-5 h-5 text-violet-400" />
+                                <span className="text-sm text-slate-400">ALBI</span>
+                              </div>
+                              <p className="text-xl font-bold text-violet-400">
+                                {(response.data as OceanResponse).albi_creativity?.imagination_score || 0}%
+                              </p>
+                              <p className="text-xs text-slate-500">Imagination Score</p>
+                            </div>
+                            <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Zap className="w-5 h-5 text-emerald-400" />
+                                <span className="text-sm text-slate-400">JONA</span>
+                              </div>
+                              <p className="text-xl font-bold text-emerald-400">
+                                {((response.data as OceanResponse).jona_coordination?.infinite_potential || 0).toFixed(1)}%
+                              </p>
+                              <p className="text-xs text-slate-500">Infinite Potential</p>
+                            </div>
+                          </div>
+                        </>
+                      )}
+
+                      {/* Raw JSON Response */}
+                      <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
+                        <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                          <Zap className="w-4 h-4 text-cyan-400" />
+                          Raw JSON Response
+                        </h4>
+                        <pre className="p-4 bg-slate-950/50 rounded-lg overflow-x-auto text-xs font-mono text-slate-300 max-h-96 overflow-y-auto">
+                          {JSON.stringify(response.data, null, 2)}
+                        </pre>
+                      </div>
+                  </div>
+                ) : (
+                  <p className="text-slate-500 text-center py-8">No data received</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="max-w-7xl mx-auto mt-8 text-center">
+        <p className="text-xs text-slate-600">
+          Curiosity Ocean • Powered by ASI Trinity • Real API Data • No Mock Values
+        </p>
       </div>
     </div>
   );

@@ -1,451 +1,459 @@
-﻿/**
- * JONA - Neural Audio Synthesis Module  
- * Joyful Overseer of Neural Alignment - Brain-Data Art & Real-time Monitoring
- */
+﻿'use client';
 
-"use client"
+import { useState, useEffect, useCallback } from 'react';
+import { Music, Brain, Waves, Radio, RefreshCw, Clock, CheckCircle, AlertCircle, Zap, Play, Square, Volume2 } from 'lucide-react';
 
-import { useState, useEffect } from 'react'
-import { cva } from 'class-variance-authority'
-import Link from 'next/link'
-
-interface AudioSynthesis {
-  is_active: boolean
-  neural_frequency: number
-  audio_output: string
-  symphony_progress: number
-  biofeedback_level: number
+// API Response Types
+interface SynthesisSession {
+  session_id: string;
+  status: 'idle' | 'recording' | 'synthesizing' | 'complete';
+  duration_seconds: number;
+  samples_processed: number;
 }
 
-interface JonaStatus {
-  status: 'monitoring' | 'synthesizing' | 'creating' | 'offline'
-  eeg_signals_processed: number
-  audio_files_created: number
-  current_symphony: string | null
-  excitement_level: number
+interface AudioOutput {
+  file_id: string;
+  filename: string;
+  format: string;
+  duration_ms: number;
+  sample_rate: number;
+  channels: number;
+  size_bytes: number;
+  created_at: string;
 }
+
+interface JonaMetrics {
+  service: string;
+  status: string;
+  eeg_signals_processed: number;
+  audio_files_created: number;
+  current_symphony: string | null;
+  neural_frequency: number;
+  excitement_level: number;
+  uptime_seconds: number;
+}
+
+interface APIResponse {
+  success: boolean;
+  data: JonaMetrics | SynthesisSession | AudioOutput[] | null;
+  error: string | null;
+  status: number;
+  responseTime: number;
+  timestamp: string;
+}
+
+interface EndpointConfig {
+  name: string;
+  method: string;
+  path: string;
+  description: string;
+}
+
+const ENDPOINTS: EndpointConfig[] = [
+  { name: 'JONA Status', method: 'GET', path: '/api/jona/status', description: 'Neural synthesis service status' },
+  { name: 'JONA Health', method: 'GET', path: '/api/jona/health', description: 'Service health check' },
+  { name: 'Audio Files', method: 'GET', path: '/api/jona/audio/list', description: 'List generated audio files' },
+  { name: 'Current Session', method: 'GET', path: '/api/jona/session', description: 'Active synthesis session' },
+  { name: 'Start Synthesis', method: 'POST', path: '/api/jona/synthesis/start', description: 'Start new synthesis' },
+  { name: 'Stop Synthesis', method: 'POST', path: '/api/jona/synthesis/stop', description: 'Stop current synthesis' },
+];
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function NeuralSynthesisPage() {
-  // CVA for waveform bar height
-  const waveformBar = cva('w-3 bg-gradient-to-t rounded-sm transition-all duration-200', {
-    variants: {
-      height: {
-        h10: 'h-2.5',
-        h20: 'h-5',
-        h30: 'h-7',
-        h40: 'h-10',
-        h50: 'h-12',
-        h60: 'h-16',
-        h70: 'h-20',
-        h80: 'h-24',
-        h90: 'h-28',
-        h100: 'h-32',
+  const [selectedEndpoint, setSelectedEndpoint] = useState<EndpointConfig>(ENDPOINTS[0]);
+  const [response, setResponse] = useState<APIResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [requestHistory, setRequestHistory] = useState<APIResponse[]>([]);
+
+  const executeRequest = useCallback(async (endpoint: EndpointConfig) => {
+    setIsLoading(true);
+    const startTime = performance.now();
+
+    try {
+      const res = await fetch(`${API_BASE}${endpoint.path}`, {
+        method: endpoint.method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        cache: 'no-store',
+      });
+
+      const endTime = performance.now();
+      const responseTime = Math.round(endTime - startTime);
+
+      let data = null;
+      let error = null;
+
+      try {
+        const jsonData = await res.json();
+        if (res.ok) {
+          data = jsonData;
+        } else {
+          error = jsonData.detail || jsonData.message || `HTTP ${res.status}`;
+        }
+      } catch {
+        error = 'Invalid JSON response';
       }
-    },
-    defaultVariants: {
-      height: 'h20'
-    }
-  })
-  // Play Symphony handler
-  const playSymphony = async () => {
-    try {
-      const res = await fetch('/api/neural-symphony');
-      const audioBlob = await res.blob();
-      const url = URL.createObjectURL(audioBlob);
-      const audio = new Audio(url);
-      audio.play();
+
+      const apiResponse: APIResponse = {
+        success: res.ok,
+        data,
+        error,
+        status: res.status,
+        responseTime,
+        timestamp: new Date().toISOString(),
+      };
+
+      setResponse(apiResponse);
+      setRequestHistory(prev => [apiResponse, ...prev].slice(0, 10));
+
     } catch (err) {
-      alert('Failed to play symphony');
+      const endTime = performance.now();
+      const apiResponse: APIResponse = {
+        success: false,
+        data: null,
+        error: err instanceof Error ? err.message : 'Network error',
+        status: 0,
+        responseTime: Math.round(endTime - startTime),
+        timestamp: new Date().toISOString(),
+      };
+      setResponse(apiResponse);
+      setRequestHistory(prev => [apiResponse, ...prev].slice(0, 10));
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  // Save Recording handler
-  const saveRecording = async () => {
-    try {
-      const res = await fetch('/api/neural-symphony');
-      const audioBlob = await res.blob();
-      const url = URL.createObjectURL(audioBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'neural_symphony.wav';
-      a.click();
-    } catch (err) {
-      alert('Failed to save recording');
-    }
-  };
-
-  // Share Art handler (demo)
-  const shareArt = () => {
-    alert('Share functionality coming soon!');
-  };
-
-  // Biofeedback Training handlers
-  const startAlphaTraining = () => {
-    alert('Alpha Training started!');
-  };
-  const startThetaTraining = () => {
-    alert('Theta Training started!');
-  };
-  const startBetaTraining = () => {
-    alert('Beta Training started!');
-  };
-  const [audioSynthesis, setAudioSynthesis] = useState<AudioSynthesis>({
-    is_active: false,
-    neural_frequency: 0,
-    audio_output: 'None',
-    symphony_progress: 0,
-    biofeedback_level: 0
-  })
-  // waveform heights for visualization
-  const [waveformHeights, setWaveformHeights] = useState<number[]>(Array(20).fill(20));
-  
-  const [jonaStatus, setJonaStatus] = useState<JonaStatus>({
-    status: 'offline',
-    eeg_signals_processed: 0,
-    audio_files_created: 0,
-    current_symphony: null,
-    excitement_level: 0
-  })
-
-  const [isRecording, setIsRecording] = useState(false)
+  }, []);
 
   useEffect(() => {
-    // Simulate JONA status monitoring
-    const checkJonaStatus = async () => {
-      try {
-        setJonaStatus({
-          status: 'monitoring',
-          eeg_signals_processed: 15847,
-          audio_files_created: 89,
-          current_symphony: 'Neural Dreams in Alpha',
-          excitement_level: 85
-        })
-      } catch (error) {
-        console.error('JONA status check failed:', error)
-      }
-    }
+    executeRequest(selectedEndpoint);
+  }, []);
 
-    // Simulate audio synthesis data
-    const updateAudioSynthesis = () => {
-      if (isRecording) {
-        const now = Date.now();
-        const freq = 8 + Math.sin(now / 1000) * 5;
-        setAudioSynthesis(prev => ({
-          is_active: true,
-          neural_frequency: freq,
-          audio_output: getAudioNote(freq),
-          symphony_progress: Math.min(prev.symphony_progress + 2, 100),
-          biofeedback_level: 60 + Math.random() * 40
-        }))
-        // update waveform heights
-        setWaveformHeights(
-          Array.from({ length: 20 }, (_, idx) =>
-            Math.max(Math.sin((now / 100) + idx) * 50 + 50, 10)
-          )
-        );
-      } else {
-        setWaveformHeights(Array(20).fill(20));
-      }
-    }
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(() => {
+      executeRequest(selectedEndpoint);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [autoRefresh, selectedEndpoint, executeRequest]);
 
-    checkJonaStatus()
-    const statusInterval = setInterval(checkJonaStatus, 5000)
-    const synthInterval = setInterval(updateAudioSynthesis, 200)
+  const getStatusColor = (status: number) => {
+    if (status >= 200 && status < 300) return 'text-emerald-400';
+    if (status >= 400 && status < 500) return 'text-amber-400';
+    return 'text-red-400';
+  };
 
-    return () => {
-      clearInterval(statusInterval)
-      clearInterval(synthInterval)
-    }
-  }, [isRecording])
+  const getStatusBadge = (status: number) => {
+    if (status >= 200 && status < 300) return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    if (status >= 400 && status < 500) return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+    return 'bg-red-500/20 text-red-400 border-red-500/30';
+  };
 
-  const getAudioNote = (frequency: number): string => {
-    if (frequency < 4) return 'Deep Bass (Delta)'
-    if (frequency < 8) return 'Low Tone (Theta)'
-    if (frequency < 13) return 'Harmonic (Alpha)'
-    if (frequency < 30) return 'Melody (Beta)'
-    return 'High Pitch (Gamma)'
-  }
+  const getMethodBadge = (method: string) => {
+    if (method === 'GET') return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    if (method === 'POST') return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+    if (method === 'DELETE') return 'bg-red-500/20 text-red-400 border-red-500/30';
+    return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+  };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'monitoring': return 'text-green-400'
-      case 'synthesizing': return 'text-purple-400'
-      case 'creating': return 'text-yellow-400'
-      default: return 'text-red-400'
-    }
-  }
+  const formatBytes = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
-  const startSynthesis = () => {
-    setIsRecording(true)
-    setAudioSynthesis(prev => ({ ...prev, symphony_progress: 0 }))
-  }
-
-  const stopSynthesis = () => {
-    setIsRecording(false)
-    setAudioSynthesis(prev => ({ ...prev, is_active: false }))
-  }
+  const formatDuration = (ms: number) => {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 text-white p-6">
       {/* Header */}
-      <div className="flex items-center justify-between bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2 flex items-center">
-            🎵 JONA - Neural Audio Synthesis
-          </h1>
-          <p className="text-gray-300">Joyful Overseer of Neural Alignment</p>
-          <div className="text-sm text-gray-400 mt-1">
-            Specialty: Brain-Data Art & Real-time Monitoring
-          </div>
-        </div>
-        <div className="text-right">
-          <div className={`text-lg font-semibold ${getStatusColor(jonaStatus.status)}`}>
-            {jonaStatus.status.toUpperCase()}
-          </div>
-          <div className="text-sm text-gray-400">
-            Excitement Level: {jonaStatus.excitement_level}% 🌸
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex space-x-2 text-sm">
-        <Link href="/modules" className="text-cyan-400 hover:text-cyan-300">
-          Modules
-        </Link>
-        <span className="text-gray-500">/</span>
-        <span className="text-white">Neural Synthesis</span>
-      </div>
-
-      {/* Real-time Audio Synthesis */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Live Synthesis Control */}
-        <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-          <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
-            <span className={`w-3 h-3 rounded-full mr-3 ${audioSynthesis.is_active ? 'bg-purple-500 animate-pulse' : 'bg-gray-500'}`}></span>
-            Live Neural-to-Audio Synthesis
-          </h3>
-          
-          <div className="space-y-4">
-            <div className="bg-black/30 rounded-lg p-4">
-              <div className="text-lg font-bold text-purple-400 mb-2">
-                {audioSynthesis.audio_output}
-              </div>
-              <div className="text-gray-300">
-                Neural Frequency: <span className="text-white font-mono">{audioSynthesis.neural_frequency.toFixed(2)} Hz</span>
-              </div>
-              <div className="text-gray-300">
-                Biofeedback Level: <span className="text-white font-mono">{audioSynthesis.biofeedback_level.toFixed(1)}%</span>
-              </div>
+      <div className="max-w-7xl mx-auto mb-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30">
+              <Music className="w-8 h-8 text-purple-400" />
             </div>
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                JONA Neural Synthesis
+              </h1>
+              <p className="text-slate-400 text-sm">Joyful Overseer of Neural Alignment • Postman-Style API Interface</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setAutoRefresh(!autoRefresh)}
+              className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${autoRefresh
+                  ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                  : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-700/50'
+                }`}
+            >
+              <RefreshCw className={`w-4 h-4 ${autoRefresh ? 'animate-spin' : ''}`} />
+              {autoRefresh ? 'Live' : 'Auto'}
+            </button>
+          </div>
+        </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6">
+        {/* Sidebar - Endpoints */}
+        <div className="col-span-3 space-y-3">
+          <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
+            <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+              <Radio className="w-4 h-4 text-purple-400" />
+              API Endpoints
+            </h3>
             <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Symphony Progress:</span>
-                <span className="text-white">{audioSynthesis.symphony_progress}%</span>
+              {ENDPOINTS.map((endpoint) => (
+                <button
+                  key={endpoint.path}
+                  onClick={() => {
+                    setSelectedEndpoint(endpoint);
+                    executeRequest(endpoint);
+                  }}
+                  className={`w-full text-left p-3 rounded-lg transition-all ${selectedEndpoint.path === endpoint.path
+                      ? 'bg-purple-500/20 border border-purple-500/30'
+                      : 'bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/50'
+                    }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`px-2 py-0.5 text-xs font-mono rounded border ${getMethodBadge(endpoint.method)}`}>
+                      {endpoint.method}
+                    </span>
+                    <span className="text-sm font-medium text-white">{endpoint.name}</span>
+                  </div>
+                  <p className="text-xs text-slate-500 font-mono truncate">{endpoint.path}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Request History */}
+          <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
+            <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-purple-400" />
+              Request History
+            </h3>
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {requestHistory.length === 0 ? (
+                <p className="text-xs text-slate-500 text-center py-4">No requests yet</p>
+              ) : (
+                requestHistory.map((req, idx) => (
+                  <div key={idx} className="p-2 rounded-lg bg-slate-800/30 border border-slate-700/30">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className={`text-xs font-mono ${getStatusColor(req.status)}`}>
+                        {req.status || 'ERR'}
+                      </span>
+                      <span className="text-xs text-slate-500">{req.responseTime}ms</span>
+                    </div>
+                    <p className="text-xs text-slate-400">
+                      {new Date(req.timestamp).toLocaleTimeString()}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="col-span-9 space-y-6">
+          {/* Request Bar */}
+          <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
+            <div className="flex items-center gap-3">
+              <span className={`px-3 py-1.5 text-sm font-mono rounded-lg border ${getMethodBadge(selectedEndpoint.method)}`}>
+                {selectedEndpoint.method}
+              </span>
+              <div className="flex-1 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 font-mono text-sm text-slate-300">
+                {API_BASE}{selectedEndpoint.path}
               </div>
-              <div className="w-full bg-gray-700 rounded-full h-2">
-                <div 
-                  className={`bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300 symphony-progress-bar`}
-                  data-progress={audioSynthesis.symphony_progress}
-                ></div>
-              </div>
-            </div>
-
-            <div className="flex space-x-3">
               <button
-                onClick={startSynthesis}
-                disabled={isRecording}
-                className={`flex-1 py-3 rounded-lg font-medium transition-all duration-300 ${
-                  isRecording
-                    ? 'bg-gray-500/20 text-gray-500 cursor-not-allowed'
-                    : 'bg-purple-500/20 text-purple-400 border border-purple-500/30 hover:bg-purple-500/30'
-                }`}
+                onClick={() => executeRequest(selectedEndpoint)}
+                disabled={isLoading}
+                className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 flex items-center gap-2"
               >
-                🎼 Start Synthesis
-              </button>
-              
-              <button
-                onClick={stopSynthesis}
-                disabled={!isRecording}
-                className={`flex-1 py-3 rounded-lg font-medium transition-all duration-300 ${
-                  !isRecording
-                    ? 'bg-gray-500/20 text-gray-500 cursor-not-allowed'
-                    : 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30'
-                }`}
-              >
-                ⏹️ Stop Synthesis
+                {isLoading ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Zap className="w-4 h-4" />
+                )}
+                Send
               </button>
             </div>
           </div>
-        </div>
 
-        {/* Audio Waveform Visualization */}
-        <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-          <h3 className="text-xl font-semibold text-white mb-4">
-            Neural Audio Waveform
-          </h3>
-          
-          <div className="bg-black/30 rounded-lg p-4 h-48 flex items-end justify-center space-x-1">
-            {waveformHeights.map((height, idx) => {
-              // Map height value to nearest CVA class
-              let hClass: "h10" | "h20" | "h30" | "h40" | "h50" | "h60" | "h70" | "h80" | "h90" | "h100" = "h20";
-              if (height >= 100) hClass = "h100";
-              else if (height >= 90) hClass = "h90";
-              else if (height >= 80) hClass = "h80";
-              else if (height >= 70) hClass = "h70";
-              else if (height >= 60) hClass = "h60";
-              else if (height >= 50) hClass = "h50";
-              else if (height >= 40) hClass = "h40";
-              else if (height >= 30) hClass = "h30";
-              else if (height >= 20) hClass = "h20";
-              else hClass = "h10";
-              return (
-                <div
-                  key={idx}
-                  className={
-                    waveformBar({
-                      height: hClass
-                    }) + ` ${audioSynthesis.is_active ? 'from-purple-500 to-pink-500' : 'from-gray-600 to-gray-500'}`
-                  }
-                ></div>
-              );
-            })}
-          </div>
-          
-          <div className="text-xs text-gray-500 text-center mt-2">
-            {audioSynthesis.is_active ? 'Real-time neural symphony generation' : 'Synthesis inactive'}
-          </div>
-        </div>
-      </div>
-
-      {/* JONA Statistics */}
-      <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-        <h3 className="text-xl font-semibold text-white mb-4">
-          🌸 JONA Performance Metrics
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-black/30 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-purple-400">
-              {jonaStatus.eeg_signals_processed.toLocaleString()}
-            </div>
-            <div className="text-sm text-gray-400">EEG Signals Processed</div>
-          </div>
-          
-          <div className="bg-black/30 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-pink-400">
-              {jonaStatus.audio_files_created}
-            </div>
-            <div className="text-sm text-gray-400">Audio Files Created</div>
-          </div>
-          
-          <div className="bg-black/30 rounded-lg p-4 text-center">
-            <div className="text-lg font-bold text-yellow-400">
-              {jonaStatus.excitement_level}%
-            </div>
-            <div className="text-sm text-gray-400">Excitement Level</div>
-          </div>
-          
-          <div className="bg-black/30 rounded-lg p-4 text-center">
-            <div className={`text-lg font-bold ${getStatusColor(jonaStatus.status)}`}>
-              {jonaStatus.status.toUpperCase()}
-            </div>
-            <div className="text-sm text-gray-400">System Status</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Current Symphony */}
-      {jonaStatus.current_symphony && (
-        <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-md rounded-xl p-6 border border-purple-500/30">
-          <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
-            🎼 Current Neural Symphony
-          </h3>
-          
-          <div className="text-center">
-            <div className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text mb-2">
-              "{jonaStatus.current_symphony}"
-            </div>
-            <div className="text-gray-300 mb-4">
-              A beautiful composition created from live EEG signals
-            </div>
-            
-            <div className="flex justify-center space-x-4">
-              <button className="px-6 py-2 bg-purple-500/30 text-purple-300 rounded-lg hover:bg-purple-500/40 transition-colors" onClick={playSymphony}>
-                ▶️ Play Symphony
-              </button>
-              <button className="px-6 py-2 bg-pink-500/30 text-pink-300 rounded-lg hover:bg-pink-500/40 transition-colors" onClick={saveRecording}>
-                💾 Save Recording
-              </button>
-              <button className="px-6 py-2 bg-cyan-500/30 text-cyan-300 rounded-lg hover:bg-cyan-500/40 transition-colors" onClick={shareArt}>
-                📤 Share Art
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Recent Neural Symphonies */}
-      <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-        <h3 className="text-xl font-semibold text-white mb-4">
-          Recent Neural Symphonies 🎶
-        </h3>
-        
-        <div className="space-y-3">
-          {[
-            { name: 'Neural Dreams in Alpha', duration: '4:32', brain_state: 'Relaxed', created: '2 hours ago' },
-            { name: 'Beta Wave Rhapsody', duration: '3:48', brain_state: 'Focused', created: '5 hours ago' },
-            { name: 'Theta Meditation', duration: '6:15', brain_state: 'Meditative', created: '1 day ago' },
-            { name: 'Gamma Burst Symphony', duration: '2:21', brain_state: 'High Activity', created: '2 days ago' },
-          ].map((symphony, idx) => (
-            <div key={idx} className="flex items-center justify-between bg-black/30 rounded-lg p-4">
-              <div>
-                <div className="text-white font-medium">{symphony.name}</div>
-                <div className="text-sm text-gray-400">
-                  {symphony.duration} • {symphony.brain_state} • {symphony.created}
+          {/* Response Section */}
+          {response && (
+            <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 overflow-hidden">
+              {/* Response Header */}
+              <div className="px-4 py-3 border-b border-slate-800/50 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <span className={`px-3 py-1 text-sm font-mono rounded-lg border ${getStatusBadge(response.status)}`}>
+                    {response.status || 'Error'}
+                  </span>
+                  <span className="text-sm text-slate-400">
+                    <Clock className="w-4 h-4 inline mr-1" />
+                    {response.responseTime}ms
+                  </span>
+                  {response.success ? (
+                    <span className="text-emerald-400 flex items-center gap-1 text-sm">
+                      <CheckCircle className="w-4 h-4" /> Success
+                    </span>
+                  ) : (
+                    <span className="text-red-400 flex items-center gap-1 text-sm">
+                      <AlertCircle className="w-4 h-4" /> Failed
+                    </span>
+                  )}
                 </div>
+                <span className="text-xs text-slate-500">
+                  {new Date(response.timestamp).toLocaleString()}
+                </span>
               </div>
-              <div className="flex space-x-2">
-                <button className="p-2 text-purple-400 hover:text-purple-300 transition-colors" onClick={playSymphony}>
-                  ▶️
-                </button>
-                <button className="p-2 text-cyan-400 hover:text-cyan-300 transition-colors" onClick={shareArt}>
-                  📤
-                </button>
-                <button className="p-2 text-gray-400 hover:text-gray-300 transition-colors" onClick={saveRecording}>
-                  💾
-                </button>
+
+              {/* Response Body */}
+              <div className="p-4">
+                {response.error ? (
+                  <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400">
+                    <p className="font-mono text-sm">{response.error}</p>
+                  </div>
+                ) : response.data ? (
+                  <div className="space-y-6">
+                    {/* JONA Metrics Cards */}
+                    {(response.data as JonaMetrics).service && (
+                      <div className="grid grid-cols-4 gap-4">
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Music className="w-5 h-5 text-purple-400" />
+                            <span className="text-sm text-slate-400">Status</span>
+                          </div>
+                            <p className={`text-xl font-bold capitalize ${(response.data as JonaMetrics).status === 'online' ? 'text-emerald-400' :
+                                (response.data as JonaMetrics).status === 'synthesizing' ? 'text-purple-400' :
+                                  'text-slate-400'
+                              }`}>
+                              {(response.data as JonaMetrics).status || 'Unknown'}
+                            </p>
+                          </div>
+                          <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Brain className="w-5 h-5 text-cyan-400" />
+                              <span className="text-sm text-slate-400">Neural Freq</span>
+                            </div>
+                            <p className="text-xl font-bold text-cyan-400">
+                              {(response.data as JonaMetrics).neural_frequency?.toFixed(1) || 0} Hz
+                            </p>
+                          </div>
+                          <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Waves className="w-5 h-5 text-emerald-400" />
+                              <span className="text-sm text-slate-400">EEG Processed</span>
+                            </div>
+                            <p className="text-xl font-bold text-emerald-400">
+                              {((response.data as JonaMetrics).eeg_signals_processed || 0).toLocaleString()}
+                            </p>
+                          </div>
+                          <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Volume2 className="w-5 h-5 text-amber-400" />
+                              <span className="text-sm text-slate-400">Audio Files</span>
+                            </div>
+                            <p className="text-xl font-bold text-amber-400">
+                              {(response.data as JonaMetrics).audio_files_created || 0}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Current Symphony */}
+                      {(response.data as JonaMetrics).current_symphony && (
+                        <div className="p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20">
+                          <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                            <Music className="w-4 h-4 text-purple-400" />
+                            Current Neural Symphony
+                          </h4>
+                          <div className="text-center py-4">
+                            <p className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                              "{(response.data as JonaMetrics).current_symphony}"
+                            </p>
+                            <div className="flex items-center justify-center gap-4 mt-4">
+                              <button className="px-4 py-2 rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center gap-2 hover:bg-purple-500/30">
+                                <Play className="w-4 h-4" /> Play
+                              </button>
+                              <button className="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-2 hover:bg-red-500/30">
+                                <Square className="w-4 h-4" /> Stop
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Audio Files List */}
+                      {Array.isArray(response.data) && response.data.length > 0 && (
+                        <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
+                          <h4 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
+                            <Volume2 className="w-4 h-4 text-purple-400" />
+                            Generated Audio Files ({response.data.length})
+                          </h4>
+                          <div className="space-y-2">
+                            {(response.data as AudioOutput[]).map((audio, idx) => (
+                              <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-slate-900/50 border border-slate-700/30">
+                                <div className="flex items-center gap-3">
+                                  <div className="p-2 rounded-lg bg-purple-500/20">
+                                    <Music className="w-4 h-4 text-purple-400" />
+                                  </div>
+                                  <div>
+                                  <p className="text-sm font-medium text-white">{audio.filename}</p>
+                                  <p className="text-xs text-slate-500">
+                                    {audio.format} • {audio.sample_rate} Hz • {audio.channels}ch
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-4">
+                                <span className="text-sm text-slate-400">{formatDuration(audio.duration_ms)}</span>
+                                <span className="text-xs text-slate-500">{formatBytes(audio.size_bytes)}</span>
+                                <button className="p-2 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30">
+                                  <Play className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                          </div>
+                        </div>
+                      )}
+
+                    {/* Raw JSON Response */}
+                    <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
+                      <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-purple-400" />
+                        Raw JSON Response
+                      </h4>
+                      <pre className="p-4 bg-slate-950/50 rounded-lg overflow-x-auto text-xs font-mono text-slate-300 max-h-96 overflow-y-auto">
+                        {JSON.stringify(response.data, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-slate-500 text-center py-8">No data received</p>
+                )}
               </div>
             </div>
-          ))}
+          )}
         </div>
       </div>
 
-      {/* Biofeedback Training */}
-      <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-        <h3 className="text-xl font-semibold text-white mb-4">
-          🧘 Neural Biofeedback Training
-        </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30 rounded-lg p-4 border border-blue-500/30 transition-all duration-300" onClick={startAlphaTraining}>
-            <div className="text-lg font-semibold text-blue-400">🌊 Alpha Training</div>
-            <div className="text-sm text-gray-400 mt-1">Relaxation & calm focus</div>
-          </button>
-          
-          <button className="bg-gradient-to-r from-purple-500/20 to-violet-500/20 hover:from-purple-500/30 hover:to-violet-500/30 rounded-lg p-4 border border-purple-500/30 transition-all duration-300" onClick={startThetaTraining}>
-            <div className="text-lg font-semibold text-purple-400">🧠 Theta Training</div>
-            <div className="text-sm text-gray-400 mt-1">Deep meditation states</div>
-          </button>
-          
-          <button className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 hover:from-green-500/30 hover:to-emerald-500/30 rounded-lg p-4 border border-green-500/30 transition-all duration-300" onClick={startBetaTraining}>
-            <div className="text-lg font-semibold text-green-400">⚡ Beta Training</div>
-            <div className="text-sm text-gray-400 mt-1">Focus & concentration</div>
-          </button>
-        </div>
+      {/* Footer */}
+      <div className="max-w-7xl mx-auto mt-8 text-center">
+        <p className="text-xs text-slate-600">
+          JONA Neural Synthesis Module • Real API Data • No Mock Values
+        </p>
       </div>
     </div>
-  )
+  );
 }
 

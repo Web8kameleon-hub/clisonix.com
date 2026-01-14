@@ -498,7 +498,7 @@ export default function DataCollectionPage() {
             <div className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-medium text-gray-400">Response Body</h3>
-                {selected.response && (
+                {typeof selected.response !== 'undefined' && selected.response !== null && (
                   <button 
                     onClick={() => copyToClipboard(JSON.stringify(selected.response, null, 2))}
                     className="text-xs text-gray-500 hover:text-white flex items-center gap-1"
