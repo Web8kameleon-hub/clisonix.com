@@ -262,9 +262,10 @@ async def receive_packet(packet: Dict[str, Any]):
 if __name__ == "__main__":
     import os
     import uvicorn
-    port = int(os.getenv("PORT", "6060"))
+    port = int(os.getenv("PORT", "6666"))
     print("\n╔═════════════════════════════════════════╗")
     print(f"║  ALBI PROCESSOR (Port {port})            ║")
+    print("║  Artificial Labor Bits Intelligence    ║")
     print("║  Neural Analytics Service              ║")
     print("║  📊 With OpenTelemetry Tracing         ║")
     print("╚═════════════════════════════════════════╝\n")

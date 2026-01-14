@@ -355,10 +355,11 @@ async def receive_packet(packet: Dict[str, Any]):
 if __name__ == "__main__":
     import os
     import uvicorn
-    port = int(os.getenv("PORT", "5050"))
+    port = int(os.getenv("PORT", "5555"))
     print("\n╔═════════════════════════════════════════╗")
     print(f"║  ALBA COLLECTOR (Port {port})             ║")
-    print("║  Network Telemetry Service             ║")
+    print("║  Artificial Labor Bits Array            ║")
+    print("║  Network Telemetry Service              ║")
     print("╚═════════════════════════════════════════╝\n")
     uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
 
