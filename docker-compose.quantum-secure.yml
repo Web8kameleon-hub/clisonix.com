@@ -1,0 +1,207 @@
+version: "3.9"
+
+networks:
+  clisonix-secure:
+    external: true
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  prometheus_data:
+  grafana_data:
+  victoriametrics_data:
+  loki_data:
+
+services:
+  # ==================== DATABASE (INTERNAL ONLY - NO PORTS) ====================
+  postgres:
+    image: postgres:15-alpine
+    container_name: clisonix-postgres
+    restart: always
+    networks:
+      - clisonix-secure
+    # NO PORTS EXPOSED - QUANTUM SECURITY
+    environment:
+      POSTGRES_USER: clisonix
+      POSTGRES_PASSWORD: Cl1s0n1x-P0stgr3s-S3cur3-2026-BSI!
+      POSTGRES_DB: clisonix
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clisonix"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================== CACHE (INTERNAL ONLY - NO PORTS) ====================
+  redis:
+    image: redis:7-alpine
+    container_name: clisonix-redis
+    restart: always
+    networks:
+      - clisonix-secure
+    # NO PORTS EXPOSED - QUANTUM SECURITY
+    command: redis-server --requirepass Cl1s0n1x-R3d1s-S3cur3-K3y-2026-BSI! --protected-mode yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "Cl1s0n1x-R3d1s-S3cur3-K3y-2026-BSI!", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================== STORAGE (LOCALHOST ONLY) ====================
+  minio:
+    image: minio/minio:latest
+    container_name: clisonix-minio
+    restart: always
+    networks:
+      - clisonix-secure
+    ports:
+      - "127.0.0.1:9001:9001"
+    environment:
+      MINIO_ROOT_USER: clisonix_minio
+      MINIO_ROOT_PASSWORD: Cl1s0n1x-M1n10-S3cur3-2026-BSI!
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
+  # ==================== WEB FRONTEND ====================
+  web:
+    image: clisonix-web:latest
+    container_name: clisonix-web
+    restart: always
+    networks:
+      - clisonix-secure
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://46.224.205.183:8000
+
+  # ==================== API GATEWAY ====================
+  api:
+    image: clisonix-api:latest
+    container_name: clisonix-api
+    restart: always
+    networks:
+      - clisonix-secure
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://clisonix:Cl1s0n1x-P0stgr3s-S3cur3-2026-BSI!@postgres:5432/clisonix
+      REDIS_URL: redis://:Cl1s0n1x-R3d1s-S3cur3-K3y-2026-BSI!@redis:6379
+      JWT_SECRET: Cl1s0n1x-JWT-S3cur3-K3y-2026-Quantum!
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ==================== CORE SERVICES ====================
+  core:
+    image: clisonix-core:latest
+    container_name: clisonix-core
+    restart: always
+    networks:
+      - clisonix-secure
+    ports:
+      - "8002:8000"
+    environment:
+      DATABASE_URL: postgresql://clisonix:Cl1s0n1x-P0stgr3s-S3cur3-2026-BSI!@postgres:5432/clisonix
+      REDIS_URL: redis://:Cl1s0n1x-R3d1s-S3cur3-K3y-2026-BSI!@redis:6379
+    depends_on:
+      - postgres
+      - redis
+
+  excel:
+    image: clisonix-excel:latest
+    container_name: clisonix-excel
+    restart: always
+    networks:
+      - clisonix-secure
+    ports:
+      - "8001:8002"
+    environment:
+      DATABASE_URL: postgresql://clisonix:Cl1s0n1x-P0stgr3s-S3cur3-2026-BSI!@postgres:5432/clisonix
+    depends_on:
+      - postgres
+
+  marketplace:
+    image: clisonix-marketplace:latest
+    container_name: clisonix-marketplace
+    restart: always
+    networks:
+      - clisonix-secure
+    ports:
+      - "8003:8004"
+    environment:
+      DATABASE_URL: postgresql://clisonix:Cl1s0n1x-P0stgr3s-S3cur3-2026-BSI!@postgres:5432/clisonix
+    depends_on:
+      - postgres
+
+  # ==================== LOAD BALANCER ====================
+  balancer:
+    image: clisonix-balancer:latest
+    container_name: clisonix-balancer
+    restart: always
+    networks:
+      - clisonix-secure
+    ports:
+      - "8091:8091"
+    environment:
+      REDIS_URL: redis://:Cl1s0n1x-R3d1s-S3cur3-K3y-2026-BSI!@redis:6379
+
+  # ==================== MONITORING (LOCALHOST ONLY) ====================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: clisonix-prometheus
+    restart: always
+    networks:
+      - clisonix-secure
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: clisonix-grafana
+    restart: always
+    networks:
+      - clisonix-secure
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: Cl1s0n1x-Gr4f4n4-S3cur3-2026!
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:latest
+    container_name: clisonix-victoriametrics
+    restart: always
+    networks:
+      - clisonix-secure
+    ports:
+      - "127.0.0.1:8428:8428"
+    volumes:
+      - victoriametrics_data:/storage
+    command:
+      - "--storageDataPath=/storage"
+      - "--retentionPeriod=1"
+
+  loki:
+    image: grafana/loki:latest
+    container_name: clisonix-loki
+    restart: always
+    networks:
+      - clisonix-secure
+    ports:
+      - "127.0.0.1:3100:3100"
+    volumes:
+      - loki_data:/loki

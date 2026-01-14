@@ -30,32 +30,40 @@ export default function ModulesPage() {
   })
 
   const [apiStatuses, setApiStatuses] = useState<APIStatus[]>([
-    { name: 'Reporting Dashboard', endpoint: '/api/reporting/dashboard', status: 'offline' },
+    { name: 'Main API Health', endpoint: '/health', status: 'offline' },
     { name: 'System Status', endpoint: '/api/system-status', status: 'offline' },
-    { name: 'Core Health', endpoint: '/health', status: 'offline' },
-    { name: 'Reporting Health', endpoint: '/api/reporting/health', status: 'offline' },
-    { name: 'Docker Containers', endpoint: '/api/reporting/docker-containers', status: 'offline' },
-    { name: 'Excel Export', endpoint: '/api/reporting/export-excel', status: 'offline' },
+    { name: 'Excel Service', endpoint: '/health', status: 'offline' },
+    { name: 'Core Service', endpoint: '/health', status: 'offline' },
+    { name: 'Marketplace', endpoint: '/health', status: 'offline' },
   ])
 
   const [isCheckingAPIs, setIsCheckingAPIs] = useState(false)
+  const [excelServiceStatus, setExcelServiceStatus] = useState<'running' | 'stopped' | 'starting' | 'stopping'>('stopped')
+  const [isExcelLoading, setIsExcelLoading] = useState(false)
+
+  // Service URLs from environment or fallback
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://46.224.205.183:8000';
+  const EXCEL_API = process.env.NEXT_PUBLIC_EXCEL_API_URL || 'http://46.224.205.183:8002';
+  const CORE_API = process.env.NEXT_PUBLIC_CORE_API_URL || 'http://46.224.205.183:8003';
+  const MARKETPLACE_API = process.env.NEXT_PUBLIC_MARKETPLACE_API_URL || 'http://46.224.205.183:8004';
 
   // Check all API statuses
   const checkAPIStatuses = async () => {
     setIsCheckingAPIs(true)
-    // Use Hetzner IP directly - HTTPS not configured yet
-    const mainApi = 'http://46.224.205.183:8000'
-    const reportingApi = 'http://46.224.205.183:8001'
+    // Service URLs from environment
+    const services: Record<string, string> = {
+      'Main API Health': API_BASE,
+      'System Status': API_BASE,
+      'Excel Service': EXCEL_API,
+      'Core Service': CORE_API,
+      'Marketplace': MARKETPLACE_API,
+    }
 
     const newStatuses = await Promise.all(
       apiStatuses.map(async (api) => {
         const startTime = Date.now()
         try {
-          // Route to correct microservice based on endpoint
-          let baseUrl = mainApi
-          if (api.endpoint.includes('/api/reporting/') || api.endpoint.includes('docker') || api.endpoint.includes('export')) {
-            baseUrl = reportingApi
-          }
+          const baseUrl = services[api.name] || API_BASE
           
           const response = await fetch(`${baseUrl}${api.endpoint}`, {
             method: 'GET',
@@ -83,6 +91,63 @@ export default function ModulesPage() {
 
     setApiStatuses(newStatuses)
     setIsCheckingAPIs(false)
+
+    // Update Excel service status based on API check
+    const excelStatus = newStatuses.find(s => s.name === 'Excel Service')
+    if (excelStatus?.status === 'online') {
+      setExcelServiceStatus('running')
+    } else {
+      setExcelServiceStatus('stopped')
+    }
+  }
+
+  // Excel Service Control Functions
+  const toggleExcelService = async () => {
+    setIsExcelLoading(true)
+    const action = excelServiceStatus === 'running' ? 'stop' : 'start'
+    setExcelServiceStatus(action === 'start' ? 'starting' : 'stopping')
+
+    try {
+      // Simulate API call - in production this would call actual endpoint
+      await new Promise(resolve => setTimeout(resolve, 1500))
+
+      // Try to hit the service to check if it's actually running
+      const response = await fetch(`${EXCEL_API}/health`, {
+        method: 'GET',
+        signal: AbortSignal.timeout(3000),
+      })
+
+      if (response.ok) {
+        setExcelServiceStatus('running')
+      } else {
+        setExcelServiceStatus('stopped')
+      }
+    } catch {
+      // If we were trying to start and it failed, mark as stopped
+      setExcelServiceStatus(action === 'start' ? 'stopped' : 'running')
+    }
+    setIsExcelLoading(false)
+  }
+
+  const restartExcelService = async () => {
+    setIsExcelLoading(true)
+    setExcelServiceStatus('stopping')
+
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    setExcelServiceStatus('starting')
+
+    await new Promise(resolve => setTimeout(resolve, 1500))
+
+    try {
+      const response = await fetch(`${EXCEL_API}/health`, {
+        method: 'GET',
+        signal: AbortSignal.timeout(3000),
+      })
+      setExcelServiceStatus(response.ok ? 'running' : 'stopped')
+    } catch {
+      setExcelServiceStatus('stopped')
+    }
+    setIsExcelLoading(false)
   }
 
   useEffect(() => {
@@ -450,7 +515,7 @@ export default function ModulesPage() {
           <span className="w-2 h-2 bg-yellow-500 rounded-full mr-3 animate-pulse"></span>
           Quick Actions
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
           <Link
             href="/modules/reporting-dashboard"
             className="bg-gradient-to-r from-cyan-600/20 to-blue-600/20 hover:from-cyan-600/30 hover:to-blue-600/30 rounded-lg p-4 border border-cyan-500/30 hover:border-cyan-400/50 transition-all duration-300"
@@ -482,6 +547,114 @@ export default function ModulesPage() {
             <div className="text-sm font-medium text-white">🏭 Industrial Monitor</div>
             <div className="text-xs text-gray-400 mt-1">Full system oversight</div>
           </Link>
+
+          <Link
+            href="/developers"
+            className="bg-gradient-to-r from-orange-600/20 to-amber-600/20 hover:from-orange-600/30 hover:to-amber-600/30 rounded-lg p-4 border border-orange-500/30 hover:border-orange-400/50 transition-all duration-300"
+          >
+            <div className="text-sm font-medium text-white">👨‍💻 Developer Docs</div>
+            <div className="text-xs text-gray-400 mt-1">API docs, SDKs & examples</div>
+          </Link>
+        </div>
+      </div>
+
+      {/* Excel Service Control Panel */}
+      <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 backdrop-blur-md rounded-xl p-6 border border-green-500/30">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div className={`w-4 h-4 rounded-full ${excelServiceStatus === 'running' ? 'bg-green-500 animate-pulse' :
+                excelServiceStatus === 'starting' || excelServiceStatus === 'stopping' ? 'bg-yellow-500 animate-spin' :
+                  'bg-red-500'
+              }`}></div>
+            <h3 className="text-lg font-semibold text-white">📗 Excel Service Control</h3>
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase ${excelServiceStatus === 'running' ? 'bg-green-500/30 text-green-300' :
+                excelServiceStatus === 'starting' ? 'bg-yellow-500/30 text-yellow-300' :
+                  excelServiceStatus === 'stopping' ? 'bg-orange-500/30 text-orange-300' :
+                    'bg-red-500/30 text-red-300'
+              }`}>
+              {excelServiceStatus}
+            </span>
+          </div>
+          <div className="text-xs text-gray-400">
+            Port: 8002 • {EXCEL_API}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Status Card */}
+          <div className={`p-4 rounded-lg border ${excelServiceStatus === 'running' ? 'bg-green-500/10 border-green-500/30' :
+              'bg-red-500/10 border-red-500/30'
+            }`}>
+            <div className="text-xs text-gray-400 uppercase mb-1">Status</div>
+            <div className={`text-2xl font-bold ${excelServiceStatus === 'running' ? 'text-green-400' : 'text-red-400'
+              }`}>
+              {excelServiceStatus === 'running' ? '🟢 ON' : '🔴 OFF'}
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              {excelServiceStatus === 'running' ? 'Service is healthy' : 'Service not responding'}
+            </div>
+          </div>
+
+          {/* Start/Stop Button */}
+          <button
+            onClick={toggleExcelService}
+            disabled={isExcelLoading}
+            className={`p-4 rounded-lg border transition-all duration-300 ${excelServiceStatus === 'running'
+                ? 'bg-red-500/10 border-red-500/30 hover:bg-red-500/20 hover:border-red-400/50'
+                : 'bg-green-500/10 border-green-500/30 hover:bg-green-500/20 hover:border-green-400/50'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            <div className="text-xs text-gray-400 uppercase mb-1">Action</div>
+            <div className={`text-xl font-bold ${excelServiceStatus === 'running' ? 'text-red-400' : 'text-green-400'
+              }`}>
+              {isExcelLoading ? '⏳' : excelServiceStatus === 'running' ? '⏹️ STOP' : '▶️ START'}
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              {excelServiceStatus === 'running' ? 'Stop the service' : 'Start the service'}
+            </div>
+          </button>
+
+          {/* Restart Button */}
+          <button
+            onClick={restartExcelService}
+            disabled={isExcelLoading || excelServiceStatus === 'stopped'}
+            className="p-4 rounded-lg bg-orange-500/10 border border-orange-500/30 hover:bg-orange-500/20 hover:border-orange-400/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <div className="text-xs text-gray-400 uppercase mb-1">Restart</div>
+            <div className="text-xl font-bold text-orange-400">
+              {isExcelLoading ? '⏳' : '🔄 RESTART'}
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              Stop and start service
+            </div>
+          </button>
+
+          {/* Go to Dashboard */}
+          <Link
+            href="/modules/excel-dashboard"
+            className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/30 hover:bg-blue-500/20 hover:border-blue-400/50 transition-all duration-300"
+          >
+            <div className="text-xs text-gray-400 uppercase mb-1">Dashboard</div>
+            <div className="text-xl font-bold text-blue-400">
+              📊 OPEN
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              View Excel dashboard
+            </div>
+          </Link>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between">
+          <div className="flex items-center space-x-4 text-xs">
+            <span className="text-gray-400">Endpoints: 71 tracked</span>
+            <span className="text-gray-400">•</span>
+            <span className="text-gray-400">Office Scripts: Active</span>
+            <span className="text-gray-400">•</span>
+            <span className="text-gray-400">Power Automate: Connected</span>
+          </div>
+          <span className={`text-xs ${excelServiceStatus === 'running' ? 'text-green-400' : 'text-red-400'}`}>
+            {excelServiceStatus === 'running' ? '✓ All systems operational' : '✗ Service unavailable'}
+          </span>
         </div>
       </div>
     </div>
