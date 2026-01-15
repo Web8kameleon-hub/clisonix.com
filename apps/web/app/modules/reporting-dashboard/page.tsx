@@ -441,7 +441,7 @@ export default function UltraReportingDashboard() {
                   <div className={`w-4 h-4 rounded-full ${getStatusColor(service.status)}`}></div>
                   <div>
                     <h3 className="text-lg font-medium text-white">{service.name}</h3>
-                    <p className="text-sm text-gray-400">Port {service.port}</p>
+                    <p className="text-sm text-gray-400">Active Service</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-6">
