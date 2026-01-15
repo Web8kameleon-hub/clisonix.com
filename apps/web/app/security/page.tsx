@@ -229,7 +229,7 @@ export default function SecurityPage() {
               security researchers who help keep our platform secure.
             </p>
             <Link
-              href="mailto:security@clisonix.com"
+              href="mailto:support@clisonix.com?subject=Security%20Vulnerability%20Report"
               className="inline-flex px-6 py-3 bg-cyan-600 hover:bg-cyan-500 rounded-xl font-semibold transition-colors"
             >
               Report a Vulnerability
@@ -245,7 +245,7 @@ export default function SecurityPage() {
           Our security team is available to discuss your specific requirements.
         </p>
         <Link
-          href="mailto:security@clisonix.com"
+          href="mailto:support@clisonix.com?subject=Security%20Inquiry"
           className="inline-flex px-8 py-4 bg-slate-800 hover:bg-slate-700 rounded-xl font-semibold transition-colors"
         >
           Contact Security Team

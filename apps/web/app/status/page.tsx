@@ -229,7 +229,7 @@ export default function StatusPage() {
               🐦 Twitter Updates
             </Link>
             <Link
-              href="mailto:status@clisonix.com"
+              href="mailto:support@clisonix.com?subject=Status%20Updates%20Subscription"
               className="px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors"
             >
               📧 Email Alerts

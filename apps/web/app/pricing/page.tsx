@@ -178,7 +178,7 @@ export default function PricingPage() {
               </div>
 
               <Link
-                href={plan.name === 'Enterprise' ? 'mailto:sales@clisonix.com' : '/modules'}
+                href={plan.name === 'Enterprise' ? 'mailto:investors@clisonix.com' : '/modules'}
                 className={`block w-full py-3 rounded-xl font-semibold text-center transition-colors mb-8 ${
                   plan.highlighted
                     ? 'bg-cyan-600 hover:bg-cyan-500'

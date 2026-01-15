@@ -199,22 +199,22 @@ export default function CompanyPage() {
             <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700 text-center">
               <div className="text-3xl mb-3">📧</div>
               <h3 className="font-semibold mb-2">General</h3>
-              <a href="mailto:hello@clisonix.com" className="text-cyan-400 hover:underline">
-                hello@clisonix.com
+              <a href="mailto:support@clisonix.com" className="text-cyan-400 hover:underline">
+                support@clisonix.com
               </a>
             </div>
             <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700 text-center">
               <div className="text-3xl mb-3">💼</div>
               <h3 className="font-semibold mb-2">Enterprise Sales</h3>
-              <a href="mailto:sales@clisonix.com" className="text-cyan-400 hover:underline">
-                sales@clisonix.com
+              <a href="mailto:investors@clisonix.com" className="text-cyan-400 hover:underline">
+                investors@clisonix.com
               </a>
             </div>
             <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700 text-center">
               <div className="text-3xl mb-3">🔒</div>
               <h3 className="font-semibold mb-2">Security</h3>
-              <a href="mailto:security@clisonix.com" className="text-cyan-400 hover:underline">
-                security@clisonix.com
+              <a href="mailto:support@clisonix.com?subject=Security" className="text-cyan-400 hover:underline">
+                support@clisonix.com
               </a>
             </div>
           </div>
