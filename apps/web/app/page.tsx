@@ -483,7 +483,7 @@ export default function HomePage() {
               <ul className="space-y-2 text-gray-400 text-sm">
                 <li><span className="text-gray-500">Ledjan Ahmati</span></li>
                 <li><span className="text-gray-500">WEB8euroweb GmbH</span></li>
-                <li><a href="mailto:ahmati.bau@gmail.com" className="hover:text-cyan-400 transition-colors">Contact</a></li>
+                <li><a href="mailto:support@clisonix.com" className="hover:text-cyan-400 transition-colors">Contact</a></li>
               </ul>
             </div>
           </div>

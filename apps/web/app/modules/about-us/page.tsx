@@ -332,13 +332,22 @@ export default function AboutUsPage() {
                 If you believe in a future where technology is <strong>clear</strong>, <strong>modular</strong>, 
                 and <strong>responsible</strong>, we invite you to build it with us.
               </p>
-              <a 
-                href="mailto:investors@clisonix.com" 
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-cyan-500/25"
-              >
-                <span className="text-xl">📧</span>
-                Contact Us: investors@clisonix.com
-              </a>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a 
+                  href="mailto:investors@clisonix.com" 
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-cyan-500/25"
+                >
+                  <span className="text-xl">📧</span>
+                  investors@clisonix.com
+                </a>
+                <a 
+                  href="tel:+4923279954413" 
+                  className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-8 py-4 rounded-xl transition-all border border-white/20"
+                >
+                  <span className="text-xl">📞</span>
+                  +49 2327 9954413
+                </a>
+              </div>
             </div>
           </div>
         </section>

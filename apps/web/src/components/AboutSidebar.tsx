@@ -90,13 +90,23 @@ export default function AboutSidebar() {
             </h3>
             <div className="bg-white/5 rounded-xl p-4 border border-white/10 space-y-3">
               <a 
-                href="mailto:ahmati.bau@gmail.com" 
+                href="mailto:support@clisonix.com" 
                 className="flex items-center gap-3 text-gray-300 hover:text-cyan-400 transition-colors group"
               >
                 <span className="text-cyan-400 group-hover:scale-110 transition-transform">📧</span>
                 <div>
                   <p className="text-xs text-gray-500 uppercase tracking-wide">Email</p>
-                  <p className="font-medium">ahmati.bau@gmail.com</p>
+                  <p className="font-medium">support@clisonix.com</p>
+                </div>
+              </a>
+              <a
+                href="tel:+4923279954413"
+                className="flex items-center gap-3 text-gray-300 hover:text-cyan-400 transition-colors group"
+              >
+                <span className="text-cyan-400 group-hover:scale-110 transition-transform">📞</span>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide">Phone</p>
+                  <p className="font-medium">+49 2327 9954413</p>
                 </div>
               </a>
               <a 
@@ -162,7 +172,7 @@ export default function AboutSidebar() {
                 clarity, ethical technology, and modular intelligence.
               </p>
               <a
-                href="mailto:ahmati.bau@gmail.com?subject=Clisonix Investment Inquiry"
+                href="mailto:investors@clisonix.com?subject=Clisonix Investment Inquiry"
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium px-4 py-2 rounded-lg transition-all text-sm w-full justify-center"
               >
                 <span>💼</span>
