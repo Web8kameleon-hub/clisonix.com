@@ -58,7 +58,8 @@ const ENDPOINTS: EndpointConfig[] = [
   { name: 'Stop Synthesis', method: 'POST', path: '/api/jona/synthesis/stop', description: 'Stop current synthesis' },
 ];
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://46.224.205.183:8000';
+// Use relative paths for security - proxied through Next.js API routes
+const API_BASE = '';
 
 export default function NeuralSynthesisPage() {
   const [selectedEndpoint, setSelectedEndpoint] = useState<EndpointConfig>(ENDPOINTS[0]);
@@ -272,7 +273,7 @@ export default function NeuralSynthesisPage() {
                 {selectedEndpoint.method}
               </span>
               <div className="flex-1 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 font-mono text-sm text-slate-300">
-                {API_BASE}{selectedEndpoint.path}
+                {selectedEndpoint.path}
               </div>
               <button
                 onClick={() => executeRequest(selectedEndpoint)}

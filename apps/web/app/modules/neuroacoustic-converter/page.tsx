@@ -54,15 +54,15 @@ interface EndpointConfig {
 }
 
 const ENDPOINTS: EndpointConfig[] = [
-  { name: 'Converter Status', method: 'GET', path: '/api/neuroacoustic/status', description: 'Service status and settings' },
-  { name: 'Current Output', method: 'GET', path: '/api/neuroacoustic/output', description: 'Real-time audio output' },
-  { name: 'Conversion Stats', method: 'GET', path: '/api/neuroacoustic/stats', description: 'Conversion statistics' },
-  { name: 'Start Conversion', method: 'POST', path: '/api/neuroacoustic/start', description: 'Start EEG to audio' },
-  { name: 'Stop Conversion', method: 'POST', path: '/api/neuroacoustic/stop', description: 'Stop conversion' },
-  { name: 'Export Audio', method: 'POST', path: '/api/neuroacoustic/export', description: 'Export audio file' },
+  { name: 'JONA Metrics', method: 'GET', path: '/api/asi/jona/metrics', description: 'JONA audio synthesis metrics' },
+  { name: 'ASI Status', method: 'GET', path: '/api/asi/status', description: 'ASI Trinity system status' },
+  { name: 'ASI Health', method: 'GET', path: '/api/asi/health', description: 'System health check' },
+  { name: 'ALBI Metrics', method: 'GET', path: '/api/asi/albi/metrics', description: 'ALBI neural metrics' },
+  { name: 'ALBA Metrics', method: 'GET', path: '/api/asi/alba/metrics', description: 'ALBA network metrics' },
 ];
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://46.224.205.183:8000';
+// Use relative paths for security - proxied through Next.js API routes
+const API_BASE = '';
 
 export default function NeuroacousticConverterPage() {
   const [selectedEndpoint, setSelectedEndpoint] = useState<EndpointConfig>(ENDPOINTS[0]);
@@ -262,7 +262,7 @@ export default function NeuroacousticConverterPage() {
                 {selectedEndpoint.method}
               </span>
               <div className="flex-1 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 font-mono text-sm text-slate-300">
-                {API_BASE}{selectedEndpoint.path}
+                {selectedEndpoint.path}
               </div>
               <button
                 onClick={() => executeRequest(selectedEndpoint)}

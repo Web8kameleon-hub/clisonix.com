@@ -185,7 +185,7 @@ export default function HomePage() {
             
             <div className="flex items-center gap-4">
               <a 
-                href="http://46.224.205.183:3001" 
+                href="/grafana" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden sm:flex items-center gap-2 text-gray-400 hover:text-green-400 transition-colors"
@@ -479,8 +479,8 @@ export default function HomePage() {
             <div>
               <h4 className="font-semibold mb-4 text-gray-300">Monitoring</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="http://46.224.205.183:3001" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">Grafana</a></li>
-                <li><a href="http://46.224.205.183:9090" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">Prometheus</a></li>
+                <li><a href="/grafana" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">Grafana</a></li>
+                <li><a href="/prometheus" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">Prometheus</a></li>
               </ul>
             </div>
             <div>

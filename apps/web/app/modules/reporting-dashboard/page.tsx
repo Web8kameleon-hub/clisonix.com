@@ -26,7 +26,8 @@ interface DashboardData {
   cache_hit_rate: number;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://46.224.205.183:8000';
+// Use relative paths for security - proxied through Next.js API routes
+const API_BASE = '';
 
 export default function UltraReportingDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
@@ -55,10 +56,11 @@ export default function UltraReportingDashboard() {
       for (const service of services) {
         try {
           const start = Date.now();
-          const endpoint = service.port === 3000 ? '' : '/health';
-          await fetch(`http://46.224.205.183:${service.port}${endpoint}`, { 
+          // Use relative paths - services are proxied through nginx/Next.js
+          const endpoint = service.port === 3000 ? '/health' : '/api/health';
+          await fetch(endpoint, { 
             method: 'GET',
-            mode: 'no-cors'
+            signal: AbortSignal.timeout(3000)
           });
           service.responseTime = Date.now() - start;
           service.status = 'online';
@@ -458,7 +460,7 @@ export default function UltraReportingDashboard() {
                     </p>
                   </div>
                   <a 
-                    href={`http://46.224.205.183:${service.port}${service.port === 3000 ? '' : '/health'}`}
+                    href={`/api/asi/${service.name.toLowerCase().replace(' ', '-')}/health`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm rounded-lg transition-colors"

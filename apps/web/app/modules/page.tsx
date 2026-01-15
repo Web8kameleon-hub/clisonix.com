@@ -41,12 +41,12 @@ export default function ModulesPage() {
   const [excelServiceStatus, setExcelServiceStatus] = useState<'running' | 'stopped' | 'starting' | 'stopping'>('stopped')
   const [isExcelLoading, setIsExcelLoading] = useState(false)
 
-  // Service URLs from environment or fallback
-  // Port mapping: api=8000, excel=8001, core=8002, marketplace=8003
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://46.224.205.183:8000';
-  const EXCEL_API = process.env.NEXT_PUBLIC_EXCEL_API_URL || 'http://46.224.205.183:8001';
-  const CORE_API = process.env.NEXT_PUBLIC_CORE_API_URL || 'http://46.224.205.183:8002';
-  const MARKETPLACE_API = process.env.NEXT_PUBLIC_MARKETPLACE_API_URL || 'http://46.224.205.183:8003';
+  // Service URLs from environment - use relative paths for security
+  // All requests proxied through Next.js API routes
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+  const EXCEL_API = process.env.NEXT_PUBLIC_EXCEL_API_URL || '';
+  const CORE_API = process.env.NEXT_PUBLIC_CORE_API_URL || '';
+  const MARKETPLACE_API = process.env.NEXT_PUBLIC_MARKETPLACE_API_URL || '';
 
   // Check all API statuses
   const checkAPIStatuses = async () => {
@@ -318,6 +318,118 @@ export default function ModulesPage() {
         'Enforcement - Canonical API'
       ],
       route: '/modules/protocol-kitchen'
+    },
+    {
+      id: 'neural-biofeedback',
+      name: '🧘 Neural Biofeedback',
+      description: 'Advanced brain training and meditation feedback system',
+      status: 'active' as const,
+      capabilities: [
+        'Alpha wave training',
+        'Theta meditation guidance',
+        'Beta focus enhancement',
+        'Real-time neural feedback',
+        'Relaxation monitoring'
+      ],
+      route: '/modules/neural-biofeedback'
+    },
+    {
+      id: 'neuroacoustic-converter',
+      name: '🎼 Neuroacoustic Converter',
+      description: 'Convert EEG signals to immersive audio experiences',
+      status: 'active' as const,
+      capabilities: [
+        'EEG to audio conversion',
+        'Real-time sound synthesis',
+        'Brain wave sonification',
+        'Audio export & sharing',
+        'Multi-frequency mapping'
+      ],
+      route: '/modules/neuroacoustic-converter'
+    },
+    {
+      id: 'crypto-dashboard',
+      name: '💰 Crypto Dashboard',
+      description: 'Cryptocurrency market monitoring and neural trading insights',
+      status: 'active' as const,
+      capabilities: [
+        'Real-time price tracking',
+        'Market trend analysis',
+        'Portfolio monitoring',
+        'Neural market predictions',
+        'Trading signal generation'
+      ],
+      route: '/modules/crypto-dashboard'
+    },
+    {
+      id: 'weather-dashboard',
+      name: '🌤️ Weather Dashboard',
+      description: 'Environmental monitoring and weather impact on neural states',
+      status: 'active' as const,
+      capabilities: [
+        'Real-time weather data',
+        'Atmospheric pressure tracking',
+        'Neural weather correlation',
+        'Environmental alerts',
+        'Climate pattern analysis'
+      ],
+      route: '/modules/weather-dashboard'
+    },
+    {
+      id: 'fitness-dashboard',
+      name: '💪 Fitness Dashboard',
+      description: 'Physical wellness tracking integrated with neural monitoring',
+      status: 'active' as const,
+      capabilities: [
+        'Activity tracking',
+        'Heart rate monitoring',
+        'Sleep quality analysis',
+        'Neural-physical correlation',
+        'Wellness recommendations'
+      ],
+      route: '/modules/fitness-dashboard'
+    },
+    {
+      id: 'curiosity-ocean',
+      name: '🌊 Curiosity Ocean',
+      description: 'Explore the depths of neural data with AI-powered discovery',
+      status: 'active' as const,
+      capabilities: [
+        'AI data exploration',
+        'Pattern discovery',
+        'Neural insight generation',
+        'Interactive visualization',
+        'Knowledge synthesis'
+      ],
+      route: '/modules/curiosity-ocean'
+    },
+    {
+      id: 'open-webui',
+      name: '🤖 Open WebUI',
+      description: 'AI chat interface for neural data interaction',
+      status: 'active' as const,
+      capabilities: [
+        'AI-powered chat',
+        'Neural data queries',
+        'Natural language analysis',
+        'Intelligent responses',
+        'Context-aware assistance'
+      ],
+      route: '/modules/open-webui'
+    },
+    {
+      id: 'about-us',
+      name: '👥 About Us',
+      description: 'Learn about the Clisonix team and our mission',
+      status: 'active' as const,
+      capabilities: [
+        'Team information',
+        'Company mission',
+        'Technology overview',
+        'Contact details',
+        'Partnership opportunities'
+      ],
+      route: '/modules/about-us'
     }
   ]
 

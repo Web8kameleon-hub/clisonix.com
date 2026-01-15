@@ -25,7 +25,8 @@ import {
 // REAL API ENDPOINTS - No fake data, no Math.random()
 // ============================================================================
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://46.224.205.183:8000'
+// Use relative paths for security - proxied through Next.js API routes
+const API_BASE = ''
 
 interface EndpointResult {
   name: string

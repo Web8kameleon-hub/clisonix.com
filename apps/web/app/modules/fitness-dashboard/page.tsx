@@ -57,14 +57,15 @@ interface EndpointConfig {
 }
 
 const ENDPOINTS: EndpointConfig[] = [
-  { name: 'Fitness Status', method: 'GET', path: '/api/fitness/status', description: 'Fitness service status' },
-  { name: 'Biometrics', method: 'GET', path: '/api/fitness/biometrics', description: 'Real-time biometric data' },
-  { name: 'Workouts', method: 'GET', path: '/api/fitness/workouts', description: 'Workout history' },
-  { name: 'Active Session', method: 'GET', path: '/api/fitness/session', description: 'Current workout session' },
-  { name: 'Achievements', method: 'GET', path: '/api/fitness/achievements', description: 'User achievements' },
+  { name: 'ASI Status', method: 'GET', path: '/api/asi/status', description: 'ASI Trinity system status' },
+  { name: 'ASI Health', method: 'GET', path: '/api/asi/health', description: 'System health metrics' },
+  { name: 'ALBI Metrics', method: 'GET', path: '/api/asi/albi/metrics', description: 'ALBI neural processor metrics' },
+  { name: 'ALBA Metrics', method: 'GET', path: '/api/asi/alba/metrics', description: 'ALBA network metrics' },
+  { name: 'JONA Metrics', method: 'GET', path: '/api/asi/jona/metrics', description: 'JONA coordination metrics' },
 ];
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://46.224.205.183:8000';
+// Use relative paths for security - proxied through Next.js API routes
+const API_BASE = '';
 
 export default function FitnessDashboardPage() {
   const [selectedEndpoint, setSelectedEndpoint] = useState<EndpointConfig>(ENDPOINTS[0]);
@@ -268,7 +269,7 @@ export default function FitnessDashboardPage() {
                 {selectedEndpoint.method}
               </span>
               <div className="flex-1 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 font-mono text-sm text-slate-300">
-                {API_BASE}{selectedEndpoint.path}
+                {selectedEndpoint.path}
               </div>
               <button
                 onClick={() => executeRequest(selectedEndpoint)}

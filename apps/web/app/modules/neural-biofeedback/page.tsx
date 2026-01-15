@@ -52,15 +52,15 @@ interface EndpointConfig {
 }
 
 const ENDPOINTS: EndpointConfig[] = [
-  { name: 'Biofeedback Status', method: 'GET', path: '/api/biofeedback/status', description: 'Training service status' },
-  { name: 'Training Progress', method: 'GET', path: '/api/biofeedback/progress', description: 'Overall training progress' },
-  { name: 'Active Session', method: 'GET', path: '/api/biofeedback/session', description: 'Current active session' },
-  { name: 'Alpha Training', method: 'GET', path: '/api/biofeedback/alpha', description: 'Alpha wave training data' },
-  { name: 'Theta Training', method: 'GET', path: '/api/biofeedback/theta', description: 'Theta wave training data' },
-  { name: 'Beta Training', method: 'GET', path: '/api/biofeedback/beta', description: 'Beta wave training data' },
+  { name: 'ASI Status', method: 'GET', path: '/api/asi/status', description: 'ASI Trinity system status' },
+  { name: 'ASI Health', method: 'GET', path: '/api/asi/health', description: 'System health check' },
+  { name: 'ALBI Metrics', method: 'GET', path: '/api/asi/albi/metrics', description: 'ALBI neural processor metrics' },
+  { name: 'ALBA Metrics', method: 'GET', path: '/api/asi/alba/metrics', description: 'ALBA network metrics' },
+  { name: 'JONA Metrics', method: 'GET', path: '/api/asi/jona/metrics', description: 'JONA coordination metrics' },
 ];
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://46.224.205.183:8000';
+// Use relative paths for security - proxied through Next.js API routes
+const API_BASE = '';
 
 export default function NeuralBiofeedbackPage() {
   const [selectedEndpoint, setSelectedEndpoint] = useState<EndpointConfig>(ENDPOINTS[0]);
@@ -261,7 +261,7 @@ export default function NeuralBiofeedbackPage() {
                 {selectedEndpoint.method}
               </span>
               <div className="flex-1 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 font-mono text-sm text-slate-300">
-                {API_BASE}{selectedEndpoint.path}
+                {selectedEndpoint.path}
               </div>
               <button
                 onClick={() => executeRequest(selectedEndpoint)}

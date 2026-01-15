@@ -252,7 +252,7 @@ export default function ExcelDashboardPage() {
           </a>
           
           <a
-            href="http://46.224.205.183:3001"
+            href="/grafana"
             target="_blank"
             className="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-semibold transition-all"
           >
