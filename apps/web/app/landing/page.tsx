@@ -324,7 +324,7 @@ export default function LandingPage() {
                 </li>
               </ul>
               <a 
-                href="mailto:enterprise@clisonix.com"
+                href="mailto:investors@clisonix.com?subject=Enterprise Partnership Inquiry"
                 className="block w-full py-3 text-center rounded-xl border border-gray-600 hover:border-gray-500 hover:bg-gray-800/50 transition-all"
               >
                 Contact Sales
