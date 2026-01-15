@@ -232,7 +232,7 @@ export default function MarketplacePage() {
           </div>
           <div>
             <div className="text-4xl font-bold text-cyan-400">12</div>
-            <div className="text-slate-400">Microservices</div>
+            <div className="text-slate-400">Core Modules</div>
           </div>
           <div>
             <div className="text-4xl font-bold text-purple-400">99.9%</div>

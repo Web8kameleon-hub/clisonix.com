@@ -146,9 +146,9 @@ export default function AboutUsPage() {
               {[
                 'REST APIs',
                 'Webhooks',
-                'Prometheus Metrics',
-                'VictoriaMetrics Storage',
-                'Grafana Visualization',
+                'Real-time Metrics',
+                'Time-series Storage',
+                'Live Dashboards',
                 'Low-bandwidth Feeds'
               ].map((item) => (
                 <div key={item} className="bg-purple-500/10 rounded-lg p-4 text-center">

@@ -46,7 +46,7 @@ export default function IndustrialDashboard() {
   useEffect(() => {
     const fetchRealData = async () => {
       try {
-        // Fetch REAL ASI metrics from Prometheus
+        // Fetch REAL ASI metrics
         const [statusRes, healthRes, albaRes, albiRes, jonaRes] = await Promise.allSettled([
           fetch('/api/asi/status'),
           fetch('/api/asi/health'),

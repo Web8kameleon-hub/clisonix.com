@@ -238,14 +238,14 @@ export default function ModulesPage() {
     {
       id: 'reporting-dashboard',
       name: '📈 ULTRA Reporting Center',
-      description: 'Excel-style executive dashboard blending Grafana, Prometheus, Datadog and Victoria metrics',
+      description: 'Excel-style executive dashboard with unified metrics, KPI visualization, and real-time analytics',
       status: 'active' as const,
       capabilities: [
         'Unified KPI grid with trends',
-        'Live Prometheus history sparklines',
+        'Live performance history sparklines',
         'Executive-ready export buttons',
-        'Alert rundown synced with AlertManager',
-        'Synthetic Datadog signal bridge'
+        'Alert rundown with notifications',
+        'Advanced analytics signal bridge'
       ],
       route: '/modules/reporting-dashboard'
     },
@@ -689,7 +689,7 @@ export default function ModulesPage() {
             </span>
           </div>
           <div className="text-xs text-gray-400">
-            Port: 8002 • {EXCEL_API}
+            Document Generation Service
           </div>
         </div>
 

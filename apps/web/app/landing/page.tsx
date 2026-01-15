@@ -71,7 +71,7 @@ export default function LandingPage() {
           {/* Subheadline */}
           <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed">
             Deploy production-ready APIs in minutes. Real-time monitoring, 
-            auto-scaling microservices, and enterprise security — all in one platform.
+            elastic auto-scaling, and enterprise security — all in one platform.
           </p>
 
           {/* CTA Buttons */}
@@ -144,7 +144,7 @@ export default function LandingPage() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold mb-2">Real-time Monitoring</h3>
-              <p className="text-gray-400">Grafana dashboards, Prometheus metrics, and instant alerts built-in.</p>
+              <p className="text-gray-400">Live dashboards, performance metrics, and instant alerts built-in.</p>
             </div>
 
             {/* Feature 3 */}
@@ -155,7 +155,7 @@ export default function LandingPage() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold mb-2">Managed Database</h3>
-              <p className="text-gray-400">PostgreSQL with automatic backups, scaling, and point-in-time recovery.</p>
+              <p className="text-gray-400">Enterprise database with automatic backups, scaling, and point-in-time recovery.</p>
             </div>
 
             {/* Feature 4 */}
@@ -176,8 +176,8 @@ export default function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Docker Native</h3>
-              <p className="text-gray-400">Containerized microservices with automatic orchestration and scaling.</p>
+              <h3 className="text-xl font-semibold mb-2">Cloud Native</h3>
+              <p className="text-gray-400">Modern architecture with automatic orchestration and elastic scaling.</p>
             </div>
 
             {/* Feature 6 */}

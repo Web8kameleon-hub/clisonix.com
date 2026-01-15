@@ -251,13 +251,12 @@ export default function ExcelDashboardPage() {
             📊 API Dashboard
           </a>
           
-          <a
-            href="/grafana"
-            target="_blank"
+          <Link
+            href="/modules/reporting-dashboard"
             className="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-semibold transition-all"
           >
-            📈 Grafana
-          </a>
+            📈 Analytics Center
+          </Link>
           
           <Link 
             href="/modules"

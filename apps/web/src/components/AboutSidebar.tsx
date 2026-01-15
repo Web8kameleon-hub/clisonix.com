@@ -177,7 +177,7 @@ export default function AboutSidebar() {
               <span>🛠️</span> Built With
             </h3>
             <div className="flex flex-wrap gap-2">
-              {['Next.js', 'FastAPI', 'Python', 'TypeScript', 'Docker', 'Prometheus', 'Grafana', 'PostgreSQL', 'Redis', 'LoRaWAN'].map((tech) => (
+              {['Next.js', 'FastAPI', 'Python', 'TypeScript', 'Cloud Native', 'Real-time Analytics', 'Enterprise Database', 'IoT Ready', 'LoRaWAN'].map((tech) => (
                 <span 
                   key={tech}
                   className="px-3 py-1 bg-white/10 text-gray-300 rounded-full text-xs font-medium"

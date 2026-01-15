@@ -97,24 +97,21 @@ const ASI_TRINITY = [
     role: 'Analytical Intelligence',
     description: 'Pattern recognition, data analysis, and logical reasoning',
     icon: '🔬',
-    color: 'from-blue-400 to-cyan-500',
-    port: 5555
+    color: 'from-blue-400 to-cyan-500'
   },
   {
     name: 'ALBI',
     role: 'Creative Intelligence',
     description: 'Innovation, artistic generation, and creative problem solving',
     icon: '🎨',
-    color: 'from-purple-400 to-pink-500',
-    port: 6666
+    color: 'from-purple-400 to-pink-500'
   },
   {
     name: 'JONA',
     role: 'Coordinator Intelligence',
-    description: 'Orchestrates ALBA and ALBI for unified responses',
+    description: 'Orchestrates ALBA and ALBI for unified intelligence',
     icon: '∞',
-    color: 'from-amber-400 to-orange-500',
-    port: 8000
+    color: 'from-amber-400 to-orange-500'
   }
 ];
 
@@ -185,13 +182,11 @@ export default function HomePage() {
             
             <div className="flex items-center gap-4">
               <a 
-                href="/grafana" 
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/modules/reporting-dashboard" 
                 className="hidden sm:flex items-center gap-2 text-gray-400 hover:text-green-400 transition-colors"
               >
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                Grafana
+                Analytics
               </a>
               <Link 
                 href="/modules"
@@ -392,14 +387,14 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-4 gap-6">
             {[
-              { name: 'Docker', desc: '13 Microservices', icon: '🐳' },
-              { name: 'PostgreSQL', desc: 'Main Database', icon: '🗄️' },
-              { name: 'Redis', desc: 'Cache & Sessions', icon: '⚡' },
-              { name: 'Grafana', desc: 'Monitoring', icon: '📊' },
-              { name: 'Prometheus', desc: 'Metrics', icon: '📈' },
-              { name: 'Next.js 14', desc: 'Frontend', icon: '⚛️' },
-              { name: 'FastAPI', desc: 'Backend', icon: '🐍' },
-              { name: 'MinIO', desc: 'Object Storage', icon: '💾' },
+              { name: 'Cloud Native', desc: 'Enterprise Infrastructure', icon: '☁️' },
+              { name: 'Real-time', desc: 'Live Data Processing', icon: '⚡' },
+              { name: 'Secure', desc: 'Enterprise Security', icon: '🔒' },
+              { name: 'Analytics', desc: 'Advanced Monitoring', icon: '📊' },
+              { name: 'Scalable', desc: 'Auto-scaling', icon: '📈' },
+              { name: 'Modern UI', desc: 'Responsive Design', icon: '✨' },
+              { name: 'API First', desc: 'RESTful Services', icon: '🔗' },
+              { name: 'Storage', desc: 'Secure Data', icon: '💾' },
             ].map((tech) => (
               <div 
                 key={tech.name}
@@ -425,19 +420,19 @@ export default function HomePage() {
             
             <div className="grid md:grid-cols-3 gap-4">
               <div className="p-4 rounded-lg bg-slate-900/50 text-center">
-                <p className="text-gray-400 text-sm">API Gateway</p>
+                <p className="text-gray-400 text-sm">Core Services</p>
                 <p className="text-2xl font-bold text-green-400">Online</p>
-                <p className="text-xs text-gray-500">Port 8000</p>
+                <p className="text-xs text-gray-500">All systems operational</p>
               </div>
               <div className="p-4 rounded-lg bg-slate-900/50 text-center">
-                <p className="text-gray-400 text-sm">Web Frontend</p>
-                <p className="text-2xl font-bold text-green-400">Online</p>
-                <p className="text-xs text-gray-500">Port 3000</p>
+                <p className="text-gray-400 text-sm">ASI Trinity</p>
+                <p className="text-2xl font-bold text-green-400">Active</p>
+                <p className="text-xs text-gray-500">ALBA • ALBI • JONA</p>
               </div>
               <div className="p-4 rounded-lg bg-slate-900/50 text-center">
-                <p className="text-gray-400 text-sm">Monitoring</p>
-                <p className="text-2xl font-bold text-green-400">Online</p>
-                <p className="text-xs text-gray-500">Grafana 3001</p>
+                <p className="text-gray-400 text-sm">Uptime</p>
+                <p className="text-2xl font-bold text-green-400">99.97%</p>
+                <p className="text-xs text-gray-500">30-day average</p>
               </div>
             </div>
             
@@ -477,10 +472,10 @@ export default function HomePage() {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4 text-gray-300">Monitoring</h4>
+              <h4 className="font-semibold mb-4 text-gray-300">Resources</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="/grafana" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">Grafana</a></li>
-                <li><a href="/prometheus" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">Prometheus</a></li>
+                <li><Link href="/developers" className="hover:text-cyan-400 transition-colors">Documentation</Link></li>
+                <li><Link href="/marketplace" className="hover:text-cyan-400 transition-colors">Marketplace</Link></li>
               </ul>
             </div>
             <div>

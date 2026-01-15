@@ -137,7 +137,7 @@ cycles.forEach(c => {
             Build with <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Clisonix API</span>
           </h1>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-8">
-            Integrate powerful real-time analytics and microservice orchestration into your applications with our RESTful API and SDKs.
+            Integrate powerful real-time analytics and intelligent automation into your applications with our RESTful API and SDKs.
           </p>
           <div className="flex justify-center gap-4">
             <a 
