@@ -305,7 +305,7 @@ export default function HomePage() {
                 <p className="text-gray-400 mb-4">{asi.description}</p>
                 <div className="flex items-center gap-2 text-sm">
                   <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                  <span className="text-gray-500">Port {asi.port}</span>
+                  <span className="text-gray-500">Active</span>
                 </div>
               </div>
             ))}
