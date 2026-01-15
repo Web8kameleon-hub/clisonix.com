@@ -338,7 +338,7 @@ export default function UltraReportingDashboard() {
                   <div key={service.name} className="p-4 rounded-lg bg-gray-900/50 border border-gray-700/30">
                     <div className="flex items-center gap-2 mb-2">
                       <div className={`w-2 h-2 rounded-full ${getStatusColor(service.status)} animate-pulse`}></div>
-                      <span className="text-xs text-gray-400">:{service.port}</span>
+                      <span className="text-xs text-gray-400">Active</span>
                     </div>
                     <p className="text-sm font-medium text-white truncate">{service.name}</p>
                     {service.responseTime && (
