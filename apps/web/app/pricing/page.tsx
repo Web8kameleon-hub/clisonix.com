@@ -31,7 +31,7 @@ export default function PricingPage() {
     {
       name: 'Professional',
       description: 'For growing teams and production workloads',
-      price: { monthly: 79, annual: 790 },
+      price: { monthly: 19, annual: 180 },
       features: [
         '🎁 6 MONTHS FREE for early adopters',
         '100,000 API calls/month',
@@ -49,7 +49,7 @@ export default function PricingPage() {
     {
       name: 'Enterprise',
       description: 'For large organizations with custom needs',
-      price: { monthly: 299, annual: 2990 },
+      price: { monthly: 49, annual: 490 },
       features: [
         'Unlimited API calls',
         'Dedicated ASI Trinity cluster',
