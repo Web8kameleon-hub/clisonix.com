@@ -95,7 +95,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6">
           <p className="text-center text-gray-400 text-sm mb-8">TRUSTED BY AI & DATA PLATFORMS</p>
           <div className="flex flex-wrap justify-center items-center gap-12 opacity-50">
-            <span className="text-2xl text-white font-bold">NeuroSonix</span>
+            <span className="text-2xl text-white font-bold">Clisonix</span>
             <span className="text-2xl text-white font-bold">AI Studio</span>
             <span className="text-2xl text-white font-bold">DataFlow</span>
             <span className="text-2xl text-white font-bold">ML Ops</span>

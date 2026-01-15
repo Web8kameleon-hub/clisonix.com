@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 /**
- * NEUROSONIX HOME PAGE
+ * CLISONIX HOME PAGE
  * Showcasing ASI Trinity, Real Modules, and Live System Status
  */
 
@@ -167,9 +167,9 @@ export default function HomePage() {
               </div>
               <div>
                 <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                  Neurosonix
+                  Clisonix
                 </span>
-                <span className="text-xs text-gray-500 block -mt-1">by Clisonix</span>
+                <span className="text-xs text-gray-500 block -mt-1">Neural Intelligence</span>
               </div>
             </div>
             
@@ -219,7 +219,7 @@ export default function HomePage() {
           {/* Main Headline */}
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
             <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              Neurosonix
+              Clisonix
             </span>
             <br />
             <span className="text-3xl md:text-5xl bg-gradient-to-r from-gray-300 via-white to-gray-300 bg-clip-text text-transparent">
@@ -456,7 +456,7 @@ export default function HomePage() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-2xl">🧠</span>
-                <span className="text-lg font-bold">Neurosonix</span>
+                <span className="text-lg font-bold">Clisonix</span>
               </div>
               <p className="text-gray-400 text-sm">
                 Neural Intelligence Platform<br />
@@ -488,7 +488,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="pt-8 border-t border-slate-800 text-center text-gray-500 text-sm">
-            © 2026 Neurosonix by Clisonix. All rights reserved.
+            © 2026 Clisonix. All rights reserved.
           </div>
         </div>
       </footer>
