@@ -404,20 +404,6 @@ export default function ModulesPage() {
       route: '/modules/curiosity-ocean'
     },
     {
-      id: 'open-webui',
-      name: '🤖 Open WebUI',
-      description: 'AI chat interface for neural data interaction',
-      status: 'active' as const,
-      capabilities: [
-        'AI-powered chat',
-        'Neural data queries',
-        'Natural language analysis',
-        'Intelligent responses',
-        'Context-aware assistance'
-      ],
-      route: '/modules/open-webui'
-    },
-    {
       id: 'about-us',
       name: '👥 About Us',
       description: 'Learn about the Clisonix team and our mission',
