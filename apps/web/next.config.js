@@ -182,6 +182,21 @@ const nextConfig = {
         source: '/api/system-metrics',
         destination: `${REPORTING_BASE}/api/reporting/system-metrics`,
       },
+      // ===== ALBI EEG API =====
+      {
+        source: '/api/albi/:path*',
+        destination: `${API_BASE}/api/albi/:path*`,
+      },
+      // ===== ALBA API =====
+      {
+        source: '/api/alba/:path*',
+        destination: `${API_BASE}/api/alba/:path*`,
+      },
+      // ===== ASI API (general) =====
+      {
+        source: '/api/asi/:path*',
+        destination: `${API_BASE}/api/asi/:path*`,
+      },
     ];
   },
 
