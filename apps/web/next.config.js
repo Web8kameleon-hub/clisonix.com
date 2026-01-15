@@ -3,11 +3,11 @@
  * Production-ready with API rewrites for backend proxy
  */
 
-// PRODUCTION: Hetzner Server IP (46.224.205.183 / clisonix.com)
-// Docker network: 'http://clisonix-api:8000' for internal container communication
+// PRODUCTION: Docker internal communication
+// Docker network: 'http://api:8000' for internal container communication
 // External: 'http://46.224.205.183:8000' for direct access
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://46.224.205.183:8000';
-const REPORTING_BASE = process.env.API_INTERNAL_URL || 'http://46.224.205.183:8001';
+const API_BASE = process.env.API_INTERNAL_URL || 'http://api:8000';
+const REPORTING_BASE = process.env.REPORTING_INTERNAL_URL || 'http://api:8000';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -156,6 +156,11 @@ const nextConfig = {
       // Backend status specifically
       {
         source: '/backend/status',
+        destination: `${API_BASE}/health`,
+      },
+      // Direct /health endpoint proxy
+      {
+        source: '/health',
         destination: `${API_BASE}/health`,
       },
       // ===== REPORTING API (Port 8001) =====

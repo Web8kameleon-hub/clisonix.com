@@ -75,9 +75,9 @@ export default function DataCollectionPage() {
       error: null
     },
     {
-      name: 'Unified Status Layer',
+      name: 'ASI Trinity Status',
       method: 'GET',
-      url: `${API_BASE}/api/system/health`,
+      url: `${API_BASE}/api/asi/status`,
       status: null,
       statusText: 'Not tested',
       responseTime: null,
@@ -99,9 +99,9 @@ export default function DataCollectionPage() {
       error: null
     },
     {
-      name: 'Docker Containers',
+      name: 'ALBA Metrics',
       method: 'GET',
-      url: `${API_BASE}/api/reporting/docker-containers`,
+      url: `${API_BASE}/api/asi/alba/metrics`,
       status: null,
       statusText: 'Not tested',
       responseTime: null,
@@ -123,9 +123,9 @@ export default function DataCollectionPage() {
       error: null
     },
     {
-      name: 'ASI Status',
+      name: 'ASI Health',
       method: 'GET',
-      url: `${API_BASE}/api/asi/status`,
+      url: `${API_BASE}/api/asi/health`,
       status: null,
       statusText: 'Not tested',
       responseTime: null,
