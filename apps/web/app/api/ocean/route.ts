@@ -44,12 +44,46 @@ const KNOWLEDGE_BASE: Record<string, { answer: string; related: string[]; deeper
     answer: "🤖 Artificial Intelligence encompasses systems that can perform tasks typically requiring human intelligence - learning, reasoning, problem-solving, perception. Our ASI Trinity represents a practical implementation: ALBA monitors network intelligence, ALBI processes neural patterns, and JONA coordinates data synthesis. Together they create an intelligent, adaptive system.",
     related: ["Machine learning", "Deep learning", "AGI vs narrow AI"],
     deeper: ["Will AI surpass human intelligence?", "How do large language models work?", "What are the limits of current AI?"]
+  },
+  limits: {
+    answer: "🚧 Current AI has several fundamental limitations: **1) No true understanding** - AI processes patterns without comprehending meaning. **2) Hallucinations** - generates confident but incorrect information. **3) No common sense reasoning** - struggles with intuitive physics and social norms. **4) Data dependency** - only knows what it was trained on. **5) No creativity** - recombines existing patterns, doesn't truly innovate. **6) Energy intensive** - requires massive computational power. Our ASI Trinity addresses some of these through distributed processing and real-time adaptation.",
+    related: ["AI hallucinations", "Explainable AI", "AI safety research"],
+    deeper: ["Can AI ever truly understand?", "How do we make AI more reliable?", "What problems can't AI solve?"]
+  },
+  neurons: {
+    answer: "🌱 Yes! Adults can grow new neurons through a process called **neurogenesis**, primarily in the hippocampus (memory) and olfactory bulb (smell). Exercise, learning, sleep, and reduced stress all promote neurogenesis. However, the rate is much slower than in children. Our ALBI Neural Processor is inspired by this biological regeneration - continuously creating new neural pathways and patterns.",
+    related: ["Adult neurogenesis", "Hippocampal growth", "Brain-derived neurotrophic factor (BDNF)"],
+    deeper: ["How can we boost neurogenesis?", "Does neurogenesis decline with age?", "What kills new neurons?"]
+  },
+  learning: {
+    answer: "📚 Learning physically changes the brain through **synaptic strengthening** (Long-Term Potentiation), **myelination** (faster signal transmission), and **structural changes** (new dendritic spines). When you learn something, neurons fire together and wire together - creating stronger connections. Sleep consolidates these changes. Our ASI Trinity mimics this: ALBA strengthens network pathways, ALBI refines processing patterns, JONA optimizes data flow.",
+    related: ["Hebbian learning", "Sleep and memory", "Skill acquisition"],
+    deeper: ["Why is spaced repetition effective?", "How does sleep improve learning?", "Can we accelerate learning?"]
+  },
+  transformers: {
+    answer: "⚡ Transformers revolutionized AI through the **attention mechanism** - allowing models to focus on relevant parts of input regardless of distance. Unlike RNNs that process sequentially, transformers process all tokens in parallel with self-attention. Key components: Query-Key-Value attention, positional encoding, and layer normalization. GPT, BERT, and our JONA coordinator all use transformer-inspired architectures for efficient data synthesis.",
+    related: ["Self-attention mechanism", "BERT vs GPT", "Positional encoding"],
+    deeper: ["Why are transformers so effective?", "What comes after transformers?", "How does attention scale?"]
+  },
+  creative: {
+    answer: "🎨 Neural networks can exhibit **combinatorial creativity** - recombining existing patterns in novel ways. They can generate art, music, and text that appears creative. However, they lack **true intentionality** and **conceptual understanding**. A network doesn't 'want' to create or understand why something is beautiful. Our ALBI processor generates novel patterns, but creativity emerges from the system's adaptive responses, not conscious intention.",
+    related: ["Generative AI", "Computational creativity", "AI art"],
+    deeper: ["Is AI creativity real creativity?", "Can AI have artistic intent?", "Will AI replace artists?"]
   }
 }
 
 function findBestMatch(question: string): { answer: string; related: string[]; deeper: string[] } | null {
   const q = question.toLowerCase()
   
+  // Check specific phrases first (more specific = higher priority)
+  if (q.includes('limit') || q.includes('limitation') || q.includes('can\'t do') || q.includes('cannot')) return KNOWLEDGE_BASE.limits
+  if (q.includes('grow new neuron') || q.includes('adult') && q.includes('neuron')) return KNOWLEDGE_BASE.neurons
+  if (q.includes('learning change') || q.includes('learn') && q.includes('brain')) return KNOWLEDGE_BASE.learning
+  if (q.includes('transformer') || q.includes('attention mechanism')) return KNOWLEDGE_BASE.transformers
+  if (q.includes('creative') || q.includes('creativity') || q.includes('art')) return KNOWLEDGE_BASE.creative
+  if (q.includes('difference') && q.includes('ai') && q.includes('human')) return KNOWLEDGE_BASE.learning
+  
+  // Then check general keywords
   for (const [key, value] of Object.entries(KNOWLEDGE_BASE)) {
     if (q.includes(key)) {
       return value
