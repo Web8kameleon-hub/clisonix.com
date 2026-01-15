@@ -197,6 +197,11 @@ const nextConfig = {
         source: '/api/asi/:path*',
         destination: `${API_BASE}/api/asi/:path*`,
       },
+      // ===== JONA Neural Synthesis API =====
+      {
+        source: '/api/jona/:path*',
+        destination: `${API_BASE}/api/jona/:path*`,
+      },
     ];
   },
 
