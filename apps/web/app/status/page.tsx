@@ -32,31 +32,10 @@ export default function StatusPage() {
     { name: 'Authentication', status: 'operational', latency: 35, uptime: '99.98%' },
   ];
 
-  const incidents = [
-    {
-      date: '2026-01-12',
-      title: 'Scheduled Maintenance Complete',
-      status: 'resolved',
-      description: 'Database optimization completed successfully. All services restored.',
-      duration: '45 minutes'
-    },
-    {
-      date: '2026-01-08',
-      title: 'Minor API Latency Increase',
-      status: 'resolved', 
-      description: 'Increased latency detected on API Gateway. Root cause: traffic spike. Auto-scaled successfully.',
-      duration: '12 minutes'
-    },
-  ];
+  const incidents: { date: string; title: string; status: string; description: string; duration: string }[] = [];
 
-  const uptimeHistory = [
-    { month: 'Jan 2026', uptime: 99.97 },
-    { month: 'Dec 2025', uptime: 99.99 },
-    { month: 'Nov 2025', uptime: 99.98 },
-    { month: 'Oct 2025', uptime: 99.96 },
-    { month: 'Sep 2025', uptime: 99.99 },
-    { month: 'Aug 2025', uptime: 100.00 },
-  ];
+  // Uptime history will be populated with real data
+  const uptimeHistory: { month: string; uptime: number }[] = [];
 
   useEffect(() => {
     setLastUpdated(new Date().toLocaleString());

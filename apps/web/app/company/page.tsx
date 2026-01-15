@@ -11,9 +11,8 @@ export default function CompanyPage() {
   const milestones = [
     { year: '2024', title: 'Founded', desc: 'Clisonix founded with vision to democratize AI' },
     { year: '2024', title: 'ASI Trinity', desc: 'Core AI architecture developed (ALBA, ALBI, JONA)' },
-    { year: '2025', title: 'Platform Launch', desc: '15+ modules released, first enterprise customers' },
-    { year: '2025', title: 'SOC 2 Certified', desc: 'Enterprise security compliance achieved' },
-    { year: '2026', title: 'Global Scale', desc: 'Serving developers across 50+ countries' },
+    { year: '2025', title: 'Platform Launch', desc: '15+ modules released, platform goes live' },
+    { year: '2026', title: 'Public Beta', desc: 'Open access with 6-month free trial for early adopters' },
   ];
 
   const values = [
@@ -50,10 +49,10 @@ export default function CompanyPage() {
   ];
 
   const stats = [
-    { value: '50+', label: 'Countries Served' },
-    { value: '99.97%', label: 'Platform Uptime' },
     { value: '15+', label: 'AI Modules' },
-    { value: '<50ms', label: 'API Latency' },
+    { value: '150+', label: 'API Endpoints' },
+    { value: '24/7', label: 'Monitoring' },
+    { value: '<100ms', label: 'Avg Latency' },
   ];
 
   return (

@@ -9,10 +9,10 @@ import Link from 'next/link';
 
 export default function SecurityPage() {
   const certifications = [
-    { name: 'SOC 2 Type II', icon: '🛡️', desc: 'Audited security controls', status: 'Certified' },
-    { name: 'GDPR', icon: '🇪🇺', desc: 'EU data protection compliant', status: 'Compliant' },
-    { name: 'ISO 27001', icon: '📋', desc: 'Information security management', status: 'In Progress' },
-    { name: 'HIPAA', icon: '🏥', desc: 'Healthcare data ready', status: 'Available' },
+    { name: 'SOC 2 Type II', icon: '🛡️', desc: 'Audited security controls', status: 'Planned 2026' },
+    { name: 'GDPR', icon: '🇪🇺', desc: 'EU data protection ready', status: 'Compliant' },
+    { name: 'ISO 27001', icon: '📋', desc: 'Information security management', status: 'Planned' },
+    { name: 'HIPAA', icon: '🏥', desc: 'Healthcare data ready', status: 'On Request' },
   ];
 
   const securityFeatures = [

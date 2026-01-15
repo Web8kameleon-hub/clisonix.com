@@ -33,18 +33,18 @@ export default function PricingPage() {
       description: 'For growing teams and production workloads',
       price: { monthly: 79, annual: 790 },
       features: [
+        '🎁 6 MONTHS FREE for early adopters',
         '100,000 API calls/month',
         'Full ASI Trinity access',
         'All 15+ modules',
         'Priority email support',
         '99.9% uptime SLA',
         'Sub-100ms latency',
-        'Custom dashboards',
-        'Webhook integrations'
+        'Custom dashboards'
       ],
-      cta: 'Start Trial',
+      cta: 'Start Free 6 Months',
       highlighted: true,
-      badge: 'Most Popular'
+      badge: '6 Months Free'
     },
     {
       name: 'Enterprise',
@@ -71,7 +71,7 @@ export default function PricingPage() {
   const faqs = [
     {
       q: 'Can I try Clisonix before committing?',
-      a: 'Yes! Our Starter plan is completely free with 10,000 API calls per month. Professional plans include a 14-day free trial with full features.'
+      a: 'Yes! Our Starter plan is completely free forever. Professional plan includes 6 MONTHS FREE for early adopters - no credit card required.'
     },
     {
       q: 'What happens if I exceed my API limits?',
