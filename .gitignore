@@ -165,4 +165,8 @@ instance/
 tmp/
 temp/
 
+# Session reports (local testing)
+session_report_*.json
+
+# Clisonix nested repo
 Clisonix-cloud/
