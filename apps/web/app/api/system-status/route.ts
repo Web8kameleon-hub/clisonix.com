@@ -1,33 +1,45 @@
 import { NextResponse } from 'next/server'
 
-// PRODUCTION: Hetzner server IP / clisonix.com
+// SERVER-TO-SERVER: Use localhost to bypass Cloudflare
 // Port 8000 = Main API (has /status endpoint)
-// Port 8001 = Reporting microservice
-const MAIN_API = 'http://46.224.205.183:8000'
-const API_BASE = (process.env.NEXT_PUBLIC_API_BASE || process.env.API_INTERNAL_URL || MAIN_API).replace(/\/$/, '')
+const API_INTERNAL = 'http://127.0.0.1:8000'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export async function GET() {
   try {
-    const upstream = await fetch(`${API_BASE}/status`, {
+    const upstream = await fetch(`${API_INTERNAL}/status`, {
       headers: { Accept: 'application/json' },
       cache: 'no-store',
     })
 
     if (!upstream.ok) {
       const body = await upstream.text()
-      throw new Error(`Upstream ${API_BASE}/status responded ${upstream.status}: ${body}`)
+      throw new Error(`Upstream responded ${upstream.status}: ${body}`)
     }
 
     const payload = await upstream.json()
-    return NextResponse.json({ success: true, data: payload })
+    return NextResponse.json({ success: true, data: payload }, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Access-Control-Allow-Origin': '*'
+      }
+    })
   } catch (error: unknown) {
-    console.error('[system-status] using fallback payload:', error)
+    console.error('[system-status] error:', error)
     const fallback = {
-      core_services: 'Degraded',
-      network: 'Disconnected',
-      maintenance: 'Offline',
-      data_integrity: 'Unverified',
       timestamp: new Date().toISOString(),
+      instance_id: 'fallback',
+      status: 'error',
+      uptime: 'N/A',
+      memory: { used: 0, total: 0 },
+      system: {
+        cpu_percent: 0,
+        memory_percent: 0,
+        disk_percent: 0,
+        hostname: 'unknown'
+      }
     }
     return NextResponse.json({ success: false, data: fallback }, { status: 200 })
   }
