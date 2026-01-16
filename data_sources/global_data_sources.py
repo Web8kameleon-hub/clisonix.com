@@ -2,19 +2,24 @@
 """
 🌍 CLISONIX GLOBAL DATA SOURCES - MASTER INDEX
 ===============================================
-3000+ Free Open Data Sources from 100+ Countries
+5000+ Free Open Data Sources from 200+ Countries
 
 This is the master file that combines all regional data sources
 into a single unified interface for the Clisonix platform.
 
 MODULES INCLUDED:
-- europe_sources.py            (800+ sources - 20 countries)
-- americas_sources.py          (600+ sources - 16 countries)
-- asia_oceania_global_sources.py (600+ sources - 15 countries + global)
-- africa_middle_east_sources.py  (500+ sources - 30+ countries)
-- india_south_asia_sources.py  (600+ sources - 5 countries)
+- europe_sources.py                  (1000+ sources - 20 West European countries)
+- eastern_europe_balkans_sources.py  (600+ sources - 19 Eastern European countries)
+- americas_sources.py                (600+ sources - 16 American countries)
+- caribbean_central_america_sources.py (300+ sources - 28 Caribbean & Central American countries)
+- asia_china_sources.py              (800+ sources - 7 East Asian countries)
+- asia_oceania_global_sources.py     (600+ sources - 15 countries + global orgs)
+- india_south_asia_sources.py        (800+ sources - 5 South Asian countries)
+- central_asia_caucasus_sources.py   (300+ sources - 8 Central Asian & Caucasus countries)
+- africa_middle_east_sources.py      (600+ sources - 30+ countries)
+- pacific_islands_sources.py         (200+ sources - 20+ Pacific Island nations)
 
-TOTAL: 3000+ Open Data Sources
+TOTAL: 5000+ Open Data Sources from 200+ Countries
 
 CATEGORIES COVERED:
 - Government & Statistics
@@ -116,6 +121,11 @@ COUNTRY_TO_REGION = {
     "DK": Region.EUROPE, "FI": Region.EUROPE, "IE": Region.EUROPE,
     "PT": Region.EUROPE, "GR": Region.EUROPE, "CZ": Region.EUROPE,
     "HU": Region.EUROPE, "RO": Region.EUROPE, "UA": Region.EUROPE,
+    "SK": Region.EUROPE, "BG": Region.EUROPE, "RS": Region.EUROPE,
+    "HR": Region.EUROPE, "SI": Region.EUROPE, "BA": Region.EUROPE,
+    "AL": Region.EUROPE, "MK": Region.EUROPE, "ME": Region.EUROPE,
+    "XK": Region.EUROPE, "MD": Region.EUROPE, "BY": Region.EUROPE,
+    "LT": Region.EUROPE, "LV": Region.EUROPE, "EE": Region.EUROPE,
     
     # Americas
     "US": Region.NORTH_AMERICA, "CA": Region.NORTH_AMERICA,
@@ -123,6 +133,18 @@ COUNTRY_TO_REGION = {
     "AR": Region.SOUTH_AMERICA, "CL": Region.SOUTH_AMERICA,
     "CO": Region.SOUTH_AMERICA, "PE": Region.SOUTH_AMERICA,
     "VE": Region.SOUTH_AMERICA, "EC": Region.SOUTH_AMERICA,
+    
+    # Caribbean
+    "CU": Region.NORTH_AMERICA, "JM": Region.NORTH_AMERICA,
+    "HT": Region.NORTH_AMERICA, "DO": Region.NORTH_AMERICA,
+    "PR": Region.NORTH_AMERICA, "BS": Region.NORTH_AMERICA,
+    "TT": Region.NORTH_AMERICA, "BB": Region.NORTH_AMERICA,
+    
+    # Central America
+    "GT": Region.NORTH_AMERICA, "HN": Region.NORTH_AMERICA,
+    "SV": Region.NORTH_AMERICA, "NI": Region.NORTH_AMERICA,
+    "CR": Region.NORTH_AMERICA, "PA": Region.NORTH_AMERICA,
+    "BZ": Region.NORTH_AMERICA,
     
     # East Asia
     "CN": Region.EAST_ASIA, "JP": Region.EAST_ASIA, "KR": Region.EAST_ASIA,
@@ -139,6 +161,18 @@ COUNTRY_TO_REGION = {
     
     # Oceania
     "AU": Region.OCEANIA, "NZ": Region.OCEANIA,
+    "FJ": Region.OCEANIA, "PG": Region.OCEANIA, "SB": Region.OCEANIA,
+    "VU": Region.OCEANIA, "NC": Region.OCEANIA, "WS": Region.OCEANIA,
+    "TO": Region.OCEANIA, "PF": Region.OCEANIA, "GU": Region.OCEANIA,
+    "PW": Region.OCEANIA, "FM": Region.OCEANIA, "MH": Region.OCEANIA,
+    "KI": Region.OCEANIA, "NR": Region.OCEANIA, "TV": Region.OCEANIA,
+    "CK": Region.OCEANIA, "NU": Region.OCEANIA, "AS": Region.OCEANIA,
+    
+    # Central Asia & Caucasus
+    "KZ": Region.EAST_ASIA, "UZ": Region.EAST_ASIA,
+    "TJ": Region.EAST_ASIA, "KG": Region.EAST_ASIA,
+    "TM": Region.EAST_ASIA, "GE": Region.MIDDLE_EAST,
+    "AM": Region.MIDDLE_EAST, "AZ": Region.MIDDLE_EAST,
     
     # Middle East
     "SA": Region.MIDDLE_EAST, "AE": Region.MIDDLE_EAST, "IL": Region.MIDDLE_EAST,
@@ -173,11 +207,26 @@ COUNTRY_NAMES = {
     "BE": "Belgium", "SE": "Sweden", "NO": "Norway",
     "DK": "Denmark", "FI": "Finland", "IE": "Ireland",
     "PT": "Portugal", "GR": "Greece", "CZ": "Czech Republic",
+    "SK": "Slovakia", "HU": "Hungary", "RO": "Romania",
+    "UA": "Ukraine", "BG": "Bulgaria", "RS": "Serbia",
+    "HR": "Croatia", "SI": "Slovenia", "BA": "Bosnia and Herzegovina",
+    "AL": "Albania", "MK": "North Macedonia", "ME": "Montenegro",
+    "XK": "Kosovo", "MD": "Moldova", "BY": "Belarus",
+    "LT": "Lithuania", "LV": "Latvia", "EE": "Estonia",
     
     # Americas
     "US": "United States", "CA": "Canada", "MX": "Mexico",
     "BR": "Brazil", "AR": "Argentina", "CL": "Chile",
     "CO": "Colombia", "PE": "Peru",
+    
+    # Caribbean
+    "CU": "Cuba", "JM": "Jamaica", "HT": "Haiti",
+    "DO": "Dominican Republic", "PR": "Puerto Rico",
+    "BS": "Bahamas", "TT": "Trinidad and Tobago", "BB": "Barbados",
+    
+    # Central America
+    "GT": "Guatemala", "HN": "Honduras", "SV": "El Salvador",
+    "NI": "Nicaragua", "CR": "Costa Rica", "PA": "Panama", "BZ": "Belize",
     
     # Asia
     "CN": "China", "JP": "Japan", "KR": "South Korea",
@@ -189,6 +238,17 @@ COUNTRY_NAMES = {
     
     # Oceania
     "AU": "Australia", "NZ": "New Zealand",
+    "FJ": "Fiji", "PG": "Papua New Guinea", "SB": "Solomon Islands",
+    "VU": "Vanuatu", "NC": "New Caledonia", "WS": "Samoa",
+    "TO": "Tonga", "PF": "French Polynesia", "GU": "Guam",
+    "PW": "Palau", "FM": "Micronesia", "MH": "Marshall Islands",
+    "KI": "Kiribati", "NR": "Nauru", "TV": "Tuvalu",
+    "CK": "Cook Islands", "NU": "Niue", "AS": "American Samoa",
+    
+    # Central Asia & Caucasus
+    "KZ": "Kazakhstan", "UZ": "Uzbekistan", "TJ": "Tajikistan",
+    "KG": "Kyrgyzstan", "TM": "Turkmenistan", "GE": "Georgia",
+    "AM": "Armenia", "AZ": "Azerbaijan",
     
     # Middle East
     "SA": "Saudi Arabia", "AE": "UAE", "IL": "Israel",
@@ -253,6 +313,36 @@ class GlobalDataSources:
         try:
             from india_south_asia_sources import ALL_INDIA_SOUTH_ASIA_SOURCES
             self._all_sources.extend(ALL_INDIA_SOUTH_ASIA_SOURCES)
+        except ImportError:
+            pass
+        
+        try:
+            from asia_china_sources import ALL_ASIA_CHINA_SOURCES
+            self._all_sources.extend(ALL_ASIA_CHINA_SOURCES)
+        except ImportError:
+            pass
+        
+        try:
+            from central_asia_caucasus_sources import ALL_CENTRAL_ASIA_CAUCASUS_SOURCES
+            self._all_sources.extend(ALL_CENTRAL_ASIA_CAUCASUS_SOURCES)
+        except ImportError:
+            pass
+        
+        try:
+            from eastern_europe_balkans_sources import ALL_EASTERN_EUROPE_BALKANS_SOURCES
+            self._all_sources.extend(ALL_EASTERN_EUROPE_BALKANS_SOURCES)
+        except ImportError:
+            pass
+        
+        try:
+            from caribbean_central_america_sources import ALL_CARIBBEAN_CENTRAL_AMERICA_SOURCES
+            self._all_sources.extend(ALL_CARIBBEAN_CENTRAL_AMERICA_SOURCES)
+        except ImportError:
+            pass
+        
+        try:
+            from pacific_islands_sources import ALL_PACIFIC_SOURCES
+            self._all_sources.extend(ALL_PACIFIC_SOURCES)
         except ImportError:
             pass
             

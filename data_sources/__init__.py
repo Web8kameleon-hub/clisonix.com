@@ -3,7 +3,7 @@
 🌍 CLISONIX DATA SOURCES MODULE
 ===============================
 
-Comprehensive collection of 3000+ free open data sources from 100+ countries.
+Comprehensive collection of 5000+ free open data sources from 200+ countries.
 
 Quick Start:
     from data_sources import get_all_sources, get_sources_by_country
@@ -26,11 +26,16 @@ Quick Start:
     results = search_sources("university")
 
 Available Modules:
-    - europe_sources: 800+ sources from 20 European countries
+    - europe_sources: 1000+ sources from 20 West European countries
+    - eastern_europe_balkans_sources: 600+ sources from 19 Eastern European countries
     - americas_sources: 600+ sources from 16 American countries
-    - asia_oceania_global_sources: 600+ sources from Asia, Oceania & Global
-    - africa_middle_east_sources: 500+ sources from Africa & Middle East
-    - india_south_asia_sources: 600+ sources from South Asia
+    - caribbean_central_america_sources: 300+ sources from 28 Caribbean & Central American countries
+    - asia_china_sources: 800+ sources from 7 East Asian countries
+    - asia_oceania_global_sources: 600+ sources from Asia, Oceania & Global organizations
+    - india_south_asia_sources: 800+ sources from 5 South Asian countries
+    - central_asia_caucasus_sources: 300+ sources from 8 Central Asian & Caucasus countries
+    - africa_middle_east_sources: 600+ sources from 30+ African & Middle East countries
+    - pacific_islands_sources: 200+ sources from 20+ Pacific Island nations
     - global_data_sources: Master index combining all sources
 
 Categories:
@@ -44,7 +49,7 @@ Regions:
     SOUTHEAST_ASIA, OCEANIA, MIDDLE_EAST, NORTH_AFRICA, 
     SUB_SAHARAN_AFRICA, GLOBAL
 
-Version: 2.0.0
+Version: 3.0.0 - Full Global Coverage (200+ Countries)
 """
 
 from .global_data_sources import (
@@ -71,7 +76,7 @@ from .global_data_sources import (
     COUNTRY_NAMES,
 )
 
-__version__ = "2.0.0"
+__version__ = "3.0.0"
 __author__ = "Clisonix Cloud Team"
 __all__ = [
     # Functions
