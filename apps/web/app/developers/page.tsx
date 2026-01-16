@@ -109,7 +109,7 @@ cycles.forEach(c => {
               <Link href="/developers" className="text-cyan-400 font-medium">Developers</Link>
               <Link href="/modules" className="text-slate-400 hover:text-white transition-colors">Dashboard</Link>
               <a 
-                href="https://github.com/clisonix" 
+                href="https://github.com/LedjanAhmati/Clisonix-cloud" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-slate-400 hover:text-white transition-colors flex items-center gap-1"
@@ -379,7 +379,7 @@ cycles.forEach(c => {
               </div>
               <code className="block bg-slate-900 px-4 py-2 rounded text-green-400 text-sm mb-4">pip install clisonix</code>
               <a 
-                href="https://github.com/clisonix/python-sdk" 
+                href="https://github.com/LedjanAhmati/Clisonix-cloud" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-cyan-400 text-sm hover:underline"
@@ -403,7 +403,7 @@ cycles.forEach(c => {
               </div>
               <code className="block bg-slate-900 px-4 py-2 rounded text-green-400 text-sm mb-4">npm install @clisonix/sdk</code>
               <a 
-                href="https://github.com/clisonix/typescript-sdk" 
+                href="https://github.com/LedjanAhmati/Clisonix-cloud" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-cyan-400 text-sm hover:underline"
@@ -450,7 +450,7 @@ cycles.forEach(c => {
               Get Started Free
             </Link>
             <a 
-              href="https://github.com/clisonix" 
+              href="https://github.com/LedjanAhmati/Clisonix-cloud" 
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-3 bg-slate-800 text-white font-medium rounded-lg border border-slate-700 hover:bg-slate-700 transition-colors flex items-center gap-2"
@@ -471,13 +471,13 @@ cycles.forEach(c => {
             <div className="w-6 h-6 bg-gradient-to-br from-cyan-400 to-blue-500 rounded flex items-center justify-center">
               <span className="text-white font-bold text-xs">C</span>
             </div>
-            <span className="text-slate-400 text-sm">© 2025 Clisonix. All rights reserved.</span>
+            <span className="text-slate-400 text-sm">© 2026 Clisonix. All rights reserved.</span>
           </div>
           <div className="flex gap-6">
             <Link href="/" className="text-slate-400 hover:text-white text-sm transition-colors">Home</Link>
             <Link href="/developers" className="text-slate-400 hover:text-white text-sm transition-colors">Developers</Link>
             <Link href="/modules" className="text-slate-400 hover:text-white text-sm transition-colors">Dashboard</Link>
-            <a href="https://github.com/clisonix" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white text-sm transition-colors">GitHub</a>
+            <a href="https://github.com/LedjanAhmati/Clisonix-cloud" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white text-sm transition-colors">GitHub</a>
           </div>
         </div>
       </footer>
