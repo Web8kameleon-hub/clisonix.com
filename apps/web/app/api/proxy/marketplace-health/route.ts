@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-// Marketplace API (same as Main API)
-const MARKETPLACE_API = "http://127.0.0.1:8000";
+// Marketplace API - use Docker container name in production
+const MARKETPLACE_API = process.env.NODE_ENV === 'production' ? "http://clisonix-marketplace:8004" : "http://127.0.0.1:8000";
 
 export async function GET() {
   try {

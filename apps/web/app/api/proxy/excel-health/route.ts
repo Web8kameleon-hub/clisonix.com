@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-// Excel Service URL
-const EXCEL_API = "http://127.0.0.1:8002";
+// Excel Service URL - use Docker container name in production
+const EXCEL_API = process.env.NODE_ENV === 'production' ? "http://clisonix-excel:8002" : "http://127.0.0.1:8002";
 
 export async function GET() {
   try {

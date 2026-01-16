@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-// Internal API URL - bypasses Cloudflare
-const API_INTERNAL = "http://127.0.0.1:8000";
+// Internal API URL - use Docker container name in clisonix-secure network
+const API_INTERNAL = process.env.NODE_ENV === 'production' ? "http://clisonix-core:8000" : "http://127.0.0.1:8000";
 
 export async function GET() {
   try {
