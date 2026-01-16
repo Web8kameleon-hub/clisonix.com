@@ -63,20 +63,33 @@ export default function ModulesPage() {
           })
           const responseTime = Date.now() - startTime
           
+          const responseTime = Date.now() - startTime
+
           // Debug logging
-          console.log(`[Health Check] ${api.name}: ${response.status} in ${responseTime}ms`)
+          console.log(`[Health Check] ${api.name}: status=${response.status}, ok=${response.ok}, time=${responseTime}ms`)
+
+          // Determine status based on response
+          let apiStatus: 'online' | 'degraded' | 'offline'
 
           if (response.ok) {
-            return {
-              ...api,
-              status: (responseTime < 5000 ? 'online' : 'degraded') as 'online' | 'degraded',
-              responseTime,
-              lastChecked: new Date().toLocaleTimeString()
-            }
+            // 2xx response - online if within threshold
+            apiStatus = responseTime < 5000 ? 'online' : 'degraded'
+            console.log(`[Health Check] ${api.name}: Setting to ${apiStatus} (ok=true, time=${responseTime}ms)`)
           } else if (response.status >= 500) {
-            return { ...api, status: 'offline' as const, responseTime, lastChecked: new Date().toLocaleTimeString() }
+            // 5xx response - offline
+            apiStatus = 'offline'
+            console.log(`[Health Check] ${api.name}: Setting to offline (status=${response.status})`)
           } else {
-            return { ...api, status: 'degraded' as const, responseTime, lastChecked: new Date().toLocaleTimeString() }
+            // Other non-2xx response (3xx, 4xx) - degraded
+            apiStatus = 'degraded'
+            console.log(`[Health Check] ${api.name}: Setting to degraded (status=${response.status})`)
+          }
+
+          return {
+            ...api,
+            status: apiStatus,
+            responseTime,
+            lastChecked: new Date().toLocaleTimeString()
           }
         } catch (error) {
           console.error(`[Health Check] ${api.name}: ERROR`, error)
