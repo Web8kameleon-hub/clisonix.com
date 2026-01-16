@@ -133,6 +133,18 @@ export default function AboutSidebar() {
                   <p className="font-medium">LedjanAhmati/Clisonix-cloud</p>
                 </div>
               </a>
+              <a
+                href="https://x.com/1amati_"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-gray-300 hover:text-cyan-400 transition-colors group"
+              >
+                <span className="text-cyan-400 group-hover:scale-110 transition-transform">𝕏</span>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide">X (Twitter)</p>
+                  <p className="font-medium">@1amati_</p>
+                </div>
+              </a>
             </div>
           </div>
 

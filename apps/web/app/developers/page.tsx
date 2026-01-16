@@ -460,6 +460,17 @@ cycles.forEach(c => {
               </svg>
               Star on GitHub
             </a>
+            <a
+              href="https://x.com/1amati_"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 bg-black text-white font-medium rounded-lg border border-slate-700 hover:bg-slate-900 transition-colors flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              Follow on X
+            </a>
           </div>
         </div>
       </section>
@@ -478,6 +489,7 @@ cycles.forEach(c => {
             <Link href="/developers" className="text-slate-400 hover:text-white text-sm transition-colors">Developers</Link>
             <Link href="/modules" className="text-slate-400 hover:text-white text-sm transition-colors">Dashboard</Link>
             <a href="https://github.com/LedjanAhmati/Clisonix-cloud" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white text-sm transition-colors">GitHub</a>
+            <a href="https://x.com/1amati_" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white text-sm transition-colors">X / Twitter</a>
           </div>
         </div>
       </footer>
