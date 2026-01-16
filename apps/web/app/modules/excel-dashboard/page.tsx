@@ -29,7 +29,8 @@ interface ContainerStats {
   memory_usage: string
 }
 
-const API_BASE = 'https://clisonix.com'
+// Use local proxy routes to bypass Cloudflare
+const API_BASE = ''
 
 export default function ExcelDashboardPage() {
   const [containers, setContainers] = useState<ContainerInfo[]>([])
@@ -39,15 +40,15 @@ export default function ExcelDashboardPage() {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch real data from server
+  // Fetch real data from server via proxy
   useEffect(() => {
     const fetchData = async () => {
       try {
         setError(null)
         const [containersRes, statsRes, metricsRes] = await Promise.all([
-          fetch(`${API_BASE}/api/reporting/docker-containers`),
-          fetch(`${API_BASE}/api/reporting/docker-stats`),
-          fetch(`${API_BASE}/api/reporting/system-metrics`)
+          fetch(`/api/proxy/docker-containers`),
+          fetch(`/api/proxy/docker-stats`),
+          fetch(`/api/proxy/system-metrics`)
         ])
 
         if (containersRes.ok) {
