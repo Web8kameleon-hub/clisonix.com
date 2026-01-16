@@ -306,10 +306,10 @@ docker-compose logs -f api
 {
   "owner": "Ledjan Ahmati",
   "company": "WEB8euroweb GmbH", 
-  "sepa_iban": "DE72430500010015012263",
-  "sepa_bic": "DORTDE33XXX",
+  "sepa_iban": "DE72xxxxxxxxxxx63",
+  "sepa_bic": "XXX",
   "sepa_bank": "Sparkasse Bochum",
-  "paypal_email": "ahmati.bau@gmail.com",
+  "paypal_email": "axxxxgmail.com",
   "data_policy": "REAL DATA ONLY - NO MOCK"
 }
 ```
@@ -374,4 +374,5 @@ Ledjan Ahmati - WEB8euroweb GmbH**
 - Payment system status at `/billing/stats`
 
 **No Mock Data:** This is an industrial-grade backend using real business integration, actual system monitoring, and live payment processing. All metrics, business information, and processing capabilities are real and functional. - FastAPI + Worker + Docker Compose
+
 
