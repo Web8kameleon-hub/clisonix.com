@@ -27,17 +27,12 @@ interface ClinicalMetric {
   timestamp: number;
 }
 
-interface HybridDashboardProps {
-  sessionId?: string;
-  userId?: string;
-  clinicId?: string;
-}
-
-export default function HybridBiometricDashboard({
-  sessionId,
-  userId,
-  clinicId,
-}: HybridDashboardProps) {
+export default function HybridBiometricDashboard() {
+  // Default values - can be set via URL params or context
+  const sessionId = undefined;
+  const userId = undefined;
+  const clinicId = undefined;
+  
   const [phoneMetrics, setPhoneMetrics] = useState<PhoneMetrics[]>([]);
   const [clinicalMetrics, setClinicalMetrics] = useState<ClinicalMetric[]>([]);
   const [isSessionActive, setIsSessionActive] = useState(false);
