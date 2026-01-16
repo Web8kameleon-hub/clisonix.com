@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Clisonix Modules Layout
  * Advanced neuroacoustic processing, EEG analysis, and industrial monitoring
  */

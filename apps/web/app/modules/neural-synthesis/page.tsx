@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { Music, Brain, Waves, Radio, RefreshCw, Clock, CheckCircle, AlertCircle, Zap, Play, Square, Volume2 } from 'lucide-react';

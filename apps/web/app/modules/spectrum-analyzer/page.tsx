@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { BarChart3, Waves, Radio, RefreshCw, Clock, CheckCircle, AlertCircle, Zap, Activity } from 'lucide-react';

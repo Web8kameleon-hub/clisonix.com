@@ -1,4 +1,4 @@
-﻿"""
+"""
 Blerina - Cycle Engine Integration
 Lidhja e Blerina Reformatter me Cycle Engine
 """

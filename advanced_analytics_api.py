@@ -3,7 +3,7 @@
 🧠 ADVANCED ANALYTICS API
 ==========================
 API për analiza të avancuara dhe insights inteligjente
-Pjesë e NeuroSonix Industrial Backend
+Pjesë e Clisonix Industrial Backend
 """
 
 from __future__ import annotations

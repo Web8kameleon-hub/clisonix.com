@@ -1,4 +1,4 @@
-﻿
+
 // Advanced Industrial Layout for Clisonix Modules
 // Author: Ledjan Ahmati
 

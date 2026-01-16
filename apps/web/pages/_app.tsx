@@ -1,4 +1,4 @@
-﻿import type { AppProps } from 'next/app';
+import type { AppProps } from 'next/app';
 
 /**
  * Explicit custom App keeps the legacy pages router runtime happy across

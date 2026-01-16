@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Cycle Engine - ASI Agent Linker
 Lidhja automatike e agents me cycles

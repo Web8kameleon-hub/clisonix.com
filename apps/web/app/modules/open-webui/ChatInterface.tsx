@@ -1,4 +1,4 @@
-﻿
+
 /*
   Copyright (c) 2025 Ledjan Ahmati. All rights reserved.
   This software is proprietary and confidential. Unauthorized copying, distribution, or use is strictly prohibited.

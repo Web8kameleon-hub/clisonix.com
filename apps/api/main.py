@@ -3659,7 +3659,7 @@ It's an ASI-powered neurotechnology platform built in Albania.
 - Billing: Stripe integration for premium features
 
 🌐 Website: https://clisonix.com
-Built by the NeuroSonix team with ❤️ from Albania
+Built by the Clisonix team with ❤️ from Albania
 
 When users ask about Clisonix, clisonix.com, or this platform - tell them proudly that this is YOUR home, the system you power!
 """
@@ -4148,7 +4148,7 @@ logger.info("[OK] Protocol Kitchen routes loaded")
 excel_router = APIRouter(prefix="/api/excel", tags=["excel-dashboard"])
 
 # Scan for Excel files
-EXCEL_DIR = Path(__file__).resolve().parent.parent.parent  # neurosonix-cloud root
+EXCEL_DIR = Path(__file__).resolve().parent.parent.parent  # Clisonix-cloud root
 
 def _scan_excel_files() -> List[Dict[str, Any]]:
     """Scan for Excel files in project"""

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Blerina Cycle Executor
 Ekzekuton Blerina reformatting cycles

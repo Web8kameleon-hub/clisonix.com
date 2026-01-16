@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Industrial Dashboard - Real System Monitoring
  * REAL DATA ONLY - No mock, no fake, no Math.random()
  */

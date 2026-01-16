@@ -1,4 +1,4 @@
-﻿// Clisonix Industrial Cloud Global Layout
+// Clisonix Industrial Cloud Global Layout
 // Author: Ledjan Ahmati
 
 import React, { useEffect, useState } from 'react'

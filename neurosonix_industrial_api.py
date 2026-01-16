@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-🧠 NEUROSONIX INDUSTRIAL BACKEND (REAL)
+🧠 Clisonix INDUSTRIAL BACKEND (REAL)
 ========================================
-NeuroSonix Web8 Division - EuroSonix Industrial API Server
+Clisonix Web8 Division - EuroSonix Industrial API Server
 
-Ky është backend-i industrial për NeuroSonix që ofron:
+Ky është backend-i industrial për Clisonix që ofron:
 - EEG dhe Audio Processing
 - ALBA Data Collection
 - ASI Trinity Architecture
@@ -55,9 +55,9 @@ except ImportError:
 
 # Create FastAPI app
 app = FastAPI(
-    title="NeuroSonix Industrial Backend (REAL)",
+    title="Clisonix Industrial Backend (REAL)",
     version="1.0.0",
-    description="NeuroSonix Web8 Division - EuroSonix Industrial API Server"
+    description="Clisonix Web8 Division - EuroSonix Industrial API Server"
 )
 
 # Add CORS middleware
@@ -498,7 +498,7 @@ async def db_ping():
     """Database ping"""
     return {
         "status": "connected",
-        "database": "neurosonix_industrial",
+        "database": "Clisonix_industrial",
         "response_time_ms": 12.5,
         "timestamp": datetime.now(timezone.utc).isoformat()
     }
@@ -924,7 +924,7 @@ async def root():
         })
 
     return {
-        "message": "NeuroSonix Industrial Backend (REAL) - Web8 Division EuroSonix",
+        "message": "Clisonix Industrial Backend (REAL) - Web8 Division EuroSonix",
         "version": "1.0.0",
         "status": "operational",
         "api_key_system": "enabled",
@@ -938,7 +938,7 @@ async def root():
 if __name__ == "__main__":
     import uvicorn
 
-    logger.info("🚀 Starting NeuroSonix Industrial Backend (REAL)")
+    logger.info("🚀 Starting Clisonix Industrial Backend (REAL)")
     logger.info("🌐 Web8 Division - EuroSonix")
     logger.info("📡 Server starting on http://localhost:8003")
 

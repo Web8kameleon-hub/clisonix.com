@@ -192,7 +192,7 @@ class ResearchProposalLab:
 ## 📁 FILE STRUCTURE OVERVIEW
 
 ```
-neurosonix-cloud/
+Clisonix-cloud/
 ├── apps/
 │   ├── api/
 │   │   ├── modules/          # Python modules

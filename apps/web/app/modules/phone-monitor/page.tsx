@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { Smartphone, Radio, Shield, Activity, RefreshCw, Clock, CheckCircle, AlertCircle, Brain, Wifi, Lock, Database } from 'lucide-react';
