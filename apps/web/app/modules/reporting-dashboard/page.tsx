@@ -35,6 +35,10 @@ export default function UltraReportingDashboard() {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [activeTab, setActiveTab] = useState<'overview' | 'services' | 'metrics' | 'exports'>('overview');
   const [exporting, setExporting] = useState(false);
+  const [showErrorTracker, setShowErrorTracker] = useState(false);
+  const [errors, setErrors] = useState<any[]>([]);
+  const [errorSummary, setErrorSummary] = useState<any>(null);
+  const [loadingErrors, setLoadingErrors] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -89,6 +93,21 @@ export default function UltraReportingDashboard() {
       setError('Failed to fetch metrics');
       setLoading(false);
     }
+  }, []);
+
+  const fetchErrors = useCallback(async () => {
+    setLoadingErrors(true);
+    try {
+      const [errorsRes, summaryRes] = await Promise.all([
+        fetch('/api/reporting/errors').then(r => r.json()).catch(() => ({ errors: [] })),
+        fetch('/api/reporting/errors/summary').then(r => r.json()).catch(() => ({}))
+      ]);
+      setErrors(errorsRes.errors || []);
+      setErrorSummary(summaryRes);
+    } catch (err) {
+      console.error('Failed to fetch errors:', err);
+    }
+    setLoadingErrors(false);
   }, []);
 
   useEffect(() => {
@@ -313,12 +332,13 @@ export default function UltraReportingDashboard() {
                 <p className="text-blue-300 text-sm mb-2">API Requests (24h)</p>
                 <p className="text-4xl font-bold text-white">{data.api_requests_24h.toLocaleString()}</p>
               </div>
-              <div className="p-6 rounded-xl bg-gradient-to-br from-red-600/20 to-red-800/20 border border-red-500/30">
+              <div className="p-6 rounded-xl bg-gradient-to-br from-red-600/20 to-red-800/20 border border-red-500/30 cursor-pointer hover:border-red-400/60 transition-all" onClick={() => { setShowErrorTracker(true); fetchErrors(); }}>
                 <p className="text-red-300 text-sm mb-2">Errors (24h)</p>
-                <p className="text-4xl font-bold text-white">{data.api_errors_24h}</p>
+                <p className="text-4xl font-bold text-white hover:text-red-300 transition-colors">{data.api_errors_24h}</p>
                 <p className="text-xs text-red-400 mt-1">
                   {((data.api_errors_24h / data.api_requests_24h) * 100).toFixed(2)}% error rate
                 </p>
+                <p className="text-xs text-red-500 mt-2 opacity-75">Click to view error tracker →</p>
               </div>
               <div className="p-6 rounded-xl bg-gradient-to-br from-green-600/20 to-green-800/20 border border-green-500/30">
                 <p className="text-green-300 text-sm mb-2">Documents Generated</p>
@@ -705,6 +725,96 @@ export default function UltraReportingDashboard() {
           ULTRA Reporting Command Center - Clisonix Cloud Platform - Real-time Analytics
         </p>
       </footer>
+
+      {/* Error Tracker Modal */}
+      {showErrorTracker && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-xl border border-red-500/30 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+            <div className="sticky top-0 bg-gray-900 border-b border-red-500/30 p-6 flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-red-300">ERROR REFERENCE TRACKER</h2>
+              <button
+                onClick={() => setShowErrorTracker(false)}
+                className="text-gray-400 hover:text-white text-2xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Error Summary */}
+              {errorSummary && (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="p-4 bg-red-900/30 rounded-lg border border-red-500/30">
+                    <p className="text-red-300 text-sm">Total Errors</p>
+                    <p className="text-3xl font-bold text-white">{errorSummary.total_errors || 0}</p>
+                  </div>
+                  <div className="p-4 bg-red-900/30 rounded-lg border border-red-500/30">
+                    <p className="text-red-300 text-sm">Error Types</p>
+                    <p className="text-2xl font-bold text-white">{Object.keys(errorSummary.error_types || {}).length}</p>
+                  </div>
+                  <div className="p-4 bg-red-900/30 rounded-lg border border-red-500/30">
+                    <p className="text-red-300 text-sm">Most Common Function</p>
+                    <p className="text-sm font-bold text-white truncate">{errorSummary.most_common_function || 'N/A'}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Error List */}
+              {loadingErrors ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-400">Loading errors...</p>
+                </div>
+              ) : errors.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-green-400 text-lg">✓ No errors recorded</p>
+                </div>
+              ) : (
+                <div className="space-y-2 overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-red-500/30 text-left">
+                        <th className="pb-3 px-3 text-red-300">Error ID</th>
+                        <th className="pb-3 px-3 text-red-300">Timestamp</th>
+                        <th className="pb-3 px-3 text-red-300">Line</th>
+                        <th className="pb-3 px-3 text-red-300">Function</th>
+                        <th className="pb-3 px-3 text-red-300">Type</th>
+                        <th className="pb-3 px-3 text-red-300">Message</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {errors.map((err, idx) => (
+                        <tr key={idx} className="border-b border-gray-800 hover:bg-gray-800/50 transition-colors">
+                          <td className="py-3 px-3 font-bold text-cyan-400">{err.error_id}</td>
+                          <td className="py-3 px-3 text-gray-400 text-xs">{new Date(err.timestamp).toLocaleTimeString()}</td>
+                          <td className="py-3 px-3 text-yellow-400 font-mono">{err.line_number}</td>
+                          <td className="py-3 px-3 text-blue-400">{err.function_name}</td>
+                          <td className="py-3 px-3 text-orange-400">{err.error_type}</td>
+                          <td className="py-3 px-3 text-red-400 truncate max-w-xs">{err.error_message}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Error Type Breakdown */}
+              {errorSummary?.error_types && Object.keys(errorSummary.error_types).length > 0 && (
+                <div className="mt-6">
+                  <h3 className="text-lg font-bold text-red-300 mb-3">Error Type Breakdown</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {Object.entries(errorSummary.error_types).map(([type, count]) => (
+                      <div key={type} className="p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+                        <p className="text-gray-400 text-sm">{type}</p>
+                        <p className="text-2xl font-bold text-red-400">{count as number}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
