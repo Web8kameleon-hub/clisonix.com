@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 interface PricingPlan {
@@ -132,8 +132,14 @@ const apiCategories = [
 export default function MarketplacePage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'pricing' | 'docs' | 'sdks'>('overview')
   const [copiedKey, setCopiedKey] = useState(false)
+  const [demoApiKey, setDemoApiKey] = useState('pk_demo_loading')
 
-  const demoApiKey = 'pk_demo_' + Math.random().toString(36).substring(2, 15)
+  // Generate demo key client-side with crypto API
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.crypto) {
+      setDemoApiKey('pk_demo_' + crypto.randomUUID().replace(/-/g, '').substring(0, 13))
+    }
+  }, [])
 
   const copyApiKey = () => {
     navigator.clipboard.writeText(demoApiKey)

@@ -7,6 +7,7 @@
 
 import Fastify, { FastifyInstance } from "fastify";
 import cors from "@fastify/cors";
+import rateLimit from "@fastify/rate-limit";
 import { registerRealApiRoutes } from "./real-api-routes.js";
 
 // Industrial Server Configuration
@@ -29,6 +30,21 @@ const serverConfig = {
 
 // Initialize Industrial Fastify Server
 const industrialServer: FastifyInstance = Fastify(serverConfig);
+
+// ================== RATE LIMITING (SECURITY) ==================
+await industrialServer.register(rateLimit, {
+  max: 100,  // max 100 requests
+  timeWindow: '1 minute',
+  errorResponseBuilder: function (request, context) {
+    return {
+      code: 429,
+      error: 'Too Many Requests',
+      message: `Rate limit exceeded. Max ${context.max} requests per ${context.after}`,
+      date: new Date().toISOString(),
+      expiresIn: context.ttl
+    }
+  }
+});
 
 // ================== INDUSTRIAL MIDDLEWARE ==================
 await industrialServer.register(cors, {

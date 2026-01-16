@@ -57,6 +57,19 @@ async function getRealSystemMetrics() {
   };
 }
 
+// SECURITY: Allowed base directories for file operations
+const ALLOWED_BASE_DIRS = [
+  path.resolve(process.cwd(), 'data'),
+  path.resolve(process.cwd(), 'exports'),
+  path.resolve(process.cwd(), 'uploads'),
+  '/tmp/clisonix'
+];
+
+function isPathSafe(targetPath: string): boolean {
+  const resolvedPath = path.resolve(targetPath);
+  return ALLOWED_BASE_DIRS.some(baseDir => resolvedPath.startsWith(baseDir));
+}
+
 async function scanRealFiles(directory: string, options: { recursive?: boolean } = {}) {
   const { recursive = false } = options;
   const results = {
@@ -65,6 +78,17 @@ async function scanRealFiles(directory: string, options: { recursive?: boolean }
     file_count: 0,
     directory_count: 0
   };
+
+  // SECURITY: Validate path to prevent path traversal attacks
+  if (!isPathSafe(directory)) {
+    console.warn(`[scanRealFiles] Blocked path traversal attempt: ${directory}`);
+    return {
+      ...results,
+      total_size_mb: 0,
+      scan_timestamp: new Date().toISOString(),
+      error: 'Access denied: path outside allowed directories'
+    };
+  }
 
   try {
     if (!fs.existsSync(directory)) {

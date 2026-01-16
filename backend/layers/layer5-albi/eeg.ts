@@ -1,11 +1,29 @@
 import { spawn } from "child_process";
 import { AppConfig } from "../../config";
 import fs from "fs";
+import path from "path";
+
+// SECURITY: Allowed directories for file operations
+const ALLOWED_INPUT_DIRS = [
+  path.resolve(process.cwd(), 'data'),
+  path.resolve(process.cwd(), 'uploads'),
+  '/tmp/clisonix'
+];
+
+function isPathSafe(filePath: string): boolean {
+  const resolvedPath = path.resolve(filePath);
+  return ALLOWED_INPUT_DIRS.some(baseDir => resolvedPath.startsWith(baseDir));
+}
 
 export async function eegAnalyze(cfg: AppConfig, filePath: string):
   Promise<{ ok: boolean; dominant_hz?: number; bands?: Record<string, number>; detail?: any }>
 {
   return new Promise((resolve) => {
+    // SECURITY: Validate path to prevent path traversal attacks
+    if (!isPathSafe(filePath)) {
+      return resolve({ ok: false, detail: "Access denied: path outside allowed directories" });
+    }
+    
     // Verify file exists
     if (!fs.existsSync(filePath)) {
       return resolve({ ok: false, detail: "File not found" });

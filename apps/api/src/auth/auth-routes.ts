@@ -64,12 +64,18 @@ users.set(ledjanUser.id, ledjanUser);
 // UTILITY FUNCTIONS
 // =================================================================================
 
+import bcryptjs from 'bcryptjs';
+
+const BCRYPT_ROUNDS = 12;
+
 function hashPassword(password: string): string {
-  return crypto.createHash('sha256').update(password + 'Clisonix_salt').digest('hex');
+  // SECURITY: Use bcrypt with proper work factor for password hashing
+  return bcryptjs.hashSync(password, BCRYPT_ROUNDS);
 }
 
 function verifyPassword(password: string, hashedPassword: string): boolean {
-  return hashPassword(password) === hashedPassword;
+  // SECURITY: Use bcrypt's constant-time comparison
+  return bcryptjs.compareSync(password, hashedPassword);
 }
 
 function generateToken(): string {
