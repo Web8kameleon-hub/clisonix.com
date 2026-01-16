@@ -157,6 +157,18 @@ export default function AboutSidebar() {
                   <p className="font-medium">Ahmati Ledian</p>
                 </div>
               </a>
+              <a
+                href="https://www.youtube.com/@ledredblac"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-gray-300 hover:text-cyan-400 transition-colors group"
+              >
+                <span className="text-cyan-400 group-hover:scale-110 transition-transform">🎬</span>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide">YouTube</p>
+                  <p className="font-medium">@ledredblac</p>
+                </div>
+              </a>
             </div>
           </div>
 
