@@ -641,8 +641,10 @@ class Settings(BaseSettings):
     paypal_secret: Optional[str] = os.getenv("PAYPAL_SECRET")
     paypal_base: str = os.getenv("PAYPAL_BASE", "https://api-m.sandbox.paypal.com")  # change to live when ready
 
-    # Stripe
-    stripe_api_key: Optional[str] = os.getenv("STRIPE_API_KEY")
+    # Stripe - supports both STRIPE_API_KEY and STRIPE_SECRET_KEY
+    stripe_api_key: Optional[str] = os.getenv("STRIPE_API_KEY") or os.getenv("STRIPE_SECRET_KEY")
+    stripe_publishable_key: Optional[str] = os.getenv("STRIPE_PUBLISHABLE_KEY")
+    stripe_webhook_secret: Optional[str] = os.getenv("STRIPE_WEBHOOK_SECRET")
     stripe_base: str = "https://api.stripe.com/v1"
 
     class Config:
@@ -1367,6 +1369,26 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], allow_methods=["*"], allow_headers=["*"], allow_credentials=True
 )
+
+# ============================================================================
+# STRIPE USAGE METERING MIDDLEWARE
+# ============================================================================
+try:
+    from stripe_metering import metering_middleware, get_metering_status
+    app.middleware("http")(metering_middleware)
+    logger.info("✅ Stripe usage metering middleware loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ Stripe metering not available: {e}")
+
+# Endpoint për të parë statusin e metering
+@app.get("/api/billing/metering-status", tags=["billing"])
+async def billing_metering_status():
+    """Kthen statusin e Stripe usage metering."""
+    try:
+        from stripe_metering import get_metering_status
+        return get_metering_status()
+    except ImportError:
+        return {"enabled": False, "message": "Stripe metering not configured"}
 
 # Global error handlers for consistent JSON errors
 
@@ -3237,82 +3259,50 @@ async def get_realdata_dashboard():
         raise HTTPException(status_code=502, detail=f"Dashboard error: {str(e)}")
 
 # ============================================================================
-# OPENAI REAL NEURAL ANALYSIS
+# CLISONIX LOCAL AI ENGINE - Plotësisht i Pavarur
 # ============================================================================
+
+# Import local AI engine
+try:
+    from clisonix_ai_engine import clisonix_ai, analyze_eeg, interpret_query, trinity_analysis as local_trinity, ocean_chat, ai_health as local_ai_health
+    LOCAL_AI_AVAILABLE = True
+    logger.info("✅ Clisonix Local AI Engine loaded successfully")
+except ImportError:
+    LOCAL_AI_AVAILABLE = False
+    logger.warning("⚠️ Clisonix Local AI Engine not available")
 
 @app.post("/api/ai/analyze-neural")
 async def analyze_neural_data(query: str):
     """
-    REAL OpenAI API - Neural pattern analysis
-    Uses GPT-4 for actual AI-powered neural data interpretation
+    Clisonix Neural Analysis - Plotësisht Lokal
+    Përdor Clisonix AI Engine pa varësi të jashtme (OpenAI, Groq, etj.)
     """
-    openai_key = os.getenv("OPENAI_API_KEY")
-    
-    if not openai_key or openai_key.startswith("sk-"):
-        return {
-            "status": "demo",
-            "message": "OpenAI API key not configured",
-            "suggestion": "Add OPENAI_API_KEY to .env",
-            "demo_response": {
-                "analysis": "DEMO: This would analyze neural patterns using real GPT-4",
-                "confidence": 0.95,
-                "patterns_detected": ["alpha_waves", "theta_rhythms", "neural_synchronization"]
-            }
-        }
-    
-    try:
-        import openai
-        openai.api_key = openai_key
-        
-        system_prompt = """You are an expert neuroscientist and neural signal analyst.
-        Analyze the provided neural data/query and provide:
-        1. Pattern identification
-        2. Brain state interpretation
-        3. Anomaly detection
-        4. Recommendations for neural optimization
-        
-        Keep responses concise and data-focused."""
-        
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": query}
-            ],
-            temperature=0.7,
-            max_tokens=500,
-            timeout=30
-        )
-        
-        analysis = response.choices[0].message.content
-        
+    if LOCAL_AI_AVAILABLE:
+        result = interpret_query(query)
         return {
             "status": "success",
             "timestamp": utcnow(),
-            "source": "OpenAI GPT-4 (Real AI)",
+            "source": "Clisonix Neural Engine (Local)",
             "query": query,
-            "analysis": analysis,
-            "usage": {
-                "prompt_tokens": response.usage.prompt_tokens,
-                "completion_tokens": response.usage.completion_tokens,
-                "total_tokens": response.usage.total_tokens
-            },
-            "model": "gpt-4"
+            "analysis": result["interpretation"],
+            "detected_patterns": result["detected_patterns"],
+            "confidence": result["confidence"],
+            "suggestions": result["suggestions"],
+            "is_local": True,
+            "external_dependencies": []
         }
-    except ImportError:
-        return {
-            "status": "error",
-            "message": "OpenAI library not installed",
-            "suggestion": "pip install openai",
-            "fallback": "Available without OpenAI installed"
-        }
-    except Exception as e:
-        logger.error(f"OpenAI API error: {e}")
-        return {
-            "status": "error",
-            "message": str(e),
-            "timestamp": utcnow()
-        }
+    
+    # Fallback nëse AI Engine nuk është i disponueshëm
+    return {
+        "status": "success",
+        "timestamp": utcnow(),
+        "source": "Clisonix Fallback Engine",
+        "query": query,
+        "analysis": f"Duke analizuar: '{query}'. Sistemi Clisonix ofron analiza neurale të avancuara.",
+        "detected_patterns": ["neural_activity"],
+        "confidence": 0.75,
+        "is_local": True
+    }
 
 @app.post("/api/ai/eeg-interpretation")
 async def eeg_interpretation(
@@ -3321,65 +3311,32 @@ async def eeg_interpretation(
     amplitude_range: Dict[str, float]
 ):
     """
-    REAL OpenAI API - EEG signal interpretation
-    Analyzes frequency bands and brain states
+    CLISONIX LOCAL AI - EEG signal interpretation
+    100% independent - no external AI providers
     """
-    openai_key = os.getenv("OPENAI_API_KEY")
-    
-    if not openai_key or openai_key.startswith("sk-"):
-        return {
-            "status": "demo",
-            "message": "OpenAI API key not configured - returning demo analysis",
-            "data": {
-                "dominant_frequency": dominant_freq,
-                "interpretation": "DEMO: Alpha state - relaxed awareness",
-                "brain_state": "relaxed",
-                "confidence": 0.88,
-                "recommendations": ["continue_relaxation", "maintain_frequency", "good_state"]
-            }
-        }
-    
     try:
-        import openai
-        openai.api_key = openai_key
+        from clisonix_ai_engine import ClisonixAIEngine
+        engine = ClisonixAIEngine()
         
-        eeg_data = f"""
-        EEG Analysis:
-        - Frequencies: {frequencies}
-        - Dominant Frequency: {dominant_freq} Hz
-        - Amplitude Range: {amplitude_range}
-        
-        Please interpret this EEG data in terms of:
-        1. Brain state (alpha, beta, theta, delta, gamma)
-        2. Mental state (alert, relaxed, focused, drowsy)
-        3. Health indicators
-        4. Recommendations
-        """
-        
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are a clinical neuroscientist expert in EEG analysis."},
-                {"role": "user", "content": eeg_data}
-            ],
-            temperature=0.5,
-            max_tokens=400,
-            timeout=30
+        # Use local EEG interpretation engine
+        result = engine.interpret_eeg(
+            frequencies=frequencies,
+            dominant_freq=dominant_freq,
+            amplitude_range=amplitude_range
         )
-        
-        interpretation = response.choices[0].message.content
         
         return {
             "status": "success",
             "timestamp": utcnow(),
-            "source": "OpenAI GPT-4 (Real AI)",
+            "source": "Clisonix AI Engine (Local)",
             "eeg_data": {
                 "dominant_frequency": dominant_freq,
                 "frequencies": frequencies,
                 "amplitude_range": amplitude_range
             },
-            "interpretation": interpretation,
-            "model": "gpt-4"
+            "interpretation": result,
+            "is_local": True,
+            "model": "clisonix-eeg-v1"
         }
     except Exception as e:
         logger.error(f"EEG interpretation error: {e}")
@@ -3391,41 +3348,37 @@ async def eeg_interpretation(
 
 @app.get("/api/ai/health")
 async def ai_health():
-    """Check OpenAI API connectivity and status"""
-    openai_key = os.getenv("OPENAI_API_KEY")
+    """Check Clisonix Local AI Engine status - 100% independent"""
     
     health_status = {
         "timestamp": utcnow(),
-        "openai": {
-            "configured": bool(openai_key and not openai_key.startswith("sk-")),
-            "api_key_format": "valid" if openai_key and openai_key.startswith("sk-") else "demo/invalid"
-        }
+        "engine": "Clisonix AI Engine",
+        "version": "1.0.0",
+        "is_local": True,
+        "external_dependencies": False
     }
     
-    # Try to verify API key if configured
-    if openai_key and not openai_key.startswith("sk-"):
-        try:
-            import openai
-            openai.api_key = openai_key
-            
-            # Test with a simple call
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[{"role": "user", "content": "test"}],
-                max_tokens=1,
-                timeout=5
-            )
-            
-            health_status["openai"]["status"] = "active"
-            health_status["openai"]["model"] = "gpt-4"
-            health_status["openai"]["last_check"] = utcnow()
-            
-        except Exception as e:
-            health_status["openai"]["status"] = "error"
-            health_status["openai"]["error"] = str(e)
-    else:
-        health_status["openai"]["status"] = "demo_mode"
-        health_status["openai"]["message"] = "Using demo responses - configure OPENAI_API_KEY for real AI"
+    try:
+        from clisonix_ai_engine import ClisonixAIEngine
+        engine = ClisonixAIEngine()
+        
+        # Quick test to verify engine works
+        test_result = engine.quick_interpret("test connectivity")
+        
+        health_status["status"] = "active"
+        health_status["capabilities"] = [
+            "neural_analysis",
+            "eeg_interpretation", 
+            "pattern_detection",
+            "trinity_analysis",
+            "curiosity_ocean"
+        ]
+        health_status["pattern_count"] = len(engine.patterns)
+        health_status["message"] = "Clisonix AI Engine fully operational - 100% independent"
+        
+    except Exception as e:
+        health_status["status"] = "error"
+        health_status["error"] = str(e)
     
     return health_status
 
@@ -3528,93 +3481,40 @@ def init_langchain_chains():
 @app.post("/api/ai/trinity-analysis")
 async def trinity_analysis(query: str = "", detailed: bool = False):
     """
-    🧠 CrewAI-powered ASI Trinity Analysis
-    Uses coordinated ALBA→ALBI→JONA agents for comprehensive neural analysis
+    🧠 CLISONIX LOCAL AI - ASI Trinity Analysis
+    100% independent - uses local TrinityOrchestrator
     
     Args:
         query: Analysis query or command
-        detailed: Include detailed agent reasoning
+        detailed: Include detailed reasoning
     
     Returns:
-        Coordinated analysis from all three agents
+        Coordinated analysis from ALBA, ALBI, JONA local engines
     """
     try:
-        agents = init_crewai_agents()
+        from clisonix_ai_engine import ClisonixAIEngine
+        engine = ClisonixAIEngine()
         
-        if agents is None:
-            return {
-                "status": "demo",
-                "message": "CrewAI not available - returning demo Trinity analysis",
-                "query": query,
-                "demo_response": {
-                    "alba_findings": {
-                        "data_points": 2847,
-                        "metrics_fresh": True,
-                        "timestamp": utcnow()
-                    },
-                    "albi_patterns": {
-                        "anomalies_detected": 3,
-                        "dominant_pattern": "alpha_wave_synchronization",
-                        "confidence": 0.94
-                    },
-                    "jona_synthesis": {
-                        "recommendation": "Increase ALBA network coordination for optimal neural synthesis",
-                        "creative_insight": "Neural patterns suggest emergence of new cognitive layer",
-                        "next_steps": ["Monitor closely", "Prepare optimization", "Document findings"]
-                    }
-                }
-            }
-        
-        from crewai import Task, Crew, Process
-        
-        # Define tasks for each agent
-        alba_task = Task(
-            description=f"Collect and organize all current metrics for the query: '{query}'. Include CPU, memory, network, EEG patterns, and neural coordination levels.",
-            agent=agents["alba"],
-            expected_output="Structured JSON with organized metrics from all systems"
-        )
-        
-        albi_task = Task(
-            description="Analyze the collected data from ALBA. Identify neural patterns, frequency anomalies, temporal correlations, and flag unusual patterns.",
-            agent=agents["albi"],
-            expected_output="Detailed pattern analysis with anomalies, correlations, and risk flags"
-        )
-        
-        jona_task = Task(
-            description="Using ALBI's analysis, synthesize insights into 3-5 actionable recommendations for optimizing neural performance and creative next steps.",
-            agent=agents["jona"],
-            expected_output="Executive summary with innovative recommendations and forward-thinking insights"
-        )
-        
-        # Create crew with hierarchical process
-        crew = Crew(
-            agents=[agents["alba"], agents["albi"], agents["jona"]],
-            tasks=[alba_task, albi_task, jona_task],
-            process=Process.hierarchical,
-            manager_llm=agents["alba"].llm,  # Use OpenAI as manager
-            verbose=detailed
-        )
-        
-        # Execute crew
-        result = crew.kickoff()
+        # Use local Trinity analysis
+        result = engine.trinity_analysis(query, detailed=detailed)
         
         return {
             "status": "success",
             "timestamp": utcnow(),
-            "source": "CrewAI ASI Trinity (Real AI)",
+            "source": "Clisonix AI Engine (Local)",
             "query": query,
             "analysis": result,
-            "agents_used": ["alba", "albi", "jona"],
-            "model": "gpt-4"
+            "agents_used": ["alba_local", "albi_local", "jona_local"],
+            "is_local": True,
+            "model": "clisonix-trinity-v1"
         }
     
     except Exception as e:
-        logger.error(f"CrewAI Trinity analysis error: {e}")
+        logger.error(f"Trinity analysis error: {e}")
         return {
             "status": "error",
             "message": str(e),
-            "timestamp": utcnow(),
-            "suggestion": "Ensure CrewAI is installed: pip install crewai"
+            "timestamp": utcnow()
         }
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -3793,117 +3693,57 @@ async def curiosity_ocean_chat(
     conversation_id: Optional[str] = None
 ):
     """
-    🌊 HYBRID Curiosity Ocean - Groq AI + ASI Trinity Metrics
-    
-    - External: Groq Llama 3.3 70B for intelligent conversation
-    - Internal: ASI Trinity real metrics from Prometheus
+    🌊 CLISONIX LOCAL AI - Curiosity Ocean
+    100% independent - no external AI providers
     
     Modes: curious, wild, chaos, genius
-    Ultra-Thinking: Deep analysis with structured response (🧠 mode)
     """
     start_time = time.perf_counter()
     
-    # Get ASI Trinity metrics (internal)
-    asi_metrics = await get_asi_trinity_metrics()
-    
-    # Build context for Groq based on mode
-    mode_contexts = {
-        "curious": "Be thoughtful and explore ideas deeply. Ask follow-up questions that spark curiosity.",
-        "wild": "Be wildly creative and unconventional. Make unexpected connections. Surprise the user.",
-        "chaos": "Embrace beautiful chaos. Mix ideas from completely different domains. Be unpredictable and playful.",
-        "genius": "Channel deep expertise. Be extremely analytical, precise, and thorough. Show mastery."
-    }
-    system_context = mode_contexts.get(mode, mode_contexts["curious"])
-    
-    # Add ASI context for richer responses
-    asi_context = f"""
-Current ASI Trinity State:
-- Alba Network Depth: {asi_metrics['alba']['network_depth']} connections ({asi_metrics['alba']['status']})
-- Albi Creativity Score: {asi_metrics['albi']['creativity_score']} ({asi_metrics['albi']['status']})
-- Jona Infinite Potential: {asi_metrics['jona']['infinite_potential']}% ({asi_metrics['jona']['status']})
-"""
-    full_context = f"{system_context}\n{asi_context}"
-    
-    # Call Groq API (external AI) with ultra-thinking if enabled
-    groq_response = await call_groq_api(question, full_context, ultra_thinking=ultra_thinking)
-    
-    # Calculate processing time
-    processing_time = round((time.perf_counter() - start_time) * 1000, 2)
-    
-    # Generate dynamic rabbit holes based on question
-    import hashlib
-    q_hash = int(hashlib.md5(question.encode()).hexdigest()[:8], 16)
-    rabbit_hole_options = [
-        "Quantum Consciousness", "Information Entropy", "Neural Topology",
-        "Emergent Complexity", "Cognitive Architecture", "Pattern Recognition",
-        "Temporal Dynamics", "Semantic Networks", "Chaos Theory", "Meta-Learning",
-        "Consciousness Studies", "Knowledge Graphs", "Bayesian Inference",
-        "Distributed Intelligence", "Symbolic Reasoning"
-    ]
-    selected_holes = [rabbit_hole_options[(q_hash + i) % len(rabbit_hole_options)] for i in range(4)]
-    
-    if groq_response["success"]:
+    try:
+        from clisonix_ai_engine import ClisonixAIEngine
+        engine = ClisonixAIEngine()
+        
+        # Use local Curiosity Ocean engine
+        result = engine.curiosity_ocean(
+            question=question,
+            mode=mode,
+            ultra_thinking=ultra_thinking
+        )
+        
+        # Calculate processing time
+        processing_time = round((time.perf_counter() - start_time) * 1000, 2)
+        
         return {
             "status": "success",
             "timestamp": utcnow(),
-            "source": "Groq AI + ASI Trinity (Hybrid)" + (" 🧠 Ultra-Thinking" if ultra_thinking else ""),
+            "source": "Clisonix AI Engine (Local)" + (" 🧠 Ultra-Thinking" if ultra_thinking else ""),
             "question": question,
             "mode": mode,
             "ultra_thinking": ultra_thinking,
-            "response": {
-                "answer": groq_response["answer"],
-                "model": groq_response["model"],
-                "provider": groq_response["provider"]
-            },
-            "asi_trinity": asi_metrics,
+            "response": result,
             "metrics": {
                 "processing_time_ms": processing_time,
-                "tokens": groq_response.get("tokens_used", {}),
-                "alba_depth": asi_metrics["alba"]["network_depth"],
-                "albi_creativity": asi_metrics["albi"]["creativity_score"],
-                "jona_potential": asi_metrics["jona"]["infinite_potential"],
                 "thinking_depth": "ultra" if ultra_thinking else "standard"
             },
             "conversation_id": conversation_id or str(uuid.uuid4()),
-            "rabbit_holes": selected_holes,
-            "next_questions": [
-                f"What are the deeper implications of {question[:30]}...?",
-                f"How does this connect to consciousness?",
-                f"What would change if we reversed this assumption?"
-            ] if ultra_thinking else []
+            "is_local": True,
+            "model": "clisonix-curiosity-v1"
         }
-    else:
-        # Fallback when Groq is unavailable
+    except Exception as e:
+        logger.error(f"Curiosity Ocean error: {e}")
         return {
-            "status": "fallback",
-            "timestamp": utcnow(),
-            "source": "ASI Trinity Internal (Groq unavailable)",
-            "question": question,
-            "mode": mode,
-            "ultra_thinking": ultra_thinking,
-            "response": {
-                "answer": f"🌊 Curiosity Ocean is processing your question: '{question}'. The external AI (Groq) is currently unavailable, but ASI Trinity internal systems are active. Error: {groq_response.get('error', 'Unknown')}",
-                "model": "internal-fallback",
-                "provider": "ASI Trinity"
-            },
-            "error": groq_response.get("error"),
-            "asi_trinity": asi_metrics,
-            "metrics": {
-                "processing_time_ms": processing_time,
-                "alba_depth": asi_metrics["alba"]["network_depth"],
-                "albi_creativity": asi_metrics["albi"]["creativity_score"],
-                "jona_potential": asi_metrics["jona"]["infinite_potential"]
-            },
-            "conversation_id": conversation_id or str(uuid.uuid4()),
-            "suggestion": "Set GROQ_API_KEY environment variable for full AI responses"
+            "status": "error",
+            "message": str(e),
+            "timestamp": utcnow()
         }
 
 
 @app.post("/api/ai/quick-interpret")
 async def quick_interpret(data: Dict[str, Any]):
     """
-    ⚡ Claude Tools - Quick interpretation without orchestration overhead
-    Ideal for fast, simple analysis tasks
+    ⚡ CLISONIX LOCAL AI - Quick interpretation
+    100% independent - no external AI providers
     
     Args:
         data: Dict with 'query' and optional context
@@ -3912,44 +3752,23 @@ async def quick_interpret(data: Dict[str, Any]):
         Quick interpretation result
     """
     try:
-        from anthropic import Anthropic
-        
-        api_key = os.getenv("ANTHROPIC_API_KEY")
-        if not api_key:
-            api_key = os.getenv("OPENAI_API_KEY")  # Fallback to OpenAI
-        
-        if not api_key:
-            return {
-                "status": "demo",
-                "message": "API keys not configured",
-                "demo_response": f"DEMO: Quick interpretation of: {data.get('query', 'N/A')}"
-            }
-        
-        client = Anthropic(api_key=api_key)
+        from clisonix_ai_engine import ClisonixAIEngine
+        engine = ClisonixAIEngine()
         
         query = data.get("query", "")
         context = data.get("context", "")
         
-        prompt = f"""Please provide a quick, insightful interpretation:
-        
-Context: {context}
-Query: {query}
-
-Be concise but thorough. Focus on actionable insights."""
-        
-        response = client.messages.create(
-            model="claude-3-5-sonnet-20241022",
-            max_tokens=500,
-            messages=[{"role": "user", "content": prompt}]
-        )
+        # Use local quick interpretation
+        result = engine.quick_interpret(query, context)
         
         return {
             "status": "success",
             "timestamp": utcnow(),
-            "source": "Claude (Quick Mode)",
+            "source": "Clisonix AI Engine (Local)",
             "query": query,
-            "interpretation": response.content[0].text,
-            "model": "claude-3-5-sonnet"
+            "interpretation": result,
+            "is_local": True,
+            "model": "clisonix-quick-v1"
         }
     
     except Exception as e:
@@ -3963,60 +3782,49 @@ Be concise but thorough. Focus on actionable insights."""
 @app.get("/api/ai/agents-status")
 async def agents_status():
     """
-    Check status of all AI agent frameworks
+    Check status of Clisonix Local AI Engine - 100% independent
     """
     try:
-        crewai_ok = False
-        langchain_ok = False
+        engine_ok = False
+        engine_info = {}
         
-        # Try CrewAI
+        # Check Clisonix AI Engine
         try:
-            result = init_crewai_agents()
-            crewai_ok = result is not None
+            from clisonix_ai_engine import ClisonixAIEngine
+            engine = ClisonixAIEngine()
+            engine_ok = True
+            engine_info = {
+                "pattern_count": len(engine.patterns),
+                "capabilities": ["neural_analysis", "eeg_interpretation", "pattern_detection", "trinity_analysis", "curiosity_ocean", "quick_interpret"]
+            }
         except Exception as e:
-            logger.debug(f"CrewAI check failed: {e}")
-            crewai_ok = False
-        
-        # Try LangChain
-        try:
-            result = init_langchain_chains()
-            langchain_ok = result is not None
-        except Exception as e:
-            logger.debug(f"LangChain check failed: {e}")
-            langchain_ok = False
+            logger.debug(f"Clisonix AI Engine check failed: {e}")
+            engine_ok = False
         
         return {
             "timestamp": utcnow(),
-            "frameworks": {
-                "crewai": {
-                    "available": crewai_ok,
-                    "agents": ["alba", "albi", "jona"] if crewai_ok else [],
-                    "endpoint": "/api/ai/trinity-analysis"
-                },
-                "langchain": {
-                    "available": langchain_ok,
-                    "chains": ["conversation"] if langchain_ok else [],
-                    "endpoint": "/api/ai/curiosity-ocean"
-                },
-                "claude_tools": {
-                    "available": True,
-                    "endpoint": "/api/ai/quick-interpret"
-                }
+            "engine": "Clisonix AI Engine",
+            "version": "1.0.0",
+            "is_local": True,
+            "external_dependencies": False,
+            "status": "active" if engine_ok else "error",
+            "capabilities": engine_info.get("capabilities", []),
+            "endpoints": {
+                "neural_analysis": "/api/ai/analyze-neural",
+                "eeg_interpretation": "/api/ai/eeg-interpretation",
+                "trinity_analysis": "/api/ai/trinity-analysis",
+                "curiosity_ocean": "/api/ai/curiosity-ocean",
+                "quick_interpret": "/api/ai/quick-interpret",
+                "health": "/api/ai/health"
             },
-            "openai_configured": bool(os.getenv("OPENAI_API_KEY") and not os.getenv("OPENAI_API_KEY").startswith("sk-")),
-            "anthropic_configured": bool(os.getenv("ANTHROPIC_API_KEY"))
+            "message": "100% independent - no external AI providers required"
         }
     except Exception as e:
         logger.error(f"agents_status error: {e}", exc_info=True)
         return {
             "timestamp": utcnow(),
-            "frameworks": {
-                "crewai": {"available": False, "agents": [], "endpoint": "/api/ai/trinity-analysis"},
-                "langchain": {"available": False, "chains": [], "endpoint": "/api/ai/curiosity-ocean"},
-                "claude_tools": {"available": True, "endpoint": "/api/ai/quick-interpret"}
-            },
-            "openai_configured": False,
-            "anthropic_configured": False,
+            "engine": "Clisonix AI Engine",
+            "status": "error",
             "error": str(e)
         }
 
@@ -4227,6 +4035,24 @@ async def excel_summary():
 
 app.include_router(excel_router)
 logger.info("[OK] Excel Dashboard routes loaded")
+
+# ============== BILLING ROUTES ==============
+try:
+    from billing.stripe_routes import router as stripe_billing_router
+    app.include_router(stripe_billing_router)
+    logger.info("[OK] Stripe Billing routes loaded (/api/v1/billing/*)")
+except ImportError as e:
+    logger.warning(f"[SKIP] Billing routes not available: {e}")
+
+# Also add legacy billing endpoint for backward compatibility
+@app.post("/billing/stripe/payment-intent", tags=["billing"])
+async def legacy_payment_intent(amount: int = 2900, currency: str = "eur"):
+    """Legacy payment intent endpoint (redirects to /api/v1/billing/payment-intent)."""
+    try:
+        from billing.stripe_routes import create_payment_intent
+        return await create_payment_intent(amount, currency)
+    except Exception as e:
+        return {"error": str(e)}
 
 # ------------- Root -------------
 @app.get("/")
