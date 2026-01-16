@@ -35,6 +35,9 @@ from ultra_reporting import (
     MetricsSnapshot
 )
 
+# Import error tracker
+from error_tracker import error_tracker
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/reporting", tags=["reporting"])
@@ -204,10 +207,15 @@ async def export_excel(background_tasks: BackgroundTasks) -> Response:
         )
         
     except Exception as e:
-        logger.error(f"Excel export failed: {str(e)}")
+        error_id = error_tracker.track_error(e, function_name="export_excel")
+        logger.error(f"{error_id} | Excel export failed: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to generate Excel report: {str(e)}"
+            detail={
+                "error": "Failed to generate Excel report",
+                "error_id": error_id,
+                "message": str(e)
+            }
         )
 
 
@@ -257,10 +265,15 @@ async def export_powerpoint(background_tasks: BackgroundTasks) -> Response:
         )
         
     except Exception as e:
-        logger.error(f"PowerPoint export failed: {str(e)}")
+        error_id = error_tracker.track_error(e, function_name="export_powerpoint")
+        logger.error(f"{error_id} | PowerPoint export failed: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to generate PowerPoint: {str(e)}"
+            detail={
+                "error": "Failed to generate PowerPoint",
+                "error_id": error_id,
+                "message": str(e)
+            }
         )
 
 
@@ -319,8 +332,16 @@ async def export_both(request: ExportRequest) -> Dict[str, Any]:
         }
         
     except Exception as e:
-        logger.error(f"Export both failed: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        error_id = error_tracker.track_error(e, function_name="export_both")
+        logger.error(f"{error_id} | Export both failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": "Failed to generate reports",
+                "error_id": error_id,
+                "message": str(e)
+            }
+        )
 
 
 @router.get("/dashboard")
@@ -670,6 +691,59 @@ def _get_mock_metrics(hours: int = 24) -> List[MetricsSnapshot]:
             system_disk_percent=45.0
         ))
         
+        
     return sorted(snapshots, key=lambda s: s.timestamp)
 
+
+# ========== ERROR TRACKING ENDPOINTS ==========
+
+@router.get("/errors")
+async def get_errors() -> Dict[str, Any]:
+    """
+    Merr listën e të gjithë erroreve me referenca unike (ERR-001, ERR-002, etj)
+    Shfaq numrin e rreshtit, funksionin, kodin e gabimit dhe detajet
+    """
+    return {
+        "errors": error_tracker.get_all_errors(),
+        "summary": error_tracker.get_error_summary(),
+    }
+
+
+@router.get("/errors/summary")
+async def get_error_summary() -> Dict[str, Any]:
+    """Merr përmbledhjen e erroreve"""
+    return error_tracker.get_error_summary()
+
+
+@router.get("/errors/by-function/{function_name}")
+async def get_errors_by_function(function_name: str) -> Dict[str, Any]:
+    """Merr errore sipas emrit të funksionit"""
+    errors = error_tracker.get_errors_by_function(function_name)
+    return {
+        "function": function_name,
+        "error_count": len(errors),
+        "errors": errors,
+    }
+
+
+@router.get("/errors/table")
+async def get_errors_table() -> PlainTextResponse:
+    """
+    Shfaq errore si tabelë e formatuar për konsol/terminal
+    Tabelë me ERR-001, ERR-002, etj me numrin e rreshtit, funksionin, tipin, dhe mesazhin
+    """
+    table = error_tracker.export_errors_as_table()
+    return PlainTextResponse(table)
+
+
+@router.delete("/errors/clear")
+async def clear_errors() -> Dict[str, Any]:
+    """Pastro të gjithë errore"""
+    error_count = len(error_tracker.errors)
+    error_tracker.clear_errors()
+    return {
+        "status": "success",
+        "message": f"Cleared {error_count} errors",
+        "cleared_count": error_count,
+    }
 
