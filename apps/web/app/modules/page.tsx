@@ -30,11 +30,11 @@ export default function ModulesPage() {
   })
 
   const [apiStatuses, setApiStatuses] = useState<APIStatus[]>([
-    { name: 'Main API Health', endpoint: '/health', status: 'offline' },
+    { name: 'Main API Health', endpoint: '/api/proxy/health', status: 'offline' },
     { name: 'System Status', endpoint: '/api/system-status', status: 'offline' },
-    { name: 'Excel Service', endpoint: '/health', status: 'offline' },
-    { name: 'Core Service', endpoint: '/health', status: 'offline' },
-    { name: 'Marketplace', endpoint: '/health', status: 'offline' },
+    { name: 'Excel Service', endpoint: '/api/proxy/excel-health', status: 'offline' },
+    { name: 'Core Service', endpoint: '/api/proxy/core-health', status: 'offline' },
+    { name: 'Marketplace', endpoint: '/api/proxy/marketplace-health', status: 'offline' },
   ])
 
   const [isCheckingAPIs, setIsCheckingAPIs] = useState(false)
@@ -51,22 +51,13 @@ export default function ModulesPage() {
   // Check all API statuses
   const checkAPIStatuses = async () => {
     setIsCheckingAPIs(true)
-    // Service URLs from environment
-    const services: Record<string, string> = {
-      'Main API Health': API_BASE,
-      'System Status': API_BASE,
-      'Excel Service': EXCEL_API,
-      'Core Service': CORE_API,
-      'Marketplace': MARKETPLACE_API,
-    }
 
     const newStatuses = await Promise.all(
       apiStatuses.map(async (api) => {
         const startTime = Date.now()
         try {
-          const baseUrl = services[api.name] || API_BASE
-          
-          const response = await fetch(`${baseUrl}${api.endpoint}`, {
+          // Use relative URLs - all requests go through Next.js API proxy
+          const response = await fetch(api.endpoint, {
             method: 'GET',
             signal: AbortSignal.timeout(5000),
           })
