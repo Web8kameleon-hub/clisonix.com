@@ -145,6 +145,18 @@ export default function AboutSidebar() {
                   <p className="font-medium">@1amati_</p>
                 </div>
               </a>
+              <a
+                href="https://www.linkedin.com/in/ahmati-ledian-3bb197141/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-gray-300 hover:text-cyan-400 transition-colors group"
+              >
+                <span className="text-cyan-400 group-hover:scale-110 transition-transform">💼</span>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide">LinkedIn</p>
+                  <p className="font-medium">Ahmati Ledian</p>
+                </div>
+              </a>
             </div>
           </div>
 
