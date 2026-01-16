@@ -56,8 +56,8 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false, // Security: hide X-Powered-By
 
-  // Output optimization
-  output: 'standalone', // For Docker deployment
+  // Output optimization - using npm start (not standalone)
+  // output: 'standalone', // Disabled - using npm start for simpler deployment
 
   // Experimental features for better performance
   experimental: {

@@ -2,20 +2,14 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files first for better caching
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install --legacy-peer-deps
 
-# Copy rest of the application
 COPY . .
 
-# Set environment for build
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Build the application
 RUN npm run build
 
 # Production image
@@ -23,17 +17,22 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S clisonix -u 1001
 
-# Copy necessary files from builder
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder --chown=clisonix:nodejs /app/.next ./.next
+COPY --from=builder --chown=clisonix:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=clisonix:nodejs /app/package*.json ./
+COPY --from=builder --chown=clisonix:nodejs /app/public ./public
+
+USER clisonix
 
 EXPOSE 3000
 
+ENV NODE_ENV=production
 ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:3000 || exit 1
+
+CMD ["npm", "start"]
