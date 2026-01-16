@@ -17,6 +17,9 @@ research/generated_cycles_v12/grafana-ml-ecosystem/
 secrets/
 *.secret
 *_secret.txt
+*.key
+*.pem
+*.crt
 
 # Database
 *.db
