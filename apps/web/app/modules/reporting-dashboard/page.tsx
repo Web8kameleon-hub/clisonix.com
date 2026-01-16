@@ -154,8 +154,6 @@ export default function UltraReportingDashboard() {
       setExporting(false);
     }
   };
-}
-  };
 
   const formatUptime = (seconds: number) => {
     const days = Math.floor(seconds / 86400);
