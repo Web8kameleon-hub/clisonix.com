@@ -62,11 +62,14 @@ export default function ModulesPage() {
             signal: AbortSignal.timeout(5000),
           })
           const responseTime = Date.now() - startTime
+          
+          // Debug logging
+          console.log(`[Health Check] ${api.name}: ${response.status} in ${responseTime}ms`)
 
           if (response.ok) {
             return {
               ...api,
-              status: (responseTime < 3000 ? 'online' : 'degraded') as 'online' | 'degraded',
+              status: (responseTime < 5000 ? 'online' : 'degraded') as 'online' | 'degraded',
               responseTime,
               lastChecked: new Date().toLocaleTimeString()
             }
@@ -75,7 +78,8 @@ export default function ModulesPage() {
           } else {
             return { ...api, status: 'degraded' as const, responseTime, lastChecked: new Date().toLocaleTimeString() }
           }
-        } catch {
+        } catch (error) {
+          console.error(`[Health Check] ${api.name}: ERROR`, error)
           return { ...api, status: 'offline' as const, lastChecked: new Date().toLocaleTimeString() }
         }
       })

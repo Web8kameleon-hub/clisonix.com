@@ -41,6 +41,12 @@ export async function GET() {
         hostname: 'unknown'
       }
     }
-    return NextResponse.json({ success: false, data: fallback }, { status: 200 })
+    return NextResponse.json({ success: false, error: 'upstream_unavailable', data: fallback }, {
+      status: 502,
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Access-Control-Allow-Origin': '*'
+      }
+    })
   }
 }
