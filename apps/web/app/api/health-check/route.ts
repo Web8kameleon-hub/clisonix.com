@@ -10,10 +10,19 @@ interface ServiceHealth {
   port: number
 }
 
-async function checkService(name: string, port: number, path = '/health'): Promise<ServiceHealth> {
+// Service configuration for Docker environment
+const SERVICES = [
+  { name: 'Main API', host: 'clisonix-core', port: 8000, path: '/health' },
+  { name: 'Excel Service', host: 'clisonix-excel', port: 8002, path: '/health' },
+  { name: 'Marketplace', host: 'clisonix-marketplace', port: 8004, path: '/health' },
+  { name: 'Frontend', host: 'localhost', port: 3000, path: '/api/ping' },
+]
+
+async function checkService(name: string, host: string, port: number, path = '/health'): Promise<ServiceHealth> {
   const start = Date.now()
+  const url = host === 'localhost' ? `http://127.0.0.1:${port}${path}` : `http://${host}:${port}${path}`
   try {
-    const res = await fetch(`http://127.0.0.1:${port}${path}`, {
+    const res = await fetch(url, {
       cache: 'no-store',
       signal: AbortSignal.timeout(3000)
     })
@@ -28,12 +37,9 @@ async function checkService(name: string, port: number, path = '/health'): Promi
 }
 
 export async function GET() {
-  const checks = await Promise.all([
-    checkService('Main API', 8000, '/health'),
-    checkService('Excel Service', 8002, '/health'),
-    checkService('Core Service', 8003, '/health'),
-    checkService('Frontend', 3000, '/api/ping'),
-  ])
+  const checks = await Promise.all(
+    SERVICES.map(s => checkService(s.name, s.host, s.port, s.path))
+  )
 
   const operational = checks.filter(s => s.status === 'operational').length
   const overall = operational === checks.length ? 'ALL_OPERATIONAL'

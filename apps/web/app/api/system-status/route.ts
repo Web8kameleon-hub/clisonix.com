@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 
-// SERVER-TO-SERVER: Use localhost to bypass Cloudflare
-// Port 8000 = Main API (has /status endpoint)
-const API_INTERNAL = 'http://127.0.0.1:8000'
+// SERVER-TO-SERVER: Use Docker container name in production
+// clisonix-core:8000 = Main API container (internal port)
+const API_INTERNAL = 'http://clisonix-core:8000'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
