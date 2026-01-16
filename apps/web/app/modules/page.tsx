@@ -63,8 +63,6 @@ export default function ModulesPage() {
           })
           const responseTime = Date.now() - startTime
           
-          const responseTime = Date.now() - startTime
-
           // Debug logging
           console.log(`[Health Check] ${api.name}: status=${response.status}, ok=${response.ok}, time=${responseTime}ms`)
 
