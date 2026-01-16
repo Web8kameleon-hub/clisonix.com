@@ -3,11 +3,10 @@
  * Production-ready with API rewrites for backend proxy
  */
 
-// PRODUCTION: Docker internal communication
-// Docker network: 'http://api:8000' for internal container communication
-// External: 'http://46.224.205.183:8000' for direct access
-const API_BASE = process.env.API_INTERNAL_URL || 'http://api:8000';
-const REPORTING_BASE = process.env.REPORTING_INTERNAL_URL || 'http://api:8000';
+// PRODUCTION: Docker internal communication via container names
+// Docker network 'clisonix-secure' - use container names for routing
+const API_BASE = process.env.API_INTERNAL_URL || 'http://clisonix-core:8000';
+const REPORTING_BASE = process.env.REPORTING_INTERNAL_URL || 'http://clisonix-excel-core:8010';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
