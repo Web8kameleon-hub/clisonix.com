@@ -87,9 +87,9 @@ export default function DataCollectionPage() {
       error: null
     },
     {
-      name: 'Reporting Health',
+      name: 'System Health',
       method: 'GET',
-      url: `${API_BASE}/api/reporting/health`,
+      url: `${API_BASE}/health`,
       status: null,
       statusText: 'Not tested',
       responseTime: null,
@@ -111,9 +111,9 @@ export default function DataCollectionPage() {
       error: null
     },
     {
-      name: 'Reporting Dashboard',
+      name: 'System Status',
       method: 'GET',
-      url: `${API_BASE}/api/reporting/dashboard`,
+      url: `${API_BASE}/status`,
       status: null,
       statusText: 'Not tested',
       responseTime: null,
