@@ -44,7 +44,7 @@ export default function UltraReportingDashboard() {
     try {
       const [healthRes, metricsRes] = await Promise.all([
         fetch(`${API_BASE}/health`).then(r => r.json()).catch(() => null),
-        fetch(`${API_BASE}/api/reporting/dashboard`).then(r => r.json()).catch(() => null)
+        fetch(`${API_BASE}/api/proxy/reporting-dashboard`).then(r => r.json()).catch(() => null)
       ]);
 
       const services: ServiceStatus[] = [
@@ -99,8 +99,8 @@ export default function UltraReportingDashboard() {
     setLoadingErrors(true);
     try {
       const [errorsRes, summaryRes] = await Promise.all([
-        fetch('/api/reporting/errors').then(r => r.json()).catch(() => ({ errors: [] })),
-        fetch('/api/reporting/errors/summary').then(r => r.json()).catch(() => ({}))
+        fetch('/api/proxy/reporting-errors').then(r => r.json()).catch(() => ({ errors: [] })),
+        fetch('/api/proxy/reporting-error-summary').then(r => r.json()).catch(() => ({}))
       ]);
       setErrors(errorsRes.errors || []);
       setErrorSummary(summaryRes);
@@ -119,15 +119,22 @@ export default function UltraReportingDashboard() {
   const handleExport = async (format: 'xlsx' | 'pptx' | 'pdf') => {
     setExporting(true);
     try {
-      const response = await fetch(`${API_BASE}/api/reporting/export?format=${format}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: 'Clisonix Cloud Metrics Report',
-          date_range_hours: 24,
-          include_sla: true,
-          include_alerts: true
-        })
+      let endpoint = '';
+      let filename = `clisonix-report-${new Date().toISOString().split('T')[0]}`;
+
+      if (format === 'xlsx') {
+        endpoint = '/api/proxy/reporting-export-excel';
+        filename += '.xlsx';
+      } else if (format === 'pptx') {
+        endpoint = '/api/proxy/reporting-export-pptx';
+        filename += '.pptx';
+      } else {
+        console.error('PDF export not yet implemented');
+        return;
+      }
+
+      const response = await fetch(endpoint, {
+        method: 'GET',
       });
       
       if (response.ok) {
@@ -135,15 +142,19 @@ export default function UltraReportingDashboard() {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `clisonix-report-${new Date().toISOString().split('T')[0]}.${format}`;
+        a.download = filename;
         a.click();
         window.URL.revokeObjectURL(url);
+      } else {
+        console.error('Export failed:', response.status);
       }
     } catch (err) {
       console.error('Export failed:', err);
     } finally {
       setExporting(false);
     }
+  };
+}
   };
 
   const formatUptime = (seconds: number) => {
