@@ -23,10 +23,12 @@ class InternalDataSources:
         self.labs_engine = None
         self.agent_telemetry = None
         self.cycle_engine = None
+        self.laboratory_network = None
         
         self._init_labs()
         self._init_agents()
         self._init_cycle()
+        self._init_laboratory_network()
     
     def _init_labs(self):
         """Initialize REAL Location Labs Engine."""
@@ -48,6 +50,15 @@ class InternalDataSources:
             logger.info("✅ Agent Telemetry connected (REAL)")
         except Exception as e:
             logger.error(f"❌ Agent Telemetry failed: {e}")
+    
+    def _init_laboratory_network(self):
+        """Initialize 23 Specialized Laboratories Network."""
+        try:
+            from laboratories import get_laboratory_network
+            self.laboratory_network = get_laboratory_network()
+            logger.info(f"✅ Laboratory Network connected - {len(self.laboratory_network.labs)} labs")
+        except Exception as e:
+            logger.warning(f"⚠️ Laboratory Network not available: {e}")
     
     def _init_cycle(self):
         """Initialize REAL Cycle Engine."""
@@ -138,11 +149,34 @@ class InternalDataSources:
             logger.error(f"System metrics failed: {e}")
             raise
 
+    def get_all_laboratories(self) -> Dict[str, Any]:
+        """Get all 23 specialized laboratories."""
+        if not self.laboratory_network:
+            return {"total_labs": 0, "laboratories": []}
+        return self.laboratory_network.get_all_labs_summary()
+
+    def get_laboratory_by_type(self, lab_type: str) -> List[Dict[str, Any]]:
+        """Get laboratories by type."""
+        if not self.laboratory_network:
+            return []
+        labs = self.laboratory_network.get_labs_by_type(lab_type)
+        return [lab.to_dict() for lab in labs]
+
+    def get_laboratory_stats(self) -> Dict[str, Any]:
+        """Get laboratory network statistics."""
+        if not self.laboratory_network:
+            return {}
+        return self.laboratory_network.get_network_stats()
+
     def get_all_data(self) -> Dict[str, Any]:
         """Get all internal data sources combined."""
         try:
+            lab_data = self.get_all_laboratories() if self.laboratory_network else {"total_labs": 0, "laboratories": []}
+            
             return {
                 "labs": self.get_all_labs(),
+                "laboratories": lab_data,
+                "laboratory_stats": self.get_laboratory_stats(),
                 "agents": self.get_all_agents(),
                 "cycles": self.get_all_cycles(),
                 "kpi": self.get_kpi(),
@@ -154,6 +188,8 @@ class InternalDataSources:
             logger.error(f"Error aggregating data: {e}")
             return {
                 "labs": [],
+                "laboratories": {"total_labs": 0, "laboratories": []},
+                "laboratory_stats": {},
                 "agents": [],
                 "cycles": [],
                 "kpi": {},

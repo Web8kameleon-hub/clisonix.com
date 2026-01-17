@@ -71,6 +71,13 @@ class SourceAggregator:
             internal_tasks.append(self.data_sources.location_labs.get_all_labs_data())
             internal_source_names.append("location_labs")
         
+        if "laboratories" in required_sources or "location_labs" in required_sources:
+            try:
+                internal_tasks.append(self.data_sources.get_all_laboratories())
+                internal_source_names.append("laboratories")
+            except:
+                pass
+        
         if "agent_telemetry" in required_sources:
             internal_tasks.append(self.data_sources.agent_telemetry.get_all_agents_data())
             internal_source_names.append("agent_telemetry")
@@ -160,6 +167,19 @@ class ResponseFormulator:
         
         findings = []
         internal_data = aggregated_data.get("internal_data", {})
+        
+        # 23 Specialized Laboratories findings
+        if "laboratories" in internal_data:
+            lab_data = internal_data["laboratories"]
+            if isinstance(lab_data, dict) and "total_labs" in lab_data:
+                findings.append({
+                    "type": "laboratory",
+                    "title": "Specialized Laboratory Network",
+                    "value": f"{lab_data['total_labs']} specialized laboratories across 23 domains",
+                    "description": "AI, Medical, IoT, Marine, Environmental, Agricultural, Underwater, Security, Energy, Academic, Architecture, Finance, Industrial, Chemistry, Biotech, Quantum, Neuroscience, Robotics, Data, Nanotechnology, Trade, Archeology, Heritage",
+                    "source": "laboratory_network",
+                    "weight": source_weights.get("laboratories", 0.8)
+                })
         
         # Location Labs findings
         if "location_labs" in internal_data:
