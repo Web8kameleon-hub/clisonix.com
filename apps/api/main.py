@@ -921,114 +921,131 @@ try:
         except Exception as e:
             logger.error(f"❌ Failed to initialize Ocean Hub: {e}")
     
-    @app.get("/api/ocean/status")
-    async def ocean_status():
-        """Get Ocean Central Hub status"""
-        ocean = await get_ocean_hub()
-        return ocean.get_hub_status()
-    
-    logger.info("📍 Registered /api/ocean/status")
-    
-    @app.post("/api/ocean/session/create")
-    async def ocean_create_session(user_id: str):
-        """Create new Ocean session for user"""
-        ocean = await get_ocean_hub()
-        session = await ocean.create_session(user_id)
-        return {"session_id": session.session_id, "user_id": session.user_id}
-    
-    logger.info("📍 Registered /api/ocean/session/create")
-    
-    @app.get("/api/ocean/session/{session_id}")
-    async def ocean_session_info(session_id: str):
-        """Get Ocean session information"""
-        ocean = await get_ocean_hub()
-        info = ocean.get_session_info(session_id)
-        if not info:
-            raise HTTPException(status_code=404, detail="Session not found")
-        return info
-    
-    logger.info("📍 Registered /api/ocean/session/{session_id}")
-    
-    @app.delete("/api/ocean/session/{session_id}")
-    async def ocean_end_session(session_id: str):
-        """End Ocean session"""
-        ocean = await get_ocean_hub()
-        await ocean.end_session(session_id)
-        return {"status": "ok", "session_id": session_id}
-    
-    logger.info("📍 Registered /api/ocean/session DELETE")
-    
-    @app.get("/api/ocean/cell/{cell_id}")
-    async def ocean_cell_info(cell_id: str):
-        """Get Ocean cell information"""
-        ocean = await get_ocean_hub()
-        info = ocean.get_cell_info(cell_id)
-        if not info:
-            raise HTTPException(status_code=404, detail="Cell not found")
-        return info
-    
-    logger.info("📍 Registered /api/ocean/cell/{cell_id}")
-    
-    @app.get("/api/ocean/cells")
-    async def ocean_list_cells():
-        """List all Ocean cells"""
-        ocean = await get_ocean_hub()
-        return {"cells": [c.to_dict() for c in ocean.cells.values()]}
-    
-    logger.info("📍 Registered /api/ocean/cells")
-    
-    @app.get("/api/ocean/labs/list")
-    async def ocean_labs_list():
-        """List all available labs through Ocean"""
-        try:
+    try:
+        @app.get("/api/ocean/status")
+        async def ocean_status():
+            """Get Ocean Central Hub status"""
             ocean = await get_ocean_hub()
-            labs_cell = ocean.labs_cell
-            
-            if not labs_cell:
-                raise ValueError("Labs cell not initialized")
-            
-            lab_types = labs_cell.get_lab_types()
-            
-            return {
-                "status": "ok",
-                "cell_id": "labs_executor",
-                "available_lab_types": lab_types,
-                "total_labs": len(lab_types)
-            }
-        except Exception as e:
-            logger.error(f"❌ Failed to list labs: {e}")
-            raise HTTPException(status_code=500, detail=f"Failed to list labs: {str(e)}")
+            return ocean.get_hub_status()
+        logger.info("📍 Registered /api/ocean/status")
+    except Exception as e:
+        logger.error(f"❌ Failed to register /api/ocean/status: {e}")
     
-    logger.info("📍 Registered /api/ocean/labs/list")
-    
-    @app.post("/api/ocean/labs/execute")
-    async def ocean_labs_execute(row: Dict[str, Any], lab_type: Optional[str] = None):
-        """Execute lab(s) on a row through Ocean Central Hub"""
-        try:
+    try:
+        @app.post("/api/ocean/session/create")
+        async def ocean_create_session(user_id: str):
+            """Create new Ocean session for user"""
             ocean = await get_ocean_hub()
-            labs_cell = ocean.labs_cell
-            
-            if not labs_cell or not lab_type:
-                raise ValueError("Lab type must be specified")
-            
-            # Execute through LabsCell with Ocean integration
-            result = await labs_cell.execute_lab(lab_type, row)
-            
-            # Return results with Ocean context
-            return {
-                "status": "ok" if "error" not in result else "failed",
-                "cell_id": "labs_executor",
-                "ocean_stream": result.get("ocean_format"),
-                **result
-            }
-        except ImportError as e:
-            logger.error(f"❌ Labs not available: {e}")
-            raise HTTPException(status_code=503, detail=f"Labs service unavailable: {str(e)}")
-        except Exception as e:
-            logger.error(f"❌ Lab execution error: {e}")
-            raise HTTPException(status_code=500, detail=f"Lab execution failed: {str(e)}")
+            session = await ocean.create_session(user_id)
+            return {"session_id": session.session_id, "user_id": session.user_id}
+        logger.info("📍 Registered /api/ocean/session/create")
+    except Exception as e:
+        logger.error(f"❌ Failed to register /api/ocean/session/create: {e}")
     
-    logger.info("📍 Registered /api/ocean/labs/execute")
+    try:
+        @app.get("/api/ocean/session/{session_id}")
+        async def ocean_session_info(session_id: str):
+            """Get Ocean session information"""
+            ocean = await get_ocean_hub()
+            info = ocean.get_session_info(session_id)
+            if not info:
+                raise HTTPException(status_code=404, detail="Session not found")
+            return info
+        logger.info("📍 Registered /api/ocean/session/{session_id}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register /api/ocean/session GET: {e}")
+    
+    try:
+        @app.delete("/api/ocean/session/{session_id}")
+        async def ocean_end_session(session_id: str):
+            """End Ocean session"""
+            ocean = await get_ocean_hub()
+            await ocean.end_session(session_id)
+            return {"status": "ok", "session_id": session_id}
+        logger.info("📍 Registered /api/ocean/session DELETE")
+    except Exception as e:
+        logger.error(f"❌ Failed to register /api/ocean/session DELETE: {e}")
+    
+    try:
+        @app.get("/api/ocean/cell/{cell_id}")
+        async def ocean_cell_info(cell_id: str):
+            """Get Ocean cell information"""
+            ocean = await get_ocean_hub()
+            info = ocean.get_cell_info(cell_id)
+            if not info:
+                raise HTTPException(status_code=404, detail="Cell not found")
+            return info
+        logger.info("📍 Registered /api/ocean/cell/{cell_id}")
+    except Exception as e:
+        logger.error(f"❌ Failed to register /api/ocean/cell: {e}")
+    
+    try:
+        @app.get("/api/ocean/cells")
+        async def ocean_list_cells():
+            """List all Ocean cells"""
+            ocean = await get_ocean_hub()
+            return {"cells": [c.to_dict() for c in ocean.cells.values()]}
+        logger.info("📍 Registered /api/ocean/cells")
+    except Exception as e:
+        logger.error(f"❌ Failed to register /api/ocean/cells: {e}")
+    
+    try:
+        @app.get("/api/ocean/labs/list")
+        async def ocean_labs_list():
+            """List all available labs through Ocean"""
+            try:
+                ocean = await get_ocean_hub()
+                labs_cell = ocean.labs_cell
+                
+                if not labs_cell:
+                    raise ValueError("Labs cell not initialized")
+                
+                lab_types = labs_cell.get_lab_types()
+                
+                return {
+                    "status": "ok",
+                    "cell_id": "labs_executor",
+                    "available_lab_types": lab_types,
+                    "total_labs": len(lab_types)
+                }
+            except Exception as e:
+                logger.error(f"❌ Failed to list labs: {e}")
+                raise HTTPException(status_code=500, detail=f"Failed to list labs: {str(e)}")
+        logger.info("📍 Registered /api/ocean/labs/list")
+    except Exception as e:
+        logger.error(f"❌ Failed to register /api/ocean/labs/list: {e}")
+    
+    try:
+        @app.post("/api/ocean/labs/execute")
+        async def ocean_labs_execute(row: Dict[str, Any], lab_type: Optional[str] = None):
+            """Execute lab(s) on a row through Ocean Central Hub"""
+            try:
+                ocean = await get_ocean_hub()
+                labs_cell = ocean.labs_cell
+                
+                if not labs_cell or not lab_type:
+                    raise ValueError("Lab type must be specified")
+                
+                # Execute through LabsCell with Ocean integration
+                result = await labs_cell.execute_lab(lab_type, row)
+                
+                # Return results with Ocean context
+                return {
+                    "status": "ok" if "error" not in result else "failed",
+                    "cell_id": "labs_executor",
+                    "ocean_stream": result.get("ocean_format"),
+                    **result
+                }
+            except ImportError as e:
+                logger.error(f"❌ Labs not available: {e}")
+                raise HTTPException(status_code=503, detail=f"Labs service unavailable: {str(e)}")
+            except Exception as e:
+                logger.error(f"❌ Lab execution error: {e}")
+                raise HTTPException(status_code=500, detail=f"Lab execution failed: {str(e)}")
+        logger.info("📍 Registered /api/ocean/labs/execute")
+    except Exception as e:
+        logger.error(f"❌ Failed to register /api/ocean/labs/execute: {e}", exc_info=True)
+    
     logger.info("✅ Ocean Central Hub endpoints initialized")
 except ImportError as e:
     logger.warning(f"⚠️ Ocean Central Hub not available: {e}")
