@@ -1,0 +1,269 @@
+version: '3.9'
+
+services:
+  # ============== ULTRA-LIGHT DATA INFRASTRUCTURE ==============
+  
+  # Redis: Ultra-fast ingestion buffer
+  redis:
+    image: redis:7-alpine
+    container_name: clisonix-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - clisonix-net
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+  # Ocean Core: Ultra-light decode + profile routing
+  ocean-core-8030:
+    build:
+      context: .
+      dockerfile: Dockerfile.ocean
+    container_name: ocean-core-8030
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - OCEAN_CORE_PORT=8030
+      - LOG_LEVEL=INFO
+    ports:
+      - "8030:8030"
+    volumes:
+      - ./apps/api:/app
+      - ./data/clisonix:/data/clisonix
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8030/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - clisonix-net
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '1'
+          memory: 512M
+
+  # API Gateway: Main REST API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: clisonix-api
+    environment:
+      - PYTHONUNBUFFERED=1
+      - OCEAN_CORE_URL=http://ocean-core-8030:8030
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - API_PORT=8000
+      - LOG_LEVEL=INFO
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./apps/api:/app
+      - ./data/clisonix:/data/clisonix
+    depends_on:
+      ocean-core-8030:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - clisonix-net
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # ALBA: Trinity System Component
+  clisonix-alba:
+    build:
+      context: .
+      dockerfile: apps/alba/Dockerfile
+    container_name: clisonix-alba
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - ALBA_PORT=5555
+      - LOG_LEVEL=INFO
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./apps/alba:/app
+      - ./data/alba:/data/alba
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5555/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - clisonix-net
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # ALBI: Trinity System Component
+  clisonix-albi:
+    build:
+      context: .
+      dockerfile: apps/albi/Dockerfile
+    container_name: clisonix-albi
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - ALBI_PORT=6666
+      - LOG_LEVEL=INFO
+    ports:
+      - "6666:6666"
+    volumes:
+      - ./apps/albi:/app
+      - ./data/albi:/data/albi
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6666/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - clisonix-net
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # JONA: Trinity System Component
+  clisonix-jona:
+    build:
+      context: .
+      dockerfile: apps/jona/Dockerfile
+    container_name: clisonix-jona
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JONA_PORT=7777
+      - LOG_LEVEL=INFO
+    ports:
+      - "7777:7777"
+    volumes:
+      - ./apps/jona:/app
+      - ./data/jona:/data/jona
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7777/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - clisonix-net
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # ============== MONITORING & OBSERVABILITY ==============
+
+  # Prometheus: Metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: clisonix-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - clisonix-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # Grafana: Visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: clisonix-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - clisonix-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+networks:
+  clisonix-net:
+    driver: bridge
+
+volumes:
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
