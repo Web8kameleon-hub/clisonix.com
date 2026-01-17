@@ -4,9 +4,9 @@
  */
 
 // PRODUCTION: Docker internal communication via container names
-// Docker network 'clisonix-secure' - use container names for routing
-const API_BASE = process.env.API_INTERNAL_URL || 'http://clisonix-core:8000';
-const REPORTING_BASE = process.env.REPORTING_INTERNAL_URL || 'http://clisonix-excel-core:8010';
+// Docker network uses container names for routing
+const API_BASE = process.env.API_INTERNAL_URL || 'http://clisonix-api:8000';
+const REPORTING_BASE = process.env.REPORTING_INTERNAL_URL || 'http://clisonix-api:8000';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -200,6 +200,16 @@ const nextConfig = {
       {
         source: '/api/jona/:path*',
         destination: `${API_BASE}/api/jona/:path*`,
+      },
+      // ===== Security Status =====
+      {
+        source: '/api/security/:path*',
+        destination: `${API_BASE}/api/security/:path*`,
+      },
+      // ===== System Health =====
+      {
+        source: '/api/system/:path*',
+        destination: `${API_BASE}/api/system/:path*`,
       },
     ];
   },
