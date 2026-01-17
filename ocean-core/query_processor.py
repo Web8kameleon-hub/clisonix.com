@@ -72,23 +72,21 @@ class IntentDetector:
             r'\b(budget|spending|efficiency|optimization)\b',
         ],
         QueryIntent.LABORATORY: [
-            r'\b(lab|experiment|result|sample|data quality|elbasan|tirana|durres)\b',
-            r'\b(location|domain|university|medical|research|marine)\b',
-            r'\b(test tube|measurement|analysis)\b',
+            r'\b(lab|experiment|result|sample|data quality|quality|elbasan|tirana|durres|durrës|shkoder|shkodër|vlore|vlorë)\b',
+            r'\b(location|domain|university|medical|research|marine|agricultural|ecological)\b',
+            r'\b(test|measurement|analysis|geographic|geographic location)\b',
         ],
         QueryIntent.AGENT: [
-            r'\b(alba|albi|blerina|agiem|asi|agent|decision)\b',
-            r'\b(task|execution|status|telemetry|confidence|score)\b',
+            r'\b(alba|albi|blerina|agiem|asi|agent|decision|status|perform|performing)\b',
+            r'\b(task|execution|telemetry|confidence|score)\b',
             r'\b(workflow|agi|llm|model)\b',
         ],
         QueryIntent.SYSTEM: [
-            r'\b(cpu|memory|disk|monitor|health|uptime|alert)\b',
-            r'\b(metric|dashboard|status|availability|performance)\b',
-            r'\b(system|infrastructure|resource)\b',
+            r'\b(cpu|memory|disk|monitor|health|uptime|alert|metric|dashboard|system|infrastructure|resource)\b',
+            r'\b(performance|availability|latency|error rate)\b',
         ],
         QueryIntent.DATA: [
-            r'\b(report|analytics|query|data|statistics|trend)\b',
-            r'\b(aggregate|sum|count|average|correlation)\b',
+            r'\b(report|analytics|query|data|statistics|trend|aggregate|sum|count|average|correlation)\b',
         ]
     }
     

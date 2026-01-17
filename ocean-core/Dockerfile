@@ -7,8 +7,12 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy ocean-core
+# Copy ocean-core and apps/api (for Location Labs Engine)
 COPY ocean-core/ /app/
+COPY apps/api/ /app/apps/api/
+
+# Create __init__.py for apps package
+RUN mkdir -p /app/apps && touch /app/apps/__init__.py && touch /app/apps/api/__init__.py
 
 # Install Python dependencies
 RUN pip install --no-cache-dir \

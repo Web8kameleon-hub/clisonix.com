@@ -54,10 +54,24 @@ class LocationLabsConnector:
     async def initialize(self):
         """Initialize Location Labs Engine connection"""
         try:
-            # Import from apps/api since ocean-core is separate
+            # Import from apps.api since ocean-core is separate
             import sys
-            sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "apps", "api"))
-            from location_labs_engine import get_location_labs_engine
+            from pathlib import Path
+            
+            # Add apps/api to path
+            app_path = Path(__file__).parent / "apps" / "api"
+            if str(app_path) not in sys.path:
+                sys.path.insert(0, str(app_path))
+            
+            # Also try relative import
+            try:
+                from location_labs_engine import get_location_labs_engine
+            except ImportError:
+                # Try from apps.api if running in container
+                import os
+                if os.path.exists("/app/apps/api"):
+                    sys.path.insert(0, "/app/apps/api")
+                from location_labs_engine import get_location_labs_engine
             
             self.labs_engine = await get_location_labs_engine()
             self.initialized = True
