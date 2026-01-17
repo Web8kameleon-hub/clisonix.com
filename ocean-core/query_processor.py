@@ -72,10 +72,10 @@ class IntentDetector:
             r'\b(budget|spending|efficiency|optimization)\b',
         ],
         QueryIntent.LABORATORY: [
-            r'\b(labs?|experiment|result|sample|data quality|quality)\b',
+            r'\b(labs?|laboratory|lab network|experiment|result|sample|data quality|quality|specialized)\b',
             r'\b(elbasan|tirana|durres|durrës|shkoder|shkodër|vlore|vlorë|korça|sarandë|prishtina|kostur|athens|rome|zurich|beograd|sofia|zagreb|ljubljana|vienna|prague|budapest|bucharest|istanbul|cairo|jerusalem)\b',
-            r'\b(laboratory|lab network|research|medical|iot|marine|agricultural|ecological|ai|quantum|security|energy|biotech|nanotechnology|robotics|finance|trade|heritage|archeology|neuroscience|industrial|chemistry|underwater|data science)\b',
-            r'\b(location|domain|university|research|test|measurement|analysis|geographic)\b',
+            r'\b(research|medical|iot|marine|agricultural|ecological|ai|quantum|security|energy|biotech|nanotechnology|robotics|finance|trade|heritage|archeology|neuroscience|industrial|chemistry|underwater|data science|functions?)\b',
+            r'\b(location|domain|university|test|measurement|analysis|geographic)\b',
         ],
         QueryIntent.AGENT: [
             r'\b(alba|albi|blerina|agiem|asi|agent|decision|status|perform|performing)\b',
