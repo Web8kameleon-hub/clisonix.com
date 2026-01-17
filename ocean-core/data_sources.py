@@ -5,6 +5,7 @@ Connects to ALL real Clisonix data sources with NO fake data
 """
 
 from typing import Dict, List, Any, Optional
+from datetime import datetime
 import os
 import sys
 import logging
@@ -136,6 +137,30 @@ class InternalDataSources:
         except Exception as e:
             logger.error(f"System metrics failed: {e}")
             raise
+
+    def get_all_data(self) -> Dict[str, Any]:
+        """Get all internal data sources combined."""
+        try:
+            return {
+                "labs": self.get_all_labs(),
+                "agents": self.get_all_agents(),
+                "cycles": self.get_all_cycles(),
+                "kpi": self.get_kpi(),
+                "excel": self.get_excel_data(),
+                "metrics": self.get_system_metrics(),
+                "timestamp": datetime.now().isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Error aggregating data: {e}")
+            return {
+                "labs": [],
+                "agents": [],
+                "cycles": [],
+                "kpi": {},
+                "excel": {},
+                "metrics": {},
+                "error": str(e)
+            }
 
 
 # ============================================================

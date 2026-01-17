@@ -36,7 +36,7 @@ class KnowledgeResponse:
     intent: str
     main_response: str
     key_findings: List[Dict[str, Any]]
-    sources_cited: Dict[str, Any]  # internal vs external
+    sources_cited: Dict[str, Any]  # internal sources only
     curiosity_threads: List[CuriosityThread]
     confidence_score: float  # 0.0 - 1.0
     processing_time_ms: float
@@ -46,9 +46,9 @@ class KnowledgeResponse:
 class SourceAggregator:
     """Aggregates data from multiple sources"""
     
-    def __init__(self, data_sources_manager, external_apis_manager):
+    def __init__(self, data_sources_manager, external_apis_manager=None):
         self.data_sources = data_sources_manager
-        self.external_apis = external_apis_manager
+        self.external_apis = None  # Disabled - internal sources only
     
     async def aggregate_by_intent(self, intent: str, required_sources: List[str], 
                                   entities: Dict[str, List[str]]) -> Dict[str, Any]:
@@ -98,14 +98,9 @@ class SourceAggregator:
                 else:
                     aggregated_data["internal_data"][source_name] = result
         
-        # External sources - only if needed
-        external_sources = [s for s in required_sources 
-                          if s in ["wikipedia", "arxiv", "pubmed", "github"]]
-        
-        if external_sources:
-            logger.info(f"🔗 Querying external sources: {external_sources}")
-            # Will be handled by query processor separately
-            aggregated_data["external_sources_to_query"] = external_sources
+        # External sources - DISABLED (internal only)
+        # All queries now use ONLY internal Clisonix data sources
+        aggregated_data["external_sources_to_query"] = []
         
         return aggregated_data
 
@@ -140,10 +135,10 @@ class ResponseFormulator:
             key_findings, len(aggregated_data.get("internal_data", {}))
         )
         
-        # Source attribution
+        # Source attribution - INTERNAL ONLY
         sources_cited = {
             "internal": list(aggregated_data.get("internal_data", {}).keys()),
-            "external": list(external_data.get("sources", {}).keys()) if external_data else []
+            "external": []  # Disabled - using only internal Clisonix sources
         }
         
         return KnowledgeResponse(
