@@ -15,7 +15,8 @@ COPY requirements-ocean.txt .
 RUN pip install --no-cache-dir -r requirements-ocean.txt
 
 # Copy application
-COPY apps/api ./
+COPY apps/api/services ./services
+COPY apps/api/ocean_api_v2.py .
 
 # Health check
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
