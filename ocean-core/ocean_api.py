@@ -35,6 +35,9 @@ from knowledge_engine_minimal import KnowledgeEngine
 from persona_router import PersonaRouter
 from data_sources import get_internal_data_sources
 
+# Type hints
+from typing import Optional
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Curiosity Ocean 8030",
@@ -54,8 +57,8 @@ app.add_middleware(
 )
 
 # Global instances
-knowledge_engine: Optional[KnowledgeEngine] = None
-persona_router: Optional[PersonaRouter] = None
+knowledge_engine = None
+persona_router = None
 data_sources = None
 
 
