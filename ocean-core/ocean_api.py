@@ -31,13 +31,9 @@ logging.basicConfig(
 logger = logging.getLogger("ocean_api_8030")
 
 # Local imports - using REAL 14 personas and minimal knowledge engine
-try:
-    from knowledge_engine_minimal import KnowledgeEngine
-    from persona_router import PersonaRouter
-    from data_sources import get_internal_data_sources
-    logger.info("✅ Loaded: KnowledgeEngine (minimal), PersonaRouter, DataSources")
-except ImportError as e:
-    logger.warning(f"⚠️  Import warning: {e}")
+from knowledge_engine_minimal import KnowledgeEngine
+from persona_router import PersonaRouter
+from data_sources import get_internal_data_sources
 
 # Initialize FastAPI app
 app = FastAPI(
