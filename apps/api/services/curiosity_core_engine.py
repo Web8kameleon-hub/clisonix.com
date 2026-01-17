@@ -183,17 +183,12 @@ class CoreResponseEngine:
         """
         start_time = time.time()
         
-        # Debug: Check context type
-        print(f"DEBUG: context = {context}")
-        print(f"DEBUG: context.curiosity_level = {context.curiosity_level}, type = {type(context.curiosity_level)}")
-        
         # Convert string to enum if needed
         if isinstance(context.curiosity_level, str):
-            print(f"DEBUG: Converting string '{context.curiosity_level}' to CuriosityLevel enum")
             context.curiosity_level = CuriosityLevel(context.curiosity_level.lower())
         
-        # Simulate processing delay
-        await asyncio.sleep(0.5 + random.uniform(0.2, 0.8))
+        # Minimal processing delay (50-150ms instead of 700-1300ms)
+        await asyncio.sleep(0.05 + random.uniform(0.01, 0.1))
         
         # Classify question type
         domain = self._classify_question(question)

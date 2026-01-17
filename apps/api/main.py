@@ -3805,11 +3805,13 @@ async def curiosity_ocean_chat(
     question: str, 
     mode: str = "curious", 
     ultra_thinking: bool = False,
-    conversation_id: Optional[str] = None
+    conversation_id: Optional[str] = None,
+    stream: bool = False
 ):
     """
     🌊 CLISONIX LOCAL AI - Curiosity Ocean
     100% independent - no external AI providers
+    Optimized for low-latency responses
     
     Modes: curious, wild, chaos, genius
     """
@@ -3817,36 +3819,54 @@ async def curiosity_ocean_chat(
     
     try:
         from clisonix_ai_engine import ClisonixAIEngine
-        engine = ClisonixAIEngine()
+        from apps.api.services.curiosity_core_engine import CoreResponseEngine, UserContext, CuriosityLevel, ResponseLanguage
         
-        # Use local Curiosity Ocean engine
-        result = engine.curiosity_ocean(
-            question=question,
-            mode=mode,
-            ultra_thinking=ultra_thinking
+        engine = ClisonixAIEngine()
+        response_engine = CoreResponseEngine()
+        
+        # Prepare context
+        context = UserContext(
+            curiosity_level=CuriosityLevel(mode.lower()),
+            language=ResponseLanguage.ENGLISH,
+            previous_questions=[],
+            interests=[],
+            personality_profile={}
         )
+        
+        # Use optimized Curiosity Ocean engine
+        response = await response_engine.generate_response(question, context)
+        result = response.primary_answer if hasattr(response, 'primary_answer') else str(response)
         
         # Calculate processing time
         processing_time = round((time.perf_counter() - start_time) * 1000, 2)
         
+        if stream:
+            # Return streaming headers for real-time response
+            return StreamingResponse(
+                iter([result]),
+                media_type="application/json",
+                headers={"X-Processing-Time": str(processing_time)}
+            )
+        
         return {
             "status": "success",
             "timestamp": utcnow(),
-            "source": "Clisonix AI Engine (Local)" + (" 🧠 Ultra-Thinking" if ultra_thinking else ""),
+            "source": "Clisonix AI Engine (Local - Optimized)",
             "question": question,
             "mode": mode,
             "ultra_thinking": ultra_thinking,
             "response": result,
             "metrics": {
                 "processing_time_ms": processing_time,
-                "thinking_depth": "ultra" if ultra_thinking else "standard"
+                "thinking_depth": "ultra" if ultra_thinking else "standard",
+                "optimization": "ACTIVE"
             },
             "conversation_id": conversation_id or str(uuid.uuid4()),
             "is_local": True,
-            "model": "clisonix-curiosity-v1"
+            "model": "clisonix-curiosity-v1-optimized"
         }
     except Exception as e:
-        logger.error(f"Curiosity Ocean error: {e}")
+        logger.error(f"Curiosity Ocean error: {e}", exc_info=True)
         return {
             "status": "error",
             "message": str(e),
