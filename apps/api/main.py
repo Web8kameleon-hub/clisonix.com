@@ -960,6 +960,55 @@ try:
         ocean = await get_ocean_hub()
         return {"cells": [c.to_dict() for c in ocean.cells.values()]}
     
+    @app.post("/api/ocean/labs/execute")
+    async def ocean_labs_execute(row: Dict[str, Any], lab_type: Optional[str] = None):
+        """Execute lab(s) on a row through Ocean Central Hub"""
+        try:
+            ocean = await get_ocean_hub()
+            labs_cell = ocean.labs_cell
+            
+            if not labs_cell or not lab_type:
+                raise ValueError("Lab type must be specified")
+            
+            # Execute through LabsCell with Ocean integration
+            result = await labs_cell.execute_lab(lab_type, row)
+            
+            # Return results with Ocean context
+            return {
+                "status": "ok" if "error" not in result else "failed",
+                "cell_id": "labs_executor",
+                "ocean_stream": result.get("ocean_format"),
+                **result
+            }
+        except ImportError as e:
+            logger.error(f"❌ Labs not available: {e}")
+            raise HTTPException(status_code=503, detail=f"Labs service unavailable: {str(e)}")
+        except Exception as e:
+            logger.error(f"❌ Lab execution error: {e}")
+            raise HTTPException(status_code=500, detail=f"Lab execution failed: {str(e)}")
+    
+    @app.get("/api/ocean/labs/list")
+    async def ocean_labs_list():
+        """List all available labs through Ocean"""
+        try:
+            ocean = await get_ocean_hub()
+            labs_cell = ocean.labs_cell
+            
+            if not labs_cell:
+                raise ValueError("Labs cell not initialized")
+            
+            lab_types = labs_cell.get_lab_types()
+            
+            return {
+                "status": "ok",
+                "cell_id": "labs_executor",
+                "available_lab_types": lab_types,
+                "total_labs": len(lab_types)
+            }
+        except Exception as e:
+            logger.error(f"❌ Failed to list labs: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to list labs: {str(e)}")
+    
     logger.info("✅ Ocean Central Hub endpoints initialized")
 except ImportError as e:
     logger.warning(f"⚠️ Ocean Central Hub not available: {e}")

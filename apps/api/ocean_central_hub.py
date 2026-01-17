@@ -41,6 +41,8 @@ class AgentType(str, Enum):
     CYCLE = "cycle"
     PROPOSAL = "proposal"
     ALIGNMENT = "alignment"
+    LABS = "labs"
+    LABS = "labs"
 
 class DataStreamPriority(str, Enum):
     """Priority levels for data streaming"""
@@ -199,6 +201,7 @@ class OceanCentralHub:
         self.streams: Dict[str, DataStream] = {}
         self.sessions: Dict[str, UserSession] = {}
         self.agent_registry: Dict[AgentType, List[str]] = defaultdict(list)
+        self.labs_cell = LabsCell()  # Initialize Labs integration
         self.initialized = False
     
     async def initialize(self) -> None:
@@ -237,6 +240,10 @@ class OceanCentralHub:
         
         # Alignment cells
         self._register_cell("alignments", "Cycle Alignments", AgentType.ALIGNMENT, "/api/alignments/check")
+        
+        # Labs cells - Testing & validation engine
+        self._register_cell("labs_executor", "Labs Executor", AgentType.LABS, "/api/labs/execute", 
+                           description="Lab execution engine - raw data → validated artifacts")
         
         logger.info(f"✅ Registered {len(self.cells)} cells")
     
@@ -359,11 +366,107 @@ class OceanCentralHub:
                 logger.error(f"Error in stream {stream_id}: {e}")
                 await asyncio.sleep(interval_ms / 1000)
 
+class LabsCell:
+    """Integration layer for Labs execution within Ocean Central Hub"""
+    
+    def __init__(self):
+        """Initialize LabsCell with lab executor"""
+        self.cell_id = "ocean-labs-cell"
+        self.agent_type = AgentType.LABS
+        self.active_executions = {}
+        self._init_labs()
+    
+    def _init_labs(self):
+        """Initialize lab executor references"""
+        try:
+            from hybrid_saas_platform.labs.lab_executor import (
+                DataValidationLab,
+                IntegrationLab,
+                PerformanceLab,
+                SecurityLab,
+                LabStatus
+            )
+            self.DataValidationLab = DataValidationLab
+            self.IntegrationLab = IntegrationLab
+            self.PerformanceLab = PerformanceLab
+            self.SecurityLab = SecurityLab
+            self.LabStatus = LabStatus
+            logger.info("✅ Labs system initialized within Ocean")
+        except ImportError as e:
+            logger.warning(f"⚠️ Labs system not available: {e}")
+            self.DataValidationLab = None
+    
+    async def execute_lab(self, lab_type: str, row: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute specified lab type and return results through Ocean format"""
+        execution_id = str(uuid4())
+        
+        try:
+            if lab_type == "data_validation":
+                lab = self.DataValidationLab()
+            elif lab_type == "integration":
+                lab = self.IntegrationLab()
+            elif lab_type == "performance":
+                lab = self.PerformanceLab()
+            elif lab_type == "security":
+                lab = self.SecurityLab()
+            else:
+                raise ValueError(f"Unknown lab type: {lab_type}")
+            
+            # Execute lab synchronously and wrap in async context
+            result, artifacts = await asyncio.to_thread(lab.execute, row)
+            
+            # Track execution
+            self.active_executions[execution_id] = {
+                "lab_type": lab_type,
+                "status": result.status.value,
+                "completed_at": datetime.utcnow().isoformat()
+            }
+            
+            # Format result for Ocean streaming
+            return {
+                "execution_id": execution_id,
+                "lab_type": lab_type,
+                "result": result.to_dict(),
+                "artifacts": [a.to_dict() for a in artifacts],
+                "ocean_format": {
+                    "stream_type": "lab_execution",
+                    "priority": "normal",
+                    "agent": self.agent_type.value
+                }
+            }
+        
+        except Exception as e:
+            logger.error(f"Lab execution failed: {e}")
+            return {
+                "execution_id": execution_id,
+                "lab_type": lab_type,
+                "error": str(e),
+                "status": "FAILED",
+                "ocean_format": {
+                    "stream_type": "lab_execution_error",
+                    "priority": "high",
+                    "agent": self.agent_type.value
+                }
+            }
+    
+    def get_lab_types(self) -> List[str]:
+        """Get available lab types"""
+        labs = []
+        if self.DataValidationLab:
+            labs.extend(["data_validation", "integration", "performance", "security"])
+        return labs
+    
+    def get_execution_status(self, execution_id: str) -> Optional[Dict[str, Any]]:
+        """Get status of a lab execution"""
+        return self.active_executions.get(execution_id)
+
+
 # ============================================================================
 # GLOBAL INSTANCE
 # ============================================================================
 
 _ocean_hub: Optional[OceanCentralHub] = None
+_labs_cell: Optional[LabsCell] = None
 
 async def get_ocean_hub() -> OceanCentralHub:
     """Get or create global Ocean Central Hub"""
