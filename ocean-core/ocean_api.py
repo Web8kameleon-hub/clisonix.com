@@ -24,6 +24,7 @@ from data_sources import get_internal_data_sources
 from query_processor import get_query_processor, QueryIntent
 from knowledge_engine import get_knowledge_engine, KnowledgeResponse
 from persona_router import PersonaRouter
+from laboratories import get_laboratory_network
 
 
 async def get_knowledge_engine_hybrid(data_sources):
@@ -428,6 +429,139 @@ async def health_check():
         "service": "ocean-core-8030",
         "timestamp": datetime.now().isoformat()
     }
+
+
+@app.get("/api/laboratories")
+async def get_all_laboratories():
+    """Get all 23 specialized laboratories with their functions"""
+    try:
+        lab_network = get_laboratory_network()
+        return {
+            "total_laboratories": len(lab_network.labs),
+            "laboratories": lab_network.get_all_labs(),
+            "network_stats": lab_network.get_network_stats(),
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Laboratories data error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/laboratories/summary")
+async def get_laboratories_summary():
+    """Get summary of all 23 laboratories"""
+    try:
+        lab_network = get_laboratory_network()
+        return lab_network.get_all_labs_summary()
+    except Exception as e:
+        logger.error(f"Laboratories summary error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/laboratories/{lab_id}")
+async def get_laboratory(lab_id: str):
+    """Get specific laboratory by ID"""
+    try:
+        lab_network = get_laboratory_network()
+        lab = lab_network.get_lab_by_id(lab_id)
+        
+        if not lab:
+            raise HTTPException(status_code=404, detail=f"Laboratory '{lab_id}' not found")
+        
+        return {
+            "laboratory": lab.to_dict(),
+            "status_summary": lab.get_status_summary(),
+            "timestamp": datetime.now().isoformat()
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Laboratory lookup error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/laboratories/type/{lab_type}")
+async def get_laboratories_by_type(lab_type: str):
+    """Get laboratories by type"""
+    try:
+        lab_network = get_laboratory_network()
+        labs = lab_network.get_labs_by_type(lab_type)
+        
+        if not labs:
+            raise HTTPException(status_code=404, detail=f"No laboratories of type '{lab_type}' found")
+        
+        return {
+            "type": lab_type,
+            "count": len(labs),
+            "laboratories": [lab.to_dict() for lab in labs],
+            "timestamp": datetime.now().isoformat()
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Laboratory type lookup error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/laboratories/location/{location}")
+async def get_laboratories_by_location(location: str):
+    """Get laboratories by location"""
+    try:
+        lab_network = get_laboratory_network()
+        labs = lab_network.get_labs_by_location(location)
+        
+        if not labs:
+            raise HTTPException(status_code=404, detail=f"No laboratories in '{location}' found")
+        
+        return {
+            "location": location,
+            "count": len(labs),
+            "laboratories": [lab.to_dict() for lab in labs],
+            "timestamp": datetime.now().isoformat()
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Laboratory location lookup error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/laboratories/function/{keyword}")
+async def get_laboratories_by_function(keyword: str):
+    """Get laboratories by function keyword"""
+    try:
+        lab_network = get_laboratory_network()
+        labs = lab_network.get_labs_by_function_keyword(keyword)
+        
+        if not labs:
+            raise HTTPException(status_code=404, detail=f"No laboratories with function containing '{keyword}' found")
+        
+        return {
+            "keyword": keyword,
+            "count": len(labs),
+            "laboratories": [lab.to_dict() for lab in labs],
+            "timestamp": datetime.now().isoformat()
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Laboratory function lookup error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/laboratories/types")
+async def get_laboratory_types():
+    """Get all unique laboratory types"""
+    try:
+        lab_network = get_laboratory_network()
+        return {
+            "types": lab_network.get_lab_types(),
+            "count": len(lab_network.get_lab_types()),
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Laboratory types error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":

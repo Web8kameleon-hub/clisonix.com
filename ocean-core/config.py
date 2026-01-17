@@ -31,13 +31,33 @@ SERVICE_HOST = os.getenv("OCEAN_CORE_HOST", "0.0.0.0")
 class DataSourceConfig:
     """Configuration for data sources"""
     
-    # Location Labs
+    # Location Labs - 23 Laboratories with Specific Functions
     LOCATION_LABS_ENABLED = True
-    LOCATION_LABS_LABS = [
-        "Elbasan", "Tirana", "Durrës", "Shkodër", "Vlorë", 
-        "Korça", "Sarandë", "Prishtina", "Kostur", 
-        "Athens", "Rome", "Zurich"
-    ]
+    LOCATION_LABS_LABS = {
+        "Elbasan_AI": {"name": "Elbasan AI Lab", "function": "Artificial Intelligence & Machine Learning", "location": "Elbasan", "type": "AI"},
+        "Tirana_Medical": {"name": "Tirana Medical Lab", "function": "Medical Research & Bioscience", "location": "Tirana", "type": "Medical"},
+        "Durres_IoT": {"name": "Durrës IoT Lab", "function": "Internet of Things & Sensor Networks", "location": "Durrës", "type": "IoT"},
+        "Shkoder_Marine": {"name": "Shkodër Marine Lab", "function": "Marine Biology & Oceanography", "location": "Shkodër", "type": "Marine"},
+        "Vlore_Environmental": {"name": "Vlorë Environmental Lab", "function": "Environmental Monitoring & Ecology", "location": "Vlorë", "type": "Environmental"},
+        "Korce_Agricultural": {"name": "Korça Agricultural Lab", "function": "Agricultural Sciences & Crop Analysis", "location": "Korça", "type": "Agricultural"},
+        "Sarrande_Underwater": {"name": "Sarandë Underwater Lab", "function": "Underwater Exploration & Deep Sea Research", "location": "Sarandë", "type": "Underwater"},
+        "Prishtina_Security": {"name": "Prishtina Security Lab", "function": "Cybersecurity & Network Protection", "location": "Prishtina", "type": "Security"},
+        "Kostur_Energy": {"name": "Kostur Energy Lab", "function": "Renewable Energy & Power Systems", "location": "Kostur", "type": "Energy"},
+        "Athens_Classical": {"name": "Athens Classical Lab", "function": "Classical Studies & Historical Research", "location": "Athens", "type": "Academic"},
+        "Rome_Architecture": {"name": "Rome Architecture Lab", "function": "Architectural Engineering & Design", "location": "Rome", "type": "Architecture"},
+        "Zurich_Finance": {"name": "Zurich Finance Lab", "function": "Financial Analysis & Blockchain", "location": "Zurich", "type": "Finance"},
+        "Beograd_Industrial": {"name": "Beograd Industrial Lab", "function": "Industrial Process Optimization", "location": "Beograd", "type": "Industrial"},
+        "Sofia_Chemistry": {"name": "Sofia Chemistry Lab", "function": "Chemical Research & Material Science", "location": "Sofia", "type": "Chemistry"},
+        "Zagreb_Biotech": {"name": "Zagreb Biotech Lab", "function": "Biotechnology & Genetic Engineering", "location": "Zagreb", "type": "Biotech"},
+        "Ljubljana_Quantum": {"name": "Ljubljana Quantum Lab", "function": "Quantum Computing & Physics", "location": "Ljubljana", "type": "Quantum"},
+        "Vienna_Neuroscience": {"name": "Vienna Neuroscience Lab", "function": "Neuroscience & Brain Research", "location": "Vienna", "type": "Neuroscience"},
+        "Prague_Robotics": {"name": "Prague Robotics Lab", "function": "Robotics & Automation Systems", "location": "Prague", "type": "Robotics"},
+        "Budapest_Data": {"name": "Budapest Data Lab", "function": "Big Data Analytics & Visualization", "location": "Budapest", "type": "Data"},
+        "Bucharest_Nanotechnology": {"name": "Bucharest Nanotechnology Lab", "function": "Nanotechnology & Nanomaterials", "location": "Bucharest", "type": "Nanotechnology"},
+        "Istanbul_Trade": {"name": "Istanbul Trade Lab", "function": "International Trade & Logistics", "location": "Istanbul", "type": "Trade"},
+        "Cairo_Archeology": {"name": "Cairo Archeology Lab", "function": "Archeological Research & Preservation", "location": "Cairo", "type": "Archeology"},
+        "Jerusalem_Heritage": {"name": "Jerusalem Heritage Lab", "function": "Cultural Heritage & Restoration", "location": "Jerusalem", "type": "Heritage"},
+    }
     
     # Agent Telemetry
     AGENT_TELEMETRY_ENABLED = True
@@ -102,9 +122,12 @@ class QueryProcessorConfig:
     
     # Entity recognition
     KNOWN_LABS = [
-        "Elbasan", "Tirana", "Durrës", "Shkodër", "Vlorë",
-        "Korça", "Sarandë", "Prishtina", "Kostur",
-        "Athens", "Rome", "Zurich"
+        "Elbasan_AI", "Tirana_Medical", "Durres_IoT", "Shkoder_Marine", "Vlore_Environmental",
+        "Korce_Agricultural", "Sarrande_Underwater", "Prishtina_Security", "Kostur_Energy",
+        "Athens_Classical", "Rome_Architecture", "Zurich_Finance", "Beograd_Industrial",
+        "Sofia_Chemistry", "Zagreb_Biotech", "Ljubljana_Quantum", "Vienna_Neuroscience",
+        "Prague_Robotics", "Budapest_Data", "Bucharest_Nanotechnology", "Istanbul_Trade",
+        "Cairo_Archeology", "Jerusalem_Heritage"
     ]
     
     KNOWN_AGENTS = ["alba", "albi", "blerina", "agiem", "asi"]
