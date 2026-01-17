@@ -19,7 +19,7 @@ scrape_configs:
 
   - job_name: 'trinity-albi'
     static_configs:
-      - targets: ['albi:6666']
+      - targets: ['albi:4444']
     metrics_path: /metrics
 
   - job_name: 'trinity-jona'

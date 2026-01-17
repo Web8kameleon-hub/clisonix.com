@@ -407,7 +407,7 @@ Stop-Process -Id <PID> -Force
 1. **Check health endpoints:**
 ```bash
 curl http://localhost:5555/health
-curl http://localhost:6666/health
+curl http://localhost:4444/health
 curl http://localhost:7777/health
 curl http://localhost:9999/health
 ```
@@ -493,7 +493,7 @@ r1 = requests.post(f"{alba_url}/ingest", json=data)
 print(f"Ingested: {r1.json()['id']}")
 
 # 2. Analyze with ALBI
-albi_url = "http://localhost:6666"
+albi_url = "http://localhost:4444"
 analysis_data = {
     "channels": {
         "ch1": [1.0, 1.1, 1.0, 0.9, 1.1],
