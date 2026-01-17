@@ -72,7 +72,7 @@ class IntentDetector:
             r'\b(budget|spending|efficiency|optimization)\b',
         ],
         QueryIntent.LABORATORY: [
-            r'\b(lab|experiment|result|sample|data quality|quality|elbasan|tirana|durres|durrës|shkoder|shkodër|vlore|vlorë)\b',
+            r'\b(labs?|experiment|result|sample|data quality|quality|elbasan|tirana|durres|durrës|shkoder|shkodër|vlore|vlorë)\b',
             r'\b(location|domain|university|medical|research|marine|agricultural|ecological)\b',
             r'\b(test|measurement|analysis|geographic|geographic location)\b',
         ],
