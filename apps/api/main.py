@@ -909,6 +909,8 @@ except ImportError as e:
 try:
     from ocean_central_hub import get_ocean_hub
     
+    logger.info("✅ Importing Ocean Central Hub successful")
+    
     @app.on_event("startup")
     async def init_ocean_hub():
         """Initialize Ocean Central Hub on startup"""
@@ -925,12 +927,16 @@ try:
         ocean = await get_ocean_hub()
         return ocean.get_hub_status()
     
+    logger.info("📍 Registered /api/ocean/status")
+    
     @app.post("/api/ocean/session/create")
     async def ocean_create_session(user_id: str):
         """Create new Ocean session for user"""
         ocean = await get_ocean_hub()
         session = await ocean.create_session(user_id)
         return {"session_id": session.session_id, "user_id": session.user_id}
+    
+    logger.info("📍 Registered /api/ocean/session/create")
     
     @app.get("/api/ocean/session/{session_id}")
     async def ocean_session_info(session_id: str):
@@ -941,12 +947,16 @@ try:
             raise HTTPException(status_code=404, detail="Session not found")
         return info
     
+    logger.info("📍 Registered /api/ocean/session/{session_id}")
+    
     @app.delete("/api/ocean/session/{session_id}")
     async def ocean_end_session(session_id: str):
         """End Ocean session"""
         ocean = await get_ocean_hub()
         await ocean.end_session(session_id)
         return {"status": "ok", "session_id": session_id}
+    
+    logger.info("📍 Registered /api/ocean/session DELETE")
     
     @app.get("/api/ocean/cell/{cell_id}")
     async def ocean_cell_info(cell_id: str):
@@ -957,11 +967,15 @@ try:
             raise HTTPException(status_code=404, detail="Cell not found")
         return info
     
+    logger.info("📍 Registered /api/ocean/cell/{cell_id}")
+    
     @app.get("/api/ocean/cells")
     async def ocean_list_cells():
         """List all Ocean cells"""
         ocean = await get_ocean_hub()
         return {"cells": [c.to_dict() for c in ocean.cells.values()]}
+    
+    logger.info("📍 Registered /api/ocean/cells")
     
     @app.get("/api/ocean/labs/list")
     async def ocean_labs_list():
@@ -984,6 +998,8 @@ try:
         except Exception as e:
             logger.error(f"❌ Failed to list labs: {e}")
             raise HTTPException(status_code=500, detail=f"Failed to list labs: {str(e)}")
+    
+    logger.info("📍 Registered /api/ocean/labs/list")
     
     @app.post("/api/ocean/labs/execute")
     async def ocean_labs_execute(row: Dict[str, Any], lab_type: Optional[str] = None):
@@ -1012,11 +1028,12 @@ try:
             logger.error(f"❌ Lab execution error: {e}")
             raise HTTPException(status_code=500, detail=f"Lab execution failed: {str(e)}")
     
+    logger.info("📍 Registered /api/ocean/labs/execute")
     logger.info("✅ Ocean Central Hub endpoints initialized")
 except ImportError as e:
     logger.warning(f"⚠️ Ocean Central Hub not available: {e}")
 except Exception as e:
-    logger.error(f"❌ Ocean Central Hub endpoint registration failed: {e}")
+    logger.error(f"❌ Ocean Central Hub endpoint registration failed: {e}", exc_info=True)
 
 # Prometheus metrics middleware - commented out, using direct endpoint instead
 # The /metrics endpoint is defined in the ASI section below
