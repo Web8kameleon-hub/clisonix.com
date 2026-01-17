@@ -401,20 +401,20 @@ class ProcessingPipeline extends EventEmitter {
     return measurements;
   }
 
-  private determineStatus(data: any, profile: SensorProfile): string {
-    if (!profile.minValue || !profile.maxValue) {
+    private determineStatus(data: any, profile: SensorProfile): 'ok' | 'warning' | 'error' {
+        if (profile.minValue === undefined || profile.maxValue === undefined) {
       return 'ok';
     }
 
     // Find numeric value
     const value =
-      data.pressure_pa ||
-      data.concentration_ppm ||
-      data.value ||
+        data.pressure_pa ??
+        data.concentration_ppm ??
+        data.value ??
       (data.measurements && data.measurements[0]?.value);
 
-    if (!value) {
-      return 'unknown';
+        if (typeof value !== 'number') {
+            return 'error';
     }
 
     if (value < profile.minValue || value > profile.maxValue) {
@@ -518,7 +518,7 @@ async function exampleOceanIntegration() {
     console.log(`\n✓ Packet processed: ${data.deviceId}`);
     console.log(`  Profile: ${data.profileName}`);
     console.log(`  Measurements: ${data.measurements.length}`);
-    data.measurements.forEach((m) => {
+      data.measurements.forEach((m: { name: string; value: number; unit?: string }) => {
       console.log(`    ${m.name}: ${m.value} ${m.unit}`);
     });
   });

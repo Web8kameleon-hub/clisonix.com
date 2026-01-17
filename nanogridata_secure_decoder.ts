@@ -433,12 +433,9 @@ class NanogridataSecureDecoder {
         throw new Error(`CBOR payload too large: ${packet.payload.length}`);
       }
 
-      // Use safe CBOR decoding with limits
+        // Use safe CBOR decoding (custom tag handlers disabled for security)
       const decoded = cbor.decodeFirstSync(packet.payload, {
-        maxStrLength: CBOR_MAX_STR_LENGTH,
-        maxArrayLength: CBOR_MAX_ARRAY_LENGTH,
-        maxKeys: CBOR_MAX_KEYS,
-        tags: new Map(), // Disable custom CBOR tags for security
+          tags: {}, // Disable custom CBOR tags for security
       });
 
       return decoded;
