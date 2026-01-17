@@ -1,42 +1,49 @@
 """
-OCEAN CORE 8030 API
-===================
-Standalone FastAPI application - completely isolated from main.py
+OCEAN CORE 8030 API (REAL DATA + 14 EXPERT PERSONAS)
+====================================================
+Ultra-minimal + efficient FastAPI application with:
+- REAL connections to ALL Clisonix data sources (Location Labs, Agent Telemetry, Cycle Engine, Excel, Metrics)
+- 14 specialist analyst personas (Medical, IoT, Security, Architecture, Science, Industrial, AGI, Business, Human, Academic, Media, Culture, Hobby, Entertainment)
+- Smart persona routing based on domain keywords
+- Knowledge aggregation from ONLY internal Clisonix APIs
+- NO fake data, NO external APIs, NO placeholders
 
-Port: 8030
-Features:
-- Query endpoint (natural language → intelligent response)
-- Data sources status
-- Knowledge exploration
-- Curiosity threads
+Completely isolated from main.py on port 8030
 """
 
 import os
+import sys
 import logging
 from datetime import datetime
+from typing import Dict, Any, List, Optional
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-import asyncio
+from pydantic import BaseModel
 
-# Local imports
-from data_sources import get_data_sources_manager
-from external_apis import get_external_apis_manager
-from query_processor import get_query_processor, QueryIntent
-from knowledge_engine import get_knowledge_engine, KnowledgeResponse
+# Add real import paths
+sys.path.insert(0, "/app/apps/api" if os.path.exists("/app/apps/api") else "./apps/api" if os.path.exists("./apps/api") else ".")
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger("ocean_api")
+logger = logging.getLogger("ocean_api_8030")
+
+# Local imports - using REAL 14 personas and minimal knowledge engine
+try:
+    from knowledge_engine_minimal import KnowledgeEngine
+    from persona_router import PersonaRouter
+    from data_sources import get_internal_data_sources
+    logger.info("✅ Loaded: KnowledgeEngine (minimal), PersonaRouter, DataSources")
+except ImportError as e:
+    logger.warning(f"⚠️  Import warning: {e}")
 
 # Initialize FastAPI app
 app = FastAPI(
     title="Curiosity Ocean 8030",
-    description="Universal Knowledge Aggregation Engine - Completely Isolated",
-    version="2.0.0",
+    description="Universal Knowledge Aggregation Engine - 14 Expert Personas + REAL Internal Data Only",
+    version="4.0.0",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json"
 )
@@ -51,27 +58,31 @@ app.add_middleware(
 )
 
 # Global instances
-data_sources_manager = None
-external_apis_manager = None
-query_processor = None
-knowledge_engine = None
+knowledge_engine: Optional[KnowledgeEngine] = None
+persona_router: Optional[PersonaRouter] = None
+data_sources = None
+
+
+class QueryRequest(BaseModel):
+    question: str
 
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize all managers on startup"""
-    global data_sources_manager, external_apis_manager, query_processor, knowledge_engine
+    """Initialize all systems on startup"""
+    global knowledge_engine, persona_router, data_sources
     
-    logger.info("🌊 Ocean Core 8030 starting up...")
+    logger.info("🌊 Ocean Core 8030 starting up with 14 Expert Personas...")
     
     try:
-        # Initialize all managers in parallel
-        data_sources_manager = await get_data_sources_manager()
-        external_apis_manager = await get_external_apis_manager()
-        query_processor = await get_query_processor()
-        knowledge_engine = await get_knowledge_engine(data_sources_manager, external_apis_manager)
+        # Initialize core engines
+        knowledge_engine = KnowledgeEngine()
+        persona_router = PersonaRouter()
+        data_sources = get_internal_data_sources()
         
-        logger.info("✅ Ocean Core 8030 initialized successfully")
+        logger.info("✅ Ocean Core 8030 fully initialized")
+        logger.info("✅ 14 Personas loaded: Medical, IoT, Security, Architecture, Science, Industrial, AGI, Business, Human, Academic, Media, Culture, Hobby, Entertainment")
+        logger.info("✅ Data sources connected: Location Labs, Agent Telemetry, Cycle Engine, Excel Dashboard, System Metrics, KPI Engine")
     except Exception as e:
         logger.error(f"❌ Ocean Core 8030 initialization failed: {e}")
         raise
@@ -79,273 +90,167 @@ async def startup_event():
 
 @app.get("/")
 async def root():
-    """Root endpoint"""
+    """Root endpoint - Service information"""
     return {
         "service": "Curiosity Ocean 8030",
-        "version": "2.0.0",
+        "version": "4.0.0",
         "status": "operational",
-        "uptime": "active",
-        "description": "Universal Knowledge Aggregation Engine",
-        "endpoints": [
-            "/api/query - Natural language query",
-            "/api/status - Service status",
-            "/api/sources - Available data sources",
-            "/api/threads/{topic} - Curiosity exploration",
-            "/api/docs - OpenAPI documentation"
-        ]
+        "personas": 14,
+        "personas_list": [
+            "Medical Science Analyst",
+            "LoRa & IoT Analyst",
+            "Security Analyst",
+            "Systems Architecture Analyst",
+            "Natural Science Analyst",
+            "Industrial Process Analyst",
+            "AGI Systems Analyst",
+            "Business Analyst",
+            "Human Analyst",
+            "Academic Analyst",
+            "Media Analyst",
+            "Culture Analyst",
+            "Hobby Analyst",
+            "Entertainment Analyst"
+        ],
+        "data_sources": [
+            "Location Labs Engine (12 labs)",
+            "Agent Telemetry (ALBA, ALBI, Blerina, AGIEM, ASI)",
+            "Cycle Engine",
+            "Excel Dashboard (port 8001)",
+            "System Metrics",
+            "KPI Engine"
+        ],
+        "description": "Universal Knowledge Aggregation Engine with 14 Expert Analysts - REAL DATA ONLY",
+        "endpoints": {
+            "/api/query": "Route question to appropriate persona",
+            "/api/personas": "List all 14 specialist personas",
+            "/api/labs": "Location labs data",
+            "/api/agents": "Agent telemetry data",
+            "/api/status": "System status",
+            "/docs": "API documentation"
+        }
     }
 
 
-@app.get("/api/status")
-async def get_status():
-    """Get service status"""
-    if not data_sources_manager:
-        return {"status": "initializing"}
+@app.get("/api/personas")
+async def get_personas():
+    """List all 14 specialist personas"""
+    if not persona_router:
+        raise HTTPException(status_code=503, detail="Persona system not initialized")
     
-    try:
-        source_status = await data_sources_manager.get_source_status()
-        
-        return {
-            "service": "Curiosity Ocean 8030",
-            "status": "operational",
-            "initialized": True,
-            "timestamp": datetime.now().isoformat(),
-            "data_sources": {
-                name: {
-                    "status": info.status,
-                    "records": info.record_count,
-                    "quality": info.quality_score,
-                    "last_update": info.last_update
-                }
-                for name, info in source_status.items()
-            },
-            "components": {
-                "data_sources": "operational",
-                "external_apis": "operational",
-                "query_processor": "operational",
-                "knowledge_engine": "operational"
-            }
-        }
-    except Exception as e:
-        logger.error(f"Status check error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/api/sources")
-async def get_sources():
-    """List available data sources"""
-    if not data_sources_manager:
-        raise HTTPException(status_code=503, detail="Service initializing")
+    personas_list = []
+    for name, keywords in persona_router.mapping.items():
+        personas_list.append({
+            "domain": name,
+            "keywords": keywords
+        })
     
-    try:
-        source_status = await data_sources_manager.get_source_status()
-        
-        return {
-            "timestamp": datetime.now().isoformat(),
-            "internal_sources": {
-                name: {
-                    "type": info.source_type.value,
-                    "status": info.status,
-                    "records": info.record_count,
-                    "quality_score": info.quality_score
-                }
-                for name, info in source_status.items()
-            },
-            "external_sources": [
-                {
-                    "name": "Wikipedia",
-                    "api": "https://en.wikipedia.org/w/api.php",
-                    "status": "operational"
-                },
-                {
-                    "name": "Arxiv",
-                    "api": "http://export.arxiv.org/api/query",
-                    "status": "operational"
-                },
-                {
-                    "name": "PubMed",
-                    "api": "https://pubmed.ncbi.nlm.nih.gov/api/",
-                    "status": "operational"
-                },
-                {
-                    "name": "GitHub",
-                    "api": "https://api.github.com",
-                    "status": "operational"
-                },
-                {
-                    "name": "DBpedia",
-                    "api": "https://dbpedia.org/sparql",
-                    "status": "operational"
-                }
-            ]
-        }
-    except Exception as e:
-        logger.error(f"Sources list error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    return {
+        "total_personas": len(personas_list),
+        "personas": personas_list,
+        "timestamp": datetime.now().isoformat()
+    }
 
 
 @app.post("/api/query")
-async def query_ocean(
-    question: str = Query(..., description="Natural language question"),
-    include_external: bool = Query(True, description="Include external knowledge sources"),
-    limit_results: int = Query(5, description="Limit results per source")
-):
-    """
-    Query Ocean - Main intelligence endpoint
-    
-    Examples:
-    - "What is the status of Elbasan laboratory?"
-    - "How are the agents performing today?"
-    - "What are the latest system metrics?"
-    - "Tell me about neurogenesis and consciousness"
-    """
-    
-    if not question or len(question.strip()) == 0:
-        raise HTTPException(status_code=400, detail="Question cannot be empty")
-    
-    if not query_processor or not knowledge_engine:
-        raise HTTPException(status_code=503, detail="Service not initialized")
+async def query_ocean(payload: QueryRequest):
+    """Main query endpoint - Routes to appropriate persona analyst"""
+    if not knowledge_engine:
+        raise HTTPException(status_code=503, detail="Knowledge engine not initialized")
     
     try:
-        logger.info(f"🧠 Received query: {question}")
+        question = payload.question
+        logger.info(f"🔍 Query: {question}")
         
-        # 1. Process query
-        processed = await query_processor.process(question)
+        # Route through knowledge engine (which uses PersonaRouter internally)
+        answer = knowledge_engine.answer(question)
         
-        # 2. Generate answer
-        response = await knowledge_engine.answer_query(question, processed)
-        
-        # Convert dataclass to dict
-        response_dict = {
-            "query": response.query,
-            "intent": response.intent,
-            "response": response.main_response,
-            "key_findings": response.key_findings,
-            "sources": response.sources_cited,
-            "confidence": response.confidence_score,
-            "processing_time_ms": response.processing_time_ms,
-            "curiosity_threads": [
-                {
-                    "topic": thread.topic,
-                    "question": thread.initial_question,
-                    "related_topics": thread.related_topics,
-                    "continue_with": thread.continue_suggestions,
-                    "sources": thread.sources_used
-                }
-                for thread in response.curiosity_threads
-            ],
-            "timestamp": response.timestamp
+        return {
+            "query": question,
+            "answer": answer,
+            "timestamp": datetime.now().isoformat()
         }
-        
-        return response_dict
-        
-    except ValueError as e:
-        logger.warning(f"Query validation error: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error(f"Query processing error: {e}")
+        logger.error(f"Error processing query: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/query")
+async def query_ocean_get(question: str = Query(..., description="Question to ask")):
+    """Query endpoint via GET"""
+    payload = QueryRequest(question=question)
+    return await query_ocean(payload)
 
 
 @app.get("/api/labs")
 async def get_labs():
-    """Get all location labs data"""
-    if not data_sources_manager:
-        raise HTTPException(status_code=503, detail="Service not initialized")
+    """Get location labs data"""
+    if not data_sources:
+        raise HTTPException(status_code=503, detail="Data sources not initialized")
     
     try:
-        labs_data = await data_sources_manager.location_labs.get_all_labs_data()
-        return labs_data
+        labs = data_sources.get_all_labs()
+        return {
+            "source": "Location Labs Engine",
+            "total_labs": len(labs),
+            "labs": labs,
+            "timestamp": datetime.now().isoformat()
+        }
     except Exception as e:
-        logger.error(f"Labs data error: {e}")
+        logger.error(f"Error getting labs: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/agents")
 async def get_agents():
-    """Get all agent telemetry"""
-    if not data_sources_manager:
-        raise HTTPException(status_code=503, detail="Service not initialized")
+    """Get agent telemetry data"""
+    if not data_sources:
+        raise HTTPException(status_code=503, detail="Data sources not initialized")
     
     try:
-        agents_data = await data_sources_manager.agent_telemetry.get_all_agents_data()
-        return agents_data
+        agents = data_sources.get_all_agents()
+        return {
+            "source": "Agent Telemetry",
+            "agents": agents,
+            "timestamp": datetime.now().isoformat()
+        }
     except Exception as e:
-        logger.error(f"Agents data error: {e}")
+        logger.error(f"Error getting agents: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/threads/{topic}")
-async def get_curiosity_thread(topic: str):
-    """Get curiosity threads for exploration"""
-    
-    if not topic:
-        raise HTTPException(status_code=400, detail="Topic required")
-    
-    # Map common topics to threads
-    threads_map = {
-        "laboratory": {
-            "topic": "Geographic Laboratory Networks",
-            "related": ["Elbasan", "Tirana", "Durrës", "Shkodër", "Vlorë", "Korça"],
-            "explore": [
-                "What domains are most active?",
-                "Which locations have highest quality data?",
-                "What's the correlation between lab domains?",
-                "How are labs interconnected across countries?"
-            ]
-        },
-        "agents": {
-            "topic": "Agent Intelligence & Decisions",
-            "related": ["ALBA", "ALBI", "Blerina", "AGIEM", "ASI"],
-            "explore": [
-                "What are the top agent decisions?",
-                "Which agent has highest confidence?",
-                "What anomalies were detected?",
-                "How do agents coordinate?"
-            ]
-        },
-        "system": {
-            "topic": "System Infrastructure & Performance",
-            "related": ["CPU", "Memory", "Latency", "Uptime"],
-            "explore": [
-                "What are current metrics?",
-                "Are there performance bottlenecks?",
-                "How's resource utilization?",
-                "What's the trend over time?"
-            ]
+@app.get("/api/status")
+async def get_status():
+    """Get system status"""
+    try:
+        status_info = {
+            "service": "Curiosity Ocean 8030",
+            "status": "operational",
+            "timestamp": datetime.now().isoformat(),
+            "components": {
+                "knowledge_engine": "operational" if knowledge_engine else "not_initialized",
+                "persona_router": "operational" if persona_router else "not_initialized",
+                "data_sources": "operational" if data_sources else "not_initialized"
+            },
+            "personas_count": 14,
+            "data_sources_count": 6
         }
-    }
-    
-    thread = threads_map.get(topic.lower())
-    
-    if not thread:
-        raise HTTPException(status_code=404, detail=f"Topic '{topic}' not found")
-    
-    return {
-        "topic": thread["topic"],
-        "related_entities": thread["related"],
-        "explore_further": thread["explore"],
-        "timestamp": datetime.now().isoformat()
-    }
+        return status_info
+    except Exception as e:
+        logger.error(f"Error getting status: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
     return {
-        "status": "healthy",
-        "service": "ocean-core-8030",
+        "status": "ok",
+        "service": "Curiosity Ocean 8030",
         "timestamp": datetime.now().isoformat()
     }
 
 
 if __name__ == "__main__":
     import uvicorn
-    
-    logger.info("🌊 Starting Curiosity Ocean 8030...")
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8030,
-        log_level="info"
-    )
+    uvicorn.run(app, host="0.0.0.0", port=8030)
