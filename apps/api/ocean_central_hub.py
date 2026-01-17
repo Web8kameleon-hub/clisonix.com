@@ -42,7 +42,6 @@ class AgentType(str, Enum):
     PROPOSAL = "proposal"
     ALIGNMENT = "alignment"
     LABS = "labs"
-    LABS = "labs"
 
 class DataStreamPriority(str, Enum):
     """Priority levels for data streaming"""

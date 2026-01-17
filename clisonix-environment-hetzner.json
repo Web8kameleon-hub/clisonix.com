@@ -4,31 +4,31 @@
   "values": [
     {
       "key": "base_url",
-      "value": "http://46.224.205.183:8000",
+      "value": "http://46.224.203.89:8000",
       "type": "default",
       "enabled": true
     },
     {
       "key": "reporting_url",
-      "value": "http://46.224.205.183:8001",
+      "value": "http://46.224.203.89:8001",
       "type": "default",
       "enabled": true
     },
     {
       "key": "excel_url",
-      "value": "http://46.224.205.183:8002",
+      "value": "http://46.224.203.89:8002",
       "type": "default",
       "enabled": true
     },
     {
       "key": "frontend_url",
-      "value": "http://46.224.205.183:3000",
+      "value": "http://46.224.203.89:3000",
       "type": "default",
       "enabled": true
     },
     {
       "key": "grafana_url",
-      "value": "http://46.224.205.183:3001",
+      "value": "http://46.224.203.89:3001",
       "type": "default",
       "enabled": true
     },
