@@ -11,10 +11,11 @@ interface ServiceHealth {
 }
 
 // Service configuration for Docker environment - ALL use container names
+// Only include services that are actually deployed
 const SERVICES = [
-  { name: 'Main API', host: 'clisonix-core', port: 8000, path: '/health' },
-  { name: 'Excel Service', host: 'clisonix-excel', port: 8002, path: '/health' },
-  { name: 'Marketplace', host: 'clisonix-marketplace', port: 8004, path: '/health' },
+  { name: 'Main API', host: 'clisonix-api', port: 8000, path: '/health' },
+  { name: 'Alba (Analytics)', host: 'clisonix-alba', port: 5555, path: '/health' },
+  { name: 'Albi (Creative)', host: 'clisonix-albi', port: 6666, path: '/health' },
   { name: 'Frontend', host: 'clisonix-web', port: 3000, path: '/api/ping' },
 ]
 

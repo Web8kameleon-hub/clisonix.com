@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 // Internal API URL - use Docker container name in clisonix-secure network
-const API_INTERNAL = process.env.NODE_ENV === 'production' ? "http://clisonix-core:8000" : "http://127.0.0.1:8000";
+const API_INTERNAL = process.env.API_INTERNAL_URL || "http://clisonix-api:8000";
 
 export async function GET() {
   try {

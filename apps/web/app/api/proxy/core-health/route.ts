@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-// Core Service URL - use Docker container name in production
-const CORE_API = process.env.NODE_ENV === 'production' ? "http://clisonix-core:8000" : "http://127.0.0.1:8002";
+// Core Service URL - use main API container
+const CORE_API = process.env.API_INTERNAL_URL || "http://clisonix-api:8000";
 
 export async function GET() {
   try {

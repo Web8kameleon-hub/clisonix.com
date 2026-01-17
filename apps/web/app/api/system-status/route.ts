@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 
 // SERVER-TO-SERVER: Use Docker container name in production
-// clisonix-core:8000 = Main API container (internal port)
-const API_INTERNAL = 'http://clisonix-core:8000'
+// clisonix-api:8000 = Main API container (internal port)
+const API_INTERNAL = process.env.API_INTERNAL_URL || 'http://clisonix-api:8000'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const API_INTERNAL = process.env.NODE_ENV === 'production' ? "http://clisonix-core:8000" : "http://127.0.0.1:8000";
+const API_INTERNAL = process.env.API_INTERNAL_URL || "http://clisonix-api:8000";
 
 export async function GET() {
   try {
