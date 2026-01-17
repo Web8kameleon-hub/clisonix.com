@@ -27,3 +27,9 @@ opentelemetry-instrumentation-aiohttp-client
 opentelemetry-instrumentation-logging
 opentelemetry-exporter-otlp
 opentelemetry-exporter-otlp-proto-http
+
+# Payment Processing
+stripe
+paypalrestsdk
+pydantic-extra-types
+
