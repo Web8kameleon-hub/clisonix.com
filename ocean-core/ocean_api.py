@@ -458,6 +458,21 @@ async def get_laboratories_summary():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/api/laboratories/types")
+async def get_laboratory_types():
+    """Get all unique laboratory types"""
+    try:
+        lab_network = get_laboratory_network()
+        return {
+            "types": lab_network.get_lab_types(),
+            "count": len(lab_network.get_lab_types()),
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Laboratory types error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/api/laboratories/{lab_id}")
 async def get_laboratory(lab_id: str):
     """Get specific laboratory by ID"""
@@ -546,21 +561,6 @@ async def get_laboratories_by_function(keyword: str):
         raise
     except Exception as e:
         logger.error(f"Laboratory function lookup error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/api/laboratories/types")
-async def get_laboratory_types():
-    """Get all unique laboratory types"""
-    try:
-        lab_network = get_laboratory_network()
-        return {
-            "types": lab_network.get_lab_types(),
-            "count": len(lab_network.get_lab_types()),
-            "timestamp": datetime.now().isoformat()
-        }
-    except Exception as e:
-        logger.error(f"Laboratory types error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
