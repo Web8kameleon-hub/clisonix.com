@@ -15,6 +15,9 @@ RUN npm run build
 # Production image
 FROM node:20-alpine AS runner
 
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
 WORKDIR /app
 
 RUN addgroup -g 1001 -S nodejs
