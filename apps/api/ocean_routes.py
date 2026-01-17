@@ -15,6 +15,7 @@ from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse, JSONResponse
 
 from .groq_ocean_integration import get_groq_client
+from .clisonix_identity import get_clisonix_identity, IdentityLanguage
 
 logger = logging.getLogger("curiosity_ocean_routes")
 
@@ -57,15 +58,124 @@ _sessions: Dict[str, OceanSession] = {}
 
 
 # ============================================================================
-# 🌊 CURIOSITY OCEAN ENDPOINTS
+# 🔷 CLISONIX IDENTITY ENDPOINTS
 # ============================================================================
+
+
+@router.get("/identity")
+async def get_identity(language: str = "en") -> Dict[str, Any]:
+    """
+    Get Clisonix system identity and self-awareness
+    
+    Args:
+        language: Language code (sq, en, it, es, fr, de)
+    
+    Returns:
+        Complete system identity, capabilities, and architecture
+    """
+    try:
+        # Map language string to enum
+        lang_map = {
+            "sq": IdentityLanguage.ALBANIAN,
+            "en": IdentityLanguage.ENGLISH,
+            "it": IdentityLanguage.ITALIAN,
+            "es": IdentityLanguage.SPANISH,
+            "fr": IdentityLanguage.FRENCH,
+            "de": IdentityLanguage.GERMAN,
+        }
+        lang = lang_map.get(language, IdentityLanguage.ENGLISH)
+        
+        identity = get_clisonix_identity()
+        
+        return {
+            "success": True,
+            "identity": {
+                "name": identity.identity.name,
+                "version": identity.identity.version,
+                "type": identity.identity.type,
+                "layers": identity.identity.layers,
+                "mission": identity.identity.mission
+            },
+            "introduction": identity.get_identity_intro(lang),
+            "full_description": identity.get_full_identity(lang),
+            "trinity_system": identity.get_trinity_description(lang),
+            "curiosity_ocean": identity.get_ocean_description(lang),
+            "purpose": identity.get_purpose(lang),
+            "capabilities": identity.get_capabilities(lang),
+            "system_status": identity.get_system_status(lang),
+            "language": language
+        }
+    except Exception as e:
+        logger.error(f"Error fetching identity: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/identity/trinity")
+async def get_trinity_info(language: str = "en") -> Dict[str, Any]:
+    """
+    Get ASI Trinity system information
+    
+    Args:
+        language: Language code
+    
+    Returns:
+        Trinity architecture (ALBA, ALBI, JONA)
+    """
+    try:
+        identity = get_clisonix_identity()
+        return {
+            "success": True,
+            "trinity": identity.trinity_architecture,
+            "description": identity.get_trinity_description(IdentityLanguage.ENGLISH if language == "en" else IdentityLanguage.ALBANIAN)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/identity/layers")
+async def get_layers_info(language: str = "en") -> Dict[str, Any]:
+    """
+    Get all 12 layers of Clisonix architecture
+    
+    Args:
+        language: Language code
+    
+    Returns:
+        Complete layer hierarchy with descriptions
+    """
+    try:
+        lang_map = {
+            "sq": IdentityLanguage.ALBANIAN,
+            "en": IdentityLanguage.ENGLISH,
+            "it": IdentityLanguage.ITALIAN,
+            "es": IdentityLanguage.SPANISH,
+            "fr": IdentityLanguage.FRENCH,
+            "de": IdentityLanguage.GERMAN,
+        }
+        lang = lang_map.get(language, IdentityLanguage.ENGLISH)
+        
+        identity = get_clisonix_identity()
+        
+        layers = {}
+        for i in range(1, 13):
+            layers[f"Layer {i}"] = identity.get_layer_description(i, lang)
+        
+        return {
+            "success": True,
+            "total_layers": 12,
+            "layers": layers,
+            "language": language
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/chat")
 async def ocean_chat(
     question: str,
     session_id: Optional[str] = None,
-    use_biometric_context: bool = True
+    use_biometric_context: bool = True,
+    language: str = "en"
 ) -> Dict[str, Any]:
     """
     Chat with Curiosity Ocean
