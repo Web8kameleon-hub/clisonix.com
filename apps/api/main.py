@@ -907,7 +907,7 @@ except ImportError as e:
 # OCEAN CENTRAL HUB - Infinite Data Streaming & Agent Orchestration
 # =============================================================================
 try:
-    from apps.api.ocean_central_hub import get_ocean_hub
+    from ocean_central_hub import get_ocean_hub
     
     @app.on_event("startup")
     async def init_ocean_hub():
