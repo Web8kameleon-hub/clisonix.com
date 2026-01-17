@@ -19,6 +19,10 @@ import asyncio
 from contextlib import asynccontextmanager
 
 # Import ultra-light engines
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'services'))
+
 from ultra_light_engine import (
     get_data_engine,
     get_redis_buffer,
