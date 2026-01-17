@@ -333,12 +333,18 @@ app.get('/api/slow-queries', async (req: Request, res: Response) => {
         LIMIT 10;
       `);
       
-      const slowQueries = result.rows.map((row) => ({
+        const slowQueries = result.rows.map((row: {
+            query: string;
+            calls: number;
+            mean_time: string | number;
+            max_time: string | number;
+            total_time: string | number;
+        }) => ({
         query: row.query.substring(0, 100),
         calls: row.calls,
-        meanTimeMs: parseFloat(row.mean_time).toFixed(2),
-        maxTimeMs: parseFloat(row.max_time).toFixed(2),
-        totalTimeMs: parseFloat(row.total_time).toFixed(2),
+          meanTimeMs: parseFloat(row.mean_time as string).toFixed(2),
+          maxTimeMs: parseFloat(row.max_time as string).toFixed(2),
+          totalTimeMs: parseFloat(row.total_time as string).toFixed(2),
         complexity: QueryAnalyzer.calculateComplexity(row.query),
       }));
       
