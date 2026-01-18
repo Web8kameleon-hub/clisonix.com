@@ -74,5 +74,5 @@ def report() -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    uvicorn.run("economy_api_server:app", host="127.0.0.1", port=PORT, reload=True)
+    uvicorn.run("economy_api_server:app", host="0.0.0.0", port=PORT, reload=True)
 
