@@ -45,6 +45,25 @@ const MODULES = [
     category: 'Productivity',
     isNew: true
   },
+  // 📱 REAL SENSORS - Phone hardware sensors
+  {
+    id: 'phone-sensors',
+    name: 'Phone Sensors',
+    description: 'Accelerometer, gyroscope, GPS - matje reale nga telefoni',
+    icon: '📱',
+    color: 'from-blue-500 to-indigo-600',
+    category: 'Sensors',
+    isNew: true
+  },
+  {
+    id: 'face-detection',
+    name: 'Face Detection',
+    description: 'Analiza e emocioneve dhe shenjave vitale me kamerë',
+    icon: '📷',
+    color: 'from-pink-500 to-purple-600',
+    category: 'Sensors',
+    isNew: true
+  },
   // 🌊 AI & CHAT
   {
     id: 'curiosity-ocean',
