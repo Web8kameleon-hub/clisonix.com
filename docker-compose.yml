@@ -143,6 +143,96 @@ services:
       - "-httpListenAddr=:8428"
     restart: unless-stopped
 
+  # ==========================
+  # ASI ENGINE (Artificial Super Intelligence)
+  # ==========================
+  asi:
+    build:
+      context: .
+      dockerfile: Dockerfile.asi
+    container_name: clisonix-asi
+    environment:
+      PYTHONUNBUFFERED: "1"
+      REDIS_URL: "redis://redis:6379/0"
+    ports:
+      - "9094:9094"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9094/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ==========================
+  # MARKETPLACE (API Keys, Billing, SaaS)
+  # ==========================
+  marketplace:
+    build:
+      context: .
+      dockerfile: Dockerfile.marketplace
+    container_name: clisonix-marketplace
+    environment:
+      PYTHONUNBUFFERED: "1"
+      REDIS_URL: "redis://redis:6379/0"
+      STRIPE_SECRET_KEY: "${STRIPE_SECRET_KEY}"
+      STRIPE_PUBLISHABLE_KEY: "${STRIPE_PUBLISHABLE_KEY}"
+      STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET}"
+    ports:
+      - "8004:8004"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ==========================
+  # REPORTING (Excel, PowerPoint, Dashboard)
+  # ==========================
+  reporting:
+    build:
+      context: .
+      dockerfile: Dockerfile.reporting
+    container_name: clisonix-reporting
+    environment:
+      PYTHONUNBUFFERED: "1"
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./reports:/app/reports
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ==========================
+  # ECONOMY (Billing, Credits, Usage)
+  # ==========================
+  economy:
+    build:
+      context: .
+      dockerfile: Dockerfile.economy
+    container_name: clisonix-economy
+    environment:
+      PYTHONUNBUFFERED: "1"
+      ECONOMY_API_PORT: "9093"
+    ports:
+      - "9093:9093"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9093/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
 networks:
   default:
     driver: bridge
