@@ -4186,6 +4186,14 @@ async def excel_summary():
 app.include_router(excel_router)
 logger.info("[OK] Excel Dashboard routes loaded")
 
+# ============== USER DATA API ==============
+try:
+    from user_data_api import user_data_router
+    app.include_router(user_data_router)
+    logger.info("[OK] User Data API routes loaded (/api/user/*)")
+except ImportError as e:
+    logger.warning(f"[SKIP] User Data API not available: {e}")
+
 # ============== BILLING ROUTES ==============
 try:
     from billing.stripe_routes import router as stripe_billing_router

@@ -6,7 +6,7 @@
 
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 
 // Data source types that users can register
@@ -17,9 +17,9 @@ interface DataSource {
   name: string
   type: DataSourceType
   status: 'active' | 'inactive' | 'error'
-  lastSync: string
-  dataPoints: number
-  createdAt: string
+    last_sync: string | null
+    data_points: number
+    created_at: string
 }
 
 interface UserMetric {
@@ -31,68 +31,113 @@ interface UserMetric {
   source: string
 }
 
+interface Summary {
+    total_sources: number
+    active_sources: number
+    total_data_points: number
+    total_metrics: number
+}
+
+// Form state for adding new source
+interface NewSourceForm {
+    name: string
+    type: DataSourceType
+    endpoint: string
+    api_key: string
+}
+
 export default function UserDataPage() {
   const [dataSources, setDataSources] = useState<DataSource[]>([])
   const [metrics, setMetrics] = useState<UserMetric[]>([])
+    const [summary, setSummary] = useState<Summary>({ total_sources: 0, active_sources: 0, total_data_points: 0, total_metrics: 0 })
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'overview' | 'sources' | 'metrics' | 'export'>('overview')
   const [showAddSource, setShowAddSource] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [newSource, setNewSource] = useState<NewSourceForm>({
+        name: '',
+        type: 'iot',
+        endpoint: '',
+        api_key: ''
+    })
 
-  // Demo data - will be replaced with real API calls
-  useEffect(() => {
-    // Simulate loading user data
-    setTimeout(() => {
-      setDataSources([
-        {
-          id: '1',
-          name: 'Temperature Sensor #1',
-          type: 'iot',
-          status: 'active',
-          lastSync: '2 min ago',
-          dataPoints: 15420,
-          createdAt: '2025-12-01'
-        },
-        {
-          id: '2', 
-          name: 'LoRa Gateway Office',
-          type: 'lora',
-          status: 'active',
-          lastSync: '5 min ago',
-          dataPoints: 8932,
-          createdAt: '2025-12-15'
-        },
-        {
-          id: '3',
-          name: 'External Weather API',
-          type: 'api',
-          status: 'active',
-          lastSync: '1 min ago',
-          dataPoints: 42100,
-          createdAt: '2025-11-20'
-        },
-        {
-          id: '4',
-          name: 'GSM Modem Fleet',
-          type: 'gsm',
-          status: 'inactive',
-          lastSync: '2 hours ago',
-          dataPoints: 3200,
-          createdAt: '2026-01-05'
-        }
+    // Fetch data from API
+    const fetchData = useCallback(async () => {
+        try {
+            const [sourcesRes, metricsRes, summaryRes] = await Promise.all([
+                fetch('/api/proxy/user-data-sources'),
+                fetch('/api/proxy/user-metrics'),
+                fetch('/api/proxy/user-summary')
       ])
 
-      setMetrics([
-        { id: '1', name: 'Temperature', value: 22.5, unit: '°C', trend: 'stable', source: 'IoT Sensor #1' },
-        { id: '2', name: 'Humidity', value: 45, unit: '%', trend: 'up', source: 'IoT Sensor #1' },
-        { id: '3', name: 'API Calls Today', value: 1250, unit: 'requests', trend: 'up', source: 'Weather API' },
-        { id: '4', name: 'Data Points', value: 69652, unit: 'total', trend: 'up', source: 'All Sources' },
-        { id: '5', name: 'Active Devices', value: 3, unit: 'devices', trend: 'stable', source: 'System' },
-        { id: '6', name: 'Network Latency', value: 45, unit: 'ms', trend: 'down', source: 'LoRa Gateway' },
-      ])
+            const sourcesData = await sourcesRes.json()
+            const metricsData = await metricsRes.json()
+            const summaryData = await summaryRes.json()
 
+            // Handle array or object response
+            setDataSources(Array.isArray(sourcesData) ? sourcesData : sourcesData.sources || [])
+            setMetrics(Array.isArray(metricsData) ? metricsData : metricsData.metrics || [])
+            setSummary(summaryData)
+        } catch (error) {
+            console.error('Failed to fetch user data:', error)
+        } finally {
       setIsLoading(false)
-    }, 800)
+        }
   }, [])
+
+    useEffect(() => {
+        fetchData()
+        // Refresh every 30 seconds
+        const interval = setInterval(fetchData, 30000)
+        return () => clearInterval(interval)
+    }, [fetchData])
+
+    // Add new data source
+    const handleAddSource = async () => {
+        if (!newSource.name.trim()) return
+
+        setIsSubmitting(true)
+        try {
+            const response = await fetch('/api/proxy/user-data-sources', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: newSource.name,
+                    type: newSource.type,
+                    endpoint: newSource.endpoint || null,
+                    api_key: newSource.api_key || null
+                })
+            })
+
+            if (response.ok) {
+                setShowAddSource(false)
+                setNewSource({ name: '', type: 'iot', endpoint: '', api_key: '' })
+                fetchData() // Refresh data
+            }
+        } catch (error) {
+            console.error('Failed to add data source:', error)
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    // Format last sync time
+    const formatLastSync = (lastSync: string | null): string => {
+        if (!lastSync) return 'Never'
+        try {
+            const date = new Date(lastSync)
+            const now = new Date()
+            const diffMs = now.getTime() - date.getTime()
+            const diffMins = Math.floor(diffMs / 60000)
+            if (diffMins < 1) return 'Just now'
+            if (diffMins < 60) return `${diffMins} min ago`
+            const diffHours = Math.floor(diffMins / 60)
+            if (diffHours < 24) return `${diffHours} hours ago`
+            return date.toLocaleDateString()
+        } catch {
+            return lastSync
+        }
+    }
 
   const getSourceIcon = (type: DataSourceType) => {
     const icons: Record<DataSourceType, string> = {
@@ -213,23 +258,23 @@ export default function UserDataPage() {
             {/* Quick Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                <div className="text-3xl font-bold text-blue-400">{dataSources.length}</div>
+                              <div className="text-3xl font-bold text-blue-400">{summary.total_sources || dataSources.length}</div>
                 <div className="text-sm text-gray-400">Data Sources</div>
               </div>
               <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
                 <div className="text-3xl font-bold text-green-400">
-                  {dataSources.filter(s => s.status === 'active').length}
+                                  {summary.active_sources || dataSources.filter(s => s.status === 'active').length}
                 </div>
                 <div className="text-sm text-gray-400">Active</div>
               </div>
               <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
                 <div className="text-3xl font-bold text-cyan-400">
-                  {dataSources.reduce((sum, s) => sum + s.dataPoints, 0).toLocaleString()}
+                                  {(summary.total_data_points || dataSources.reduce((sum, s) => sum + (s.data_points || 0), 0)).toLocaleString()}
                 </div>
                 <div className="text-sm text-gray-400">Total Data Points</div>
               </div>
               <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                <div className="text-3xl font-bold text-purple-400">{metrics.length}</div>
+                              <div className="text-3xl font-bold text-purple-400">{summary.total_metrics || metrics.length}</div>
                 <div className="text-sm text-gray-400">Tracked Metrics</div>
               </div>
             </div>
@@ -282,8 +327,8 @@ export default function UserDataPage() {
                       </div>
                     </div>
                     <div className="mt-3 flex items-center justify-between text-sm text-gray-400">
-                      <span>Last sync: {source.lastSync}</span>
-                      <span>{source.dataPoints.toLocaleString()} points</span>
+                            <span>Last sync: {formatLastSync(source.last_sync)}</span>
+                            <span>{(source.data_points || 0).toLocaleString()} points</span>
                     </div>
                   </div>
                 ))}
@@ -339,8 +384,8 @@ export default function UserDataPage() {
                           <span className="text-sm capitalize">{source.status}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-400">{source.lastSync}</td>
-                      <td className="px-4 py-3 text-sm">{source.dataPoints.toLocaleString()}</td>
+                          <td className="px-4 py-3 text-sm text-gray-400">{formatLastSync(source.last_sync)}</td>
+                          <td className="px-4 py-3 text-sm">{(source.data_points || 0).toLocaleString()}</td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
                           <button className="px-2 py-1 text-xs bg-blue-500/20 text-blue-400 rounded hover:bg-blue-500/30 transition-colors">
@@ -497,7 +542,11 @@ export default function UserDataPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-2">Source Type</label>
-                <select className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500">
+                              <select
+                                  value={newSource.type}
+                                  onChange={(e) => setNewSource({ ...newSource, type: e.target.value as DataSourceType })}
+                                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                              >
                   <option value="iot">📡 IoT Device</option>
                   <option value="api">🔗 External API</option>
                   <option value="lora">📻 LoRa Network</option>
@@ -512,6 +561,8 @@ export default function UserDataPage() {
                 <label className="block text-sm font-medium text-gray-400 mb-2">Source Name</label>
                 <input 
                   type="text"
+                                  value={newSource.name}
+                                  onChange={(e) => setNewSource({ ...newSource, name: e.target.value })}
                   placeholder="e.g., Temperature Sensor #1"
                   className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
                 />
@@ -521,6 +572,8 @@ export default function UserDataPage() {
                 <label className="block text-sm font-medium text-gray-400 mb-2">Connection URL / Endpoint</label>
                 <input 
                   type="text"
+                                  value={newSource.endpoint}
+                                  onChange={(e) => setNewSource({ ...newSource, endpoint: e.target.value })}
                   placeholder="e.g., mqtt://broker.example.com:1883"
                   className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
                 />
@@ -530,6 +583,8 @@ export default function UserDataPage() {
                 <label className="block text-sm font-medium text-gray-400 mb-2">API Key / Token (optional)</label>
                 <input 
                   type="password"
+                                  value={newSource.api_key}
+                                  onChange={(e) => setNewSource({ ...newSource, api_key: e.target.value })}
                   placeholder="Your API key or authentication token"
                   className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
                 />
@@ -540,11 +595,16 @@ export default function UserDataPage() {
               <button 
                 onClick={() => setShowAddSource(false)}
                 className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg font-medium transition-colors"
+                              disabled={isSubmitting}
               >
                 Cancel
               </button>
-              <button className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors">
-                Add Source
+                          <button
+                              onClick={handleAddSource}
+                              disabled={isSubmitting || !newSource.name.trim()}
+                              className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
+                          >
+                              {isSubmitting ? 'Adding...' : 'Add Source'}
               </button>
             </div>
           </div>
