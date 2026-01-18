@@ -114,6 +114,32 @@ const MODULES = [
     icon: '🌤️',
     color: 'from-sky-500 to-blue-600',
     category: 'Environment'
+  },
+  // 👤 ACCOUNT & DATA
+  {
+    id: 'account',
+    name: 'Llogaria & Faturimi',
+    description: 'Menaxho profilin, abonimet, metodat e pagesës dhe cilësimet',
+    icon: '👤',
+    color: 'from-blue-500 to-indigo-600',
+    category: 'Account'
+  },
+  {
+    id: 'my-data-dashboard',
+    name: 'My Data Dashboard',
+    description: 'IoT devices, API integrations, LoRa/GSM networks',
+    icon: '📊',
+    color: 'from-green-500 to-teal-600',
+    category: 'Data'
+  },
+  // 👨‍💻 DEVELOPER
+  {
+    id: 'developer-docs',
+    name: 'Developer Documentation',
+    description: 'API Reference, SDKs, Quick Start Guide',
+    icon: '👨‍💻',
+    color: 'from-purple-500 to-pink-600',
+    category: 'Developer'
   }
 ];
 
