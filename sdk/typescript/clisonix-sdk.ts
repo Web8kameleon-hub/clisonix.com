@@ -23,7 +23,7 @@ export interface ClisonixConfig {
 }
 
 const DEFAULT_CONFIG = {
-  baseUrl: 'http://46.224.205.183:8000',
+  baseUrl: process.env.CLISONIX_API_URL || 'https://api.clisonix.com',
   timeout: 30000,
   retries: 3
 };
@@ -494,7 +494,7 @@ class ReportingAPI {
   private baseUrl: string;
   private apiKey: string;
 
-  constructor(apiKey: string, baseUrl: string = 'http://46.224.205.183:8001') {
+  constructor(apiKey: string, baseUrl: string = process.env.CLISONIX_REPORTING_URL || 'https://reporting.clisonix.com') {
     this.apiKey = apiKey;
     this.baseUrl = baseUrl;
   }
@@ -555,7 +555,7 @@ class ExcelAPI {
   private baseUrl: string;
   private apiKey: string;
 
-  constructor(apiKey: string, baseUrl: string = 'http://46.224.205.183:8002') {
+  constructor(apiKey: string, baseUrl: string = process.env.CLISONIX_EXCEL_URL || 'https://excel.clisonix.com') {
     this.apiKey = apiKey;
     this.baseUrl = baseUrl;
   }

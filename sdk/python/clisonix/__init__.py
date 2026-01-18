@@ -43,9 +43,9 @@ __author__ = "Clisonix Cloud"
 class ClisonixConfig:
     """SDK Configuration"""
     api_key: str
-    base_url: str = "http://46.224.205.183:8000"
-    reporting_url: str = "http://46.224.205.183:8001"
-    excel_url: str = "http://46.224.205.183:8002"
+    base_url: str = "https://api.clisonix.com"
+    reporting_url: str = "https://reporting.clisonix.com"
+    excel_url: str = "https://excel.clisonix.com"
     timeout: int = 30
     retries: int = 3
     debug: bool = False
@@ -584,9 +584,9 @@ class Clisonix:
     def __init__(
         self,
         api_key: Optional[str] = None,
-        base_url: str = "http://46.224.205.183:8000",
-        reporting_url: str = "http://46.224.205.183:8001",
-        excel_url: str = "http://46.224.205.183:8002",
+        base_url: str = "https://api.clisonix.com",
+        reporting_url: str = "https://reporting.clisonix.com",
+        excel_url: str = "https://excel.clisonix.com",
         timeout: int = 30,
         retries: int = 3,
         debug: bool = False

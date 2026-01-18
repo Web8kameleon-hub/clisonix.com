@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server'
 
-// PRODUCTION: Hetzner server IP / clisonix.com
-// Port 8002 = Excel microservice
-const EXCEL_API = 'http://46.224.205.183:8001'
-const API_BASE = process.env.EXCEL_API_URL || EXCEL_API
+// Use environment variable or internal Docker network
+const API_BASE = process.env.EXCEL_API_URL || 'http://clisonix-reporting:8001'
 
 export async function GET() {
   try {

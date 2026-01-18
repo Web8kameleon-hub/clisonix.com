@@ -380,7 +380,7 @@ async def get_sdk_info():
             "collection": "https://clisonix.cloud/postman/Clisonix-Cloud-Marketplace.postman_collection.json",
             "environment": "https://clisonix.cloud/postman/clisonix-environment-hetzner.json"
         },
-        "openapi": "http://46.224.205.183:8000/openapi.json",
+        "openapi": "https://api.clisonix.com/openapi.json",
         "docs": {
             "getting_started": "https://clisonix.cloud/docs/getting-started",
             "api_reference": "https://clisonix.cloud/docs/api",
@@ -407,10 +407,10 @@ async def get_marketplace_stats():
             "plans_distribution": dict(plan_distribution)
         },
         "api_status": {
-            "main_api": "http://46.224.205.183:8000",
-            "reporting": "http://46.224.205.183:8001",
-            "excel": "http://46.224.205.183:8002",
-            "marketplace": "http://46.224.205.183:8004"
+            "main_api": "https://api.clisonix.com",
+            "reporting": "https://reporting.clisonix.com",
+            "excel": "https://excel.clisonix.com",
+            "marketplace": "https://marketplace.clisonix.com"
         },
         "uptime": "99.9%",
         "timestamp": datetime.now().isoformat()
@@ -425,9 +425,9 @@ async def get_quickstart():
     """Get quick start code examples"""
     return {
         "curl": {
-            "health_check": 'curl -X GET "http://46.224.205.183:8000/health" -H "X-API-Key: YOUR_API_KEY"',
-            "asi_status": 'curl -X GET "http://46.224.205.183:8000/asi/status" -H "X-API-Key: YOUR_API_KEY"',
-            "brain_ask": 'curl -X POST "http://46.224.205.183:8000/brain/ask" -H "Content-Type: application/json" -H "X-API-Key: YOUR_API_KEY" -d \'{"question": "What is alpha wave activity?"}\''
+            "health_check": 'curl -X GET "https://api.clisonix.com/health" -H "X-API-Key: YOUR_API_KEY"',
+            "asi_status": 'curl -X GET "https://api.clisonix.com/asi/status" -H "X-API-Key: YOUR_API_KEY"',
+            "brain_ask": 'curl -X POST "https://api.clisonix.com/brain/ask" -H "Content-Type: application/json" -H "X-API-Key: YOUR_API_KEY" -d \'{"question": "What is alpha wave activity?"}\''
         },
         "typescript": """
 import Clisonix from '@clisonix/sdk';

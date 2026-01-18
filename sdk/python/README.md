@@ -156,9 +156,9 @@ templates = client.excel.get_templates()
 ```python
 client = Clisonix(
     api_key="your-api-key",
-    base_url="http://46.224.205.183:8000",  # Optional
-    reporting_url="http://46.224.205.183:8001",  # Optional
-    excel_url="http://46.224.205.183:8002",  # Optional
+    base_url="https://api.clisonix.com",  # Optional
+    reporting_url="https://reporting.clisonix.com",  # Optional
+    excel_url="https://excel.clisonix.com",  # Optional
     timeout=30,  # Request timeout in seconds
     retries=3  # Number of retry attempts
 )
@@ -225,10 +225,10 @@ clisonix --api-key YOUR_KEY --containers
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| Main API | http://46.224.205.183:8000 | Core, Brain, EEG, ASI, Billing |
-| Reporting | http://46.224.205.183:8001 | Docker, System Metrics |
-| Excel | http://46.224.205.183:8002 | Excel Reports |
-| Frontend | http://46.224.205.183:3000 | Web Dashboard |
+| Main API | https://api.clisonix.com | Core, Brain, EEG, ASI, Billing |
+| Reporting | https://reporting.clisonix.com | Docker, System Metrics |
+| Excel | https://excel.clisonix.com | Excel Reports |
+| Frontend | https://clisonix.com | Web Dashboard |
 
 ## License
 

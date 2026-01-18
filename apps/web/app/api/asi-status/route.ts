@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 
 // PRODUCTION: Hetzner server IP / clisonix.com
 // Port 8001 = reporting microservice, Port 8000 = main API
-const HETZNER_API = 'http://46.224.205.183:8000'
+const HETZNER_API = process.env.API_URL || 'http://clisonix-api:8000'
 const API_BASE = process.env.API_INTERNAL_URL || process.env.NEXT_PUBLIC_API_BASE || HETZNER_API
 
 // Suppress repetitive error logging

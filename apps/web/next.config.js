@@ -28,8 +28,8 @@ const nextConfig = {
         hostname: 'clisonix.com',
       },
       {
-        protocol: 'http',
-        hostname: '46.224.205.183',
+        protocol: 'https',
+        hostname: '*.clisonix.com',
       },
       {
         protocol: 'https',
@@ -229,8 +229,7 @@ const nextConfig = {
   allowedDevOrigins: [
     'localhost:3000',
     '127.0.0.1:3000',
-    '192.168.2.122:3000',
-    '46.224.205.183:3000',
+    'clisonix.com',
   ],
 };
 

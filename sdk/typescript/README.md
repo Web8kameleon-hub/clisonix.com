@@ -158,7 +158,7 @@ const templates = await clisonix.excel.getTemplates();
 ```typescript
 const clisonix = new Clisonix({
   apiKey: 'your-api-key',
-  baseUrl: 'http://46.224.205.183:8000', // Optional, defaults to production
+  baseUrl: 'https://api.clisonix.com', // Optional, defaults to production
   timeout: 30000, // Optional, request timeout in ms
   retries: 3 // Optional, number of retry attempts
 });
@@ -199,10 +199,10 @@ import {
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| Main API | http://46.224.205.183:8000 | Core, Brain, EEG, ASI, Billing |
-| Reporting | http://46.224.205.183:8001 | Docker, System Metrics |
-| Excel | http://46.224.205.183:8002 | Excel Reports |
-| Frontend | http://46.224.205.183:3000 | Web Dashboard |
+| Main API | https://api.clisonix.com | Core, Brain, EEG, ASI, Billing |
+| Reporting | https://reporting.clisonix.com | Docker, System Metrics |
+| Excel | https://excel.clisonix.com | Excel Reports |
+| Frontend | https://clisonix.com | Web Dashboard |
 
 ## License
 

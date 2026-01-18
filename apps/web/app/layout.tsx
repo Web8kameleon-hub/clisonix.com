@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { RequestLogger } from "../src/components/telemetry/RequestLogger";
-import AboutSidebar from "../src/components/AboutSidebar";
 import { DynamicFavicon } from "../src/components/DynamicFavicon";
 
 const inter = Inter({
@@ -149,7 +148,6 @@ export default function RootLayout({
         */}
         <DynamicFavicon />
         <RequestLogger />
-        <AboutSidebar />
         {children}
       </body>
     </html>
