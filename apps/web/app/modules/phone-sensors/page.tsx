@@ -68,6 +68,13 @@ export default function PhoneSensorsPage() {
     const [sensorsActive, setSensorsActive] = useState(false);
     const motionListenerAdded = useRef(false);
     const orientationListenerAdded = useRef(false);
+    const motionEventCount = useRef(0);
+    const orientationEventCount = useRef(0);
+    const [eventCounts, setEventCounts] = useState({ motion: 0, orientation: 0 });
+
+    // Inline handlers for Android auto-start (refs for stable reference)
+    const handleMotionRef = useRef<((e: DeviceMotionEvent) => void) | null>(null);
+    const handleOrientationRef = useRef<((e: DeviceOrientationEvent) => void) | null>(null);
 
     // Detect platform on mount
     useEffect(() => {
@@ -80,25 +87,54 @@ export default function PhoneSensorsPage() {
             console.log('[PhoneSensors] Android detected, auto-starting sensors...');
             setTimeout(() => {
                 autoStartAndroidSensors();
-            }, 500);
+            }, 1000); // Increased delay to ensure refs are ready
         }
     }, []);
 
     // Auto-start sensors for Android
     const autoStartAndroidSensors = () => {
+        console.log('[PhoneSensors] autoStartAndroidSensors called');
+
         // Check if DeviceMotionEvent is supported
         if (window.DeviceMotionEvent) {
-            console.log('[PhoneSensors] DeviceMotionEvent supported');
-            window.addEventListener('devicemotion', handleMotion, true);
+            console.log('[PhoneSensors] DeviceMotionEvent supported, adding listener...');
+
+            // Create inline handler if main handler not ready
+            const motionHandler = (event: DeviceMotionEvent) => {
+                motionEventCount.current++;
+                if (motionEventCount.current % 50 === 0) {
+                    setEventCounts(prev => ({ ...prev, motion: motionEventCount.current }));
+                }
+                if (handleMotionRef.current) {
+                    handleMotionRef.current(event);
+                }
+            };
+
+            window.addEventListener('devicemotion', motionHandler, true);
             motionListenerAdded.current = true;
             setPermissionStatus(prev => ({ ...prev, motion: 'granted' }));
+        } else {
+            console.warn('[PhoneSensors] DeviceMotionEvent NOT supported');
         }
 
         if (window.DeviceOrientationEvent) {
-            console.log('[PhoneSensors] DeviceOrientationEvent supported');
-            window.addEventListener('deviceorientation', handleOrientation, true);
+            console.log('[PhoneSensors] DeviceOrientationEvent supported, adding listener...');
+
+            const orientationHandler = (event: DeviceOrientationEvent) => {
+                orientationEventCount.current++;
+                if (orientationEventCount.current % 50 === 0) {
+                    setEventCounts(prev => ({ ...prev, orientation: orientationEventCount.current }));
+                }
+                if (handleOrientationRef.current) {
+                    handleOrientationRef.current(event);
+                }
+            };
+
+            window.addEventListener('deviceorientation', orientationHandler, true);
             orientationListenerAdded.current = true;
             setPermissionStatus(prev => ({ ...prev, orientation: 'granted' }));
+        } else {
+            console.warn('[PhoneSensors] DeviceOrientationEvent NOT supported');
         }
 
         setSensorsActive(true);
@@ -203,21 +239,11 @@ export default function PhoneSensorsPage() {
     });
   };
 
-    // Cleanup on unmount
-    useEffect(() => {
-        return () => {
-            if (motionListenerAdded.current) {
-                window.removeEventListener('devicemotion', handleMotion, true);
-            }
-            if (orientationListenerAdded.current) {
-                window.removeEventListener('deviceorientation', handleOrientation, true);
-            }
-        };
-    }, [handleMotion, handleOrientation]);
-
   const handleMotion = useCallback((event: DeviceMotionEvent) => {
-      // Debug log for Android
-      console.log('[PhoneSensors] Motion event received:', event.acceleration);
+      // Debug log for Android (less frequent to avoid spam)
+      if (motionEventCount.current % 100 === 1) {
+          console.log('[PhoneSensors] Motion event #' + motionEventCount.current, event.acceleration);
+      }
 
       // Use accelerationIncludingGravity as fallback (more reliable on some Android devices)
       const accel = event.acceleration || event.accelerationIncludingGravity;
@@ -314,6 +340,24 @@ export default function PhoneSensorsPage() {
     }
   }, [isRecording]);
 
+    // Keep refs updated with latest handlers
+    useEffect(() => {
+        handleMotionRef.current = handleMotion;
+        handleOrientationRef.current = handleOrientation;
+    }, [handleMotion, handleOrientation]);
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            if (motionListenerAdded.current) {
+                window.removeEventListener('devicemotion', handleMotion, true);
+            }
+            if (orientationListenerAdded.current) {
+                window.removeEventListener('deviceorientation', handleOrientation, true);
+            }
+        };
+    }, [handleMotion, handleOrientation]);
+
   const updateLocation = (position: GeolocationPosition) => {
     const data: LocationData = {
       latitude: position.coords.latitude,
@@ -398,12 +442,8 @@ export default function PhoneSensorsPage() {
     return emojis[activity] || '❓';
   };
 
-  useEffect(() => {
-    return () => {
-      window.removeEventListener('devicemotion', handleMotion);
-      window.removeEventListener('deviceorientation', handleOrientation);
-    };
-  }, [handleMotion, handleOrientation]);
+    // Cleanup is handled by the useEffect at line ~302
+    // No duplicate cleanup needed here
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
@@ -442,6 +482,13 @@ export default function PhoneSensorsPage() {
                   {motion && (
                       <div className="mt-3 pt-3 border-t border-white/10">
                           <p className="text-green-400 text-xs">✓ Motion data po merret në kohë reale</p>
+                      </div>
+                  )}
+                  {/* Debug: Event counts */}
+                  {sensorsActive && (
+                      <div className="mt-2 flex gap-4 text-xs text-white/50">
+                          <span>📱 Motion: {eventCounts.motion} events</span>
+                          <span>🧭 Orient: {eventCounts.orientation} events</span>
                       </div>
                   )}
               </div>
