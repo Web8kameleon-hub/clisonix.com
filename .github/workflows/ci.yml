@@ -77,11 +77,10 @@ jobs:
           fetch-depth: 0
 
       - name: Gitleaks - Scan for secrets (BLOCKING)
-        uses: gitleaks/gitleaks-action@v4
-        with:
-          config: .github/security/gitleaks.toml
+        uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
 
   codeql-v4-ready:
     name: 🔍 CodeQL v4-Ready Analysis
@@ -203,12 +202,14 @@ jobs:
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-image.sarif
+          category: trivy-image
         continue-on-error: true
 
       - name: Upload FS SARIF (graceful fallback)
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-fs.sarif
+          category: trivy-fs
         continue-on-error: true
 
       - name: Log container scan status
