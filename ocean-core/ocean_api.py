@@ -33,12 +33,26 @@ async def get_knowledge_engine_hybrid(data_sources):
     # This is a wrapper that ensures no external data is used
     try:
         from knowledge_engine import KnowledgeEngine
+        
+        if data_sources is None:
+            logger.error("❌ Cannot initialize knowledge engine: data_sources is None!")
+            return None
+        
+        logger.info("🧠 Initializing KnowledgeEngine with internal data sources...")
         ke = KnowledgeEngine(data_sources, None)  # No external_apis_manager
+        
+        if ke is None:
+            logger.error("❌ KnowledgeEngine() returned None!")
+            return None
+        
+        logger.info("⏳ Initializing knowledge engine...")
         await ke.initialize()
+        logger.info("✅ Knowledge engine initialized successfully!")
         return ke
-    except:
-        # Fallback if full knowledge engine not available
-        logger.info("Using lightweight knowledge engine for hybrid mode")
+    except Exception as e:
+        logger.error(f"❌ Error initializing hybrid knowledge engine: {type(e).__name__}: {str(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
         return None
 
 # Configure logging
@@ -82,20 +96,53 @@ async def startup_event():
     
     try:
         # Initialize all managers in parallel
+        logger.info("→ Initializing internal data sources...")
         internal_data_sources = get_internal_data_sources()
+        
+        if internal_data_sources is None:
+            logger.error("❌ CRITICAL: get_internal_data_sources() returned None!")
+            raise RuntimeError("Failed to initialize data sources")
+        
+        logger.info(f"✅ Data sources initialized")
+        
+        logger.info("→ Initializing persona router...")
         persona_router = PersonaRouter()
+        
+        if persona_router is None or not persona_router.mapping:
+            logger.error("❌ CRITICAL: Persona router failed to initialize!")
+            raise RuntimeError("Failed to initialize persona router")
+        
+        logger.info(f"✅ Persona router initialized with {len(persona_router.mapping)} personas")
+        
+        logger.info("→ Initializing query processor...")
         query_processor = await get_query_processor()
         
-        # Try to use full knowledge engine, fallback to lightweight if not available
-        try:
-            knowledge_engine = await get_knowledge_engine_hybrid(internal_data_sources)
-        except Exception as ke_error:
-            logger.warning(f"Full knowledge engine not available: {ke_error}")
-            knowledge_engine = None
+        if query_processor is None:
+            logger.error("❌ CRITICAL: get_query_processor() returned None!")
+            raise RuntimeError("Failed to initialize query processor")
         
-        logger.info(f"✅ Ocean Core 8030 initialized successfully with {len(persona_router.mapping)} personas")
+        logger.info("✅ Query processor initialized")
+        
+        # Initialize knowledge engine - CRITICAL COMPONENT
+        logger.info("→ Initializing knowledge engine with internal data sources...")
+        knowledge_engine = await get_knowledge_engine_hybrid(internal_data_sources)
+        
+        if knowledge_engine is None:
+            logger.error("❌ CRITICAL: Knowledge engine failed to initialize!")
+            logger.error("⚠️  Ocean Core will operate in degraded mode without knowledge engine!")
+            # Don't raise - allow the service to run in degraded mode
+            # raise RuntimeError("Failed to initialize knowledge engine")
+        else:
+            logger.info("✅ Knowledge engine initialized successfully!")
+        
+        logger.info(f"✅ Ocean Core 8030 initialized successfully!")
+        logger.info(f"   - Personas: {len(persona_router.mapping)}")
+        logger.info(f"   - Data Sources: {len(internal_data_sources.get_all_data().keys()) if internal_data_sources else 0}")
+        logger.info(f"   - Knowledge Engine: {'✅ Ready' if knowledge_engine else '⚠️  Degraded'}")
     except Exception as e:
-        logger.error(f"❌ Ocean Core 8030 initialization failed: {e}")
+        logger.error(f"❌ Ocean Core 8030 initialization failed: {type(e).__name__}: {str(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
         raise
 
 
@@ -144,19 +191,24 @@ async def get_status():
             "status": "operational",
             "initialized": True,
             "personas": len(persona_router.mapping),
+            "knowledge_engine": "operational" if knowledge_engine else "degraded",
             "timestamp": datetime.now().isoformat(),
             "data_sources": {
-                "labs": len(internal_data.get("labs", [])),
-                "agents": len(internal_data.get("agents", [])),
-                "cycles": len(internal_data.get("cycles", [])),
-                "metrics": len(internal_data.get("metrics", [])),
-                "kpi": len(internal_data.get("kpi", []))
+                "timestamp": internal_data.get("timestamp"),
+                "source": internal_data.get("source"),
+                "central_api_connected": internal_data.get("central_api_connected", False),
+                "laboratories": len(internal_data.get("laboratories", {}).get("labs", [])),
+                "system_metrics": len(internal_data.get("system_metrics", {})),
+                "asi_status": bool(internal_data.get("asi_status")),
+                "ocean_labs_list": len(internal_data.get("ocean_labs_list", {}).get("laboratories", [])),
+                "ai_agents_status": len(internal_data.get("ai_agents_status", {})),
+                "all_keys": list(internal_data.keys())
             },
             "components": {
                 "persona_router": "operational",
                 "internal_data_sources": "operational",
                 "query_processor": "operational",
-                "knowledge_engine": "operational"
+                "knowledge_engine": "operational" if knowledge_engine else "not_initialized"
             }
         }
     except Exception as e:
@@ -172,40 +224,84 @@ async def get_sources():
     
     internal_data = internal_data_sources.get_all_data()
     
+    # REAL SOURCES from actual data
     return {
         "timestamp": datetime.now().isoformat(),
-        "internal_sources": {
-            "location_labs": {
-                "description": "12 geographic laboratory network",
-                "records": len(internal_data.get("labs", [])),
-                "status": "operational"
-            },
-            "agent_telemetry": {
-                "description": "5 intelligent agents (ALBA, ALBI, Blerina, AGIEM, ASI)",
-                "records": len(internal_data.get("agents", [])),
-                "status": "operational"
-            },
-            "cycle_engine": {
-                "description": "Production cycle metrics",
-                "records": len(internal_data.get("cycles", [])),
-                "status": "operational"
-            },
-            "excel_dashboard": {
-                "description": "Reporting service on port 8001",
-                "status": "operational"
-            },
-            "system_metrics": {
-                "description": "CPU, memory, disk via psutil",
-                "records": len(internal_data.get("metrics", [])),
-                "status": "operational"
-            },
-            "kpi_engine": {
-                "description": "Business KPI metrics",
-                "records": len(internal_data.get("kpi", [])),
-                "status": "operational"
-            }
+        "internal_sources_operational": list(internal_data.keys()),
+        "central_api": {
+            "url": internal_data.get("central_api_url", "http://localhost:8000"),
+            "connected": internal_data.get("central_api_connected", False),
+            "health": internal_data.get("health", {}),
+            "status_code": internal_data.get("status")
         },
-        "note": "ONLY internal Clisonix APIs - NO external data sources"
+        "laboratories_network": {
+            "description": "23 Specialized Research Laboratories across EU",
+            "total": internal_data.get("laboratories", {}).get("total_labs", 0),
+            "list_count": len(internal_data.get("ocean_labs_list", {}).get("laboratories", [])),
+            "status": "operational",
+            "locations": [
+                "Elbasan, Albania (AI)",
+                "Tirana, Albania (Medical)", 
+                "Prishtina, Kosovo (Security)",
+                "Vienna, Austria (Neuroscience)",
+                "Zurich, Switzerland (Finance)",
+                "Prague, Czech Republic (Robotics)",
+                "Budapest, Hungary (Data)",
+                "Ljubljana, Slovenia (Quantum)",
+                "Zagreb, Croatia (Biotech)",
+                "Sofia, Bulgaria (Chemistry)",
+                "Beograd, Serbia (Industrial)",
+                "Bucharest, Romania (Nanotechnology)",
+                "Istanbul, Turkey (Trade)",
+                "Cairo, Egypt (Archeology)",
+                "Jerusalem, Palestine (Heritage)",
+                "Rome, Italy (Architecture)",
+                "Athens, Greece (Classical)",
+                "Kostur, North Macedonia (Energy)",
+                "Durrës, Albania (IoT)",
+                "Shkodër, Albania (Marine)",
+                "Vlorë, Albania (Environmental)",
+                "Korça, Albania (Agricultural)",
+                "Sarandë, Albania (Underwater)"
+            ]
+        },
+        "agi_agents": {
+            "description": "ASI Trinity - 3 Superintelligences",
+            "alba": {
+                "role": "Network Monitor",
+                "health": internal_data.get("asi_status", {}).get("trinity", {}).get("alba", {}).get("health", 0),
+                "operational": internal_data.get("asi_status", {}).get("trinity", {}).get("alba", {}).get("operational", False)
+            },
+            "albi": {
+                "role": "Neural Processor", 
+                "health": internal_data.get("asi_status", {}).get("trinity", {}).get("albi", {}).get("health", 0),
+                "operational": internal_data.get("asi_status", {}).get("trinity", {}).get("albi", {}).get("operational", False)
+            },
+            "jona": {
+                "role": "Data Coordinator",
+                "health": internal_data.get("asi_status", {}).get("trinity", {}).get("jona", {}).get("health", 0),
+                "operational": internal_data.get("asi_status", {}).get("trinity", {}).get("jona", {}).get("operational", False)
+            },
+            "count": len(internal_data.get("ai_agents_status", {})),
+            "status": "operational"
+        },
+        "system_metrics": {
+            "description": "Real-time system health monitoring",
+            "cpu_percent": internal_data.get("system_metrics", {}).get("cpu_percent"),
+            "memory_percent": internal_data.get("system_metrics", {}).get("memory_percent"),
+            "disk_percent": internal_data.get("system_metrics", {}).get("disk_percent"),
+            "status": "operational"
+        },
+        "data_quality": {
+            "laboratories": len(internal_data.get("laboratories", {}).get("labs", [])),
+            "ocean_labs_list": len(internal_data.get("ocean_labs_list", {}).get("laboratories", [])),
+            "ai_agents": len(internal_data.get("ai_agents_status", {})),
+            "total_data_records": sum([
+                len(v) if isinstance(v, list) else (len(v) if isinstance(v, dict) else 1) 
+                for v in internal_data.values() if v
+            ])
+        },
+        "note": "✅ ONLY internal Clisonix APIs - NO external data sources (Wikipedia, ArXiv, GitHub disabled)"
     }
 
 
