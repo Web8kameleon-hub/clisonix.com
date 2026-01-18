@@ -11,11 +11,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy ASI service files
+# Copy ASI service files and dependencies
 COPY asi_api_server.py .
 COPY asi_core.py .
 COPY asi_realtime_engine.py .
 COPY enhanced_asi.py .
+COPY localization.py .
+COPY agiem_core.py .
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
