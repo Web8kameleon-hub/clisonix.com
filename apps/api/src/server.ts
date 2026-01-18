@@ -1,9 +1,7 @@
 /**
  * Clisonix INDUSTRIAL BACKEND SERVER
  * ===================================
- * Production-ready server with ALBI+ALBA+JONA + Payment System
- * SEPA IBAN: DE72 4305 0001 0015 0122 63 - Ledjan Ahmati/WEB8euroweb
- * PayPal: ahmati.bau@gmail.com
+ * Production-ready server with ASI Trinity + Payment System
  * ZERO FAKE DATA - Only real system metrics
  */
 
@@ -135,9 +133,7 @@ industrialServer.get("/health", async (request, reply) => {
     },
     payment_system: {
       sepa_enabled: true,
-      paypal_enabled: true,
-      iban: "DE72 4305 0001 0015 0122 63",
-      paypal: "ahmati.bau@gmail.com"
+      paypal_enabled: true
     },
     industrial_grade: true,
     real_data_only: true
@@ -166,10 +162,7 @@ industrialServer.get("/status", async (request, reply) => {
       stability_rating: metrics.process.uptime_seconds > 300 ? "excellent" : "good"
     },
     business_info: {
-      owner: "Ledjan Ahmati",
-      company: "WEB8euroweb",
-      sepa_iban: "DE72 4305 0001 0015 0122 63",
-      paypal_email: "ahmati.bau@gmail.com"
+      company: "Clisonix Cloud"
     },
     data_integrity: "verified_real_data_only",
     timestamp: new Date().toISOString()
@@ -327,8 +320,7 @@ industrialServer.get("/api/ecosystem/status", async (request, reply) => {
     },
     payment_system: {
       status: "operational",
-      methods: ["SEPA", "PayPal"],
-      business_owner: "Ledjan Ahmati - WEB8euroweb"
+      methods: ["SEPA", "PayPal"]
     },
     system_foundation: metrics,
     data_integrity: "100_percent_real",
@@ -362,7 +354,6 @@ industrialServer.get("/", async (request, reply) => {
         <h1 class="title">Clisonix Industrial Backend + Payment System</h1>
         <div class="status">Status: <span class="success">OPERATIONAL</span></div>
         <div class="status">Time: ${new Date().toISOString()}</div>
-        <div class="status">Business: <span class="payment">Ledjan Ahmati - WEB8euroweb</span></div>
         
         <div class="section">
           <h3>System Endpoints:</h3>
@@ -394,9 +385,8 @@ industrialServer.get("/", async (request, reply) => {
 
         <div class="section">
           <h3>Payment Information:</h3>
-          <div class="status">SEPA IBAN: <span class="payment">DE72 4305 0001 0015 0122 63</span></div>
-          <div class="status">PayPal: <span class="payment">ahmati.bau@gmail.com</span></div>
-          <div class="status">Business: <span class="payment">Ledjan Ahmati - WEB8euroweb</span></div>
+          <div class="status">SEPA: <span class="payment">Enabled</span></div>
+          <div class="status">PayPal: <span class="payment">Enabled</span></div>
         </div>
         
         <div class="status">REAL DATA ONLY - NO MOCK - INDUSTRIAL PAYMENT SYSTEM</div>
@@ -424,9 +414,6 @@ try {
   console.log("Industrial Grade: ACTIVE");
   console.log("Real Data Only: ENABLED");
   console.log("Payment System: OPERATIONAL");
-  console.log("SEPA IBAN: DE72 4305 0001 0015 0122 63");
-  console.log("PayPal: ahmati.bau@gmail.com");
-  console.log("Business: Ledjan Ahmati - WEB8euroweb");
   console.log("==========================================");
   
 } catch (error) {

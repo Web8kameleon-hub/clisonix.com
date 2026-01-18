@@ -1,20 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 /**
  * CLISONIX HOME PAGE
- * Showcasing ASI Trinity, Real Modules, and Live System Status
+ * User-facing tools and modules
  */
-
-interface SystemStatus {
-  alba: { status: string; connections: number };
-  albi: { status: string; creativity: number };
-  jona: { status: string; harmony: number };
-  uptime: string;
-  totalRequests: number;
-}
 
 const MODULES = [
   // 📱 POPULAR - Easy to use, mobile-friendly
@@ -106,15 +98,7 @@ const MODULES = [
     color: 'from-violet-500 to-purple-600',
     category: 'Neuroscience'
   },
-  // 📊 ANALYTICS & TOOLS
-  {
-    id: 'spectrum-analyzer',
-    name: 'Spectrum Analyzer',
-    description: 'Frequency spectrum visualization',
-    icon: '📊',
-    color: 'from-green-500 to-emerald-600',
-    category: 'Analysis'
-  },
+  // 📊 USER TOOLS
   {
     id: 'fitness-dashboard',
     name: 'Fitness Dashboard',
@@ -130,83 +114,11 @@ const MODULES = [
     icon: '🌤️',
     color: 'from-sky-500 to-blue-600',
     category: 'Environment'
-  },
-  {
-    id: 'data-collection',
-    name: 'Data Collection',
-    description: 'Industrial IoT and sensor data collection',
-    icon: '📡',
-    color: 'from-blue-500 to-cyan-600',
-    category: 'Industrial'
-  },
-  {
-    id: 'reporting-dashboard',
-    name: 'Reporting Dashboard',
-    description: 'Generate reports and analytics',
-    icon: '📈',
-    color: 'from-emerald-500 to-teal-600',
-    category: 'Analytics'
-  }
-];
-
-const ASI_TRINITY = [
-  {
-    name: 'ALBA',
-    role: 'Analytical Intelligence',
-    description: 'Pattern recognition, data analysis, and logical reasoning',
-    icon: '🔬',
-    color: 'from-blue-400 to-cyan-500'
-  },
-  {
-    name: 'ALBI',
-    role: 'Creative Intelligence',
-    description: 'Innovation, artistic generation, and creative problem solving',
-    icon: '🎨',
-    color: 'from-purple-400 to-pink-500'
-  },
-  {
-    name: 'JONA',
-    role: 'Coordinator Intelligence',
-    description: 'Orchestrates ALBA and ALBI for unified intelligence',
-    icon: '∞',
-    color: 'from-amber-400 to-orange-500'
   }
 ];
 
 export default function HomePage() {
-  const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-
-  useEffect(() => {
-    fetchSystemStatus();
-    const interval = setInterval(fetchSystemStatus, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchSystemStatus = async () => {
-    try {
-      const response = await fetch('/api/asi/status');
-      if (response.ok) {
-        const data = await response.json();
-        setSystemStatus({
-          alba: { status: 'online', connections: data.alba?.network_connections || 847 },
-          albi: { status: 'online', creativity: data.albi?.imagination_score || 94 },
-          jona: { status: 'online', harmony: data.jona?.harmony_level || 0.98 },
-          uptime: '99.97%',
-          totalRequests: data.total_requests || 1247832
-        });
-      }
-    } catch {
-      // Use fallback status
-      setSystemStatus({
-        alba: { status: 'online', connections: 847 },
-        albi: { status: 'online', creativity: 94 },
-        jona: { status: 'online', harmony: 0.98 },
-        uptime: '99.97%',
-        totalRequests: 1247832
-      });
-    }
-  };
 
   const categories = ['all', ...new Set(MODULES.map(m => m.category))];
   const filteredModules = selectedCategory === 'all' 
@@ -232,20 +144,13 @@ export default function HomePage() {
             </div>
             
             <div className="hidden md:flex items-center gap-8">
-              <a href="#asi-trinity" className="text-gray-400 hover:text-cyan-400 transition-colors">ASI Trinity</a>
-              <a href="#modules" className="text-gray-400 hover:text-cyan-400 transition-colors">Modules</a>
-              <a href="#tech-stack" className="text-gray-400 hover:text-cyan-400 transition-colors">Technology</a>
+              <a href="#asi-trinity" className="text-gray-400 hover:text-cyan-400 transition-colors">Features</a>
+              <a href="#modules" className="text-gray-400 hover:text-cyan-400 transition-colors">Tools</a>
+              <a href="#tech-stack" className="text-gray-400 hover:text-cyan-400 transition-colors">Why Us</a>
               <Link href="/modules" className="text-gray-400 hover:text-cyan-400 transition-colors">Dashboard</Link>
             </div>
             
             <div className="flex items-center gap-4">
-              <a 
-                href="/modules/reporting-dashboard" 
-                className="hidden sm:flex items-center gap-2 text-gray-400 hover:text-green-400 transition-colors"
-              >
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                Analytics
-              </a>
               <Link 
                 href="/modules"
                 className="px-5 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 rounded-lg font-medium transition-all shadow-lg shadow-cyan-500/25"
@@ -270,7 +175,7 @@ export default function HomePage() {
           <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 mb-8">
             <span className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse"></span>
             <span className="text-sm text-cyan-300 font-medium">
-              ASI Trinity Online • {systemStatus?.uptime || '99.97%'} Uptime
+              Platform Online • 99.97% Uptime
             </span>
           </div>
 
@@ -310,63 +215,50 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Live Stats */}
-          {systemStatus && (
-            <div className="flex flex-wrap items-center justify-center gap-8 text-sm">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5">
-                <span className="text-cyan-400">🔬</span>
-                <span className="text-gray-400">ALBA:</span>
-                <span className="text-white font-semibold">{systemStatus.alba.connections} connections</span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5">
-                <span className="text-purple-400">🎨</span>
-                <span className="text-gray-400">ALBI:</span>
-                <span className="text-white font-semibold">{systemStatus.albi.creativity}% creativity</span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5">
-                <span className="text-amber-400">∞</span>
-                <span className="text-gray-400">JONA:</span>
-                <span className="text-white font-semibold">{(systemStatus.jona.harmony * 100).toFixed(0)}% harmony</span>
-              </div>
-            </div>
-          )}
+          {/* Status Badge */}
+          <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/30">
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+            <span className="text-green-400 font-medium">All Systems Online</span>
+          </div>
         </div>
       </section>
 
-      {/* ASI Trinity Section */}
+      {/* AI Features Section */}
       <section id="asi-trinity" className="py-20 px-4 bg-gradient-to-b from-transparent to-slate-900/50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
               <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                ASI Trinity
+                Powered by AI
               </span>
             </h2>
             <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Three Artificial Superintelligences working in perfect harmony
+              Advanced neural intelligence powering your experience
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {ASI_TRINITY.map((asi) => (
-              <div 
-                key={asi.name}
-                className="p-8 rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/80 border border-slate-700/50 hover:border-cyan-500/30 transition-all group"
-              >
-                <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${asi.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg`}>
-                  <span className="text-4xl">{asi.icon}</span>
-                </div>
-                <h3 className="text-2xl font-bold mb-2">{asi.name}</h3>
-                <p className={`text-sm font-medium bg-gradient-to-r ${asi.color} bg-clip-text text-transparent mb-4`}>
-                  {asi.role}
-                </p>
-                <p className="text-gray-400 mb-4">{asi.description}</p>
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                  <span className="text-gray-500">Active</span>
-                </div>
+            <div className="p-8 rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/80 border border-slate-700/50 hover:border-cyan-500/30 transition-all text-center">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center mb-6 shadow-lg">
+                <span className="text-3xl">🔬</span>
               </div>
-            ))}
+              <h3 className="text-xl font-bold mb-2">Smart Analysis</h3>
+              <p className="text-gray-400">Pattern recognition and data insights</p>
+            </div>
+            <div className="p-8 rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/80 border border-slate-700/50 hover:border-purple-500/30 transition-all text-center">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center mb-6 shadow-lg">
+                <span className="text-3xl">🎨</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Creative Tools</h3>
+              <p className="text-gray-400">AI-powered creative assistance</p>
+            </div>
+            <div className="p-8 rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/80 border border-slate-700/50 hover:border-amber-500/30 transition-all text-center">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-6 shadow-lg">
+                <span className="text-3xl">✨</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Seamless Experience</h3>
+              <p className="text-gray-400">Unified and harmonious interface</p>
+            </div>
           </div>
         </div>
       </section>
@@ -438,68 +330,64 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Tech Stack Section */}
+      {/* Why Choose Us Section */}
       <section id="tech-stack" className="py-20 px-4 bg-gradient-to-b from-transparent to-slate-900/50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4">
               <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                Technology Stack
+                Why Clisonix?
               </span>
             </h2>
             <p className="text-gray-400 text-lg">
-              Production infrastructure running on Hetzner Cloud
+              Built for you, powered by innovation
             </p>
           </div>
 
           <div className="grid md:grid-cols-4 gap-6">
             {[
-              { name: 'Cloud Native', desc: 'Enterprise Infrastructure', icon: '☁️' },
-              { name: 'Real-time', desc: 'Live Data Processing', icon: '⚡' },
-              { name: 'Secure', desc: 'Enterprise Security', icon: '🔒' },
-              { name: 'Analytics', desc: 'Advanced Monitoring', icon: '📊' },
-              { name: 'Scalable', desc: 'Auto-scaling', icon: '📈' },
-              { name: 'Modern UI', desc: 'Responsive Design', icon: '✨' },
-              { name: 'API First', desc: 'RESTful Services', icon: '🔗' },
-              { name: 'Storage', desc: 'Secure Data', icon: '💾' },
-            ].map((tech) => (
+              { name: 'Fast', desc: 'Instant responses', icon: '⚡' },
+              { name: 'Secure', desc: 'Your data protected', icon: '🔒' },
+              { name: 'Smart', desc: 'AI-powered insights', icon: '🧠' },
+              { name: 'Simple', desc: 'Easy to use', icon: '✨' },
+            ].map((item) => (
               <div 
-                key={tech.name}
-                className="p-5 rounded-xl bg-slate-800/50 border border-slate-700/50 text-center hover:border-cyan-500/30 transition-all"
+                key={item.name}
+                className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50 text-center hover:border-cyan-500/30 transition-all"
               >
-                <span className="text-3xl mb-2 block">{tech.icon}</span>
-                <h4 className="font-semibold text-white">{tech.name}</h4>
-                <p className="text-sm text-gray-400">{tech.desc}</p>
+                <span className="text-4xl mb-3 block">{item.icon}</span>
+                <h4 className="font-semibold text-white text-lg">{item.name}</h4>
+                <p className="text-sm text-gray-400 mt-1">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Live System Status */}
+      {/* Get Started Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="p-8 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/30">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold mb-2">🟢 System Status</h2>
-              <p className="text-gray-400">All services operational</p>
+              <h2 className="text-3xl font-bold mb-2">🚀 Ready to Start?</h2>
+              <p className="text-gray-400">Explore our tools and start your journey</p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-4">
               <div className="p-4 rounded-lg bg-slate-900/50 text-center">
-                <p className="text-gray-400 text-sm">Core Services</p>
-                <p className="text-2xl font-bold text-green-400">Online</p>
-                <p className="text-xs text-gray-500">All systems operational</p>
+                <p className="text-3xl mb-2">📱</p>
+                <p className="text-gray-400 text-sm">Mobile Friendly</p>
+                <p className="text-xs text-gray-500">Use on any device</p>
               </div>
               <div className="p-4 rounded-lg bg-slate-900/50 text-center">
-                <p className="text-gray-400 text-sm">ASI Trinity</p>
-                <p className="text-2xl font-bold text-green-400">Active</p>
-                <p className="text-xs text-gray-500">ALBA • ALBI • JONA</p>
+                <p className="text-3xl mb-2">🌟</p>
+                <p className="text-gray-400 text-sm">Free to Try</p>
+                <p className="text-xs text-gray-500">No credit card needed</p>
               </div>
               <div className="p-4 rounded-lg bg-slate-900/50 text-center">
-                <p className="text-gray-400 text-sm">Uptime</p>
-                <p className="text-2xl font-bold text-green-400">99.97%</p>
-                <p className="text-xs text-gray-500">30-day average</p>
+                <p className="text-3xl mb-2">⚡</p>
+                <p className="text-gray-400 text-sm">Instant Access</p>
+                <p className="text-xs text-gray-500">Start immediately</p>
               </div>
             </div>
             
@@ -508,7 +396,7 @@ export default function HomePage() {
                 href="/modules"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 rounded-xl font-semibold text-lg transition-all shadow-lg shadow-cyan-500/30"
               >
-                Enter Dashboard
+                Get Started
                 <span>→</span>
               </Link>
             </div>
@@ -527,7 +415,7 @@ export default function HomePage() {
               </div>
               <p className="text-gray-400 text-sm">
                 Neural Intelligence Platform<br />
-                Powered by ASI Trinity
+                AI-Powered Tools
               </p>
             </div>
             <div>

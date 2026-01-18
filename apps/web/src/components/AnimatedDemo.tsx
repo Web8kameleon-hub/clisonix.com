@@ -61,8 +61,8 @@ const AnimatedDemo: React.FC<AnimatedDemoProps> = ({ theme = "albi" }) => {
             )}
             variants={scaleIn}
           >
-            {theme === "albi" && "💙 Alba Motion Demo"}
-            {theme === "jona" && "❤️ Jona Motion Demo"}  
+            {theme === "albi" && "💙 Creative Motion Demo"}
+            {theme === "jona" && "❤️ Coordinator Motion Demo"}  
             {theme === "harmony" && "🌟 Harmony Motion Demo"}
           </motion.h1>
           

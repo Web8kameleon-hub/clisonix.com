@@ -427,14 +427,11 @@ curl https://clisonix.com/backend/api/health
 
 | | |
 |---|---|
-| **Kompania** | WEB8euroweb GmbH |
-| **Themelues/CEO** | Ledjan Ahmati |
-| **Email** | ahmati.bau@gmail.com |
+| **Kompania** | Clisonix Cloud |
 | **Website** | https://clisonix.com |
-| **GitHub** | github.com/LedjanAhmati/Clisonix-cloud |
+| **GitHub** | github.com/clisonix/Clisonix-cloud |
 
 ### Suport Teknik:
-- 📧 Email: ahmati.bau@gmail.com
 - 🌐 Website: clisonix.com
 - 📖 Dokumentacioni: GitHub Wiki
 

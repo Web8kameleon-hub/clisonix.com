@@ -136,11 +136,11 @@ export default function Home() {
           </p>
           <div className="flex items-center justify-center space-x-2">
             <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm text-gray-400">Live Industrial Backend • ALBI+ALBA+JONA Integrated • Real Data Only</span>
+            <span className="text-sm text-gray-400">Live Industrial Backend • ASI Trinity Integrated • Real Data Only</span>
           </div>
         </div>
 
-        {/* ALBI+ALBA+JONA Status */}
+        {/* ASI Trinity Status */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white/10 rounded-xl p-6 border border-white/20">
             <div className="flex items-center justify-between mb-4">
@@ -157,7 +157,7 @@ export default function Home() {
           <div className="bg-white/10 rounded-xl p-6 border border-white/20 border-l-4 border-l-cyan-500">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white flex items-center">
-                🧠 ALBI
+                🧠 Creative Intelligence
               </h3>
               <div className={`w-3 h-3 rounded-full ${getStatusColor(systemStatus?.albi.status || 'offline')}`}></div>
             </div>
@@ -169,7 +169,7 @@ export default function Home() {
           <div className="bg-white/10 rounded-xl p-6 border border-white/20 border-l-4 border-l-emerald-500">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white flex items-center">
-                📊 ALBA
+                📊 Analytical Intelligence
               </h3>
               <div className={`w-3 h-3 rounded-full ${getStatusColor(systemStatus?.alba.status || 'offline')}`}></div>
             </div>
@@ -181,7 +181,7 @@ export default function Home() {
           <div className="bg-white/10 rounded-xl p-6 border border-white/20 border-l-4 border-l-purple-500">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white flex items-center">
-                🛡️ JONA
+                🛡️ Coordinator Intelligence
               </h3>
               <div className={`w-3 h-3 rounded-full ${getStatusColor(systemStatus?.jona.status || 'offline')}`}></div>
             </div>
@@ -201,7 +201,7 @@ export default function Home() {
               <div className="flex items-center space-x-3">
                 <span className="text-2xl">🧠</span>
                 <div>
-                  <div className="font-semibold">ALBI - EEG Analysis</div>
+                  <div className="font-semibold">Creative Intelligence - EEG Analysis</div>
                   <div className="text-sm text-gray-300">Neural frequency processing</div>
                 </div>
               </div>
@@ -211,7 +211,7 @@ export default function Home() {
               <div className="flex items-center space-x-3">
                 <span className="text-2xl">🎵</span>
                 <div>
-                  <div className="font-semibold">JONA - Neural Synthesis</div>
+                  <div className="font-semibold">Coordinator - Neural Synthesis</div>
                   <div className="text-sm text-gray-300">EEG to audio conversion</div>
                 </div>
               </div>
@@ -304,17 +304,17 @@ export default function Home() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-              <div className="text-sm font-semibold text-cyan-400 mb-2">🧠 ALBI Neural</div>
+              <div className="text-sm font-semibold text-cyan-400 mb-2">🧠 Creative Intelligence</div>
               <p className="text-xs text-gray-400 mb-3">Processing goroutines, neural pattern detection, AI efficiency metrics from actual system</p>
               <a href="/backend/asi/albi/metrics" className="text-xs text-cyan-400 hover:text-cyan-300">→ Real metrics endpoint</a>
             </div>
             <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-              <div className="text-sm font-semibold text-emerald-400 mb-2">📊 ALBA Network</div>
+              <div className="text-sm font-semibold text-emerald-400 mb-2">📊 Analytical Intelligence</div>
               <p className="text-xs text-gray-400 mb-3">CPU usage, memory, network latency from actual system monitoring</p>
               <a href="/backend/asi/alba/metrics" className="text-xs text-emerald-400 hover:text-emerald-300">→ Real metrics endpoint</a>
             </div>
             <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-              <div className="text-sm font-semibold text-purple-400 mb-2">🛡️ JONA Coordination</div>
+              <div className="text-sm font-semibold text-purple-400 mb-2">🛡️ Coordinator Intelligence</div>
               <p className="text-xs text-gray-400 mb-3">Request throughput, uptime, coordination efficiency from live system</p>
               <a href="/backend/asi/jona/metrics" className="text-xs text-purple-400 hover:text-purple-300">→ Real metrics endpoint</a>
             </div>

@@ -353,17 +353,6 @@ pytest tests/test_billing.py -v
 
 ---
 
-## 📞 Business Contact
-
-Ledjan Ahmati - WEB8euroweb GmbH**
-
-- **Email:** <ahmati.bau@gmail.com>
-- **SEPA:** DE72430500010015012263 (Sparkasse Bochum)
-- **Company:** WEB8euroweb GmbH
-- **Data Policy:** Industrial-grade real data processing only
-
----
-
 ## 🔍 System Status
 
 **Live Monitoring Available:**

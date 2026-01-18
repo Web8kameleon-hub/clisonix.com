@@ -231,7 +231,7 @@ export default function ModulesPage() {
     },
     {
       id: 'data-collection',
-      name: '📊 ALBA - Data Collection',
+      name: '📊 Analytical Intelligence - Data Collection',
       description: 'Advanced data collection and processing coordinator',
       status: moduleStatus.alba,
       capabilities: [
@@ -245,8 +245,8 @@ export default function ModulesPage() {
     },
     {
       id: 'neural-synthesis', 
-      name: '🎵 JONA - Neural Audio Synthesis',
-      description: 'Joyful Overseer of Neural Alignment - Brain-Data Art & Real-time Monitoring',
+      name: '🎵 Coordinator - Neural Audio Synthesis',
+      description: 'Coordinator of Neural Alignment - Brain-Data Art & Real-time Monitoring',
       status: moduleStatus.jona,
       capabilities: [
         'EEG to audio synthesis',

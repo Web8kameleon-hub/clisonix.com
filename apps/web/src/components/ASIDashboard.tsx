@@ -373,21 +373,21 @@ const BackgroundParticles: React.FC = () => (
 const ASIDashboard: React.FC = () => {
   const [agents, setAgents] = useState<Agent[]>([
     {
-      name: 'Alba',
+      name: 'Analytical',
       role: 'Network Infrastructure Monitor',
       status: 'active',
       health: 94,
       variant: 'alba',
     },
     {
-      name: 'Albi',
+      name: 'Creative',
       role: 'Process Automation Engine',
       status: 'active',
       health: 87,
       variant: 'albi',
     },
     {
-      name: 'Jona',
+      name: 'Coordinator',
       role: 'Human-AI Communication Bridge',
       status: 'processing',
       health: 92,

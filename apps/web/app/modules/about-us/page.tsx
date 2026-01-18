@@ -340,13 +340,6 @@ export default function AboutUsPage() {
                   <span className="text-xl">📧</span>
                   investors@clisonix.com
                 </a>
-                <a 
-                  href="tel:+4923279954413" 
-                  className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-8 py-4 rounded-xl transition-all border border-white/20"
-                >
-                  <span className="text-xl">📞</span>
-                  +49 2327 9954413
-                </a>
               </div>
             </div>
           </div>

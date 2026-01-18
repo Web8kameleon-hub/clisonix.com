@@ -47,18 +47,18 @@ export interface TokenPair {
 const users = new Map<string, User>();
 const tokens = new Map<string, { user_id: string; expires_at: string }>();
 
-// Pre-populate with Ledjan Ahmati
-const ledjanUser: User = {
-  id: "ledjan-ahmati-001",
-  email: "ahmati.bau@gmail.com",
-  username: "ledjan_ahmati",
-  hashed_password: hashPassword("Clisonix2025!"),
+// Pre-populate with admin user
+const adminUser: User = {
+  id: "admin-001",
+  email: "admin@clisonix.com",
+  username: "admin",
+  hashed_password: hashPassword(process.env['ADMIN_PASSWORD'] || "ChangeMe123!"),
   is_active: true,
   is_superuser: true,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString()
 };
-users.set(ledjanUser.id, ledjanUser);
+users.set(adminUser.id, adminUser);
 
 // =================================================================================
 // UTILITY FUNCTIONS

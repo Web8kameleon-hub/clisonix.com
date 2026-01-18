@@ -385,10 +385,10 @@ export default function UltraReportingDashboard() {
                 ASI Trinity Architecture - Real Metrics
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* ALBA Network */}
+                {/* Analytical Intelligence */}
                 <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-emerald-400 font-medium">📊 ALBA Network</span>
+                    <span className="text-emerald-400 font-medium">📊 Analytical Intelligence</span>
                     <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
                   </div>
                   <p className="text-xs text-gray-400 mb-3">CPU usage, memory, network latency from actual system monitoring</p>
@@ -402,10 +402,10 @@ export default function UltraReportingDashboard() {
                   </a>
                 </div>
 
-                {/* ALBI Neural */}
+                {/* Creative Intelligence */}
                 <div className="p-4 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-cyan-400 font-medium">🧠 ALBI Neural</span>
+                    <span className="text-cyan-400 font-medium">🧠 Creative Intelligence</span>
                     <span className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></span>
                   </div>
                   <p className="text-xs text-gray-400 mb-3">Neural patterns, processing efficiency, real-time metrics</p>
@@ -419,10 +419,10 @@ export default function UltraReportingDashboard() {
                   </a>
                 </div>
 
-                {/* JONA Coordination */}
+                {/* Coordinator Intelligence */}
                 <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/30">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-purple-400 font-medium">🛡️ JONA Coordination</span>
+                    <span className="text-purple-400 font-medium">🛡️ Coordinator Intelligence</span>
                     <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
                   </div>
                   <p className="text-xs text-gray-400 mb-3">Request throughput, uptime, coordination efficiency from live system</p>

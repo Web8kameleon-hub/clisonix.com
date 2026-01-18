@@ -17,7 +17,7 @@ export default function Head() {
       <meta charSet="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       <meta name="description" content="Clisonix Industrial Cloud Platform - Real-time AI monitoring, advanced analytics, and distributed orchestration" />
-      <meta name="keywords" content="industrial cloud, AI monitoring, ALBA, ALBI, JONA, ASI, real-time analytics" />
+      <meta name="keywords" content="industrial cloud, AI monitoring, Analytical Intelligence, Creative Intelligence, ASI, real-time analytics" />
       <meta name="author" content="Clisonix Team" />
       <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
       <meta name="theme-color" content="#1a1a2e" />

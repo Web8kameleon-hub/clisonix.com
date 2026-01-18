@@ -1,8 +1,6 @@
 """
 Clisonix Cloud - Security Middleware
 Industrial-grade security controls and monitoring
-Business: Ledjan Ahmati - WEB8euroweb GmbH
-SEPA: DE72430500010015012263 | PayPal: ahmati.bau@gmail.com
 """
 import asyncio
 import time
@@ -39,8 +37,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             "X-XSS-Protection": "1; mode=block",
             "Referrer-Policy": "strict-origin-when-cross-origin",
             "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
-            "X-Powered-By": "Clisonix-Industrial-Backend",
-            "X-Business": "Ledjan-Ahmati-WEB8euroweb"
+            "X-Powered-By": "Clisonix-Cloud"
         }
         
         # Dangerous patterns to detect
@@ -73,8 +70,6 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                 content={
                     "error": "Access denied",
                     "message": "Your IP address has been blocked",
-                    "business": "Ledjan Ahmati - WEB8euroweb GmbH",
-                    "contact": "ahmati.bau@gmail.com",
                     "timestamp": time.time()
                 }
             )
@@ -283,8 +278,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             "ip": client_ip,
             "threat_type": threat_type,
             "threat_count": threat_count,
-            "timestamp": time.time(),
-            "business": "Ledjan Ahmati - WEB8euroweb GmbH"
+            "timestamp": time.time()
         }
         
         # In production, send to security monitoring system
@@ -301,8 +295,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             "status_code": response.status_code,
             "processing_time": processing_time,
             "user_agent": request.headers.get("user-agent", ""),
-            "request_id": getattr(request.state, "request_id", "unknown"),
-            "business": "Ledjan Ahmati - WEB8euroweb GmbH"
+            "request_id": getattr(request.state, "request_id", "unknown")
         }
         
         # Log based on status code
@@ -325,7 +318,6 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             "blocked_ips": len(self.blocked_ips),
             "monitored_ips": len(self.suspicious_ips),
             "total_threats": sum(data.get("threats", 0) for data in self.suspicious_ips.values()),
-            "business": "Ledjan Ahmati - WEB8euroweb GmbH",
             "timestamp": time.time()
         }
 

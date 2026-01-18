@@ -10,9 +10,9 @@ import Link from 'next/link';
 export default function PlatformPage() {
   const modules = [
     { name: 'ASI Core', icon: '🧠', desc: 'Central intelligence orchestration', status: 'Live' },
-    { name: 'ALBA', icon: '📡', desc: 'Network intelligence & monitoring', status: 'Live' },
-    { name: 'ALBI', icon: '⚡', desc: 'Neural processing engine', status: 'Live' },
-    { name: 'JONA', icon: '🔗', desc: 'Data coordination layer', status: 'Live' },
+    { name: 'Analytical', icon: '📡', desc: 'Network intelligence & monitoring', status: 'Live' },
+    { name: 'Creative', icon: '⚡', desc: 'Neural processing engine', status: 'Live' },
+    { name: 'Coordinator', icon: '🔗', desc: 'Data coordination layer', status: 'Live' },
     { name: 'Pulse', icon: '💓', desc: 'Real-time heartbeat monitor', status: 'Live' },
     { name: 'Grid', icon: '📊', desc: 'Distributed computing mesh', status: 'Live' },
     { name: 'Cycle', icon: '🔄', desc: 'Workflow automation engine', status: 'Live' },
