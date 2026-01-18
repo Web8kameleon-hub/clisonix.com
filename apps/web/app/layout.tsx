@@ -146,7 +146,8 @@ export default function RootLayout({
           </span>
         </div>
         */}
-        <DynamicFavicon />
+        {/* DynamicFavicon disabled - causing too many requests in dev mode */}
+        {/* <DynamicFavicon /> */}
         <RequestLogger />
         {children}
       </body>

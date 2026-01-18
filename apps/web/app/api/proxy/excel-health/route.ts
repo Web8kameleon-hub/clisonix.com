@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server';
 // Excel Service - Future microservice (not deployed yet)
 // Falls back to main API health when Excel service is not available
 const EXCEL_API = process.env.EXCEL_API_URL || null;
-const API_INTERNAL = process.env.API_INTERNAL_URL || "http://clisonix-api:8000";
+const isDev = process.env.NODE_ENV === 'development';
+const API_INTERNAL = process.env.API_INTERNAL_URL || (isDev ? 'http://localhost:8000' : 'http://clisonix-api:8000');
 
 export async function GET() {
   // If Excel microservice is configured, check it directly

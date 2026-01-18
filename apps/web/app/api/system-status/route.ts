@@ -1,15 +1,19 @@
 import { NextResponse } from 'next/server'
 
-// SERVER-TO-SERVER: Use Docker container name in production
-// clisonix-api:8000 = Main API container (internal port)
-const API_INTERNAL = process.env.API_INTERNAL_URL || 'http://clisonix-api:8000'
+// If running in a Node.js environment, import fetch from 'node-fetch'
+const fetchFn: typeof fetch = typeof fetch !== 'undefined' ? fetch : (await import('node-fetch')).default as any;
+
+// SERVER-TO-SERVER: Use localhost in development, Docker container name in production
+// In development: localhost:8000
+// In production (Docker): clisonix-api:8000
+const isDev = process.env.NODE_ENV === 'development'
+const API_INTERNAL = process.env.API_INTERNAL_URL || (isDev ? 'http://localhost:8000' : 'http://clisonix-api:8000')
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
-
 export async function GET() {
   try {
-    const upstream = await fetch(`${API_INTERNAL}/status`, {
+    const upstream = await fetchFn(`${API_INTERNAL}/status`, {
       headers: { Accept: 'application/json' },
       cache: 'no-store',
     })

@@ -207,14 +207,14 @@ class LabsCell:
             from hybrid_saas_platform.labs.lab_executor import (
                 DataValidationLab,
                 IntegrationLab,
-                PerformanceLab,
-                SecurityLab,
+                TransformationLab,
                 LabStatus
             )
             self.DataValidationLab = DataValidationLab
             self.IntegrationLab = IntegrationLab
-            self.PerformanceLab = PerformanceLab
-            self.SecurityLab = SecurityLab
+            self.TransformationLab = TransformationLab
+            self.PerformanceLab = None  # Not implemented yet
+            self.SecurityLab = None  # Not implemented yet
             self.LabStatus = LabStatus
             logger.info("✅ Labs system initialized within Ocean")
         except ImportError as e:

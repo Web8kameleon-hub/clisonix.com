@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * CLISONIX HOME PAGE
@@ -145,6 +145,11 @@ const MODULES = [
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const categories = ['all', ...new Set(MODULES.map(m => m.category))];
   const filteredModules = selectedCategory === 'all' 
@@ -170,7 +175,7 @@ export default function HomePage() {
             </div>
             
             <div className="hidden md:flex items-center gap-8">
-              <a href="#asi-trinity" className="text-gray-400 hover:text-cyan-400 transition-colors">Features</a>
+              <a href="#asi-trinity" className="text-gray-400 hover:text-cyan-400 transition-colors">ASI Trinity</a>
               <a href="#modules" className="text-gray-400 hover:text-cyan-400 transition-colors">Tools</a>
               <a href="#tech-stack" className="text-gray-400 hover:text-cyan-400 transition-colors">Why Us</a>
               <Link href="/modules" className="text-gray-400 hover:text-cyan-400 transition-colors">Dashboard</Link>

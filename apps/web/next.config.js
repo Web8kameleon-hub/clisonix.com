@@ -4,9 +4,10 @@
  */
 
 // PRODUCTION: Docker internal communication via container names
-// Docker network uses container names for routing
-const API_BASE = process.env.API_INTERNAL_URL || 'http://clisonix-api:8000';
-const REPORTING_BASE = process.env.REPORTING_INTERNAL_URL || 'http://clisonix-api:8000';
+// DEVELOPMENT: Use localhost for local backend
+const isDev = process.env.NODE_ENV === 'development';
+const API_BASE = process.env.API_INTERNAL_URL || (isDev ? 'http://localhost:8000' : 'http://clisonix-api:8000');
+const REPORTING_BASE = process.env.REPORTING_INTERNAL_URL || (isDev ? 'http://localhost:8000' : 'http://clisonix-api:8000');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -76,6 +77,13 @@ const nextConfig = {
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
+      },
+      // Cache favicon aggressively to prevent spam requests
+      {
+        source: '/favicon.ico',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, immutable' },
         ],
       },
       // Cache static assets aggressively

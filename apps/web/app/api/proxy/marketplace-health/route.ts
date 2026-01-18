@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server';
 // Marketplace API - Future microservice (not deployed yet)
 // Falls back to main API health when Marketplace service is not available
 const MARKETPLACE_API = process.env.MARKETPLACE_API_URL || null;
-const API_INTERNAL = process.env.API_INTERNAL_URL || "http://clisonix-api:8000";
+const isDev = process.env.NODE_ENV === 'development';
+const API_INTERNAL = process.env.API_INTERNAL_URL || (isDev ? 'http://localhost:8000' : 'http://clisonix-api:8000');
 
 export async function GET() {
   // If Marketplace microservice is configured, check it directly

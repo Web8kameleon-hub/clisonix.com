@@ -14,7 +14,7 @@ Features:
 import os
 import logging
 from datetime import datetime
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import asyncio
@@ -231,13 +231,14 @@ async def get_personas():
 
 
 @app.post("/api/query")
-async def query_ocean(
-    question: str = Query(..., description="Natural language question"),
-    use_personas: bool = Query(True, description="Route through specialist personas"),
-    limit_results: int = Query(5, description="Limit results per source")
-):
+async def query_ocean(request: Request):
     """
     Query Ocean with 14 Specialist Personas
+    
+    Accepts JSON body with:
+    - query: Natural language question (required)
+    - use_personas: Route through specialist personas (default: true)
+    - limit_results: Limit results per source (default: 5)
     
     Routes to specialized analysts based on keywords:
     - Medical Science: brain, neuro, health, biology
@@ -250,6 +251,16 @@ async def query_ocean(
     - AGI Systems: agi, cognitive, autonomous
     - And 6 more specialized domains...
     """
+    
+    # Parse JSON body
+    try:
+        body = await request.json()
+    except:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+    
+    question = body.get("query") or body.get("question") or ""
+    use_personas = body.get("use_personas", True)
+    curiosity_level = body.get("curiosity_level", "curious")
     
     if not question or len(question.strip()) == 0:
         raise HTTPException(status_code=400, detail="Question cannot be empty")
@@ -378,7 +389,7 @@ async def get_curiosity_thread(topic: str):
     threads_map = {
         "laboratory": {
             "topic": "Geographic Laboratory Networks",
-            "related": ["Elbasan", "Tirana", "Durrës", "Shkodër", "Vlorë", "Korça"],
+            "related": ["Elbasan", "Tirana", "Durrës", "Shkodër", "Vlorë", "Korça","Sarandë","Zürich","Roma"],
             "explore": [
                 "What domains are most active?",
                 "Which locations have highest quality data?",

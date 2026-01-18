@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
   
   // Return JSON info
   if (format === 'json') {
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       state,
       config: {
@@ -133,6 +133,9 @@ export async function GET(request: NextRequest) {
       routeMappings: ROUTE_STATE_MAP,
       timestamp: new Date().toISOString(),
     });
+    // Cache for 5 minutes to reduce requests
+    response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+    return response;
   }
   
   // Return SVG favicon
@@ -141,14 +144,14 @@ export async function GET(request: NextRequest) {
     return new NextResponse(svg, {
       headers: {
         'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=60',
+        'Cache-Control': 'public, max-age=3600, immutable',
       },
     });
   }
   
   // Return all states info
   if (format === 'all') {
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       states: FAVICON_STATES,
       routeMappings: ROUTE_STATE_MAP,
@@ -156,13 +159,17 @@ export async function GET(request: NextRequest) {
       currentHour: new Date().getHours(),
       suggestedTimeState: getSuggestedTimeState(),
     });
+    response.headers.set('Cache-Control', 'public, max-age=300');
+    return response;
   }
   
-  return NextResponse.json({
+  const response = NextResponse.json({
     success: true,
     state,
     ...config,
   });
+  response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+  return response;
 }
 
 /**

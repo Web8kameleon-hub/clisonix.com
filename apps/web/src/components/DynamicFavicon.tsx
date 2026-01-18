@@ -84,6 +84,8 @@ export function DynamicFavicon() {
   const currentStateRef = useRef<FaviconState>('default');
   const animationFrameRef = useRef<number>(0);
   const pulsePhaseRef = useRef<number>(0);
+  const lastStateRef = useRef<FaviconState | null>(null);
+  const lastDrawTimeRef = useRef<number>(0);
 
     // 🎯 PRIMARY: Determine state based on CURRENT ROUTE/PAGE
     const getRouteBasedState = useCallback((): FaviconState => {
@@ -210,16 +212,24 @@ export function DynamicFavicon() {
       document.title = `${config.emoji} ${baseTitle}`;
   }, []);
 
-  // Animation loop
+  // Animation loop - throttled to reduce CPU usage
   const animate = useCallback(() => {
-    pulsePhaseRef.current += 0.1;
-    const newState = getFinalState();
-    
-    // Redraw with animation for glow effect
-    if (newState !== currentStateRef.current || STATE_CONFIG[newState].glow) {
-      currentStateRef.current = newState;
+    const now = Date.now();
+    const timeSinceLastDraw = now - lastDrawTimeRef.current;
+
+    // Only update every 500ms instead of every frame (60fps -> 2fps)
+    if (timeSinceLastDraw >= 500) {
+      pulsePhaseRef.current += 0.5;
+      const newState = getFinalState();
+
+      // Only redraw if state changed or has glow animation
+      if (newState !== lastStateRef.current || STATE_CONFIG[newState].glow) {
+        currentStateRef.current = newState;
+        lastStateRef.current = newState;
+        drawFavicon(newState, pulsePhaseRef.current);
+      }
+      lastDrawTimeRef.current = now;
     }
-    drawFavicon(newState, pulsePhaseRef.current);
     
     animationFrameRef.current = requestAnimationFrame(animate);
   }, [getFinalState, drawFavicon]);

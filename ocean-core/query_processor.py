@@ -88,6 +88,11 @@ class IntentDetector:
         ],
         QueryIntent.DATA: [
             r'\b(report|analytics|query|data|statistics|trend|aggregate|sum|count|average|correlation)\b',
+        ],
+        QueryIntent.KNOWLEDGE: [
+            r'\b(how does|how do|what is|what are|explain|definition|meaning|concept)\b',
+            r'\b(why|when|where|who)\b',
+            r'\b(science|biology|physics|chemistry|mathematics|history|geography|literature|art|music)\b',
         ]
     }
     

@@ -23,18 +23,18 @@ import logging
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 
-from core.canonical_table import (
+from .core.canonical_table import (
     CanonicalTable, 
     CanonicalRow, 
     compute_maturity_state,
     get_global_table
 )
-from core.parser import parse_input
-from core.validator import validate_security, validate_schema
-from labs.lab_executor import execute_lab
-from agents.agent_registry import select_agent, get_agent_manager
-from ml_overlay.ml_manager import run_ml_models, is_ml_eligible
-from enforcement.enforcement_manager import apply_enforcement
+from .core.parser import parse_input
+from .core.validator import validate_security, validate_schema
+from .labs.lab_executor import execute_lab
+from .agents.agent_registry import select_agent, get_agent_manager
+from .ml_overlay.ml_manager import run_ml_models, is_ml_eligible
+from .enforcement.enforcement_manager import apply_enforcement
 
 # Configure logging
 logging.basicConfig(

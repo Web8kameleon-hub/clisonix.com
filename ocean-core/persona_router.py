@@ -12,7 +12,7 @@ class PersonaRouter:
         from personas.industrial_process_analyst import IndustrialProcessAnalyst
         from personas.agi_analyst import AGIAnalyst
         from personas.business_analyst import BusinessAnalyst
-        from personas.human_analyst import HumanAnalyst
+        from personas.smart_human_analyst import SmartHumanAnalyst  # UPGRADED!
         from personas.academic_analyst import AcademicAnalyst
         from personas.media_analyst import MediaAnalyst
         from personas.culture_analyst import CultureAnalyst
@@ -28,7 +28,7 @@ class PersonaRouter:
             IndustrialProcessAnalyst(),
             AGIAnalyst(),
             BusinessAnalyst(),
-            HumanAnalyst(),
+            SmartHumanAnalyst(),  # UPGRADED Smart Human Analyst with translation!
             AcademicAnalyst(),
             MediaAnalyst(),
             CultureAnalyst(),
@@ -45,7 +45,13 @@ class PersonaRouter:
             "natural_science": ["physics", "chemistry", "energy", "quantum", "atom"],
             "industrial_process": ["cycle", "production", "factory", "throughput"],
             "business": ["kpi", "revenue", "growth", "strategy", "business"],
-            "human": ["explain", "clarify", "human", "understand"],
+            # Human handles greetings, general questions, Albanian
+            "human": ["hello", "hi", "hey", "explain", "clarify", "human", "understand",
+                      "pershendetje", "tungjatjeta", "miredita", "si je", "cfare",
+                      "çfarë", "shpjego", "thuaj", "trego", "ndihmo", "pse", "ku", "kur", "sa",
+                      "consciousness", "conscious", "ndërgjegj", "vetëdij", "yourself", "who are you",
+                      "kush je", "cili je", "what can you", "help", "capability", "abilities",
+                      "hallo", "guten", "was", "wie", "warum", "laboratories", "laborator", "labs"],
             "academic": ["theory", "research", "academic", "study", "thesis"],
             "media": ["news", "media", "journalism", "report", "current"],
             "culture": ["culture", "tradition", "art", "heritage", "society"],

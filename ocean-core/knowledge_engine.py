@@ -330,10 +330,7 @@ class KnowledgeEngine:
     async def initialize(self):
         """Initialize knowledge engine"""
         try:
-            # Ensure data sources are initialized
-            if not self.data_sources.initialized:
-                await self.data_sources.initialize()
-            
+            # Data sources are already initialized in __init__, just mark ready
             self.initialized = True
             logger.info("✅ Knowledge Engine initialized")
             return True
