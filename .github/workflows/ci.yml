@@ -77,11 +77,11 @@ jobs:
           fetch-depth: 0
 
       - name: Gitleaks - Scan for secrets (BLOCKING)
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v4
+        with:
+          config: .github/security/gitleaks.toml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_CONFIG: .github/security/gitleaks.toml
-          GITLEAKS_ENABLE_COMMENTS: false
 
   codeql-v4-ready:
     name: 🔍 CodeQL v4-Ready Analysis
