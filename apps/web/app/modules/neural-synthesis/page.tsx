@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Music, Brain, Waves, Radio, RefreshCw, Clock, CheckCircle, AlertCircle, Zap, Play, Square, Volume2 } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Music, Brain, Waves, Radio, RefreshCw, Clock, CheckCircle, AlertCircle, Zap, Play, Square, Volume2, Pause } from 'lucide-react';
 
 // API Response Types
 interface SynthesisSession {
@@ -67,6 +67,135 @@ export default function NeuralSynthesisPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [requestHistory, setRequestHistory] = useState<APIResponse[]>([]);
+
+  // Audio playback state
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isSynthesizing, setIsSynthesizing] = useState(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const oscillatorRef = useRef<OscillatorNode | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
+
+  // Neural synthesis audio generation using Web Audio API
+  const startNeuralAudio = useCallback((frequency: number = 14.0) => {
+    try {
+      // Create audio context if not exists
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      }
+
+      const audioContext = audioContextRef.current;
+
+      // Stop any existing oscillator
+      if (oscillatorRef.current) {
+        oscillatorRef.current.stop();
+        oscillatorRef.current.disconnect();
+      }
+
+      // Create oscillator for neural frequency
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      // Neural frequency modulation - create binaural-like effect
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(frequency * 10, audioContext.currentTime); // Base frequency
+
+      // Add gentle modulation for "neural" effect
+      const lfo = audioContext.createOscillator();
+      const lfoGain = audioContext.createGain();
+      lfo.frequency.setValueAtTime(frequency / 2, audioContext.currentTime);
+      lfoGain.gain.setValueAtTime(5, audioContext.currentTime);
+      lfo.connect(lfoGain);
+      lfoGain.connect(oscillator.frequency);
+      lfo.start();
+
+      // Set volume (low for ambient effect)
+      gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+
+      // Connect nodes
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      // Start oscillator
+      oscillator.start();
+
+      oscillatorRef.current = oscillator;
+      gainNodeRef.current = gainNode;
+      setIsPlaying(true);
+
+    } catch (err) {
+      console.error('Failed to start neural audio:', err);
+    }
+  }, []);
+
+  const stopNeuralAudio = useCallback(() => {
+    try {
+      if (oscillatorRef.current) {
+        // Fade out gracefully
+        if (gainNodeRef.current && audioContextRef.current) {
+          gainNodeRef.current.gain.linearRampToValueAtTime(0, audioContextRef.current.currentTime + 0.5);
+          setTimeout(() => {
+            if (oscillatorRef.current) {
+              oscillatorRef.current.stop();
+              oscillatorRef.current.disconnect();
+              oscillatorRef.current = null;
+            }
+          }, 500);
+        } else {
+          oscillatorRef.current.stop();
+          oscillatorRef.current.disconnect();
+          oscillatorRef.current = null;
+        }
+      }
+      setIsPlaying(false);
+    } catch (err) {
+      console.error('Failed to stop neural audio:', err);
+    }
+  }, []);
+
+  // Start/Stop synthesis via API
+  const startSynthesis = useCallback(async () => {
+    setIsSynthesizing(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/jona/synthesis/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (res.ok) {
+        // Also start audio playback
+        const data = response?.data as JonaMetrics | null;
+        startNeuralAudio(data?.neural_frequency || 14.0);
+      }
+    } catch (err) {
+      console.error('Failed to start synthesis:', err);
+    }
+  }, [response, startNeuralAudio]);
+
+  const stopSynthesis = useCallback(async () => {
+    try {
+      await fetch(`${API_BASE}/api/jona/synthesis/stop`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      stopNeuralAudio();
+    } catch (err) {
+      console.error('Failed to stop synthesis:', err);
+    } finally {
+      setIsSynthesizing(false);
+    }
+  }, [stopNeuralAudio]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (oscillatorRef.current) {
+        oscillatorRef.current.stop();
+        oscillatorRef.current.disconnect();
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
 
   const executeRequest = useCallback(async (endpoint: EndpointConfig) => {
     setIsLoading(true);
@@ -383,13 +512,44 @@ export default function NeuralSynthesisPage() {
                               "{(response.data as JonaMetrics).current_symphony}"
                             </p>
                             <div className="flex items-center justify-center gap-4 mt-4">
-                              <button className="px-4 py-2 rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center gap-2 hover:bg-purple-500/30">
-                                <Play className="w-4 h-4" /> Play
-                              </button>
-                              <button className="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-2 hover:bg-red-500/30">
+                              {!isPlaying ? (
+                                <button
+                                  onClick={() => {
+                                    const data = response?.data as JonaMetrics;
+                                    startNeuralAudio(data?.neural_frequency || 14.0);
+                                    startSynthesis();
+                                  }}
+                                  disabled={isSynthesizing}
+                                  className="px-4 py-2 rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center gap-2 hover:bg-purple-500/30 transition-all duration-300 disabled:opacity-50"
+                                >
+                                  <Play className="w-4 h-4" /> Play
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => {
+                                    stopNeuralAudio();
+                                  }}
+                                  className="px-4 py-2 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-2 hover:bg-amber-500/30 transition-all duration-300 animate-pulse"
+                                >
+                                  <Pause className="w-4 h-4" /> Pause
+                                </button>
+                              )}
+                              <button
+                                onClick={() => {
+                                  stopSynthesis();
+                                }}
+                                disabled={!isPlaying && !isSynthesizing}
+                                className="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-2 hover:bg-red-500/30 transition-all duration-300 disabled:opacity-50"
+                              >
                                 <Square className="w-4 h-4" /> Stop
                               </button>
                             </div>
+                            {isPlaying && (
+                              <div className="mt-3 flex items-center justify-center gap-2 text-sm text-purple-400">
+                                <Volume2 className="w-4 h-4 animate-pulse" />
+                                <span>Playing Neural Symphony at {(response?.data as JonaMetrics)?.neural_frequency?.toFixed(1) || 14.0} Hz</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
@@ -418,7 +578,14 @@ export default function NeuralSynthesisPage() {
                               <div className="flex items-center gap-4">
                                 <span className="text-sm text-slate-400">{formatDuration(audio.duration_ms)}</span>
                                 <span className="text-xs text-slate-500">{formatBytes(audio.size_bytes)}</span>
-                                <button className="p-2 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30">
+                                  <button
+                                    onClick={() => {
+                                      // Generate audio based on the file's sample rate
+                                      startNeuralAudio(audio.sample_rate / 100);
+                                    }}
+                                    className="p-2 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-all duration-300"
+                                    title={`Play ${audio.filename}`}
+                                  >
                                   <Play className="w-4 h-4" />
                                 </button>
                               </div>

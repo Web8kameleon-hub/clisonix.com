@@ -89,6 +89,13 @@ export default function FaceDetectionPage() {
   const colorSamplesRef = useRef<number[]>([]);
   const blinkCountRef = useRef(0);
   
+    // 🌊 STABILIZATION: Store previous values for smooth transitions
+    const prevBoundingBoxRef = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
+    const prevEmotionRef = useRef<string>('neutral');
+    const emotionStabilityCountRef = useRef(0);
+    const EMOTION_STABILITY_THRESHOLD = 3; // Require 3 consecutive same emotions before changing
+    const SMOOTHING_FACTOR = 0.3; // Lower = smoother, higher = more responsive
+
   // Start camera
   const startCamera = async () => {
     try {
@@ -181,17 +188,38 @@ export default function FaceDetectionPage() {
     const skinRatio = skinPixels / (canvas.width * canvas.height);
     const faceDetected = skinRatio > 0.05 && skinRatio < 0.5;
     
-    // Update face data
-    const newFaceData: FaceData = {
-      detected: faceDetected,
-      confidence: Math.min(skinRatio * 2, 1) * 100,
-      boundingBox: faceDetected ? {
+      // 🌊 STABILIZE BOUNDING BOX: Smooth transitions to prevent jitter
+      let smoothedBox: { x: number; y: number; width: number; height: number } | null = null;
+
+      if (faceDetected) {
+          const rawBox = {
         x: minX,
         y: minY,
         width: maxX - minX,
         height: maxY - minY
-      } : null,
-      landmarks: faceDetected ? estimateLandmarks(minX, minY, maxX - minX, maxY - minY) : null
+          };
+
+          if (prevBoundingBoxRef.current) {
+              // Apply exponential smoothing for stable, non-jittery display
+              smoothedBox = {
+                  x: Math.round(prevBoundingBoxRef.current.x + (rawBox.x - prevBoundingBoxRef.current.x) * SMOOTHING_FACTOR),
+                  y: Math.round(prevBoundingBoxRef.current.y + (rawBox.y - prevBoundingBoxRef.current.y) * SMOOTHING_FACTOR),
+                  width: Math.round(prevBoundingBoxRef.current.width + (rawBox.width - prevBoundingBoxRef.current.width) * SMOOTHING_FACTOR),
+                  height: Math.round(prevBoundingBoxRef.current.height + (rawBox.height - prevBoundingBoxRef.current.height) * SMOOTHING_FACTOR)
+              };
+          } else {
+              smoothedBox = rawBox;
+          }
+
+          prevBoundingBoxRef.current = smoothedBox;
+      }
+
+      // Update face data with smoothed bounding box
+      const newFaceData: FaceData = {
+          detected: faceDetected,
+          confidence: Math.min(skinRatio * 2, 1) * 100,
+          boundingBox: smoothedBox,
+          landmarks: smoothedBox ? estimateLandmarks(smoothedBox.x, smoothedBox.y, smoothedBox.width, smoothedBox.height) : null
     };
     setFaceData(newFaceData);
     
@@ -214,10 +242,25 @@ export default function FaceDetectionPage() {
         }
       }
       
-      // Emotion analysis
+        // Emotion analysis with STABILIZATION
       if (selectedMode === 'emotion') {
         const emotion = analyzeEmotion(imageData, newFaceData.boundingBox!);
-        setEmotionData(emotion);
+
+          // 🌊 EMOTION STABILITY: Only change emotion after consistent detection
+          if (emotion.primary === prevEmotionRef.current) {
+              emotionStabilityCountRef.current++;
+          } else {
+              emotionStabilityCountRef.current = 1;
+          }
+
+          // Only update if same emotion detected multiple times (reduces flicker)
+          if (emotionStabilityCountRef.current >= EMOTION_STABILITY_THRESHOLD) {
+              prevEmotionRef.current = emotion.primary;
+            setEmotionData(emotion);
+        } else {
+            // Keep previous emotion but update scores for smooth transition
+            setEmotionData(prev => prev ? { ...prev, scores: emotion.scores } : emotion);
+        }
       }
       
       // Eye tracking
@@ -276,15 +319,19 @@ export default function FaceDetectionPage() {
     const midBrightness = sampleRegionBrightness(data, width, box, 0.2, 0.4, 0.6, 0.25);
     const lowerBrightness = sampleRegionBrightness(data, width, box, 0.25, 0.7, 0.5, 0.2);
     
-    // Generate emotion scores (simplified heuristics)
+      // Generate emotion scores based on REAL facial region brightness analysis
+      // No Math.random - all values derived from actual image data
+      const brightnessVariance = Math.abs(upperBrightness - lowerBrightness);
+      const symmetry = 1 - Math.abs(midBrightness - 0.5);
+
     const scores: Record<string, number> = {
-      happy: Math.random() * 0.3 + (lowerBrightness > 0.5 ? 0.5 : 0.2),
-      sad: Math.random() * 0.2 + (upperBrightness < 0.4 ? 0.4 : 0.1),
-      angry: Math.random() * 0.2 + (midBrightness < 0.45 ? 0.3 : 0.1),
-      surprised: Math.random() * 0.2 + (upperBrightness > 0.6 ? 0.4 : 0.1),
-      neutral: 0.4 + Math.random() * 0.2,
-      fearful: Math.random() * 0.15,
-      disgusted: Math.random() * 0.1
+        happy: (lowerBrightness > 0.5 ? 0.6 : 0.15) + (symmetry * 0.2),
+        sad: (upperBrightness < 0.4 ? 0.5 : 0.1) + (brightnessVariance * 0.15),
+        angry: (midBrightness < 0.45 ? 0.45 : 0.1) + ((1 - symmetry) * 0.1),
+        surprised: (upperBrightness > 0.6 ? 0.55 : 0.1) + (brightnessVariance * 0.2),
+        neutral: 0.35 + (symmetry * 0.25) + ((1 - brightnessVariance) * 0.1),
+        fearful: (brightnessVariance > 0.3 ? 0.25 : 0.05) + ((1 - lowerBrightness) * 0.1),
+        disgusted: (midBrightness < 0.35 ? 0.2 : 0.05) + ((1 - symmetry) * 0.05)
     };
     
     // Normalize scores
@@ -415,7 +462,8 @@ export default function FaceDetectionPage() {
       }
     } else {
       setIsAnalyzing(true);
-      const interval = window.setInterval(analyzeFrame, 33); // ~30fps
+        // 🌊 HUMAN-FRIENDLY: Analyze every 200ms (5fps) to reduce jitter and be calmer
+        const interval = window.setInterval(analyzeFrame, 200);
       setAnalysisInterval(interval);
     }
   };
