@@ -121,6 +121,12 @@ export default function ClisonixPhoneSensorsMax() {
     const lastStepTime = useRef<number>(0);
     const stepCooldown = 300;
 
+    // 🌊 HUMAN-FRIENDLY THROTTLING - Updates every 500ms instead of every frame
+    const lastMotionUpdate = useRef<number>(0);
+    const lastOrientationUpdate = useRef<number>(0);
+    const MOTION_UPDATE_INTERVAL = 500; // 500ms = 2 updates per second (human-friendly)
+    const ORIENTATION_UPDATE_INTERVAL = 300; // 300ms for compass smoothness
+
     // ========== INITIALIZATION ==========
     useEffect(() => {
         const ua = navigator.userAgent.toLowerCase();
@@ -168,8 +174,9 @@ export default function ClisonixPhoneSensorsMax() {
         setActiveSensors(sensors);
         startInsightGeneration();
 
+        // 🌊 HUMAN-FRIENDLY: Gentle single vibration
         if ('vibrate' in navigator) {
-            navigator.vibrate(mode === 'ultra' ? [100, 50, 100] : [50]);
+            navigator.vibrate(30); // Single gentle pulse
         }
     };
 
@@ -191,6 +198,7 @@ export default function ClisonixPhoneSensorsMax() {
   };
 
     const handleMotion = useCallback((event: DeviceMotionEvent) => {
+        const now = Date.now();
         const accel = event.acceleration || event.accelerationIncludingGravity;
         const gravity = event.accelerationIncludingGravity;
         const rotation = event.rotationRate;
@@ -214,17 +222,24 @@ export default function ClisonixPhoneSensorsMax() {
                 gamma: Math.round((rotation?.gamma || 0) * 100) / 100
             },
             interval: event.interval || 16,
-            timestamp: Date.now()
+            timestamp: now
         };
 
-        setMotionData(data);
+        // 🌊 Always buffer for algorithms, but only update UI every 500ms
         motionBuffer.current = [...motionBuffer.current.slice(-100), data];
-        setEventCounts(prev => ({ ...prev, motion: prev.motion + 1 }));
 
-        detectActivity(data);
+        // 🌊 HUMAN-FRIENDLY: Only update UI every 500ms
+        if (now - lastMotionUpdate.current >= MOTION_UPDATE_INTERVAL) {
+            lastMotionUpdate.current = now;
+            setMotionData(data);
+            setEventCounts(prev => ({ ...prev, motion: prev.motion + 1 }));
+            detectActivity(data);
+            calculateStress();
+        }
+
+        // Steps and fall detection still need real-time processing
         detectSteps(data);
         detectFall(data);
-        calculateStress();
     }, []);
 
     // ========== ORIENTATION SENSORS (REAL) ==========
@@ -245,6 +260,12 @@ export default function ClisonixPhoneSensorsMax() {
   };
 
     const handleOrientation = useCallback((event: DeviceOrientationEvent) => {
+        const now = Date.now();
+
+        // 🌊 HUMAN-FRIENDLY: Only update every 300ms for smooth compass
+        if (now - lastOrientationUpdate.current < ORIENTATION_UPDATE_INTERVAL) return;
+        lastOrientationUpdate.current = now;
+
         setOrientation({
             alpha: event.alpha !== null ? Math.round(event.alpha) : null,
             beta: event.beta !== null ? Math.round(event.beta) : null,
@@ -559,38 +580,71 @@ export default function ClisonixPhoneSensorsMax() {
     const startInsightGeneration = () => {
         if (insightIntervalRef.current) clearInterval(insightIntervalRef.current);
 
+        // 🌊 HUMAN-FRIENDLY: Insights every 15 seconds, more varied messages
         insightIntervalRef.current = setInterval(() => {
             const newInsights: string[] = [];
+            const now = new Date();
+            const hour = now.getHours();
 
-          if (motionData) {
-              const mag = Math.sqrt(
-                  motionData.acceleration.x ** 2 +
-                  motionData.acceleration.y ** 2 +
-                  motionData.acceleration.z ** 2
-              );
-
-            if (mag < 0.5) {
-                newInsights.push('🤫 Telefoni është i qetë');
-            } else if (mag > 5) {
-                newInsights.push('🏃 Aktivitet i lartë detektuar!');
+            // Time-based insights
+            if (hour >= 22 || hour < 6) {
+                newInsights.push('🌙 Është vonë - pushimi është i rëndësishëm');
+            } else if (hour >= 6 && hour < 9) {
+                newInsights.push('☀️ Mirëmëngjes! Koha për aktivitet');
             }
-        }
 
-          if (battery) {
-              if (battery.level < 20 && !battery.charging) {
-                  newInsights.push('🔋 Bateria e ulët!');
-              }
-          }
+            // Motion-based insights (only if we have recent data)
+            if (motionBuffer.current.length > 0) {
+                const recentMotion = motionBuffer.current[motionBuffer.current.length - 1];
+                const mag = Math.sqrt(
+                    recentMotion.acceleration.x ** 2 +
+                    recentMotion.acceleration.y ** 2 +
+                    recentMotion.acceleration.z ** 2
+                );
 
-          if (health.stressLevel > 60) {
-              newInsights.push('😰 Detektova dridhje');
-          }
+                if (mag < 0.3) {
+                    newInsights.push('🧘 Telefoni në qetësi - relaksohuni');
+                } else if (mag > 3 && mag < 6) {
+                    newInsights.push('🚶 Lëvizje e mirë - vazhdoni kështu!');
+                } else if (mag > 6) {
+                    newInsights.push('🏃 Aktivitet energjik - shkëlqyeshëm!');
+                }
+            }
 
-          if (newInsights.length > 0) {
-              setInsights(prev => [...prev.slice(-4), newInsights[0]]);
-          }
-      }, 8000);
-  };
+            // Battery insights
+            if (battery) {
+                if (battery.level < 20 && !battery.charging) {
+                    newInsights.push('🔋 Bateria e ulët - konsideroni karikimin');
+                } else if (battery.level === 100 && battery.charging) {
+                    newInsights.push('✅ Bateria e plotë - mund ta hiqni nga karikimi');
+                }
+            }
+
+            // Steps milestone
+            if (health.steps > 0 && health.steps % 100 === 0) {
+                newInsights.push(`👟 ${health.steps} hapa - vazhdoni!`);
+            }
+
+            // Stress insights (gentle)
+            if (health.stressLevel > 70) {
+                newInsights.push('🌊 Detektova tension - merrni një frymë të thellë');
+            } else if (health.stressLevel < 20 && health.stressLevel > 0) {
+                newInsights.push('😌 Niveli i stresit i ulët - gjëndje e mirë!');
+            }
+
+            // Only add one insight at a time, avoid repetition
+            if (newInsights.length > 0) {
+                const randomInsight = newInsights[Math.floor(Math.random() * newInsights.length)];
+                setInsights(prev => {
+                    // Avoid duplicate consecutive insights
+                    if (prev.length > 0 && prev[prev.length - 1] === randomInsight) {
+                        return prev;
+                    }
+                    return [...prev.slice(-3), randomInsight];
+                });
+            }
+        }, 15000); // 🌊 Every 15 seconds instead of 8
+    };
 
     // ========== RECORDING ==========
     const toggleRecording = () => {
@@ -717,7 +771,7 @@ export default function ClisonixPhoneSensorsMax() {
                       <div className="bg-gray-900/50 backdrop-blur-lg rounded-3xl border border-cyan-500/20 p-6">
                           <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                               📱 Real-Time Motion
-                              {motionData && <span className="text-xs text-green-400 animate-pulse">● LIVE</span>}
+                              {motionData && <span className="text-xs text-green-400 opacity-80">● LIVE</span>}
                           </h2>
 
                           {motionData ? (
@@ -725,20 +779,20 @@ export default function ClisonixPhoneSensorsMax() {
                                   {['x', 'y', 'z'].map((axis) => (
                                       <div key={axis} className="bg-gray-800/50 rounded-xl p-4">
                                           <div className="text-xs text-gray-400 uppercase">{axis} Accel</div>
-                                          <div className="text-xl font-mono text-cyan-300">
+                                          <div className="text-xl font-mono text-cyan-300 transition-all duration-500 ease-out">
                                               {(motionData.acceleration as any)[axis].toFixed(2)}
-                      </div>
+                                          </div>
                                           <div className="h-1.5 bg-gray-700 rounded-full mt-2 overflow-hidden">
                                               <div
-                                                  className="h-full bg-cyan-500 transition-all"
+                                                  className="h-full bg-cyan-500 transition-all duration-700 ease-out"
                                                   style={{ width: Math.min(Math.abs((motionData.acceleration as any)[axis]) * 15, 100) + '%' }}
                                               />
                                           </div>
-                      </div>
+                                      </div>
                                   ))}
                                   <div className="bg-gray-800/50 rounded-xl p-4">
                                       <div className="text-xs text-gray-400">Magnitude</div>
-                                      <div className="text-xl font-mono text-cyan-300">
+                                      <div className="text-xl font-mono text-cyan-300 transition-all duration-500 ease-out">
                                           {Math.sqrt(
                                               motionData.acceleration.x ** 2 +
                                               motionData.acceleration.y ** 2 +
@@ -772,20 +826,20 @@ export default function ClisonixPhoneSensorsMax() {
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                               <div className="bg-gray-800/50 rounded-xl p-4 text-center">
                                   <div className="text-3xl mb-1">👟</div>
-                                  <div className="text-2xl font-bold text-green-400">{health.steps}</div>
+                                  <div className="text-2xl font-bold text-green-400 transition-all duration-700">{health.steps}</div>
                                   <div className="text-xs text-gray-400">Steps</div>
                               </div>
 
                               <div className="bg-gray-800/50 rounded-xl p-4 text-center">
                                   <div className="text-3xl mb-1">🔥</div>
-                                  <div className="text-2xl font-bold text-orange-400">{health.calories.toFixed(1)}</div>
+                                  <div className="text-2xl font-bold text-orange-400 transition-all duration-700">{health.calories.toFixed(1)}</div>
                                   <div className="text-xs text-gray-400">kcal</div>
-                </div>
+                              </div>
 
                               <div className="bg-gray-800/50 rounded-xl p-4 text-center">
-                                  <div className="text-3xl mb-1">😰</div>
-                                  <div className="text-2xl font-bold text-red-400">{health.stressLevel}%</div>
-                                  <div className="text-xs text-gray-400">Tremor</div>
+                                  <div className="text-3xl mb-1">{health.stressLevel > 50 ? '😰' : '😌'}</div>
+                                  <div className="text-2xl font-bold text-amber-400 transition-all duration-700">{health.stressLevel}%</div>
+                                  <div className="text-xs text-gray-400">Tension</div>
                               </div>
 
                               <div className="bg-gray-800/50 rounded-xl p-4 text-center">
@@ -810,9 +864,9 @@ export default function ClisonixPhoneSensorsMax() {
                           <h2 className="text-lg font-bold mb-4">🔧 Active Sensors</h2>
                           <div className="space-y-2 max-h-48 overflow-y-auto">
                               {activeSensors.length > 0 ? activeSensors.map((sensor, i) => (
-                                  <div key={i} className="flex items-center justify-between p-2 bg-gray-800/30 rounded-lg">
+                                  <div key={i} className="flex items-center justify-between p-2 bg-gray-800/30 rounded-lg transition-all duration-300">
                                       <span className="text-sm">{sensor}</span>
-                                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                      <span className="w-2 h-2 bg-green-500 rounded-full opacity-90" />
                                   </div>
                               )) : (
                                   <p className="text-gray-500 text-sm">No sensors active</p>
@@ -940,10 +994,10 @@ export default function ClisonixPhoneSensorsMax() {
               <div className="max-w-6xl mx-auto flex items-center justify-center gap-4">
                   <button
                       onClick={toggleRecording}
-                      className={'px-6 py-3 rounded-xl font-bold transition-all flex items-center gap-2 ' + (
+                      className={'px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 ' + (
                           isRecording
-                              ? 'bg-gradient-to-r from-red-600 to-pink-600 animate-pulse'
-                              : 'bg-gradient-to-r from-green-600 to-emerald-600'
+                              ? 'bg-gradient-to-r from-red-600 to-pink-600 shadow-lg shadow-red-500/30'
+                              : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:shadow-lg hover:shadow-green-500/30'
                       )}
                   >
                       {isRecording ? '⏹️ Stop (' + recordingTime + 's)' : '⏺️ Record'}
@@ -984,7 +1038,7 @@ export default function ClisonixPhoneSensorsMax() {
                               {activeSensors.map((sensor, i) => (
                                   <div
                                       key={i}
-                                      className="aspect-square bg-gradient-to-br from-cyan-900/50 to-purple-900/50 rounded-xl border border-cyan-500/30 flex items-center justify-center text-2xl animate-pulse"
+                                      className="aspect-square bg-gradient-to-br from-cyan-900/50 to-purple-900/50 rounded-xl border border-cyan-500/30 flex items-center justify-center text-2xl transition-all duration-500 hover:scale-105"
                                   >
                                       {sensor.split(' ')[0]}
                                   </div>
