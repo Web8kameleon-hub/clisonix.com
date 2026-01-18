@@ -186,6 +186,21 @@ export default function ModulesPage() {
 
   const modules = [
     {
+      id: 'user-data',
+      name: '📊 My Data Dashboard',
+      description: 'View and manage your data sources - IoT, API, LoRa, GSM, CBOR integrations',
+      status: 'active' as const,
+      capabilities: [
+        'IoT device management',
+        'API integrations',
+        'LoRa/GSM networks',
+        'Custom metrics',
+        'Excel/PPTX export'
+      ],
+      route: '/modules/user-data',
+      isUserModule: true
+    },
+    {
       id: 'eeg-analysis',
       name: '🧠 ALBI - EEG Analysis',
       description: 'Neural Frequency Laboratory Director - EEG Processing & Brain Signal Analysis',
