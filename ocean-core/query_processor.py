@@ -185,7 +185,8 @@ class SourceSelector:
     @staticmethod
     def select_sources(intent: QueryIntent, entities: Dict[str, List[str]]) -> Tuple[List[str], Dict[str, float]]:
         """Select relevant data sources and their weights"""
-        required_sources = SourceSelector.SOURCE_MAPPING.get(intent, [])
+        # CRITICAL: Make a COPY of the list to avoid modifying class-level SOURCE_MAPPING
+        required_sources = list(SourceSelector.SOURCE_MAPPING.get(intent, []))
         
         # For knowledge questions, also include external sources
         if intent == QueryIntent.KNOWLEDGE:
