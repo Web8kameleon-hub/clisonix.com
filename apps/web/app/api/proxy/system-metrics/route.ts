@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 
 // Use Docker container name in clisonix-secure network
-const EXCEL_CORE_URL = process.env.NODE_ENV === 'production' ? 'http://clisonix-excel-core:8010' : 'http://127.0.0.1:8010';
+const API_URL = process.env.NODE_ENV === 'production' ? 'http://clisonix-api:8000' : 'http://127.0.0.1:8000';
 
 export async function GET() {
   try {
-    const response = await fetch(`${EXCEL_CORE_URL}/api/reporting/system-metrics`, {
+    // Use /api/system-status which has the real metrics
+    const response = await fetch(`${API_URL}/api/system-status`, {
       cache: 'no-store',
       headers: { 'Accept': 'application/json' }
     })
@@ -15,7 +16,14 @@ export async function GET() {
     }
     
     const data = await response.json()
-    return NextResponse.json(data)
+    // Extract system metrics from the response
+    return NextResponse.json({
+      cpu_percent: data.system?.cpu_percent || 0,
+      memory_percent: data.system?.memory_percent || 0,
+      disk_percent: data.system?.disk_percent || 0,
+      uptime: data.uptime || '0h',
+      hostname: data.system?.hostname || 'unknown'
+    })
   } catch (error) {
     console.error('System metrics fetch error:', error)
     return NextResponse.json({ cpu_percent: 0, memory_percent: 0, disk_percent: 0 }, { status: 200 })
