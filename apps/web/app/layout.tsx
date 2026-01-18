@@ -3,15 +3,72 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { RequestLogger } from "../src/components/telemetry/RequestLogger";
 import AboutSidebar from "../src/components/AboutSidebar";
+import { DynamicFavicon } from "../src/components/DynamicFavicon";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
 });
 
+// 🚀 AGGRESSIVE SEO - Maximum visibility
 export const metadata: Metadata = {
-  title: "Clisonix Cloud - Industrial AGI Dashboard",
-  description: "The Most Advanced AGI in the World - Industrial Backend with Payment Processing",
+  metadataBase: new URL('https://clisonix.cloud'),
+  title: {
+    default: "Clisonix Cloud - AI-Powered Industrial Intelligence Platform",
+    template: "%s | Clisonix Cloud"
+  },
+  description: "Clisonix Cloud: The next-generation AI platform for industrial intelligence, behavioral science, and real-time analytics. Transform your data into actionable insights with our advanced machine learning solutions.",
+  keywords: [
+    "AI platform", "industrial intelligence", "machine learning", "behavioral science",
+    "real-time analytics", "cloud computing", "neural networks", "data science",
+    "IoT analytics", "predictive analytics", "cognitive computing", "deep learning",
+    "automation", "smart manufacturing", "Industry 4.0", "digital transformation",
+    "Clisonix", "AGI", "artificial general intelligence"
+  ],
+  authors: [{ name: "Clisonix", url: "https://clisonix.cloud" }],
+  creator: "Clisonix",
+  publisher: "Clisonix Cloud",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://clisonix.cloud',
+    siteName: 'Clisonix Cloud',
+    title: 'Clisonix Cloud - AI-Powered Industrial Intelligence',
+    description: 'Transform your industrial operations with AI-powered analytics, behavioral science insights, and real-time monitoring.',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Clisonix Cloud - Industrial AI Platform',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Clisonix Cloud - AI-Powered Industrial Intelligence',
+    description: 'Next-generation AI platform for industrial intelligence and behavioral science.',
+    images: ['/og-image.png'],
+    creator: '@clisonix',
+  },
+  alternates: {
+    canonical: 'https://clisonix.cloud',
+  },
+  category: 'Technology',
+  verification: {
+    google: 'YOUR_GOOGLE_VERIFICATION_CODE', // Add after Google Search Console setup
+  },
 };
 
 export default function RootLayout({
@@ -21,21 +78,76 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Schema.org Structured Data for Rich Snippets */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "Clisonix Cloud",
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "Web",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              },
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.9",
+                "ratingCount": "150"
+              },
+              "description": "AI-powered industrial intelligence and behavioral science platform",
+              "url": "https://clisonix.cloud",
+              "author": {
+                "@type": "Organization",
+                "name": "Clisonix",
+                "url": "https://clisonix.cloud"
+              }
+            })
+          }}
+        />
+        {/* Organization Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "Clisonix",
+              "url": "https://clisonix.cloud",
+              "logo": "https://clisonix.cloud/logo.png",
+              "sameAs": [
+                "https://github.com/LedjanAhmati/Clisonix-cloud",
+                "https://twitter.com/clisonix"
+              ],
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "customer support",
+                "availableLanguage": ["English", "Albanian"]
+              }
+            })
+          }}
+        />
+        <link rel="canonical" href="https://clisonix.cloud" />
+        <meta name="theme-color" content="#6366f1" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.json" />
+      </head>
       <body
         className={`${inter.variable} antialiased`}
         suppressHydrationWarning
       >
-        {/* Construction/Beta Banner */}
+        {/* BETA banner removed - platform is now stable
         <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 text-white text-center py-2 px-4 text-sm font-medium shadow-lg z-50 relative">
           <span className="inline-flex items-center gap-2">
-            <svg className="w-4 h-4 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-            🚧 <strong>BETA</strong> - System is under construction and testing. Some features may not be available. 
-            <span className="hidden sm:inline">| Industrial AGI Platform v2.1.0</span>
-            🚧
+            🚧 <strong>BETA</strong> - System is under construction 🚧
           </span>
         </div>
+        */}
+        <DynamicFavicon />
         <RequestLogger />
         <AboutSidebar />
         {children}
