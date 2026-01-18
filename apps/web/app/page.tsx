@@ -17,6 +17,35 @@ interface SystemStatus {
 }
 
 const MODULES = [
+  // 📱 POPULAR - Easy to use, mobile-friendly
+  {
+    id: 'mood-journal',
+    name: 'Mood Journal',
+    description: 'Regjistro humorin tënd çdo ditë me një tap',
+    icon: '😊',
+    color: 'from-purple-500 to-pink-500',
+    category: 'Lifestyle',
+    isNew: true
+  },
+  {
+    id: 'daily-habits',
+    name: 'Daily Habits',
+    description: 'Gjurmo zakonet e përditshme dhe krijo streak',
+    icon: '🎯',
+    color: 'from-emerald-500 to-green-500',
+    category: 'Lifestyle',
+    isNew: true
+  },
+  {
+    id: 'focus-timer',
+    name: 'Focus Timer',
+    description: 'Pomodoro timer për produktivitet maksimal',
+    icon: '⏱️',
+    color: 'from-red-500 to-orange-500',
+    category: 'Productivity',
+    isNew: true
+  },
+  // 🌊 AI & CHAT
   {
     id: 'curiosity-ocean',
     name: 'Curiosity Ocean',
@@ -25,6 +54,7 @@ const MODULES = [
     color: 'from-cyan-500 to-blue-600',
     category: 'AI Chat'
   },
+  // 🧠 NEUROSCIENCE
   {
     id: 'eeg-analysis',
     name: 'EEG Analysis',
@@ -42,20 +72,29 @@ const MODULES = [
     category: 'Neuroscience'
   },
   {
-    id: 'spectrum-analyzer',
-    name: 'Spectrum Analyzer',
-    description: 'Frequency spectrum visualization',
-    icon: '📊',
-    color: 'from-green-500 to-emerald-600',
-    category: 'Analysis'
-  },
-  {
     id: 'neural-biofeedback',
     name: 'Neural Biofeedback',
     description: 'Real-time cognitive state monitoring',
     icon: '💫',
     color: 'from-indigo-500 to-purple-600',
     category: 'Neuroscience'
+  },
+  {
+    id: 'neuroacoustic-converter',
+    name: 'Neuroacoustic Converter',
+    description: 'Convert brain signals to audio',
+    icon: '🎵',
+    color: 'from-violet-500 to-purple-600',
+    category: 'Neuroscience'
+  },
+  // 📊 ANALYTICS & TOOLS
+  {
+    id: 'spectrum-analyzer',
+    name: 'Spectrum Analyzer',
+    description: 'Frequency spectrum visualization',
+    icon: '📊',
+    color: 'from-green-500 to-emerald-600',
+    category: 'Analysis'
   },
   {
     id: 'fitness-dashboard',
@@ -66,20 +105,20 @@ const MODULES = [
     category: 'Health'
   },
   {
+    id: 'weather-dashboard',
+    name: 'Weather & Cognitive',
+    description: 'Si ndikon moti në performancën kognitive',
+    icon: '🌤️',
+    color: 'from-sky-500 to-blue-600',
+    category: 'Environment'
+  },
+  {
     id: 'data-collection',
     name: 'Data Collection',
     description: 'Industrial IoT and sensor data collection',
     icon: '📡',
     color: 'from-blue-500 to-cyan-600',
     category: 'Industrial'
-  },
-  {
-    id: 'neuroacoustic-converter',
-    name: 'Neuroacoustic Converter',
-    description: 'Convert brain signals to audio',
-    icon: '🎵',
-    color: 'from-violet-500 to-purple-600',
-    category: 'Neuroscience'
   },
   {
     id: 'reporting-dashboard',
@@ -349,8 +388,17 @@ export default function HomePage() {
               <Link 
                 key={module.id}
                 href={`/modules/${module.id}`}
-                className="p-6 rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/80 border border-slate-700/50 hover:border-cyan-500/50 transition-all group"
+                className={`p-6 rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/80 border transition-all group relative ${
+                  (module as any).isNew 
+                    ? 'border-green-500/50 hover:border-green-400 ring-1 ring-green-500/20' 
+                    : 'border-slate-700/50 hover:border-cyan-500/50'
+                }`}
               >
+                {(module as any).isNew && (
+                  <div className="absolute -top-2 -right-2 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-xs font-bold text-white shadow-lg animate-pulse">
+                    NEW ✨
+                  </div>
+                )}
                 <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${module.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
                   <span className="text-2xl">{module.icon}</span>
                 </div>

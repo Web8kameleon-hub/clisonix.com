@@ -233,6 +233,25 @@ services:
       retries: 3
     restart: unless-stopped
 
+  # ==========================
+  # BEHAVIORAL SCIENCE (Mood, Habits, Focus Analytics)
+  # ==========================
+  behavioral:
+    build:
+      context: .
+      dockerfile: Dockerfile.behavioral
+    container_name: clisonix-behavioral
+    environment:
+      PYTHONUNBUFFERED: "1"
+    ports:
+      - "8002:8002"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
 networks:
   default:
     driver: bridge
