@@ -89,12 +89,17 @@ export default function FaceDetectionPage() {
   const colorSamplesRef = useRef<number[]>([]);
   const blinkCountRef = useRef(0);
   
-    // 🌊 STABILIZATION: Store previous values for smooth transitions
-    const prevBoundingBoxRef = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
-    const prevEmotionRef = useRef<string>('neutral');
-    const emotionStabilityCountRef = useRef(0);
-    const EMOTION_STABILITY_THRESHOLD = 3; // Require 3 consecutive same emotions before changing
-    const SMOOTHING_FACTOR = 0.3; // Lower = smoother, higher = more responsive
+  // 🌊 STABILIZATION: Store previous values for very smooth, calm transitions
+  const prevBoundingBoxRef = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
+  const prevEmotionRef = useRef<string>('neutral');
+  const emotionStabilityCountRef = useRef(0);
+  const EMOTION_STABILITY_THRESHOLD = 5; // Require 5 consecutive same emotions before changing (very stable)
+  const SMOOTHING_FACTOR = 0.15; // Very low = very smooth, almost no jitter
+  
+  // 🌊 Vitals and Eye stabilization
+  const prevVitalsRef = useRef<VitalsData | null>(null);
+  const prevEyeDataRef = useRef<EyeData | null>(null);
+  const vitalsStabilityCountRef = useRef(0);
 
   // Start camera
   const startCamera = async () => {
@@ -234,11 +239,24 @@ export default function FaceDetectionPage() {
           const heartRate = estimateHeartRate(colorSamplesRef.current);
           const hrv = estimateHRV(colorSamplesRef.current);
           
-          setVitalsData({
+          // 🌊 VITALS STABILIZATION: Smooth heart rate changes
+          const newVitals: VitalsData = {
             heartRate,
             heartRateVariability: hrv,
             stressLevel: hrv < 20 ? 'high' : hrv < 50 ? 'medium' : 'low'
-          });
+          };
+          
+          // Only update if significant change (reduces jitter)
+          if (prevVitalsRef.current) {
+            const hrDiff = Math.abs((prevVitalsRef.current.heartRate || 0) - heartRate);
+            if (hrDiff > 5) { // Only update if heart rate changed by more than 5 BPM
+              prevVitalsRef.current = newVitals;
+              setVitalsData(newVitals);
+            }
+          } else {
+            prevVitalsRef.current = newVitals;
+            setVitalsData(newVitals);
+          }
         }
       }
       
@@ -263,10 +281,26 @@ export default function FaceDetectionPage() {
         }
       }
       
-      // Eye tracking
+      // Eye tracking with STABILIZATION
       if (selectedMode === 'attention') {
         const eyes = analyzeEyes(imageData, newFaceData.landmarks!);
-        setEyeData(eyes);
+        
+        // 🌊 EYE STABILIZATION: Only update if state actually changed
+        if (prevEyeDataRef.current) {
+          const stateChanged = 
+            prevEyeDataRef.current.leftOpen !== eyes.leftOpen ||
+            prevEyeDataRef.current.rightOpen !== eyes.rightOpen ||
+            prevEyeDataRef.current.gazeDirection !== eyes.gazeDirection ||
+            Math.abs(prevEyeDataRef.current.blinkCount - eyes.blinkCount) >= 1;
+          
+          if (stateChanged) {
+            prevEyeDataRef.current = eyes;
+            setEyeData(eyes);
+          }
+        } else {
+          prevEyeDataRef.current = eyes;
+          setEyeData(eyes);
+        }
       }
       
       frameCountRef.current++;
@@ -462,8 +496,8 @@ export default function FaceDetectionPage() {
       }
     } else {
       setIsAnalyzing(true);
-        // 🌊 HUMAN-FRIENDLY: Analyze every 200ms (5fps) to reduce jitter and be calmer
-        const interval = window.setInterval(analyzeFrame, 200);
+      // 🌊 HUMAN-FRIENDLY: Analyze every 500ms (2fps) for calm, focused experience
+      const interval = window.setInterval(analyzeFrame, 500);
       setAnalysisInterval(interval);
     }
   };
@@ -581,8 +615,8 @@ export default function FaceDetectionPage() {
             )}
             
             {isAnalyzing && (
-              <div className="absolute top-3 right-3 bg-red-500/80 text-white text-sm px-2 py-1 rounded animate-pulse">
-                ● Recording
+              <div className="absolute top-3 right-3 bg-blue-500/80 text-white text-sm px-2 py-1 rounded">
+                ● Analyzing
               </div>
             )}
           </div>
@@ -649,11 +683,11 @@ export default function FaceDetectionPage() {
 
           {/* Emotion Results */}
           {selectedMode === 'emotion' && emotionData && (
-            <div className="space-y-4">
-              <div className="text-center p-6 bg-white/5 rounded-xl">
-                <span className="text-6xl block mb-2">{EMOTION_ICONS[emotionData.primary]}</span>
-                <p className="text-2xl font-bold text-white capitalize">{emotionData.primary}</p>
-                <p className="text-white/60">{Math.round(emotionData.confidence)}% confidence</p>
+            <div className="space-y-4 transition-all duration-700 ease-out">
+              <div className="text-center p-6 bg-white/5 rounded-xl transition-all duration-500">
+                <span className="text-6xl block mb-2 transition-all duration-300">{EMOTION_ICONS[emotionData.primary]}</span>
+                <p className="text-2xl font-bold text-white capitalize transition-all duration-300">{emotionData.primary}</p>
+                <p className="text-white/60 transition-all duration-300">{Math.round(emotionData.confidence)}% confidence</p>
               </div>
               
               <div className="space-y-2">
@@ -663,7 +697,7 @@ export default function FaceDetectionPage() {
                     <span className="text-white/60 w-20 text-sm capitalize">{emotion}</span>
                     <div className="flex-1 bg-white/10 rounded-full h-2 overflow-hidden">
                       <div 
-                        className="h-full bg-purple-500"
+                        className="h-full bg-purple-500 transition-all duration-700 ease-out"
                         style={{ width: `${score * 100}%` }}
                       />
                     </div>
