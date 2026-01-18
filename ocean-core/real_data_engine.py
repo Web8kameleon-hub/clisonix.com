@@ -52,15 +52,15 @@ class RealDataEngine:
         "neural": ["Elbasan_AI", "Vienna_Neuroscience"],
         
         # SECURITY
-        "security": ["Prishtina_Security", "Bucharest_Nanotechnology", "Durrës_IoT"],
+        "security": ["Prishtina_Security", "Bucharest_Nanotechnology", "Durres_IoT"],
         "cybersecurity": ["Prishtina_Security"],
         "encryption": ["Prishtina_Security"],
         "vulnerability": ["Prishtina_Security"],
         
         # IoT/IoE/LORA
-        "iot": ["Durrës_IoT", "Vlorë_Environmental", "Sarandë_Underwater"],
-        "lora": ["Durrës_IoT", "Sarandë_Underwater"],
-        "sensor": ["Durrës_IoT", "Vlorë_Environmental", "Sarandë_Underwater"],
+        "iot": ["Durres_IoT", "Vlore_Environmental", "Sarrande_Underwater"],
+        "lora": ["Durres_IoT", "Sarrande_Underwater"],
+        "sensor": ["Durres_IoT", "Vlore_Environmental", "Sarrande_Underwater"],
         
         # ENERGY/PHYSICS
         "energy": ["Kostur_Energy", "Sofia_Chemistry", "Prishtina_Security"],
@@ -71,7 +71,7 @@ class RealDataEngine:
         
         # MEDICINE/BIOLOGY
         "medical": ["Tirana_Medical", "Zagreb_Biotech"],
-        "biology": ["Zagreb_Biotech", "Vlorë_Environmental"],
+        "biology": ["Zagreb_Biotech", "Vlore_Environmental"],
         "therapy": ["Tirana_Medical"],
         "healing": ["Tirana_Medical", "Zagreb_Biotech"],
         
@@ -82,14 +82,14 @@ class RealDataEngine:
         "correlation": ["Budapest_Data"],
         
         # MARINE/ENVIRONMENTAL
-        "marine": ["Sarandë_Underwater", "Vlorë_Environmental"],
-        "underwater": ["Sarandë_Underwater"],
-        "environmental": ["Vlorë_Environmental", "Sarandë_Underwater"],
-        "ecology": ["Vlorë_Environmental"],
+        "marine": ["Sarrande_Underwater", "Vlore_Environmental"],
+        "underwater": ["Sarrande_Underwater"],
+        "environmental": ["Vlore_Environmental", "Sarrande_Underwater"],
+        "ecology": ["Vlore_Environmental"],
         
         # AGRICULTURE
-        "agriculture": ["Korça_Agricultural"],
-        "farming": ["Korça_Agricultural"],
+        "agriculture": ["Korce_Agricultural"],
+        "farming": ["Korce_Agricultural"],
         
         # TRADE/ECONOMICS
         "trade": ["Istanbul_Trade", "Zurich_Finance"],
@@ -138,26 +138,22 @@ class RealDataEngine:
         return keywords
     
     def _find_relevant_labs(self, query: str) -> List[str]:
-        """Find relevant laboratories based on query"""
-        keywords = self._extract_keywords(query)
-        relevant_labs = set()
+        """Find relevant laboratories based on query - ULTRA MODE: Always use ALL 23 labs!"""
+        # In ULTRA mode, we ALWAYS query all 23 labs for comprehensive answers
+        # This ensures every query gets data from every domain
         
-        # Check each keyword against domain mappings
-        for keyword in keywords:
-            if keyword in self.DOMAIN_TO_LABS:
-                relevant_labs.update(self.DOMAIN_TO_LABS[keyword])
-            else:
-                # Try partial matches
-                for domain, labs in self.DOMAIN_TO_LABS.items():
-                    if keyword in domain or domain in keyword:
-                        relevant_labs.update(labs)
+        all_labs = set()
         
-        # If no labs found, return top general-purpose labs
-        if not relevant_labs:
-            relevant_labs = {"Elbasan_AI", "Budapest_Data", "Vienna_Neuroscience"}
+        # Collect ALL labs from DOMAIN_TO_LABS
+        for labs_list in self.DOMAIN_TO_LABS.values():
+            all_labs.update(labs_list)
         
-        # Limit to 5 labs for efficiency
-        return list(relevant_labs)[:5]
+        # Ensure we have all 23 labs
+        if len(all_labs) < 23:
+            all_labs.update({"Elbasan_AI", "Budapest_Data", "Vienna_Neuroscience", "Tirana_Medical", "Prishtina_Security", "Prague_Robotics", "Zurich_Finance", "Istanbul_Trade", "Sofia_Chemistry", "Bucharest_Nanotechnology", "Beograd_Industrial", "Ljubljana_Quantum", "Zagreb_Biotech", "Athens_Classical", "Rome_Architecture", "Jerusalem_Heritage", "Cairo_Archeology", "Durres_IoT", "Sarrande_Underwater", "Vlore_Environmental", "Korce_Agricultural", "Shkoder_Marine", "Kostur_Energy"})
+        
+        # Return ALL 23 labs - ULTRA mode means comprehensive coverage!
+        return list(all_labs)[:23]
     
     async def _query_lab(self, lab_id: str, query: str) -> Optional[LabResponse]:
         """Query individual laboratory for response"""
@@ -363,8 +359,8 @@ Performance metrics:
 Confidence: 0.91
             """
         
-        # SARANDË UNDERWATER
-        elif "Sarandë" in lab.name or "Underwater" in lab.function:
+        # SARRANDE UNDERWATER
+        elif "Sarrande" in lab.name or "Underwater" in lab.function:
             return f"""
 🌊 **Underwater IoT & Marine Analysis:**
 
@@ -446,7 +442,7 @@ Confidence: 0.82
         # Sort by quality score
         responses_sorted = sorted(responses, key=lambda r: r.quality_score, reverse=True)
         
-        # Build comprehensive answer from top responses
+        # Build comprehensive answer from top responses (show 8-10 labs, not just 3!)
         comprehensive_answer = f"""
 🌊 **Comprehensive Analysis from {len(responses)} Research Labs**
 
@@ -454,7 +450,9 @@ Query: "{query}"
 
 """
         
-        for i, response in enumerate(responses_sorted[:3], 1):
+        # Show ALL labs - this is ULTRA mode!
+        num_to_show = min(23, len(responses_sorted))
+        for i, response in enumerate(responses_sorted[:num_to_show], 1):
             comprehensive_answer += f"\n**{i}. {response.lab_name} ({response.domain})**\n"
             comprehensive_answer += response.answer[:300] + "...\n"
         

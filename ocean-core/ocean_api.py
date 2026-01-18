@@ -478,7 +478,7 @@ async def query_ocean(request: Request):
                         "lab_domain": lab['domain'],
                         "confidence": lab['confidence']
                     }
-                    for lab in lab_data.get('lab_responses', [])[:3]
+                    for lab in lab_data.get('lab_responses', [])[:20]
                 ]
             else:
                 key_findings = generate_key_findings(question, persona_response)
