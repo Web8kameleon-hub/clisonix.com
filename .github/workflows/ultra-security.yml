@@ -103,7 +103,6 @@ jobs:
         with:
           fail-on-severity: critical
           allow-licenses: MIT,Apache-2.0,BSD-3-Clause,ISC,GPL-3.0-or-later
-          show-skipped: true
 
   secret-detection:
     name: 🔍 Secret Detection (Dual Engine)
@@ -121,7 +120,7 @@ jobs:
           submodules: false
 
       - name: Gitleaks Scan
-        uses: gitleaks/gitleaks-action@v3
+        uses: gitleaks/gitleaks-action@v2.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
@@ -210,13 +209,13 @@ jobs:
         continue-on-error: true
 
       - name: Upload Trivy Image SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-image.sarif
         continue-on-error: true
 
       - name: Upload Trivy FS SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-fs.sarif
         continue-on-error: true
