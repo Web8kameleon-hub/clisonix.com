@@ -698,10 +698,13 @@ export {
   PayloadType,
   ModelID,
   SecurityLevel,
+  demonstrateNanogridata,
+};
+
+export type {
   NanogridataHeader,
   NanogridataPacket,
   ModelProfile,
-  demonstrateNanogridata,
 };
 
 // Run demonstration

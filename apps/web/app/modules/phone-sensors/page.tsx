@@ -64,9 +64,60 @@ export default function PhoneSensorsPage() {
   const lastAcceleration = useRef<{ x: number; y: number; z: number } | null>(null);
   const stepThreshold = useRef(12);
   const shakeThreshold = useRef(15);
+    const [isAndroid, setIsAndroid] = useState(false);
+    const [sensorsActive, setSensorsActive] = useState(false);
+    const motionListenerAdded = useRef(false);
+    const orientationListenerAdded = useRef(false);
+
+    // Detect platform on mount
+    useEffect(() => {
+        const ua = navigator.userAgent.toLowerCase();
+        const android = ua.includes('android');
+        setIsAndroid(android);
+
+        // On Android, try to start sensors immediately (no permission needed)
+        if (android) {
+            console.log('[PhoneSensors] Android detected, auto-starting sensors...');
+            setTimeout(() => {
+                autoStartAndroidSensors();
+            }, 500);
+        }
+    }, []);
+
+    // Auto-start sensors for Android
+    const autoStartAndroidSensors = () => {
+        // Check if DeviceMotionEvent is supported
+        if (window.DeviceMotionEvent) {
+            console.log('[PhoneSensors] DeviceMotionEvent supported');
+            window.addEventListener('devicemotion', handleMotion, true);
+            motionListenerAdded.current = true;
+            setPermissionStatus(prev => ({ ...prev, motion: 'granted' }));
+        }
+
+        if (window.DeviceOrientationEvent) {
+            console.log('[PhoneSensors] DeviceOrientationEvent supported');
+            window.addEventListener('deviceorientation', handleOrientation, true);
+            orientationListenerAdded.current = true;
+            setPermissionStatus(prev => ({ ...prev, orientation: 'granted' }));
+        }
+
+        setSensorsActive(true);
+    };
 
   // Request iOS permission for motion sensors
   const requestMotionPermission = async () => {
+      // For Android, just add listener directly
+      if (isAndroid || !((DeviceMotionEvent as any).requestPermission)) {
+          if (!motionListenerAdded.current) {
+              window.addEventListener('devicemotion', handleMotion, true);
+              motionListenerAdded.current = true;
+          }
+          setPermissionStatus(prev => ({ ...prev, motion: 'granted' }));
+          setSensorsActive(true);
+          return;
+      }
+
+      // iOS requires permission
     if (typeof (DeviceMotionEvent as any).requestPermission === 'function') {
       try {
         const permission = await (DeviceMotionEvent as any).requestPermission();
@@ -75,6 +126,7 @@ export default function PhoneSensorsPage() {
           startMotionTracking();
         }
       } catch (e) {
+          console.error('[PhoneSensors] Motion permission error:', e);
         setPermissionStatus(prev => ({ ...prev, motion: 'denied' }));
       }
     } else {
@@ -85,6 +137,16 @@ export default function PhoneSensorsPage() {
   };
 
   const requestOrientationPermission = async () => {
+      // For Android, just add listener directly
+      if (isAndroid || !((DeviceOrientationEvent as any).requestPermission)) {
+          if (!orientationListenerAdded.current) {
+              window.addEventListener('deviceorientation', handleOrientation, true);
+              orientationListenerAdded.current = true;
+          }
+          setPermissionStatus(prev => ({ ...prev, orientation: 'granted' }));
+          return;
+      }
+
     if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
       try {
         const permission = await (DeviceOrientationEvent as any).requestPermission();
@@ -120,11 +182,17 @@ export default function PhoneSensorsPage() {
   };
 
   const startMotionTracking = () => {
-    window.addEventListener('devicemotion', handleMotion);
+      if (!motionListenerAdded.current) {
+          window.addEventListener('devicemotion', handleMotion, true);
+          motionListenerAdded.current = true;
+      }
   };
 
   const startOrientationTracking = () => {
-    window.addEventListener('deviceorientation', handleOrientation);
+      if (!orientationListenerAdded.current) {
+          window.addEventListener('deviceorientation', handleOrientation, true);
+          orientationListenerAdded.current = true;
+      }
   };
 
   const startLocationTracking = () => {
@@ -135,12 +203,30 @@ export default function PhoneSensorsPage() {
     });
   };
 
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            if (motionListenerAdded.current) {
+                window.removeEventListener('devicemotion', handleMotion, true);
+            }
+            if (orientationListenerAdded.current) {
+                window.removeEventListener('deviceorientation', handleOrientation, true);
+            }
+        };
+    }, [handleMotion, handleOrientation]);
+
   const handleMotion = useCallback((event: DeviceMotionEvent) => {
+      // Debug log for Android
+      console.log('[PhoneSensors] Motion event received:', event.acceleration);
+
+      // Use accelerationIncludingGravity as fallback (more reliable on some Android devices)
+      const accel = event.acceleration || event.accelerationIncludingGravity;
+
     const data: MotionData = {
-      acceleration: event.acceleration ? {
-        x: Math.round((event.acceleration.x || 0) * 100) / 100,
-        y: Math.round((event.acceleration.y || 0) * 100) / 100,
-        z: Math.round((event.acceleration.z || 0) * 100) / 100
+        acceleration: accel ? {
+            x: Math.round((accel.x || 0) * 100) / 100,
+            y: Math.round((accel.y || 0) * 100) / 100,
+            z: Math.round((accel.z || 0) * 100) / 100
       } : null,
       accelerationWithGravity: event.accelerationIncludingGravity ? {
         x: Math.round((event.accelerationIncludingGravity.x || 0) * 100) / 100,
@@ -152,7 +238,7 @@ export default function PhoneSensorsPage() {
         beta: Math.round((event.rotationRate.beta || 0) * 100) / 100,
         gamma: Math.round((event.rotationRate.gamma || 0) * 100) / 100
       } : null,
-      interval: event.interval || 0
+        interval: event.interval || 16
     };
 
     setMotion(data);
@@ -333,6 +419,33 @@ export default function PhoneSensorsPage() {
       </header>
 
       <main className="max-w-lg mx-auto px-4 py-6 space-y-6">
+              {/* Platform & Sensor Status */}
+              <div className="bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/30 rounded-2xl p-4">
+                  <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                          <span className="text-2xl">{isAndroid ? '🤖' : '🍎'}</span>
+                          <div>
+                              <p className="text-white font-medium">{isAndroid ? 'Android' : 'iOS/Other'}</p>
+                              <p className="text-white/60 text-xs">Platforma e detektuar</p>
+                          </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                          <div className={`w-3 h-3 rounded-full ${sensorsActive ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+                          <span className="text-white/80 text-sm">{sensorsActive ? 'Aktiv' : 'Joaktiv'}</span>
+                      </div>
+                  </div>
+                  {isAndroid && !sensorsActive && (
+                      <p className="text-yellow-400 text-xs mt-2">
+                          ⚠️ Për Android, sigurohu që browseri ka leje për sensorë dhe je në HTTPS
+                      </p>
+                  )}
+                  {motion && (
+                      <div className="mt-3 pt-3 border-t border-white/10">
+                          <p className="text-green-400 text-xs">✓ Motion data po merret në kohë reale</p>
+                      </div>
+                  )}
+              </div>
+
         {/* Shake Detection */}
         {shakeDetected && (
           <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
@@ -357,12 +470,18 @@ export default function PhoneSensorsPage() {
         </div>
 
         {/* Permission & Start */}
-        {Object.keys(permissionStatus).length === 0 ? (
+              {!sensorsActive && Object.keys(permissionStatus).length === 0 ? (
           <button
-            onClick={startAllSensors}
+                      onClick={() => {
+                          if (isAndroid) {
+                              autoStartAndroidSensors();
+                          } else {
+                              startAllSensors();
+                          }
+                      }}
             className="w-full py-5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl text-white font-bold text-lg shadow-lg shadow-blue-500/30"
           >
-            🔓 Aktivizo Sensorët
+                      🔓 {isAndroid ? 'Aktivizo Sensorët (Android)' : 'Aktivizo Sensorët'}
           </button>
         ) : (
           <div className="space-y-3">

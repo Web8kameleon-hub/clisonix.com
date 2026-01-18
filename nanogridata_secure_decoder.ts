@@ -726,13 +726,11 @@ async function exampleSecureDecoder() {
 export {
   NanogridataSecureDecoder,
   NanogridataSecureEncoder,
-  NanogridataPacket,
-  NanogridataHeader,
-  ValidationResult,
   PayloadType,
   ModelID,
   SecurityLevel,
 };
+export type { NanogridataHeader, ValidationResult, NanogridataPacket };
 
 // Run example if executed directly
 if (require.main === module) {
