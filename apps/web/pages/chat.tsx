@@ -91,7 +91,7 @@ const ChatPage = () => {
             <p className="text-sm uppercase tracking-[0.25em] text-cyan-300/70">Clisonix Control Center</p>
             <h1 className="text-3xl font-semibold">Live Chat Automation Toolkit</h1>
             <p className="text-slate-300">
-              Launch mesh diagnostics, ALBI pattern detectors, and ASI safety sweeps alongside the operator dialogue.
+              Launch mesh diagnostics, pattern detectors, and ASI safety sweeps alongside the operator dialogue.
               Every tool is synced with the backend `/api/asi/tools` registry, so the chat stays aligned with production runbooks.
             </p>
           </header>

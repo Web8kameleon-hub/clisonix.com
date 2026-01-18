@@ -9,8 +9,8 @@ interface CityInfo {
   temperature: number;
   humidity: number;
   airQuality: string;
-  albaStatus: string;
-  albiStatus: string;
+  coreAStatus: string;
+  coreBStatus: string;
   asiStatus: string;
 }
 
@@ -33,8 +33,8 @@ export const CityInfoSurprise: React.FC = () => {
             temperature: 14.2,
             humidity: 55,
             airQuality: 'Good',
-            albaStatus: 'active',
-            albiStatus: 'active',
+            coreAStatus: 'active',
+            coreBStatus: 'active',
             asiStatus: 'stable'
           },
           {
@@ -43,8 +43,8 @@ export const CityInfoSurprise: React.FC = () => {
             temperature: 18.6,
             humidity: 62,
             airQuality: 'Moderate',
-            albaStatus: 'active',
-            albiStatus: 'learning',
+            coreAStatus: 'active',
+            coreBStatus: 'learning',
             asiStatus: 'observing'
           }
         ]);
@@ -86,17 +86,17 @@ export const CityInfoSurprise: React.FC = () => {
           <div className="mt-3 text-sm">
             <span
               className={`px-2 py-1 rounded ${
-                city.albaStatus === 'active' ? 'bg-green-600' : 'bg-gray-600'
+                city.coreAStatus === 'active' ? 'bg-green-600' : 'bg-gray-600'
               }`}
             >
-              ALBA: {city.albaStatus}
+              Core-A: {city.coreAStatus}
             </span>{' '}
             <span
               className={`px-2 py-1 rounded ${
-                city.albiStatus === 'active' ? 'bg-blue-600' : 'bg-gray-600'
+                city.coreBStatus === 'active' ? 'bg-blue-600' : 'bg-gray-600'
               }`}
             >
-              ALBI: {city.albiStatus}
+              Core-B: {city.coreBStatus}
             </span>{' '}
             <span
               className={`px-2 py-1 rounded ${

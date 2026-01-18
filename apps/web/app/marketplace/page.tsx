@@ -107,7 +107,7 @@ const apiCategories = [
     name: 'ASI Trinity',
     icon: '🔺',
     endpoints: 10,
-    description: 'ALBA, ALBI, JONA autonomous systems'
+    description: 'Core-A, Core-B, Core-C autonomous systems'
   },
   {
     name: 'AI Services',

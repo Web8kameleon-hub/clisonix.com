@@ -176,19 +176,19 @@ export default function IndustrialDashboard() {
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">⚙️ Alba:</span>
+                    <span className="text-gray-400">⚙️ Core-A:</span>
                     <span className={`text-sm ${getStatusColor(metrics.asi_system.trinity.alba)}`}>
                       {metrics.asi_system.trinity.alba}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">🧠 Albi:</span>
+                    <span className="text-gray-400">🧠 Core-B:</span>
                     <span className={`text-sm ${getStatusColor(metrics.asi_system.trinity.albi)}`}>
                       {metrics.asi_system.trinity.albi}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">❤️ Jona:</span>
+                    <span className="text-gray-400">❤️ Core-C:</span>
                     <span className={`text-sm ${getStatusColor(metrics.asi_system.trinity.jona)}`}>
                       {metrics.asi_system.trinity.jona}
                     </span>

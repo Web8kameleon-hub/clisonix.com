@@ -10,7 +10,7 @@ import Link from 'next/link';
 export default function CompanyPage() {
   const milestones = [
     { year: '2024', title: 'Founded', desc: 'Clisonix founded with vision to democratize AI' },
-    { year: '2024', title: 'ASI Trinity', desc: 'Core AI architecture developed (ALBA, ALBI, JONA)' },
+    { year: '2024', title: 'ASI Trinity', desc: 'Core AI architecture developed (Neural Trinity System)' },
     { year: '2025', title: 'Platform Launch', desc: '15+ modules released, platform goes live' },
     { year: '2026', title: 'Public Beta', desc: 'Open access with 6-month free trial for early adopters' },
   ];
@@ -124,7 +124,7 @@ export default function CompanyPage() {
             <p className="text-lg text-gray-300 mb-6">
               In 2024, we set out to build something different — a unified AI platform 
               that combines the power of multiple specialized systems (what we call the 
-              ASI Trinity: ALBA, ALBI, and JONA) into a single, coherent API.
+              ASI Trinity: Core-A, Core-B, and Core-C) into a single, coherent API.
             </p>
             <p className="text-lg text-gray-300 mb-6">
               Today, Clisonix powers applications across industries — from healthcare 

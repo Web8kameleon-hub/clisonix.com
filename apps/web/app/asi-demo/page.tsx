@@ -3,7 +3,7 @@
  * =============
  * 
  * Interactive demonstration of the Clisonix ASI system
- * with Trinity architecture (Alba, Albi, Jona)
+ * with Trinity architecture (Core-A, Core-B, Core-C)
  */
 
 'use client';
@@ -54,7 +54,7 @@ export default function ASIDemoPage() {
 
   const agents = [
     {
-      name: 'Alba',
+      name: 'Core-A',
       role: 'Network Infrastructure Monitor',
       status: alba.status,
       health: 100 - (alba.workload ?? 0),
@@ -63,7 +63,7 @@ export default function ASIDemoPage() {
       cardStyle: agentCardAlba
     },
     {
-      name: 'Albi',
+      name: 'Core-B',
       role: 'Intelligence Enhancement Engine',
       status: albi.consciousness === 'awake' ? 'active' : 'inactive',
       health: albi.creativity ?? 50,
@@ -72,7 +72,7 @@ export default function ASIDemoPage() {
       cardStyle: agentCardAlbi
     },
     {
-      name: 'Jona',
+      name: 'Core-C',
       role: 'Safety & Ethics Guardian',
       status: jona.protection === 'enabled' ? 'active' : 'inactive',
       health: jona.ethics === 'strict' ? 100 : jona.ethics === 'moderate' ? 75 : 50,
@@ -212,13 +212,13 @@ export default function ASIDemoPage() {
 
               {/* Agent Specific Info */}
               <div className="mt-4 pt-4 border-t border-gray-700 text-xs text-gray-400">
-                {agent.name === 'Alba' && (
+                {agent.name === 'Core-A' && (
                   <div>Workload: {alba.workload ?? 0}% | Last Ping: <ClientTimeDisplay timestamp={alba.lastPing instanceof Date ? alba.lastPing.getTime() : (alba.lastPing ?? Date.now())} /></div>
                 )}
-                {agent.name === 'Albi' && (
+                {agent.name === 'Core-B' && (
                   <div>Insights: {albi.insights?.length ?? 0} | Creativity: {albi.creativity ?? 0}%</div>
                 )}
-                {agent.name === 'Jona' && (
+                {agent.name === 'Core-C' && (
                   <div>Ethics: {jona.ethics ?? 'unknown'} | Violations: {jona.violations?.length ?? 0}</div>
                 )}
               </div>
@@ -263,21 +263,21 @@ export default function ASIDemoPage() {
               <div className="text-2xl font-bold text-sky-400">
                 {100 - (alba.workload ?? 0)}%
               </div>
-              <div className="text-sm text-gray-400">Alba Health</div>
+              <div className="text-sm text-gray-400">Core-A Health</div>
             </div>
             
             <div>
               <div className="text-2xl font-bold text-emerald-400">
                 {albi.creativity ?? 0}%
               </div>
-              <div className="text-sm text-gray-400">Albi Creativity</div>
+              <div className="text-sm text-gray-400">Core-B Creativity</div>
             </div>
             
             <div>
               <div className="text-2xl font-bold text-purple-400">
                 {jona.ethics === 'strict' ? '100' : jona.ethics === 'moderate' ? '75' : '50'}%
               </div>
-              <div className="text-sm text-gray-400">Jona Ethics</div>
+              <div className="text-sm text-gray-400">Core-C Ethics</div>
             </div>
             
             <div>
@@ -300,9 +300,9 @@ export default function ASIDemoPage() {
             🚀 <span className="text-cyan-400">Powered by Trinity Architecture</span>
           </p>
           <p>
-            <span className="text-sky-400">Alba</span> (Body) • 
-            <span className="text-emerald-400"> Albi</span> (Spirit) • 
-            <span className="text-purple-400"> Jona</span> (Heart)
+            <span className="text-sky-400">Core-A</span> (Body) • 
+            <span className="text-emerald-400"> Core-B</span> (Spirit) • 
+            <span className="text-purple-400"> Core-C</span> (Heart)
           </p>
           <p className="pt-2">
             🔒 Sandbox enabled • ♻️ Strict ethics • 💝 Full protection
