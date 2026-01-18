@@ -476,29 +476,14 @@ export default function ClisonixPhoneSensorsMax() {
         }
     };
 
-    const detectFall = (data: MotionData) => {
-        const mag = Math.sqrt(
-            data.acceleration.x ** 2 +
-            data.acceleration.y ** 2 +
-            data.acceleration.z ** 2
-        );
-
-        if (mag < 0.3 && motionBuffer.current.length > 10) {
-            const prevData = motionBuffer.current[motionBuffer.current.length - 10];
-            const prevMag = Math.sqrt(
-                prevData.acceleration.x ** 2 +
-                prevData.acceleration.y ** 2 +
-                prevData.acceleration.z ** 2
-            );
-
-            if (prevMag > 2) {
-                setFallDetected(true);
-        if ('vibrate' in navigator) {
-            navigator.vibrate([500, 200, 500, 200, 500]);
-        }
-                setTimeout(() => setFallDetected(false), 5000);
-            }
-    }
+    // 🌊 Fall detection - DISABLED for now to avoid false positives
+    // Real fall detection requires much more sophisticated algorithms
+    // and should only be enabled when user explicitly opts in
+    const detectFall = (_data: MotionData) => {
+        // Fall detection disabled - was causing false positives
+        // In a real health app, this would use ML models trained on actual fall data
+        // For now, we focus on positive metrics like steps and activity
+        return;
     };
 
     const calculateStress = () => {
@@ -690,25 +675,35 @@ export default function ClisonixPhoneSensorsMax() {
     // ========== RENDER ==========
   return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white">
-          {/* Fall Detection Alert */}
+          {/* Wellness Check - Friendly, not scary */}
           <AnimatePresence>
               {fallDetected && (
                   <motion.div
-                      initial={{ opacity: 0, scale: 0.5 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.5 }}
-                      className="fixed inset-0 z-[100] bg-red-900/90 flex items-center justify-center"
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.3 }}
+                      className="fixed inset-0 z-[100] bg-gradient-to-br from-blue-900/95 to-purple-900/95 flex items-center justify-center p-6"
                   >
-                      <div className="text-center">
-                          <div className="text-8xl mb-4">⚠️</div>
-                          <h1 className="text-4xl font-bold mb-2">FALL DETECTED!</h1>
-                          <p className="text-xl text-red-200">Rënie e detektuar - a jeni mirë?</p>
-                          <button
-                              onClick={() => setFallDetected(false)}
-                              className="mt-6 px-8 py-3 bg-white text-red-900 rounded-xl font-bold"
-                          >
-                              Po, jam mirë
-                          </button>
+                      <div className="text-center max-w-sm">
+                          <div className="text-6xl mb-4">💙</div>
+                          <h1 className="text-2xl font-bold mb-3">Kontrolli i Mirëqenies</h1>
+                          <p className="text-lg text-blue-200 mb-6">Sensori detektoi lëvizje të pazakontë. Si ndiheni?</p>
+                          <div className="space-y-3">
+                              <button
+                                  onClick={() => setFallDetected(false)}
+                                  className="w-full px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl font-bold text-lg shadow-lg"
+                              >
+                                  😊 Jam mirë, faleminderit!
+                              </button>
+                              <button
+                                  onClick={() => setFallDetected(false)}
+                                  className="w-full px-6 py-3 bg-white/10 rounded-xl text-sm"
+                              >
+                                  Mbyll këtë mesazh
+                              </button>
+                          </div>
+                          <p className="text-xs text-blue-300/60 mt-4">Ky kontroll është vetëm informativ</p>
                       </div>
                   </motion.div>
               )}
