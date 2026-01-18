@@ -1,29 +1,26 @@
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 WORKDIR /app
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy ocean-core and apps/api (for Location Labs Engine)
-COPY ocean-core/ /app/
-COPY apps/api/ /app/apps/api/
-
-# Create __init__.py for apps package
-RUN mkdir -p /app/apps && touch /app/apps/__init__.py && touch /app/apps/api/__init__.py
+# Copy Ocean-Core source code
+COPY . /app/
 
 # Install Python dependencies
-RUN pip install --no-cache-dir \
-    fastapi==0.104.1 \
-    uvicorn==0.24.0 \
-    httpx==0.25.0 \
-    cbor2==5.4.6
+RUN pip install --no-cache-dir -r requirements.txt 2>/dev/null || \
+    pip install --no-cache-dir fastapi uvicorn httpx
+
+# Expose port
+EXPOSE 8030
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8030/health || exit 1
+    CMD curl -f http://localhost:8030/api/status || exit 1
 
-# Run Ocean Core with 14 Expert Personas (REAL data, NO fake, NO external APIs)
-CMD ["python", "-m", "uvicorn", "ocean_api:app", "--host", "0.0.0.0", "--port", "8030"]
+# Start Ocean-Core API
+CMD ["python", "ocean_api.py"]
