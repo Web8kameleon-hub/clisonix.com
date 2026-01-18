@@ -8,15 +8,15 @@ services:
     image: postgres:16
     container_name: clisonix-postgres
     environment:
-      POSTGRES_USER: clisonix
-      POSTGRES_PASSWORD: clisonix
-      POSTGRES_DB: clisonixdb
+      POSTGRES_USER: ${DB_USER:-clisonix}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change_me_in_production}
+      POSTGRES_DB: ${DB_NAME:-clisonixdb}
     ports:
       - "5432:5432"
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U clisonix"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-clisonix}"]
       interval: 10s
       timeout: 5s
       retries: 5

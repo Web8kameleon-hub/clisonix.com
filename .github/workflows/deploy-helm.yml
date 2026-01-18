@@ -1,33 +1,120 @@
 # .github/workflows/deploy-helm.yml
-# Workflow për të ngritur një mjedis Kubernetes (me kind) dhe për të instaluar Helm.
-# Ky shërben si bazë për Continuous Deployment në Kubernetes.
+# Deploy Clisonix Cloud to Hetzner Kubernetes (or self-managed K8s)
 
-name: "Deploy to Kubernetes with Helm"
+name: "🚀 Deploy to Kubernetes with Helm"
 
 on:
-  workflow_dispatch: # Lejon aktivizimin manual
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
-  deploy-to-kind:
-    name: "Deploy to kind (Kubernetes-in-Docker)"
+  deploy-helm:
+    name: "Deploy Clisonix with Helm"
     runs-on: ubuntu-latest
-
+    timeout-minutes: 30
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up kind (Kubernetes-in-Docker)
-        # Përdor një action të gatshëm për të krijuar një kluster Kubernetes për testim
-        uses: helm/kind-action@v1.4.0
-        # Ky hap e bën 'kubectl' të disponueshëm dhe të konfiguruar për klusterin e ri
+        uses: actions/checkout@v4
 
       - name: Set up Helm
-        # Përdor një action të gatshëm për të instaluar versionin e fundit të Helm
         uses: azure/setup-helm@v3
         with:
-          # Specifikon versionin e Helm, ose mund ta lëmë bosh për të marrë të fundit
-          version: 'v3.10.1'
-        id: install
+          version: 'v3.13.0'
+
+      - name: Configure kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Create kubeconfig from secrets
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Add Helm repositories
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo update
+
+      - name: Create namespace
+        run: |
+          kubectl create namespace clisonix-${{ inputs.environment }} --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy PostgreSQL
+        run: |
+          helm upgrade --install postgres bitnami/postgresql \
+            --namespace clisonix-${{ inputs.environment }} \
+            --values ./helm/values-postgres.yaml \
+            --set auth.password=${{ secrets.DB_PASSWORD }}
+
+      - name: Deploy Redis
+        run: |
+          helm upgrade --install redis bitnami/redis \
+            --namespace clisonix-${{ inputs.environment }} \
+            --values ./helm/values-redis.yaml
+
+      - name: Deploy Prometheus
+        run: |
+          helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
+            --namespace clisonix-${{ inputs.environment }} \
+            --values ./helm/values-prometheus.yaml
+
+      - name: Deploy Grafana
+        run: |
+          helm upgrade --install grafana grafana/grafana \
+            --namespace clisonix-${{ inputs.environment }} \
+            --values ./helm/values-grafana.yaml \
+            --set adminPassword=${{ secrets.GRAFANA_PASSWORD }}
+
+      - name: Deploy Clisonix Backend
+        run: |
+          helm upgrade --install clisonix-backend ./helm/charts/backend \
+            --namespace clisonix-${{ inputs.environment }} \
+            --values ./helm/values-backend.yaml \
+            --set image.tag=${{ github.sha }}
+
+      - name: Deploy Ocean-Core
+        run: |
+          helm upgrade --install ocean-core ./helm/charts/ocean \
+            --namespace clisonix-${{ inputs.environment }} \
+            --values ./helm/values-ocean.yaml \
+            --set image.tag=${{ github.sha }}
+
+      - name: Deploy Frontend
+        run: |
+          helm upgrade --install clisonix-frontend ./helm/charts/frontend \
+            --namespace clisonix-${{ inputs.environment }} \
+            --values ./helm/values-frontend.yaml \
+            --set image.tag=${{ github.sha }}
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/clisonix-backend -n clisonix-${{ inputs.environment }} --timeout=5m
+          kubectl rollout status deployment/ocean-core -n clisonix-${{ inputs.environment }} --timeout=5m
+          kubectl rollout status deployment/clisonix-frontend -n clisonix-${{ inputs.environment }} --timeout=5m
+
+      - name: Get deployment status
+        if: always()
+        run: |
+          echo "Deployments:"
+          kubectl get deployments -n clisonix-${{ inputs.environment }}
+          echo "Pods:"
+          kubectl get pods -n clisonix-${{ inputs.environment }}
+          echo "Services:"
+          kubectl get svc -n clisonix-${{ inputs.environment }}
 
       - name: Verify Kubernetes and Helm setup
         run: |
