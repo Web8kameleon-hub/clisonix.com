@@ -304,8 +304,9 @@ async def query_ocean(request: Request):
     # Parse JSON body
     try:
         body = await request.json()
-    except:
-        raise HTTPException(status_code=400, detail="Invalid JSON body")
+    except Exception as e:
+        logger.error(f"JSON parse error: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid JSON body: {str(e)}")
     
     question = body.get("query") or body.get("question") or ""
     use_personas = body.get("use_personas", True)
