@@ -25,6 +25,7 @@ from query_processor import get_query_processor, QueryIntent
 from knowledge_engine import get_knowledge_engine, KnowledgeResponse
 from persona_router import PersonaRouter
 from laboratories import get_laboratory_network
+from real_data_engine import get_real_data_engine
 
 
 async def get_knowledge_engine_hybrid(data_sources):
@@ -85,12 +86,14 @@ internal_data_sources = None
 persona_router = None
 query_processor = None
 knowledge_engine = None
+laboratory_network = None
+real_data_engine = None
 
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize all managers on startup"""
-    global internal_data_sources, persona_router, query_processor, knowledge_engine
+    global internal_data_sources, persona_router, query_processor, knowledge_engine, laboratory_network, real_data_engine
     
     logger.info("🌊 Ocean Core 8030 starting up with 14 personas...")
     
@@ -123,6 +126,18 @@ async def startup_event():
         
         logger.info("✅ Query processor initialized")
         
+        # Initialize laboratory network and real data engine - FOR ULTRA RESPONSES
+        logger.info("→ Initializing laboratory network and real data engine...")
+        laboratory_network = get_laboratory_network()
+        
+        if laboratory_network is None:
+            logger.error("⚠️  Laboratory network not available!")
+        else:
+            lab_list = laboratory_network.get_all_labs()
+            logger.info(f"✅ Laboratory network initialized with {len(lab_list)} labs")
+            real_data_engine = await get_real_data_engine(laboratory_network)
+            logger.info("✅ Real Data Engine initialized - Will query labs for ULTRA responses!")
+        
         # Initialize knowledge engine - CRITICAL COMPONENT
         logger.info("→ Initializing knowledge engine with internal data sources...")
         knowledge_engine = await get_knowledge_engine_hybrid(internal_data_sources)
@@ -138,6 +153,8 @@ async def startup_event():
         logger.info(f"✅ Ocean Core 8030 initialized successfully!")
         logger.info(f"   - Personas: {len(persona_router.mapping)}")
         logger.info(f"   - Data Sources: {len(internal_data_sources.get_all_data().keys()) if internal_data_sources else 0}")
+        logger.info(f"   - Laboratories: {len(laboratory_network.get_all_labs()) if laboratory_network else 0}")
+        logger.info(f"   - Real Data Engine: {'✅ Ready' if real_data_engine else '⚠️  Not available'}")
         logger.info(f"   - Knowledge Engine: {'✅ Ready' if knowledge_engine else '⚠️  Degraded'}")
     except Exception as e:
         logger.error(f"❌ Ocean Core 8030 initialization failed: {type(e).__name__}: {str(e)}")
@@ -417,6 +434,16 @@ async def query_ocean(request: Request):
     try:
         logger.info(f"🧠 Received query: {question}")
         
+        # 0. ULTRA MODE: Try to get real data from laboratories first!
+        lab_data = None
+        if real_data_engine:
+            logger.info("🔬 ULTRA MODE: Querying real laboratories for data...")
+            try:
+                lab_data = await real_data_engine.get_comprehensive_response(question)
+                logger.info(f"✅ Real labs returned {lab_data.get('total_labs_queried', 0)} responses")
+            except Exception as e:
+                logger.warning(f"⚠️  Real data engine error: {e}")
+        
         # 1. Get internal data
         internal_data = internal_data_sources.get_all_data()
         
@@ -440,21 +467,42 @@ async def query_ocean(request: Request):
         
         # If knowledge engine not available, create lightweight response
         if not response:
-            # Generate enhanced findings even without full knowledge engine
-            key_findings = generate_key_findings(question, persona_response)
+            # Generate enhanced findings - use real lab data if available!
+            if lab_data and lab_data.get('lab_responses'):
+                # Use REAL lab data instead of generic findings
+                key_findings = [
+                    {
+                        "finding": lab['answer'][:200] + "...",
+                        "importance": lab['quality_score'],
+                        "source": lab['lab_name'],
+                        "lab_domain": lab['domain'],
+                        "confidence": lab['confidence']
+                    }
+                    for lab in lab_data.get('lab_responses', [])[:3]
+                ]
+            else:
+                key_findings = generate_key_findings(question, persona_response)
+            
             curiosity_threads = generate_curiosity_threads(question, key_findings)
+            
+            # Build ULTRA response with real lab data
+            ultra_response = persona_response or "Analyzed based on internal data sources"
+            if lab_data and lab_data.get('comprehensive_answer'):
+                ultra_response = lab_data['comprehensive_answer']
             
             response_dict = {
                 "query": question,
                 "intent": processed.intent.value if processed else "unknown",
-                "response": persona_response or "Analyzed based on internal data sources",
+                "response": ultra_response,
                 "persona_answer": persona_response if use_personas else None,
                 "key_findings": key_findings,
-                "sources": {"internal": ["persona_analysis"], "external": []},
-                "confidence": 0.75 if persona_response else 0.5,
+                "sources": {"internal": ["persona_analysis", "real_laboratories"] if lab_data else ["persona_analysis"], "external": []},
+                "confidence": lab_data.get('average_confidence', 0.75) if lab_data else (0.75 if persona_response else 0.5),
                 "processing_time_ms": 0,
                 "curiosity_threads": curiosity_threads,
-                "data_sources_used": ["internal_only"],
+                "data_sources_used": ["internal_only", "real_labs"] if lab_data else ["internal_only"],
+                "labs_queried": lab_data.get('total_labs_queried', 0) if lab_data else 0,
+                "real_lab_data": lab_data if lab_data else None,
                 "timestamp": datetime.now().isoformat()
             }
         else:
@@ -495,14 +543,15 @@ async def query_ocean(request: Request):
 @app.get("/api/labs")
 async def get_labs():
     """Get all location labs data"""
-    if not internal_data_sources:
+    if not laboratory_network:
         raise HTTPException(status_code=503, detail="Service not initialized")
     
     try:
-        internal_data = internal_data_sources.get_all_data()
+        labs_dicts = laboratory_network.get_all_labs()
+        # labs_dicts is already a list of dicts from get_all_labs()
         return {
-            "labs": internal_data.get("labs", []),
-            "total": len(internal_data.get("labs", [])),
+            "labs": labs_dicts,
+            "total": len(labs_dicts),
             "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
