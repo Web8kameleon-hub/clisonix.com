@@ -186,6 +186,21 @@ export default function ModulesPage() {
 
   const modules = [
     {
+      id: 'account',
+      name: '👤 Llogaria & Faturimi',
+      description: 'Menaxho llogarinë, abonime, metodat e pagesës dhe cilësimet',
+      status: 'active' as const,
+      capabilities: [
+        'Profile management',
+        'Subscription & billing',
+        'Payment methods',
+        'Security settings',
+        'API keys'
+      ],
+      route: '/modules/account',
+      isUserModule: true
+    },
+    {
       id: 'user-data',
       name: '📊 My Data Dashboard',
       description: 'View and manage your data sources - IoT, API, LoRa, GSM, CBOR integrations',
