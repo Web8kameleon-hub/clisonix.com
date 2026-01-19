@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Specialized Expert Chat - Curiosity Ocean</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            max-height: 800px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .domains-info {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 12px;
+            font-size: 12px;
+        }
+        
+        .domain-tag {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .message {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .message.user {
+            flex-direction: row-reverse;
+        }
+        
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+        
+        .message.assistant .message-bubble {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .message.user .message-bubble {
+            background: #667eea;
+            color: white;
+        }
+        
+        .message-meta {
+            font-size: 12px;
+            color: #999;
+            padding: 0 4px;
+        }
+        
+        .domain-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-top: 6px;
+        }
+        
+        .input-area {
+            padding: 16px 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .input-field {
+            flex: 1;
+            display: flex;
+            gap: 8px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .clear-btn {
+            background: #999;
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        
+        .clear-btn:hover {
+            background: #666;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+            animation: pulse 1.5s infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .error {
+            background: #fee;
+            color: #c00;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #c00;
+        }
+        
+        .follow-ups {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        
+        .follow-up-btn {
+            background: #f0f0f0;
+            color: #333;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            transition: all 0.2s;
+        }
+        
+        .follow-up-btn:hover {
+            background: #e0e0e0;
+            transform: translateY(-1px);
+        }
+        
+        .stats {
+            font-size: 12px;
+            color: #999;
+            padding: 8px 0;
+            text-align: center;
+            border-top: 1px solid #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Specialized Expert Chat</h1>
+            <p>Clean, professional responses in your advanced fields</p>
+            <div class="domains-info">
+                <div class="domain-tag">🧠 Neuroscience</div>
+                <div class="domain-tag">🤖 AI/ML</div>
+                <div class="domain-tag">⚛️ Quantum</div>
+                <div class="domain-tag">🔐 Security</div>
+                <div class="domain-tag">📡 IoT</div>
+                <div class="domain-tag">🌊 Marine</div>
+                <div class="domain-tag">🧬 Biotech</div>
+                <div class="domain-tag">📊 Data Science</div>
+            </div>
+        </div>
+        
+        <div class="chat-area" id="chatArea">
+            <div style="text-align: center; color: #999; padding: 20px;">
+                <p>Start your conversation with a question about your area of expertise</p>
+                <p style="font-size: 12px; margin-top: 12px;">Questions are processed through specialized research labs</p>
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <div class="input-field">
+                <input 
+                    type="text" 
+                    id="queryInput" 
+                    placeholder="Ask in English or Albanian..."
+                    autocomplete="off"
+                >
+                <button onclick="sendMessage()" id="sendBtn">Send</button>
+                <button class="clear-btn" onclick="clearChat()">Clear</button>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <span id="stats">Ready</span>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8030/api/chat';
+        
+        // Use current domain if running on Hetzner
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            const API_URL_OVERRIDE = `http://${window.location.hostname}:8030/api/chat`;
+            console.log('Using API URL:', API_URL_OVERRIDE);
+        }
+        
+        const chatArea = document.getElementById('chatArea');
+        const queryInput = document.getElementById('queryInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const statsDiv = document.getElementById('stats');
+        
+        let messageCount = 0;
+        
+        function scrollToBottom() {
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+        
+        function addMessage(role, content, domain = null, followUps = []) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            let html = `<div class="message-bubble">`;
+            html += `<div>${escapeHtml(content)}</div>`;
+            
+            if (domain) {
+                html += `<div class="domain-badge">Domain: ${escapeHtml(domain)}</div>`;
+            }
+            
+            if (followUps && followUps.length > 0) {
+                html += `<div class="follow-ups">`;
+                followUps.slice(0, 2).forEach(topic => {
+                    html += `<button class="follow-up-btn" onclick="askFollowUp('${escapeHtml(topic.replace(/'/g, "\\'"))}')">${escapeHtml(topic)}</button>`;
+                });
+                html += `</div>`;
+            }
+            
+            html += `</div>`;
+            messageDiv.innerHTML = html;
+            
+            // Clear initial message
+            if (messageCount === 0 && chatArea.children.length === 1) {
+                chatArea.innerHTML = '';
+            }
+            
+            chatArea.appendChild(messageDiv);
+            messageCount++;
+            scrollToBottom();
+        }
+        
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+        
+        function updateStats(message) {
+            statsDiv.textContent = message;
+        }
+        
+        async function sendMessage() {
+            const query = queryInput.value.trim();
+            if (!query) return;
+            
+            // Add user message
+            addMessage('user', query);
+            queryInput.value = '';
+            sendBtn.disabled = true;
+            updateStats('Processing...');
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Add assistant message with domain and follow-ups
+                addMessage(
+                    'assistant',
+                    data.answer,
+                    data.domain || 'general',
+                    data.follow_up_topics || []
+                );
+                
+                updateStats(`Domain: ${data.domain || 'general'} | Confidence: ${(data.confidence * 100).toFixed(0)}%`);
+                
+            } catch (error) {
+                addMessage('assistant', `[Error: ${error.message}]`);
+                updateStats('Error');
+            } finally {
+                sendBtn.disabled = false;
+                queryInput.focus();
+            }
+        }
+        
+        function askFollowUp(topic) {
+            queryInput.value = topic;
+            queryInput.focus();
+            sendMessage();
+        }
+        
+        function clearChat() {
+            chatArea.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;"><p>Start your conversation with a question about your area of expertise</p></div>';
+            messageCount = 0;
+            updateStats('Ready');
+        }
+        
+        // Allow Enter key to send
+        queryInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Focus input on load
+        queryInput.focus();
+    </script>
+</body>
+</html>

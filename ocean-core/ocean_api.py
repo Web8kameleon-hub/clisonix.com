@@ -16,7 +16,8 @@ import logging
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 import asyncio
 
 # Local imports
@@ -198,6 +199,23 @@ async def root():
             "GET /health - Health check"
         ]
     }
+
+
+@app.get("/")
+async def root():
+    """Redirect to chat interface"""
+    return FileResponse("specialized_chat.html", media_type="text/html")
+
+
+@app.get("/chat")
+async def chat_ui():
+    """Serve the specialized chat interface"""
+    import os
+    file_path = os.path.join(os.path.dirname(__file__), "specialized_chat.html")
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="text/html")
+    else:
+        return {"error": "Chat UI not found"}
 
 
 @app.get("/api/status")
