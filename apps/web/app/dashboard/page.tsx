@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Plus, Activity, Zap, Database, Download } from 'lucide-react';
+import { useState } from 'react';
+import { Brain, Settings } from 'lucide-react';
 
 interface DataSource {
   id: string;

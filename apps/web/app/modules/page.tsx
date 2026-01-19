@@ -292,8 +292,6 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    const newStatuses = await Promise.all(
       apiStatuses.map(async (api) => {
         const startTime = Date.now()
         try {
