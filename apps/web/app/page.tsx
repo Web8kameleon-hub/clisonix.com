@@ -13,7 +13,7 @@ const MODULES = [
   {
     id: 'mood-journal',
     name: 'Mood Journal',
-    description: 'Regjistro humorin tënd çdo ditë me një tap',
+    description: 'Track your daily mood with a single tap',
     icon: '😊',
     color: 'from-purple-500 to-pink-500',
     category: 'Lifestyle',
@@ -22,7 +22,7 @@ const MODULES = [
   {
     id: 'daily-habits',
     name: 'Daily Habits',
-    description: 'Gjurmo zakonet e përditshme dhe krijo streak',
+    description: 'Monitor daily habits and build streaks',
     icon: '🎯',
     color: 'from-emerald-500 to-green-500',
     category: 'Lifestyle',
@@ -31,7 +31,7 @@ const MODULES = [
   {
     id: 'focus-timer',
     name: 'Focus Timer',
-    description: 'Pomodoro timer për produktivitet maksimal',
+    description: 'Pomodoro timer for maximum productivity',
     icon: '⏱️',
     color: 'from-red-500 to-orange-500',
     category: 'Productivity',
@@ -41,7 +41,7 @@ const MODULES = [
   {
     id: 'phone-sensors',
     name: 'Phone Sensors',
-    description: 'Accelerometer, gyroscope, GPS - matje reale nga telefoni',
+    description: 'Real accelerometer, gyroscope, and GPS data from your phone',
     icon: '📱',
     color: 'from-blue-500 to-indigo-600',
     category: 'Sensors',
@@ -50,7 +50,7 @@ const MODULES = [
   {
     id: 'face-detection',
     name: 'Face Detection',
-    description: 'Analiza e emocioneve dhe shenjave vitale me kamerë',
+    description: 'Emotion and vital signs analysis with camera',
     icon: '📷',
     color: 'from-pink-500 to-purple-600',
     category: 'Sensors',
@@ -111,7 +111,7 @@ const MODULES = [
   {
     id: 'weather-dashboard',
     name: 'Weather & Cognitive',
-    description: 'Si ndikon moti në performancën kognitive',
+    description: 'How weather impacts cognitive performance',
     icon: '🌤️',
     color: 'from-sky-500 to-blue-600',
     category: 'Environment'
@@ -146,11 +146,6 @@ const MODULES = [
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const categories = ['all', ...new Set(MODULES.map(m => m.category))];
   const filteredModules = selectedCategory === 'all' 
@@ -179,12 +174,12 @@ export default function HomePage() {
               <a href="#asi-trinity" className="text-gray-400 hover:text-cyan-400 transition-colors">ASI Trinity</a>
               <a href="#modules" className="text-gray-400 hover:text-cyan-400 transition-colors">Tools</a>
               <a href="#tech-stack" className="text-gray-400 hover:text-cyan-400 transition-colors">Why Us</a>
-              <Link href="/dashboard" className="text-gray-400 hover:text-cyan-400 transition-colors">Dashboard</Link>
+              <Link href="/modules" className="text-gray-400 hover:text-cyan-400 transition-colors">Dashboard</Link>
             </div>
             
             <div className="flex items-center gap-4">
               <Link 
-                href="/dashboard"
+                href="/modules"
                 className="px-5 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 rounded-lg font-medium transition-all shadow-lg shadow-cyan-500/25"
               >
                 Open Dashboard
@@ -453,7 +448,7 @@ export default function HomePage() {
             <div>
               <h4 className="font-semibold mb-4 text-gray-300">Platform</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link href="/dashboard" className="hover:text-cyan-400 transition-colors">Dashboard</Link></li>
+                <li><Link href="/modules" className="hover:text-cyan-400 transition-colors">Dashboard</Link></li>
                 <li><Link href="/modules/curiosity-ocean" className="hover:text-cyan-400 transition-colors">Curiosity Ocean</Link></li>
                 <li><Link href="/modules/eeg-analysis" className="hover:text-cyan-400 transition-colors">EEG Analysis</Link></li>
               </ul>
