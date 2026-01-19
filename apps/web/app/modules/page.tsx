@@ -292,7 +292,6 @@ export default function DashboardPage() {
     </div>
   );
 }
-    setIsCheckingAPIs(true)
 
     const newStatuses = await Promise.all(
       apiStatuses.map(async (api) => {
