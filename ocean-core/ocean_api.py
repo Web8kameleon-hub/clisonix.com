@@ -26,6 +26,7 @@ from knowledge_engine import get_knowledge_engine, KnowledgeResponse
 from persona_router import PersonaRouter
 from laboratories import get_laboratory_network
 from real_data_engine import get_real_data_engine
+from specialized_chat_engine import get_specialized_chat, initialize_specialized_chat
 
 
 async def get_knowledge_engine_hybrid(data_sources):
@@ -88,14 +89,15 @@ query_processor = None
 knowledge_engine = None
 laboratory_network = None
 real_data_engine = None
+specialized_chat = None
 
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize all managers on startup"""
-    global internal_data_sources, persona_router, query_processor, knowledge_engine, laboratory_network, real_data_engine
+    global internal_data_sources, persona_router, query_processor, knowledge_engine, laboratory_network, real_data_engine, specialized_chat
     
-    logger.info("🌊 Ocean Core 8030 starting up with 14 personas...")
+    logger.info("[OCEAN] Ocean Core 8030 starting up with 14 personas...")
     
     try:
         # Initialize all managers in parallel
@@ -106,7 +108,7 @@ async def startup_event():
             logger.error("❌ CRITICAL: get_internal_data_sources() returned None!")
             raise RuntimeError("Failed to initialize data sources")
         
-        logger.info(f"✅ Data sources initialized")
+        logger.info(f"[OK] Data sources initialized")
         
         logger.info("→ Initializing persona router...")
         persona_router = PersonaRouter()
@@ -115,7 +117,7 @@ async def startup_event():
             logger.error("❌ CRITICAL: Persona router failed to initialize!")
             raise RuntimeError("Failed to initialize persona router")
         
-        logger.info(f"✅ Persona router initialized with {len(persona_router.mapping)} personas")
+        logger.info(f"[OK] Persona router initialized with {len(persona_router.mapping)} personas")
         
         logger.info("→ Initializing query processor...")
         query_processor = await get_query_processor()
@@ -124,7 +126,7 @@ async def startup_event():
             logger.error("❌ CRITICAL: get_query_processor() returned None!")
             raise RuntimeError("Failed to initialize query processor")
         
-        logger.info("✅ Query processor initialized")
+        logger.info("[OK] Query processor initialized")
         
         # Initialize laboratory network and real data engine - FOR ULTRA RESPONSES
         logger.info("→ Initializing laboratory network and real data engine...")
@@ -134,9 +136,14 @@ async def startup_event():
             logger.error("⚠️  Laboratory network not available!")
         else:
             lab_list = laboratory_network.get_all_labs()
-            logger.info(f"✅ Laboratory network initialized with {len(lab_list)} labs")
+            logger.info(f"[OK] Laboratory network initialized with {len(lab_list)} labs")
             real_data_engine = await get_real_data_engine(laboratory_network)
-            logger.info("✅ Real Data Engine initialized - Will query labs for ULTRA responses!")
+            logger.info("[OK] Real Data Engine initialized - Will query labs for ULTRA responses!")
+        
+        # Initialize specialized chat engine - CLEAN EXPERT CHAT
+        logger.info("→ Initializing Specialized Chat Engine...")
+        specialized_chat = await initialize_specialized_chat()
+        logger.info("[OK] Specialized Chat Engine ready - clean, expert-focused interface!")
         
         # Initialize knowledge engine - CRITICAL COMPONENT
         logger.info("→ Initializing knowledge engine with internal data sources...")
@@ -538,6 +545,115 @@ async def query_ocean(request: Request):
     except Exception as e:
         logger.error(f"Query processing error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/chat")
+async def specialized_chat(request: Request):
+    """
+    Specialized Expert Chat - Clean Interface
+    
+    Returns real, expert answers in your advanced domains:
+    - Neuroscience & Brain Research
+    - AI/ML & Deep Learning
+    - Quantum Physics & Energy
+    - IoT/LoRa & Sensor Networks
+    - Cybersecurity & Encryption
+    - Bioinformatics & Genetics
+    - Data Science & Analytics
+    - Marine Biology & Environmental Science
+    
+    NO system status - JUST expert answers.
+    """
+    if not specialized_chat:
+        raise HTTPException(status_code=503, detail="Specialized Chat Engine not initialized")
+    
+    try:
+        body = await request.json()
+        query = body.get("query", "").strip()
+        
+        if not query:
+            raise ValueError("Query cannot be empty")
+        
+        # Generate expert response
+        response = await specialized_chat.generate_expert_response(query)
+        
+        return {
+            "type": "specialized_chat",
+            "query": query,
+            "domain": response["domain"],
+            "domain_expertise": response["domain_expertise"],
+            "answer": response["answer"],
+            "sources": response["sources"],
+            "confidence": response["confidence"],
+            "follow_up_topics": response["follow_up_topics"],
+            "timestamp": response["timestamp"]
+        }
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Chat processing error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/chat/history")
+async def get_chat_history(request: Request):
+    """Get chat conversation history"""
+    if not specialized_chat:
+        raise HTTPException(status_code=503, detail="Specialized Chat Engine not initialized")
+    
+    try:
+        body = await request.json()
+        limit = body.get("limit", 20)
+        
+        history = specialized_chat.get_chat_history(limit)
+        stats = specialized_chat.get_statistics()
+        
+        return {
+            "messages": history,
+            "statistics": stats,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"History retrieval error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/chat/clear")
+async def clear_chat():
+    """Clear chat history for new conversation"""
+    if not specialized_chat:
+        raise HTTPException(status_code=503, detail="Specialized Chat Engine not initialized")
+    
+    try:
+        specialized_chat.clear_history()
+        return {"status": "success", "message": "Chat history cleared", "timestamp": datetime.utcnow().isoformat()}
+    except Exception as e:
+        logger.error(f"Clear history error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/chat/domains")
+async def get_domains():
+    """Get available expertise domains"""
+    if not specialized_chat:
+        raise HTTPException(status_code=503, detail="Specialized Chat Engine not initialized")
+    
+    domains = {}
+    for domain_name, domain_info in specialized_chat.EXPERTISE_DOMAINS.items():
+        domains[domain_name] = {
+            "focus": domain_info["focus"],
+            "expertise_level": domain_info["expertise_level"],
+            "keywords": domain_info["keywords"][:5],  # Show first 5 keywords
+            "labs": domain_info["labs"]
+        }
+    
+    return {
+        "domains": domains,
+        "total_domains": len(domains),
+        "total_labs": len(set(lab for d in domains.values() for lab in d["labs"])),
+        "timestamp": datetime.utcnow().isoformat()
+    }
 
 
 @app.get("/api/labs")
