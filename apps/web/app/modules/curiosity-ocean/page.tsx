@@ -68,25 +68,50 @@ export default function CuriosityOceanChat() {
     setIsLoading(true);
 
     try {
-      const res = await fetch('/api/ocean', {
+      // Build conversation context from previous messages
+      const conversationContext = messages
+        .filter(m => m.type === 'user')
+        .map(m => m.content)
+        .slice(-5); // Last 5 user messages for context
+
+      // Query ORCHESTRATED endpoint (The Brain!)
+      const res = await fetch('http://localhost:8030/api/chat/orchestrated', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          question: messageText,
-          curiosity_level: curiosityLevel,
+          query: messageText,
+          conversation_context: conversationContext,
         }),
       });
 
       if (res.ok) {
         const data = await res.json();
         
+        // Build a rich, narrative response from orchestrator
+        let responseContent = `🧠 **The Brain is Thinking...**\n\n`;
+        responseContent += `**Query Category:** ${data.query_category}\n`;
+        responseContent += `**Intent:** ${data.understanding.intent}\n`;
+        responseContent += `**Complexity:** ${data.understanding.complexity_level}\n\n`;
+
+        responseContent += `**Consulted Experts:**\n`;
+        data.consulted_experts.forEach((expert: any) => {
+          responseContent += `• ${expert.name} (${expert.type}) - Confidence: ${Math.round(expert.confidence * 100)}%\n`;
+        });
+
+        responseContent += `\n**The Answer:**\n${data.fused_answer}\n\n`;
+        responseContent += `**Sources:** ${data.sources_cited.join(', ')}\n`;
+        responseContent += `**Confidence:** ${Math.round(data.confidence * 100)}% | **Quality:** ${Math.round(data.narrative_quality * 100)}%`;
+
         const aiMessage: Message = {
           id: `ai-${Date.now()}`,
           type: 'ai',
-          content: data.ocean_response || "I'm pondering your question...",
+          content: responseContent,
           timestamp: new Date(),
-          rabbitHoles: data.rabbit_holes,
-          nextQuestions: data.next_questions,
+          nextQuestions: [
+            `Tell me more about ${data.query_category}`,
+            `How does this relate to what we discussed?`,
+            `What's the opposite perspective?`,
+          ],
         };
 
         setMessages(prev => [...prev, aiMessage]);
@@ -94,7 +119,7 @@ export default function CuriosityOceanChat() {
         const errorMessage: Message = {
           id: `error-${Date.now()}`,
           type: 'ai',
-          content: '🌊 The Ocean is experiencing turbulence. Please try again.',
+          content: '🌊 The Orchestrator is thinking. Please try again or check if Ocean-Core is running on port 8030.',
           timestamp: new Date(),
         };
         setMessages(prev => [...prev, errorMessage]);

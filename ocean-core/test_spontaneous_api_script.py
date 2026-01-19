@@ -12,7 +12,7 @@ import time
 from typing import Dict, Any
 
 # Use Invoke-WebRequest in PowerShell instead
-test_script = """
+test_script = r"""
 
 Write-Host "╔═══════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
 Write-Host "║  SPONTANEOUS CONVERSATION API TEST - FULL CONTEXT AWARENESS      ║" -ForegroundColor Cyan
@@ -164,11 +164,15 @@ Write-Host "   • Independent conversations (with history clearing)" -Foregroun
 """
 
 # Save and run the test script
-$scriptPath = "test_spontaneous_api.ps1"
-$test_script | Out-File -FilePath $scriptPath -Encoding UTF8 -Force
-Write-Host "✓ Test script created: $scriptPath"
-Write-Host "`nTo run the test:"
-Write-Host "  powershell -ExecutionPolicy Bypass .\$scriptPath"
+import os
+
+script_path = "test_spontaneous_api.ps1"
+with open(script_path, 'w', encoding='utf-8') as f:
+    f.write(test_script)
+
+print(f"✓ Test script created: {script_path}")
+print("\nTo run the test:")
+print(f"  powershell -ExecutionPolicy Bypass .\\{script_path}")
 
 if __name__ == "__main__":
     print("PowerShell test script prepared!")

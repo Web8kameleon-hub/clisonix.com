@@ -64,6 +64,60 @@ const ADMIN_MODULES = [
     icon: '🧠',
     color: 'from-purple-500 to-pink-600',
     category: 'Infrastructure'
+  },
+  {
+    id: 'developer-docs',
+    name: 'Developer Docs',
+    description: 'API docs, SDKs & examples publik',
+    icon: '👨‍💻',
+    color: 'from-violet-500 to-purple-600',
+    category: 'Documentation'
+  },
+  // 🔒 PRIVATE MODULES - Admin Only Access
+  {
+    id: 'neuroacoustic-converter',
+    name: 'Neuroacoustic Converter',
+    description: 'EEG to Audio Conversion • Advanced Neural Processing',
+    icon: '🔄',
+    color: 'from-green-500 to-emerald-600',
+    category: 'Private Admin',
+    private: true
+  },
+  {
+    id: 'neural-biofeedback',
+    name: 'Neural Biofeedback',
+    description: 'Brain Wave Training System • Postman-Style API Interface',
+    icon: '💫',
+    color: 'from-indigo-500 to-purple-600',
+    category: 'Private Admin',
+    private: true
+  },
+  {
+    id: 'spectrum-analyzer',
+    name: 'Spectrum Analyzer',
+    description: 'Multi-band EEG FFT Analysis • Postman-Style API Interface',
+    icon: '📊',
+    color: 'from-cyan-500 to-blue-600',
+    category: 'Private Admin',
+    private: true
+  },
+  {
+    id: 'albi-eeg-analysis',
+    name: 'ALBI EEG Analysis',
+    description: 'Real-time brain wave analysis • Postman-Style API Interface',
+    icon: '🧬',
+    color: 'from-pink-500 to-rose-600',
+    category: 'Private Admin',
+    private: true
+  },
+  {
+    id: 'clisonix-api-collection',
+    name: 'Clisonix API Collection',
+    description: 'Real-time API monitoring • No mock data',
+    icon: '📡',
+    color: 'from-orange-500 to-red-600',
+    category: 'Private Admin',
+    private: true
   }
 ];
 
@@ -133,32 +187,13 @@ export default function AdminDashboard() {
       // 🔒 PRIVATE: ASI/Alba/Albi/Jona metrics hidden from public access
       // const response = await fetch('/api/asi/status');
       // Disabled for private access
-      const response = { ok: false };
-      if (response.ok) {
-        const data = await response.json();
-        setMetrics({
-          alba: { 
-            status: 'online', 
-            connections: data.alba?.network_connections || 847,
-            efficiency: data.alba?.efficiency || 94
-          },
-          albi: { 
-            status: 'online', 
-            creativity: data.albi?.imagination_score || 94,
-            intelligence: data.albi?.intelligence || 98
-          },
-          jona: { 
-            status: 'online', 
-            harmony: data.jona?.harmony_level || 0.98,
-            stability: data.jona?.stability || 99
-          },
-          system: {
-            cpu_load: data.system?.cpu_load || 12,
-            memory_usage: data.system?.memory_usage || 45,
-            uptime_hours: data.system?.uptime_hours || 720
-          }
-        });
-      }
+      // Mocked/fallback metrics (no fetch)
+      setMetrics({
+        alba: { status: 'online', connections: 847, efficiency: 94 },
+        albi: { status: 'online', creativity: 94, intelligence: 98 },
+        jona: { status: 'online', harmony: 0.98, stability: 99 },
+        system: { cpu_load: 12, memory_usage: 45, uptime_hours: 720 }
+      });
     } catch {
       // Use fallback metrics
       setMetrics({
@@ -394,7 +429,7 @@ export default function AdminDashboard() {
             <span>🔧</span> Infrastructure Modules
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {ADMIN_MODULES.map((module) => (
+            {ADMIN_MODULES.filter(m => !m.private).map((module) => (
               <Link 
                 key={module.id}
                 href={`/modules/${module.id}`}
@@ -416,6 +451,46 @@ export default function AdminDashboard() {
                 </div>
               </Link>
             ))}
+          </div>
+        </section>
+
+        {/* 🔒 PRIVATE ADMIN MODULES - Neuroacoustic & Neural Biofeedback */}
+        <section className="mb-12 p-8 rounded-2xl bg-gradient-to-br from-red-900/20 to-purple-900/20 border border-red-700/30 backdrop-blur-sm">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+            <span>🔒</span> <span className="text-red-400">PRIVATE ADMIN MODULES</span>
+          </h2>
+          <p className="text-gray-300 mb-6">Advanced neural processing systems - Administrator access only</p>
+          <div className="grid md:grid-cols-2 gap-6">
+            {ADMIN_MODULES.filter(m => m.private).map((module) => (
+              <Link
+                key={module.id}
+                href={`/modules/${module.id}`}
+                className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/60 to-slate-950/80 border border-red-700/50 hover:border-red-500/80 transition-all group shadow-lg"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${module.color} flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg`}>
+                    <span className="text-2xl">{module.icon}</span>
+                  </div>
+                  <span className="px-3 py-1 text-xs rounded-full bg-red-600/40 text-red-300 font-semibold border border-red-600/50">
+                    🔒 PRIVATE
+                  </span>
+                </div>
+                <div className="mb-2">
+                  <h3 className="text-lg font-semibold text-white">{module.name}</h3>
+                  <span className="text-xs text-red-400 font-medium">Admin Only • {module.category}</span>
+                </div>
+                <p className="text-gray-300 text-sm mb-4">{module.description}</p>
+                <div className="flex items-center gap-2 text-red-400 group-hover:gap-3 transition-all">
+                  <span className="text-sm font-medium">Access Module</span>
+                  <span>→</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div className="mt-6 p-4 rounded-lg bg-red-950/40 border border-red-800/50">
+            <p className="text-sm text-red-300 flex items-center gap-2">
+              <span>⚠️</span> These modules contain sensitive neural processing capabilities and are restricted to administrators only.
+            </p>
           </div>
         </section>
 

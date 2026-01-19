@@ -56,16 +56,20 @@ export default function IndustrialDashboard() {
         //   fetch('/api/asi/jona/metrics')
         // ]);
         const [statusRes, healthRes, albaRes, albiRes, jonaRes] = [
-          { status: 'rejected' },
-          { status: 'rejected' },
-          { status: 'rejected' },
-          { status: 'rejected' },
-          { status: 'rejected' }
+          { status: 'rejected', reason: new Error('Mocked rejection') },
+          { status: 'rejected', reason: new Error('Mocked rejection') },
+          { status: 'rejected', reason: new Error('Mocked rejection') },
+          { status: 'rejected', reason: new Error('Mocked rejection') },
+          { status: 'rejected', reason: new Error('Mocked rejection') }
         ];
 
         // Process status
-        if (statusRes.status === 'fulfilled' && statusRes.value.ok) {
-          const statusData = await statusRes.value.json();
+        if (
+          statusRes.status === 'fulfilled' &&
+          'value' in statusRes &&
+          (statusRes.value as Response).ok
+        ) {
+          const statusData = await (statusRes.value as Response).json();
           setMetrics({
             asi_system: {
               status: statusData.status,
@@ -85,8 +89,12 @@ export default function IndustrialDashboard() {
         }
 
         // Process health
-        if (healthRes.status === 'fulfilled' && healthRes.value.ok) {
-          const healthData = await healthRes.value.json();
+        if (
+          healthRes.status === 'fulfilled' &&
+          'value' in healthRes &&
+          (healthRes.value as Response).ok
+        ) {
+          const healthData = await (healthRes.value as Response).json();
           setBackendHealth({
             service: 'Clisonix Backend (REAL)',
             status: healthData.healthy ? 'Operational' : 'Degraded',

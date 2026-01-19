@@ -119,8 +119,8 @@ const MODULES = [
   // 👤 ACCOUNT & DATA
   {
     id: 'account',
-    name: 'Llogaria & Faturimi',
-    description: 'Menaxho profilin, abonimet, metodat e pagesës dhe cilësimet',
+    name: 'Account & Billing',
+    description: 'Manage your profile, subscriptions, payment methods and settings',
     icon: '👤',
     color: 'from-blue-500 to-indigo-600',
     category: 'Account'
@@ -179,12 +179,12 @@ export default function HomePage() {
               <a href="#asi-trinity" className="text-gray-400 hover:text-cyan-400 transition-colors">ASI Trinity</a>
               <a href="#modules" className="text-gray-400 hover:text-cyan-400 transition-colors">Tools</a>
               <a href="#tech-stack" className="text-gray-400 hover:text-cyan-400 transition-colors">Why Us</a>
-              <Link href="/modules" className="text-gray-400 hover:text-cyan-400 transition-colors">Dashboard</Link>
+              <Link href="/dashboard" className="text-gray-400 hover:text-cyan-400 transition-colors">Dashboard</Link>
             </div>
             
             <div className="flex items-center gap-4">
               <Link 
-                href="/modules"
+                href="/dashboard"
                 className="px-5 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 rounded-lg font-medium transition-all shadow-lg shadow-cyan-500/25"
               >
                 Open Dashboard
@@ -425,7 +425,7 @@ export default function HomePage() {
             
             <div className="mt-8 text-center">
               <Link 
-                href="/modules"
+                href="/modules/account"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 rounded-xl font-semibold text-lg transition-all shadow-lg shadow-cyan-500/30"
               >
                 Get Started
@@ -453,7 +453,7 @@ export default function HomePage() {
             <div>
               <h4 className="font-semibold mb-4 text-gray-300">Platform</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link href="/modules" className="hover:text-cyan-400 transition-colors">Dashboard</Link></li>
+                <li><Link href="/dashboard" className="hover:text-cyan-400 transition-colors">Dashboard</Link></li>
                 <li><Link href="/modules/curiosity-ocean" className="hover:text-cyan-400 transition-colors">Curiosity Ocean</Link></li>
                 <li><Link href="/modules/eeg-analysis" className="hover:text-cyan-400 transition-colors">EEG Analysis</Link></li>
               </ul>

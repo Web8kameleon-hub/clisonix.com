@@ -21,7 +21,7 @@ from fastapi.staticfiles import StaticFiles
 import asyncio
 
 # Local imports
-from data_sources import get_internal_data_sources
+from data_sources import get_all_sources
 from query_processor import get_query_processor, QueryIntent
 from knowledge_engine import get_knowledge_engine, KnowledgeResponse
 from persona_router import PersonaRouter
@@ -105,10 +105,10 @@ async def startup_event():
     try:
         # Initialize all managers in parallel
         logger.info("→ Initializing internal data sources...")
-        internal_data_sources = get_internal_data_sources()
+        internal_data_sources = get_all_sources()
         
         if internal_data_sources is None:
-            logger.error("❌ CRITICAL: get_internal_data_sources() returned None!")
+            logger.error("❌ CRITICAL: get_all_sources() returned None!")
             raise RuntimeError("Failed to initialize data sources")
         
         logger.info(f"[OK] Data sources initialized")
