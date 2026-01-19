@@ -672,17 +672,62 @@ MESH_DIR = ROOT_DIR / "backend" / "mesh"
 MESH_STATUS_FILE = MESH_DIR / "nodes_status.json"
 MESH_LOG_DIR = ROOT_DIR / "logs"
 
-# ------------- Logging -------------
+# ------------- Logging with Unicode/Emoji Support for Windows Console -----------
+class EmojiSafeFormatter(logging.Formatter):
+    """Formatter that safely handles emojis and special Unicode characters"""
+    def format(self, record):
+        # Replace problematic emojis with ASCII alternatives for console output
+        message = super().format(record)
+        if sys.platform == "win32":
+            # Replace common emojis with ASCII equivalents for Windows console
+            emoji_map = {
+                '✅': '[OK]',
+                '⚠️': '[WARN]',
+                '🌊': '[OCEAN]',
+                '🎯': '[TARGET]',
+                '🚀': '[LAUNCH]',
+                '❌': '[FAIL]',
+                '✔': '[CHECK]',
+                '📊': '[STATS]',
+                '🔬': '[LAB]',
+                '🔧': '[CONFIG]',
+                '⚙️': '[CONFIG]',
+                '🛠️': '[TOOL]',
+                '📝': '[NOTE]',
+                '📈': '[UP]',
+                '📉': '[DOWN]',
+                '🔔': '[ALERT]',
+                '📢': '[ANNOUNCE]',
+            }
+            for emoji, replacement in emoji_map.items():
+                message = message.replace(emoji, replacement)
+        return message
+
 def setup_logging():
     Path("logs").mkdir(exist_ok=True)
     fmt = "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+    formatter = EmojiSafeFormatter(fmt)
+    
+    # Create stream handler with UTF-8 encoding
+    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler.setFormatter(formatter)
+    
+    # Create file handler (keeps original emojis in log file)
+    file_handler = logging.FileHandler("logs/Clisonix_real.log", encoding="utf-8")
+    file_handler.setFormatter(logging.Formatter(fmt))
+    
+    # Reconfigure stderr/stdout for UTF-8 on Windows to prevent encoding errors
+    if sys.platform == "win32":
+        import io
+        try:
+            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+        except:
+            pass  # If reconfiguration fails, continue anyway
+    
     logging.basicConfig(
         level=getattr(logging, settings.log_level.upper(), logging.INFO),
-        format=fmt,
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler("logs/Clisonix_real.log", encoding="utf-8")
-        ],
+        handlers=[stream_handler, file_handler],
     )
     return logging.getLogger("Clisonix_real")
 
