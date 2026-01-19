@@ -355,34 +355,35 @@ export default function ModulesPage() {
       ],
       route: '/modules/protocol-kitchen'
     },
-    {
-      id: 'neural-biofeedback',
-      name: '🧘 Neural Biofeedback',
-      description: 'Advanced brain training and meditation feedback system',
-      status: 'active' as const,
-      capabilities: [
-        'Alpha wave training',
-        'Theta meditation guidance',
-        'Beta focus enhancement',
-        'Real-time neural feedback',
-        'Relaxation monitoring'
-      ],
-      route: '/modules/neural-biofeedback'
-    },
-    {
-      id: 'neuroacoustic-converter',
-      name: '🎼 Neuroacoustic Converter',
-      description: 'Convert EEG signals to immersive audio experiences',
-      status: 'active' as const,
-      capabilities: [
-        'EEG to audio conversion',
-        'Real-time sound synthesis',
-        'Brain wave sonification',
-        'Audio export & sharing',
-        'Multi-frequency mapping'
-      ],
-      route: '/modules/neuroacoustic-converter'
-    },
+    // 🔒 PRIVATE: Neural Biofeedback & Neuroacoustic Converter hidden from public access
+    // {
+    //   id: 'neural-biofeedback',
+    //   name: '🧘 Neural Biofeedback',
+    //   description: 'Advanced brain training and meditation feedback system',
+    //   status: 'active' as const,
+    //   capabilities: [
+    //     'Alpha wave training',
+    //     'Theta meditation guidance',
+    //     'Beta focus enhancement',
+    //     'Real-time neural feedback',
+    //     'Relaxation monitoring'
+    //   ],
+    //   route: '/modules/neural-biofeedback'
+    // },
+    // {
+    //   id: 'neuroacoustic-converter',
+    //   name: '🎼 Neuroacoustic Converter',
+    //   description: 'Convert EEG signals to immersive audio experiences',
+    //   status: 'active' as const,
+    //   capabilities: [
+    //     'EEG to audio conversion',
+    //     'Real-time sound synthesis',
+    //     'Brain wave sonification',
+    //     'Audio export & sharing',
+    //     'Multi-frequency mapping'
+    //   ],
+    //   route: '/modules/neuroacoustic-converter'
+    // },
     {
       id: 'crypto-dashboard',
       name: '💰 Crypto Dashboard',

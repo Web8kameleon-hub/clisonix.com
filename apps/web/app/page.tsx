@@ -82,22 +82,23 @@ const MODULES = [
     color: 'from-yellow-500 to-orange-600',
     category: 'Neuroscience'
   },
-  {
-    id: 'neural-biofeedback',
-    name: 'Neural Biofeedback',
-    description: 'Real-time cognitive state monitoring',
-    icon: '💫',
-    color: 'from-indigo-500 to-purple-600',
-    category: 'Neuroscience'
-  },
-  {
-    id: 'neuroacoustic-converter',
-    name: 'Neuroacoustic Converter',
-    description: 'Convert brain signals to audio',
-    icon: '🎵',
-    color: 'from-violet-500 to-purple-600',
-    category: 'Neuroscience'
-  },
+  // 🔒 PRIVATE - Neural Biofeedback & Neuroacoustic Converter hidden from public access
+  // {
+  //   id: 'neural-biofeedback',
+  //   name: 'Neural Biofeedback',
+  //   description: 'Real-time cognitive state monitoring',
+  //   icon: '💫',
+  //   color: 'from-indigo-500 to-purple-600',
+  //   category: 'Neuroscience'
+  // },
+  // {
+  //   id: 'neuroacoustic-converter',
+  //   name: 'Neuroacoustic Converter',
+  //   description: 'Convert brain signals to audio',
+  //   icon: '🎵',
+  //   color: 'from-violet-500 to-purple-600',
+  //   category: 'Neuroscience'
+  // },
   // 📊 USER TOOLS
   {
     id: 'fitness-dashboard',

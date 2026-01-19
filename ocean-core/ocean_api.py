@@ -28,6 +28,7 @@ from persona_router import PersonaRouter
 from laboratories import get_laboratory_network
 from real_data_engine import get_real_data_engine
 from specialized_chat_engine import get_specialized_chat, initialize_specialized_chat
+from response_orchestrator import get_orchestrator
 
 
 async def get_knowledge_engine_hybrid(data_sources):
@@ -91,6 +92,7 @@ knowledge_engine = None
 laboratory_network = None
 real_data_engine = None
 specialized_chat = None
+orchestrator = None
 
 
 @app.on_event("startup")
@@ -146,6 +148,11 @@ async def startup_event():
         specialized_chat = await initialize_specialized_chat()
         logger.info("[OK] Specialized Chat Engine ready - clean, expert-focused interface!")
         
+        # Initialize orchestrator - THE BRAIN
+        logger.info("→ Initializing Response Orchestrator (The Brain)...")
+        orchestrator = get_orchestrator()
+        logger.info("🧠 [OK] Response Orchestrator online - Ready to think and decide!")
+        
         # Initialize knowledge engine - CRITICAL COMPONENT
         logger.info("→ Initializing knowledge engine with internal data sources...")
         knowledge_engine = await get_knowledge_engine_hybrid(internal_data_sources)
@@ -164,6 +171,7 @@ async def startup_event():
         logger.info(f"   - Laboratories: {len(laboratory_network.get_all_labs()) if laboratory_network else 0}")
         logger.info(f"   - Real Data Engine: {'✅ Ready' if real_data_engine else '⚠️  Not available'}")
         logger.info(f"   - Knowledge Engine: {'✅ Ready' if knowledge_engine else '⚠️  Degraded'}")
+        logger.info(f"   - Orchestrator (Brain): ✅ Ready")
     except Exception as e:
         logger.error(f"❌ Ocean Core 8030 initialization failed: {type(e).__name__}: {str(e)}")
         import traceback
@@ -648,6 +656,179 @@ async def clear_chat():
         return {"status": "success", "message": "Chat history cleared", "timestamp": datetime.utcnow().isoformat()}
     except Exception as e:
         logger.error(f"Clear history error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/chat/spontaneous")
+async def spontaneous_conversation(request: Request):
+    """
+    SPONTANEOUS CONVERSATION MODE
+    ============================
+    
+    This is the NEW way to chat - with full context awareness!
+    
+    Features:
+    - Understands references to previous discussion ("what we talked about")
+    - Maintains conversation topic coherence
+    - Adapts responses based on full conversation history
+    - Can handle follow-ups and clarifications naturally
+    - Natural multi-turn dialogue
+    
+    Returns:
+    - context_aware: boolean (true if using previous context)
+    - conversation_topic: the main topic being discussed
+    - turn_number: which turn of conversation this is
+    - follow_up_topics: context-aware suggestions
+    
+    Example flow:
+    1. User: "Tell me about quantum computing"
+    2. User: "How does error correction work?" → System remembers quantum context
+    3. User: "And what about hardware?" → Continues quantum discussion
+    """
+    if not specialized_chat:
+        raise HTTPException(status_code=503, detail="Specialized Chat Engine not initialized")
+    
+    try:
+        body = await request.json()
+        query = body.get("query", "").strip()
+        use_context = body.get("use_context", True)  # Default: use conversation context
+        
+        if not query:
+            raise ValueError("Query cannot be empty")
+        
+        # Generate spontaneous response with context awareness
+        response = await specialized_chat.generate_spontaneous_response(query, use_context=use_context)
+        
+        return {
+            "type": "spontaneous_chat",
+            "query": response["query"],
+            "domain": response["domain"],
+            "domain_expertise": response["domain_expertise"],
+            "answer": response["answer"],
+            "sources": response["sources"],
+            "confidence": response["confidence"],
+            "follow_up_topics": response["follow_up_topics"],
+            "context_aware": response["context_aware"],
+            "conversation_topic": response["conversation_topic"],
+            "turn_number": response["turn_number"],
+            "timestamp": response["timestamp"]
+        }
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Spontaneous chat error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/chat/orchestrated")
+async def orchestrated_response(request: Request):
+    """
+    ORCHESTRATED RESPONSE MODE
+    ==========================
+    
+    The BRAIN is thinking and deciding!
+    
+    This endpoint uses the Response Orchestrator to:
+    1. UNDERSTAND the query with depth
+    2. DECIDE which experts to consult
+    3. CONSULT personas, labs, and modules
+    4. FUSE responses into natural narrative
+    5. LEARN for next time
+    
+    Returns:
+    - query_category: How the brain categorized this query
+    - understanding: Deep analysis of what was asked
+    - consulted_experts: List of who was asked
+    - fused_answer: The unified, narrative response
+    - confidence: How confident the answer is
+    - narrative_quality: How natural/human-like the response is
+    - learning_record: What did we learn from this?
+    
+    Example:
+    POST /api/chat/orchestrated
+    {
+        "query": "How can AI help solve climate change?",
+        "conversation_context": ["Earlier we discussed renewable energy..."]
+    }
+    
+    Response will consult:
+    - AGI Specialist + Academic personas
+    - Environmental + Energy labs
+    - AI lab + Data lab
+    - Blerina for narrative
+    - Ageim for analysis
+    """
+    if not orchestrator:
+        raise HTTPException(status_code=503, detail="Response Orchestrator not initialized")
+    
+    try:
+        body = await request.json()
+        query = body.get("query", "").strip()
+        conversation_context = body.get("conversation_context", [])
+        
+        if not query:
+            raise ValueError("Query cannot be empty")
+        
+        logger.info(f"🧠 ORCHESTRATOR processing: {query[:60]}...")
+        
+        # Process through the orchestrator brain
+        orchestrated = orchestrator.process_query(query, conversation_context)
+        
+        # Convert to JSON-serializable format
+        return {
+            "type": "orchestrated_response",
+            "query": orchestrated.query,
+            "query_category": orchestrated.query_category.value,
+            "understanding": {
+                "intent": orchestrated.understanding["intent"],
+                "category": orchestrated.understanding["category"].value,
+                "emotional_tone": orchestrated.understanding["emotional_tone"],
+                "complexity_level": orchestrated.understanding["complexity_level"],
+                "context_importance": orchestrated.understanding["context_importance"],
+            },
+            "consulted_experts": [
+                {
+                    "type": c.expert_type,
+                    "name": c.expert_name,
+                    "confidence": c.confidence,
+                    "relevance": c.relevance_score,
+                }
+                for c in orchestrated.consulted_experts
+            ],
+            "fused_answer": orchestrated.fused_answer,
+            "sources_cited": orchestrated.sources_cited,
+            "confidence": orchestrated.confidence,
+            "narrative_quality": orchestrated.narrative_quality,
+            "learning_record": orchestrated.learning_record,
+            "timestamp": orchestrated.timestamp
+        }
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Orchestrator error: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/orchestrator/learning")
+async def get_orchestrator_learning():
+    """Get the learning matrix from the orchestrator"""
+    if not orchestrator:
+        raise HTTPException(status_code=503, detail="Response Orchestrator not initialized")
+    
+    try:
+        learning_matrix = orchestrator.get_learning_matrix()
+        return {
+            "type": "learning_matrix",
+            "total_queries_processed": learning_matrix["total_queries_processed"],
+            "categories_seen": learning_matrix["categories_seen"],
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Learning matrix error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

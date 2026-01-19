@@ -130,7 +130,10 @@ export default function AdminDashboard() {
 
   const fetchMetrics = async () => {
     try {
-      const response = await fetch('/api/asi/status');
+      // 🔒 PRIVATE: ASI/Alba/Albi/Jona metrics hidden from public access
+      // const response = await fetch('/api/asi/status');
+      // Disabled for private access
+      const response = { ok: false };
       if (response.ok) {
         const data = await response.json();
         setMetrics({

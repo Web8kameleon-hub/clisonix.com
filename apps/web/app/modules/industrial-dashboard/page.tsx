@@ -46,14 +46,22 @@ export default function IndustrialDashboard() {
   useEffect(() => {
     const fetchRealData = async () => {
       try {
-        // Fetch REAL ASI metrics
-        const [statusRes, healthRes, albaRes, albiRes, jonaRes] = await Promise.allSettled([
-          fetch('/api/asi/status'),
-          fetch('/api/asi/health'),
-          fetch('/api/asi/alba/metrics'),
-          fetch('/api/asi/albi/metrics'),
-          fetch('/api/asi/jona/metrics')
-        ]);
+        // 🔒 PRIVATE: Neural Biofeedback & Neuroacoustic endpoints hidden
+        // Fetch REAL ASI metrics - DISABLED FOR PRIVATE ACCESS
+        // const [statusRes, healthRes, albaRes, albiRes, jonaRes] = await Promise.allSettled([
+        //   fetch('/api/asi/status'),
+        //   fetch('/api/asi/health'),
+        //   fetch('/api/asi/alba/metrics'),
+        //   fetch('/api/asi/albi/metrics'),
+        //   fetch('/api/asi/jona/metrics')
+        // ]);
+        const [statusRes, healthRes, albaRes, albiRes, jonaRes] = [
+          { status: 'rejected' },
+          { status: 'rejected' },
+          { status: 'rejected' },
+          { status: 'rejected' },
+          { status: 'rejected' }
+        ];
 
         // Process status
         if (statusRes.status === 'fulfilled' && statusRes.value.ok) {
@@ -308,10 +316,11 @@ export default function IndustrialDashboard() {
               <div className="text-2xl mb-2">📊</div>
               <div className="text-white font-medium">Spectrum Analyzer</div>
             </Link>
-            <Link href="/modules/neuroacoustic-converter" className="bg-green-500/20 hover:bg-green-500/30 rounded-lg p-4 text-center transition-colors border border-green-500/30">
+            {/* 🔒 PRIVATE: Neuroacoustic Converter hidden from public access */}
+            {/* <Link href="/modules/neuroacoustic-converter" className="bg-green-500/20 hover:bg-green-500/30 rounded-lg p-4 text-center transition-colors border border-green-500/30">
               <div className="text-2xl mb-2">🔄</div>
               <div className="text-white font-medium">Neuroacoustic Converter</div>
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>
