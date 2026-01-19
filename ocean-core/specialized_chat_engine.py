@@ -45,49 +45,57 @@ class SpecializedChatEngine:
     
     EXPERTISE_DOMAINS = {
         "neuroscience": {
-            "keywords": ["brain", "neuron", "synapse", "cognition", "consciousness", "memory", "eeg", "fmri", "neural"],
+            "keywords": ["brain", "neuron", "synapse", "cognition", "consciousness", "memory", "eeg", "fmri", "neural",
+                        "truri", "nerv", "kesnjeria", "ndjeshmeria", "kujtesa"],  # Albanian
             "labs": ["Vienna_Neuroscience", "Tirana_Medical"],
             "expertise_level": "expert",
             "focus": "Advanced brain research and consciousness studies"
         },
         "ai_ml": {
-            "keywords": ["ai", "machine learning", "deep learning", "neural network", "transformer", "llm", "gpu", "training"],
+            "keywords": ["ai", "machine learning", "deep learning", "neural network", "transformer", "llm", "gpu", "training",
+                        "inteligjenca artificiale", "ai", "machine learning", "network", "trenimin"],  # Albanian
             "labs": ["Elbasan_AI", "Prague_Robotics", "Budapest_Data"],
             "expertise_level": "expert",
             "focus": "Cutting-edge AI/ML research and implementations"
         },
         "quantum": {
-            "keywords": ["quantum", "qubit", "superposition", "entanglement", "qubits", "quantum computing"],
+            "keywords": ["quantum", "qubit", "superposition", "entanglement", "qubits", "quantum computing",
+                        "kuantum", "qubit", "entanglement"],  # Albanian
             "labs": ["Ljubljana_Quantum", "Sofia_Chemistry"],
             "expertise_level": "expert",
             "focus": "Quantum physics and quantum computing"
         },
         "security": {
-            "keywords": ["security", "cryptography", "encryption", "vulnerability", "exploit", "zero-day", "penetration"],
+            "keywords": ["security", "cryptography", "encryption", "vulnerability", "exploit", "zero-day", "penetration",
+                        "siguria", "kriptografia", "enkriptim", "vulnerability"],  # Albanian
             "labs": ["Prishtina_Security"],
             "expertise_level": "expert",
             "focus": "Advanced cybersecurity and cryptography"
         },
         "iot": {
-            "keywords": ["iot", "lora", "sensor", "device", "embedded", "hardware", "protocol", "mesh"],
+            "keywords": ["iot", "lora", "sensor", "device", "embedded", "hardware", "protocol", "mesh",
+                        "iot", "sensor", "device", "harduer"],  # Albanian
             "labs": ["Durres_IoT", "Sarrande_Underwater"],
             "expertise_level": "expert",
             "focus": "IoT/LoRa networks and sensor systems"
         },
         "marine": {
-            "keywords": ["ocean", "marine", "underwater", "aquatic", "salinity", "pressure", "coral"],
+            "keywords": ["ocean", "marine", "underwater", "aquatic", "salinity", "pressure", "coral",
+                        "dete", "marine", "ujore", "koral"],  # Albanian
             "labs": ["Sarrande_Underwater", "Vlore_Environmental"],
             "expertise_level": "expert",
             "focus": "Marine biology and underwater research"
         },
         "biotech": {
-            "keywords": ["biotech", "genetics", "dna", "protein", "enzyme", "cell", "biology"],
+            "keywords": ["biotech", "genetics", "dna", "protein", "enzyme", "cell", "biology",
+                        "biotek", "gjenetika", "dna", "protein", "bio"],  # Albanian
             "labs": ["Zagreb_Biotech", "Bucharest_Nanotechnology"],
             "expertise_level": "expert",
             "focus": "Biotechnology and genetic engineering"
         },
         "data_science": {
-            "keywords": ["data", "analytics", "statistics", "ml", "prediction", "dataset"],
+            "keywords": ["data", "analytics", "statistics", "ml", "prediction", "dataset",
+                        "data", "analitika", "statistika", "prediction"],  # Albanian
             "labs": ["Budapest_Data"],
             "expertise_level": "expert",
             "focus": "Advanced data science and analytics"
