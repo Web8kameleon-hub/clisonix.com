@@ -9,53 +9,6 @@ import { useState, useEffect } from 'react';
  */
 
 const MODULES = [
-  // 📱 POPULAR - Easy to use, mobile-friendly
-  {
-    id: 'mood-journal',
-    name: 'Mood Journal',
-    description: 'Track your daily mood with a single tap',
-    icon: '😊',
-    color: 'from-purple-500 to-pink-500',
-    category: 'Lifestyle',
-    isNew: true
-  },
-  {
-    id: 'daily-habits',
-    name: 'Daily Habits',
-    description: 'Monitor daily habits and build streaks',
-    icon: '🎯',
-    color: 'from-emerald-500 to-green-500',
-    category: 'Lifestyle',
-    isNew: true
-  },
-  {
-    id: 'focus-timer',
-    name: 'Focus Timer',
-    description: 'Pomodoro timer for maximum productivity',
-    icon: '⏱️',
-    color: 'from-red-500 to-orange-500',
-    category: 'Productivity',
-    isNew: true
-  },
-  // 📱 REAL SENSORS - Phone hardware sensors
-  {
-    id: 'phone-sensors',
-    name: 'Phone Sensors',
-    description: 'Real accelerometer, gyroscope, and GPS data from your phone',
-    icon: '📱',
-    color: 'from-blue-500 to-indigo-600',
-    category: 'Sensors',
-    isNew: true
-  },
-  {
-    id: 'face-detection',
-    name: 'Face Detection',
-    description: 'Emotion and vital signs analysis with camera',
-    icon: '📷',
-    color: 'from-pink-500 to-purple-600',
-    category: 'Sensors',
-    isNew: true
-  },
   // 🌊 AI & CHAT
   {
     id: 'curiosity-ocean',

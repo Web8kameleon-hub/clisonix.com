@@ -1,6 +1,6 @@
 /**
  * Clisonix Public Dashboard
- * 13 public modules accessible to all users
+ * 8 public modules accessible to all users
  */
 
 'use client';
@@ -13,51 +13,6 @@ export default function DashboardPage() {
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
 
   const publicModules = [
-    {
-      id: 'mood-journal',
-      name: 'Mood Journal',
-      description: 'Track your daily mood with a single tap',
-      icon: '😊',
-      category: 'Lifestyle',
-      href: '/modules/mood-journal',
-      color: 'from-purple-500 to-pink-500'
-    },
-    {
-      id: 'daily-habits',
-      name: 'Daily Habits',
-      description: 'Monitor daily habits and build streaks',
-      icon: '🎯',
-      category: 'Lifestyle',
-      href: '/modules/daily-habits',
-      color: 'from-emerald-500 to-green-500'
-    },
-    {
-      id: 'focus-timer',
-      name: 'Focus Timer',
-      description: 'Pomodoro timer for maximum productivity',
-      icon: '⏱️',
-      category: 'Productivity',
-      href: '/modules/focus-timer',
-      color: 'from-red-500 to-orange-500'
-    },
-    {
-      id: 'phone-sensors',
-      name: 'Phone Sensors',
-      description: 'Real accelerometer, gyroscope, and GPS data from your phone',
-      icon: '📱',
-      category: 'Sensors',
-      href: '/modules/phone-sensors',
-      color: 'from-blue-500 to-indigo-600'
-    },
-    {
-      id: 'face-detection',
-      name: 'Face Detection',
-      description: 'Emotion and vital signs analysis with camera',
-      icon: '📷',
-      category: 'Sensors',
-      href: '/modules/face-detection',
-      color: 'from-pink-500 to-purple-600'
-    },
     {
       id: 'curiosity-ocean',
       name: 'Curiosity Ocean',
