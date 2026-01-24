@@ -208,7 +208,7 @@ export default function CuriosityOceanChat() {
                 className={`max-w-[85%] rounded-2xl p-4 ${
                   message.type === 'user'
                     ? 'bg-cyan-600 text-white rounded-br-md'
-                    : 'bg-white shadow-md text-gray-800 rounded-bl-md border border-gray-200'
+                    : 'bg-white shadow-md text-black rounded-bl-md border border-gray-200'
                 }`}
               >
                 {message.type === 'ai' && (
@@ -232,7 +232,7 @@ export default function CuriosityOceanChat() {
                         <button
                           key={idx}
                           onClick={() => sendMessage(hole)}
-                          className="block w-full text-left text-sm text-gray-600 hover:text-cyan-600 hover:bg-gray-100 rounded px-2 py-1 transition-colors"
+                          className="block w-full text-left text-sm text-gray-900 hover:text-cyan-700 hover:bg-gray-100 rounded px-2 py-1 transition-colors"
                         >
                           <ChevronRight className="w-3 h-3 inline mr-1" />
                           {hole}
@@ -260,7 +260,7 @@ export default function CuriosityOceanChat() {
                   </div>
                 )}
 
-                <div className="mt-2 text-xs text-gray-400">
+                <div className="mt-2 text-xs text-gray-600">
                   {message.timestamp.toLocaleTimeString()}
                 </div>
               </div>
@@ -286,13 +286,13 @@ export default function CuriosityOceanChat() {
       {/* Suggested Questions */}
       {messages.length <= 1 && (
         <div className="max-w-4xl mx-auto px-4 pb-4">
-          <p className="text-sm text-gray-600 mb-3">💡 Try asking:</p>
+          <p className="text-sm text-gray-900 font-medium mb-3">💡 Try asking:</p>
           <div className="flex flex-wrap gap-2">
             {SUGGESTED_QUESTIONS.map((q, idx) => (
               <button
                 key={idx}
                 onClick={() => sendMessage(q)}
-                className="text-sm bg-white hover:bg-gray-100 text-gray-700 rounded-full px-4 py-2 transition-colors border border-gray-300 shadow-sm"
+                className="text-sm bg-white hover:bg-gray-100 text-gray-900 font-medium rounded-full px-4 py-2 transition-colors border border-gray-300 shadow-sm"
               >
                 {q}
               </button>

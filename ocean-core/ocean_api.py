@@ -98,7 +98,7 @@ orchestrator = None
 @app.on_event("startup")
 async def startup_event():
     """Initialize all managers on startup"""
-    global internal_data_sources, persona_router, query_processor, knowledge_engine, laboratory_network, real_data_engine, specialized_chat
+    global internal_data_sources, persona_router, query_processor, knowledge_engine, laboratory_network, real_data_engine, specialized_chat, orchestrator
     
     logger.info("[OCEAN] Ocean Core 8030 starting up with 14 personas...")
     

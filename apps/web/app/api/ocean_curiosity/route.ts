@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const response = await fetch(oceanUrl);
     const data = await response.json();
     return NextResponse.json(data);
-  } catch (error) {
+  } catch {
     return NextResponse.json({
       success: true,
       message: "Ocean Curiosity API",
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     });
     const data = await response.json();
     return NextResponse.json(data);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         success: false,
