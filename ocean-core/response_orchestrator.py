@@ -10,6 +10,7 @@ This is a thinking system that:
 - Consults experts intelligently (parallel, weighted)
 - Fuses responses into natural narrative
 - Learns and optimizes with every query
+- Uses ALPHABET LAYERS for mathematical analysis (60 Greek+Albanian letters)
 
 Philosophy:
 If a human brain gets a question, it doesn't ask ALL neurons.
@@ -24,6 +25,9 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from enum import Enum
 import hashlib
+
+# Import Alphabet Layers System (60 Greek + Albanian mathematical layers)
+from alphabet_layers import get_alphabet_layer_system, AlbanianGreekLayerSystem
 
 logger = logging.getLogger("orchestrator")
 
@@ -388,6 +392,7 @@ class ResponseOrchestrator:
     The Living Brain of Clisonix
     
     Orchestrates responses from all system components into natural, intelligent answers.
+    Now enhanced with 60 mathematical layers (Greek + Albanian alphabets)!
     """
     
     def __init__(self):
@@ -396,23 +401,40 @@ class ResponseOrchestrator:
         self.fusion_engine = ResponseFusionEngine()
         self.learning_history = []
         
+        # Initialize Alphabet Layer System (60 layers: 24 Greek + 36 Albanian)
+        self.alphabet_layers = get_alphabet_layer_system()
+        
         logger.info("✓ ResponseOrchestrator initialized - The Brain is online")
+        logger.info(f"✓ Alphabet Layers active: {self.alphabet_layers.alphabet['size']} mathematical layers")
     
     def process_query(self, query: str, conversation_context: List[str] = None) -> OrchestratedResponse:
         """
         Process a query through the full orchestration pipeline.
         
         Steps:
-        1. UNDERSTAND the query deeply
-        2. DECIDE who to consult
-        3. CONSULT experts in parallel
-        4. FUSE responses into narrative
-        5. LEARN from the interaction
+        1. ANALYZE with Alphabet Layers (60 mathematical functions)
+        2. UNDERSTAND the query deeply
+        3. DECIDE who to consult
+        4. CONSULT experts in parallel
+        5. FUSE responses into narrative
+        6. LEARN from the interaction
         """
+        
+        # Step 0: Alphabet Layer Analysis (NEW - Mathematical decomposition)
+        logger.info(f"→ ALPHABET ANALYSIS: Processing query through 60 layers...")
+        alphabet_analysis = self.alphabet_layers.process_query(query)
+        logger.info(f"  📊 Complexity: {alphabet_analysis['total_complexity']} | Words: {alphabet_analysis['processed_words']}")
         
         # Step 1: Deep understanding
         logger.info(f"→ UNDERSTANDING query: {query[:50]}...")
         understanding = QueryUnderstanding.understand(query, conversation_context)
+        
+        # Enrich understanding with alphabet analysis
+        understanding["alphabet_analysis"] = {
+            "complexity": alphabet_analysis["total_complexity"],
+            "word_analysis": alphabet_analysis["word_analysis"],
+            "active_layers": alphabet_analysis["active_layers"]
+        }
         
         # Step 2: Decide who to ask
         logger.info(f"→ ROUTING to experts (category: {understanding['category']})")
@@ -436,7 +458,7 @@ class ResponseOrchestrator:
             sources_cited=[c.expert_name for c in consultations],
             confidence=sum(c.confidence for c in consultations) / len(consultations) if consultations else 0.0,
             narrative_quality=narrative_quality,
-            learning_record=self._record_learning(query, consultations, fused_answer)
+            learning_record=self._record_learning(query, consultations, fused_answer, alphabet_analysis)
         )
         
         self.learning_history.append(response)
@@ -474,15 +496,23 @@ class ResponseOrchestrator:
         return consultations
     
     def _record_learning(self, query: str, consultations: List[ExpertConsultation], 
-                        fused_answer: str) -> Dict[str, Any]:
+                        fused_answer: str, alphabet_analysis: Dict[str, Any] = None) -> Dict[str, Any]:
         """Record what we learned from this interaction"""
-        return {
+        learning = {
             "query_hash": hashlib.md5(query.encode()).hexdigest(),
             "num_experts_consulted": len(consultations),
             "average_confidence": sum(c.confidence for c in consultations) / len(consultations) if consultations else 0.0,
             "experts_used": [c.expert_name for c in consultations],
             "timestamp": datetime.utcnow().isoformat(),
         }
+        
+        # Add alphabet layer insights
+        if alphabet_analysis:
+            learning["alphabet_complexity"] = alphabet_analysis.get("total_complexity", 0)
+            learning["alphabet_layers_used"] = alphabet_analysis.get("active_layers", 0)
+            learning["word_count"] = alphabet_analysis.get("processed_words", 0)
+        
+        return learning
     
     def get_learning_matrix(self) -> Dict[str, Any]:
         """Get the learning matrix - how well each expert performs for each query type"""
