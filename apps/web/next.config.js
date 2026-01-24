@@ -5,14 +5,18 @@
 
 // PRODUCTION: Docker internal communication via container names
 // DEVELOPMENT: Use localhost for local backend
-const isDev = process.env.NODE_ENV === 'development';
-const API_BASE = process.env.API_INTERNAL_URL || (isDev ? 'http://localhost:8000' : 'http://clisonix-api:8000');
-const REPORTING_BASE = process.env.REPORTING_INTERNAL_URL || (isDev ? 'http://localhost:8000' : 'http://clisonix-api:8000');
+const isDev = process.env.NODE_ENV === "development";
+const API_BASE =
+  process.env.API_INTERNAL_URL ||
+  (isDev ? "http://localhost:8000" : "http://clisonix-api:8000");
+const REPORTING_BASE =
+  process.env.REPORTING_INTERNAL_URL ||
+  (isDev ? "http://localhost:8000" : "http://clisonix-api:8000");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ['framer-motion'],
+  transpilePackages: ["framer-motion"],
   staticPageGenerationTimeout: 600,
 
   // ==========================================================================
@@ -20,25 +24,25 @@ const nextConfig = {
   // ==========================================================================
   images: {
     // Enable modern formats
-    formats: ['image/avif', 'image/webp'],
+    formats: ["image/avif", "image/webp"],
 
     // Allowed image domains
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'clisonix.com',
+        protocol: "https",
+        hostname: "clisonix.com",
       },
       {
-        protocol: 'https',
-        hostname: '*.clisonix.com',
+        protocol: "https",
+        hostname: "*.clisonix.com",
       },
       {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
+        protocol: "https",
+        hostname: "images.unsplash.com",
       },
       {
-        protocol: 'https',
-        hostname: '*.githubusercontent.com',
+        protocol: "https",
+        hostname: "*.githubusercontent.com",
       },
     ],
 
@@ -59,6 +63,9 @@ const nextConfig = {
   // Output optimization - using npm start (not standalone)
   // output: 'standalone', // Disabled - using npm start for simpler deployment
 
+  // Server-only packages (not bundled for client)
+  serverExternalPackages: ["stripe"],
+
   // Experimental features for better performance
   experimental: {
     // optimizeCss disabled - requires critters module
@@ -71,32 +78,38 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: "/:path*",
         headers: [
-          { key: 'X-DNS-Prefetch-Control', value: 'on' },
-          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: "X-DNS-Prefetch-Control", value: "on" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
         ],
       },
       // Cache favicon aggressively to prevent spam requests
       {
-        source: '/favicon.ico',
+        source: "/favicon.ico",
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=86400, immutable' },
+          { key: "Cache-Control", value: "public, max-age=86400, immutable" },
         ],
       },
       // Cache static assets aggressively
       {
-        source: '/static/:path*',
+        source: "/static/:path*",
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
         ],
       },
       {
-        source: '/_next/static/:path*',
+        source: "/_next/static/:path*",
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
         ],
       },
     ];
@@ -107,116 +120,116 @@ const nextConfig = {
     return [
       // Crypto Market API
       {
-        source: '/api/crypto/:path*',
+        source: "/api/crypto/:path*",
         destination: `${API_BASE}/api/crypto/:path*`,
       },
       // Weather API
       {
-        source: '/api/weather/:path*',
+        source: "/api/weather/:path*",
         destination: `${API_BASE}/api/weather/:path*`,
       },
       // Real Data Dashboard API
       {
-        source: '/api/realdata/:path*',
+        source: "/api/realdata/:path*",
         destination: `${API_BASE}/api/realdata/:path*`,
       },
       // AI Routes
       {
-        source: '/api/ai/:path*',
+        source: "/api/ai/:path*",
         destination: `${API_BASE}/api/ai/:path*`,
       },
       // Monitoring
       {
-        source: '/api/monitoring/:path*',
+        source: "/api/monitoring/:path*",
         destination: `${API_BASE}/api/monitoring/:path*`,
       },
       // System Status
       {
-        source: '/api/system-status',
+        source: "/api/system-status",
         destination: `${API_BASE}/api/system-status`,
       },
       // Health
       {
-        source: '/api/health',
+        source: "/api/health",
         destination: `${API_BASE}/health`,
       },
       // ASI Trinity Status (Phone Monitor)
       {
-        source: '/api/asi-status',
+        source: "/api/asi-status",
         destination: `${API_BASE}/asi/status`,
       },
       // ASI Health
       {
-        source: '/api/asi-health',
+        source: "/api/asi-health",
         destination: `${API_BASE}/asi/health`,
       },
       // ASI Metrics (all ASI routes)
       {
-        source: '/asi/:path*',
+        source: "/asi/:path*",
         destination: `${API_BASE}/asi/:path*`,
       },
       // Backend proxy (for direct backend calls)
       {
-        source: '/backend/:path*',
+        source: "/backend/:path*",
         destination: `${API_BASE}/:path*`,
       },
       // Backend status specifically
       {
-        source: '/backend/status',
+        source: "/backend/status",
         destination: `${API_BASE}/health`,
       },
       // Direct /health endpoint proxy
       {
-        source: '/health',
+        source: "/health",
         destination: `${API_BASE}/health`,
       },
       // ===== REPORTING API (Port 8001) =====
       // Docker containers
       {
-        source: '/api/reporting/:path*',
+        source: "/api/reporting/:path*",
         destination: `${REPORTING_BASE}/api/reporting/:path*`,
       },
       // Direct docker stats
       {
-        source: '/api/docker-containers',
+        source: "/api/docker-containers",
         destination: `${REPORTING_BASE}/api/reporting/docker-containers`,
       },
       {
-        source: '/api/docker-stats',
+        source: "/api/docker-stats",
         destination: `${REPORTING_BASE}/api/reporting/docker-stats`,
       },
       {
-        source: '/api/system-metrics',
+        source: "/api/system-metrics",
         destination: `${REPORTING_BASE}/api/reporting/system-metrics`,
       },
       // ===== ALBI EEG API =====
       {
-        source: '/api/albi/:path*',
+        source: "/api/albi/:path*",
         destination: `${API_BASE}/api/albi/:path*`,
       },
       // ===== ALBA API =====
       {
-        source: '/api/alba/:path*',
+        source: "/api/alba/:path*",
         destination: `${API_BASE}/api/alba/:path*`,
       },
       // ===== ASI API (general) =====
       {
-        source: '/api/asi/:path*',
+        source: "/api/asi/:path*",
         destination: `${API_BASE}/api/asi/:path*`,
       },
       // ===== JONA Neural Synthesis API =====
       {
-        source: '/api/jona/:path*',
+        source: "/api/jona/:path*",
         destination: `${API_BASE}/api/jona/:path*`,
       },
       // ===== Security Status =====
       {
-        source: '/api/security/:path*',
+        source: "/api/security/:path*",
         destination: `${API_BASE}/api/security/:path*`,
       },
       // ===== System Health =====
       {
-        source: '/api/system/:path*',
+        source: "/api/system/:path*",
         destination: `${API_BASE}/api/system/:path*`,
       },
     ];
@@ -228,17 +241,13 @@ const nextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
-    dirs: ['app', 'pages', 'components', 'lib'],
+    dirs: ["app", "pages", "components", "lib"],
   },
   onDemandEntries: {
     maxInactiveAge: 60 * 1000,
     pagesBufferLength: 5,
   },
-  allowedDevOrigins: [
-    'localhost:3000',
-    '127.0.0.1:3000',
-    'clisonix.com',
-  ],
+  allowedDevOrigins: ["localhost:3000", "127.0.0.1:3000", "clisonix.com"],
 };
 
 module.exports = nextConfig;

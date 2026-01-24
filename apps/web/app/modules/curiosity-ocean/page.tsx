@@ -155,20 +155,20 @@ export default function CuriosityOceanChat() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-cyan-900 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white flex flex-col">
       {/* Header */}
-      <div className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
+      <div className="border-b border-gray-200 bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Link href="/modules" className="text-cyan-400 hover:text-cyan-300 text-sm">
+              <Link href="/modules" className="text-cyan-600 hover:text-cyan-500 text-sm">
                 ← Modules
               </Link>
-              <div className="w-px h-6 bg-white/20" />
-              <Compass className="w-8 h-8 text-cyan-400" />
+              <div className="w-px h-6 bg-gray-300" />
+              <Compass className="w-8 h-8 text-cyan-600" />
               <div>
-                <h1 className="text-xl font-bold text-white">Curiosity Ocean</h1>
-                <p className="text-xs text-gray-400">Infinite Knowledge Engine</p>
+                <h1 className="text-xl font-bold text-gray-900">Curiosity Ocean</h1>
+                <p className="text-xs text-gray-500">Infinite Knowledge Engine</p>
               </div>
             </div>
             
@@ -176,7 +176,7 @@ export default function CuriosityOceanChat() {
               <select
                 value={curiosityLevel}
                 onChange={(e) => setCuriosityLevel(e.target.value as any)}
-                className="bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-sm text-white"
+                className="bg-gray-100 border border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-700"
               >
                 <option value="curious">🔍 Curious</option>
                 <option value="wild">🌀 Wild</option>
@@ -186,10 +186,10 @@ export default function CuriosityOceanChat() {
 
               <button
                 onClick={clearChat}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 title="Clear chat"
               >
-                <RefreshCw className="w-5 h-5 text-gray-400" />
+                <RefreshCw className="w-5 h-5 text-gray-500" />
               </button>
             </div>
           </div>
@@ -208,11 +208,11 @@ export default function CuriosityOceanChat() {
                 className={`max-w-[85%] rounded-2xl p-4 ${
                   message.type === 'user'
                     ? 'bg-cyan-600 text-white rounded-br-md'
-                    : 'bg-white/10 backdrop-blur-sm text-gray-100 rounded-bl-md border border-white/10'
+                    : 'bg-white shadow-md text-gray-800 rounded-bl-md border border-gray-200'
                 }`}
               >
                 {message.type === 'ai' && (
-                  <div className="flex items-center gap-2 mb-2 text-cyan-400">
+                  <div className="flex items-center gap-2 mb-2 text-cyan-600">
                     <Sparkles className="w-4 h-4" />
                     <span className="text-xs font-medium">Curiosity Ocean</span>
                   </div>
@@ -222,8 +222,8 @@ export default function CuriosityOceanChat() {
 
                 {/* Explore Further */}
                 {message.rabbitHoles && message.rabbitHoles.length > 0 && (
-                  <div className="mt-4 pt-3 border-t border-white/10">
-                    <p className="text-xs text-cyan-400 mb-2 flex items-center gap-1">
+                  <div className="mt-4 pt-3 border-t border-gray-200">
+                    <p className="text-xs text-cyan-600 mb-2 flex items-center gap-1">
                       <Lightbulb className="w-3 h-3" />
                       Explore further:
                     </p>
@@ -232,7 +232,7 @@ export default function CuriosityOceanChat() {
                         <button
                           key={idx}
                           onClick={() => sendMessage(hole)}
-                          className="block w-full text-left text-sm text-gray-300 hover:text-cyan-400 hover:bg-white/5 rounded px-2 py-1 transition-colors"
+                          className="block w-full text-left text-sm text-gray-600 hover:text-cyan-600 hover:bg-gray-100 rounded px-2 py-1 transition-colors"
                         >
                           <ChevronRight className="w-3 h-3 inline mr-1" />
                           {hole}
@@ -244,14 +244,14 @@ export default function CuriosityOceanChat() {
 
                 {/* Next Questions */}
                 {message.nextQuestions && message.nextQuestions.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-white/10">
-                    <p className="text-xs text-purple-400 mb-2">💭 Continue with:</p>
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <p className="text-xs text-purple-600 mb-2">💭 Continue with:</p>
                     <div className="flex flex-wrap gap-2">
                       {message.nextQuestions.map((q, idx) => (
                         <button
                           key={idx}
                           onClick={() => sendMessage(q)}
-                          className="text-xs bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 rounded-full px-3 py-1 transition-colors"
+                          className="text-xs bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-full px-3 py-1 transition-colors"
                         >
                           {q}
                         </button>
@@ -260,7 +260,7 @@ export default function CuriosityOceanChat() {
                   </div>
                 )}
 
-                <div className="mt-2 text-xs text-gray-500">
+                <div className="mt-2 text-xs text-gray-400">
                   {message.timestamp.toLocaleTimeString()}
                 </div>
               </div>
@@ -270,8 +270,8 @@ export default function CuriosityOceanChat() {
           {/* Loading indicator */}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl rounded-bl-md p-4 border border-white/10">
-                <div className="flex items-center gap-2 text-cyan-400">
+              <div className="bg-white shadow-md rounded-2xl rounded-bl-md p-4 border border-gray-200">
+                <div className="flex items-center gap-2 text-cyan-600">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span className="text-sm">Thinking...</span>
                 </div>
@@ -286,13 +286,13 @@ export default function CuriosityOceanChat() {
       {/* Suggested Questions */}
       {messages.length <= 1 && (
         <div className="max-w-4xl mx-auto px-4 pb-4">
-          <p className="text-sm text-gray-400 mb-3">💡 Try asking:</p>
+          <p className="text-sm text-gray-600 mb-3">💡 Try asking:</p>
           <div className="flex flex-wrap gap-2">
             {SUGGESTED_QUESTIONS.map((q, idx) => (
               <button
                 key={idx}
                 onClick={() => sendMessage(q)}
-                className="text-sm bg-white/5 hover:bg-white/10 text-gray-300 rounded-full px-4 py-2 transition-colors border border-white/10"
+                className="text-sm bg-white hover:bg-gray-100 text-gray-700 rounded-full px-4 py-2 transition-colors border border-gray-300 shadow-sm"
               >
                 {q}
               </button>
@@ -302,7 +302,7 @@ export default function CuriosityOceanChat() {
       )}
 
       {/* Input Area */}
-      <div className="border-t border-white/10 bg-black/20 backdrop-blur-sm">
+      <div className="border-t border-gray-200 bg-white shadow-lg">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center gap-3">
             <div className="flex-1 relative">
@@ -313,7 +313,7 @@ export default function CuriosityOceanChat() {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask anything... 🌊"
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 pr-12 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50"
+                className="w-full bg-gray-100 border border-gray-300 rounded-xl px-4 py-3 pr-12 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500"
                 disabled={isLoading}
               />
               <button
