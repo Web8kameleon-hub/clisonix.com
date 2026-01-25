@@ -4,9 +4,6 @@
 
 version: 2
 
-# Global rebase strategy - auto rebase when main changes
-registries: {}
-
 updates:
   # Python dependencies (main API)
   - package-ecosystem: "pip"
@@ -24,7 +21,7 @@ updates:
       - "security"
     commit-message:
       prefix: "deps(python)"
-    reviewers:
+    assignees:
       - "LedjanAhmati"
     groups:
       python-security:
@@ -50,7 +47,7 @@ updates:
       - "security"
     commit-message:
       prefix: "deps(npm)"
-    reviewers:
+    assignees:
       - "LedjanAhmati"
     groups:
       npm-security:
