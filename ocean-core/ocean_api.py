@@ -29,6 +29,7 @@ from laboratories import get_laboratory_network
 from real_data_engine import get_real_data_engine
 from specialized_chat_engine import get_specialized_chat, initialize_specialized_chat
 from response_orchestrator import get_orchestrator
+from autolearning_engine import get_autolearning_engine, AutolearningEngine
 
 
 async def get_knowledge_engine_hybrid(data_sources):
@@ -93,6 +94,7 @@ laboratory_network = None
 real_data_engine = None
 specialized_chat = None
 orchestrator = None
+autolearning_engine = None  # New: Autolearning Engine
 
 
 @app.on_event("startup")
@@ -165,12 +167,21 @@ async def startup_event():
         else:
             logger.info("✅ Knowledge engine initialized successfully!")
         
+        # Initialize Autolearning Engine - CONTINUOUS LEARNING
+        logger.info("→ Initializing Autolearning Engine (Learning Loop)...")
+        autolearning_engine = get_autolearning_engine()
+        stats = autolearning_engine.get_learning_stats()
+        logger.info(f"🧠 [OK] Autolearning Engine online!")
+        logger.info(f"   - Knowledge entries: {stats['knowledge_base']['total_knowledge_entries']}")
+        logger.info(f"   - Custom patterns: {stats['patterns']['custom_patterns']}")
+        
         logger.info(f"✅ Ocean Core 8030 initialized successfully!")
         logger.info(f"   - Personas: {len(persona_router.mapping)}")
         logger.info(f"   - Data Sources: {len(internal_data_sources.get_all_data().keys()) if internal_data_sources else 0}")
         logger.info(f"   - Laboratories: {len(laboratory_network.get_all_labs()) if laboratory_network else 0}")
         logger.info(f"   - Real Data Engine: {'✅ Ready' if real_data_engine else '⚠️  Not available'}")
         logger.info(f"   - Knowledge Engine: {'✅ Ready' if knowledge_engine else '⚠️  Degraded'}")
+        logger.info(f"   - Autolearning Engine: ✅ Ready")
         logger.info(f"   - Orchestrator (Brain): ✅ Ready")
     except Exception as e:
         logger.error(f"❌ Ocean Core 8030 initialization failed: {type(e).__name__}: {str(e)}")
@@ -293,6 +304,83 @@ async def get_status():
     except Exception as e:
         logger.error(f"Status check error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/system-full")
+async def get_full_system_status():
+    """
+    Get COMPLETE system status with ALL components:
+    - 14 Personas
+    - 23 Laboratories
+    - 61 Alphabet Layers
+    - 12 Backend Layers (0-12)
+    - ASI Trinity (Alba/Albi/Jona)
+    - Open Data Sources
+    - Enforcement Manager
+    - ML Manager
+    - Cycle Engine
+    """
+    try:
+        status = {
+            "service": "Clisonix Ocean Core",
+            "version": "4.0.0 - Full Integration",
+            "timestamp": datetime.now().isoformat(),
+            "components": {}
+        }
+        
+        # Personas
+        status["components"]["personas"] = {
+            "count": len(persona_router.mapping) if persona_router else 0,
+            "status": "active" if persona_router else "unavailable",
+            "list": list(persona_router.mapping.keys()) if persona_router else []
+        }
+        
+        # Laboratories
+        if laboratory_network:
+            labs = laboratory_network.get_all_labs()
+            status["components"]["laboratories"] = {
+                "count": len(labs),
+                "status": "active",
+                "locations": [lab.location for lab in labs[:5]]
+            }
+        else:
+            status["components"]["laboratories"] = {"count": 0, "status": "unavailable"}
+        
+        # Orchestrator with Alphabet Layers & Universal Connector
+        if orchestrator:
+            status["components"]["orchestrator"] = {
+                "status": "active",
+                "alphabet_layers": orchestrator.alphabet_layers.alphabet['size'] if orchestrator.alphabet_layers else 0,
+                "universal_connector": "connected" if hasattr(orchestrator, 'universal_connector') and orchestrator.universal_connector else "not_connected"
+            }
+            
+            # Get Universal Connector summary
+            if hasattr(orchestrator, 'universal_connector') and orchestrator.universal_connector:
+                status["components"]["universal_system"] = orchestrator.universal_connector.get_system_summary()
+        
+        # Real Data Engine
+        status["components"]["real_data_engine"] = {
+            "status": "active" if real_data_engine else "unavailable"
+        }
+        
+        # Knowledge Engine
+        status["components"]["knowledge_engine"] = {
+            "status": "active" if knowledge_engine else "degraded"
+        }
+        
+        # Summary
+        active_count = sum(1 for c in status["components"].values() if c.get("status") == "active" or c.get("status") == "connected")
+        status["summary"] = {
+            "total_components": len(status["components"]),
+            "active_components": active_count,
+            "health": "healthy" if active_count > 4 else "degraded"
+        }
+        
+        return status
+        
+    except Exception as e:
+        logger.error(f"Full system status error: {e}")
+        return {"error": str(e), "status": "error"}
 
 
 @app.get("/api/sources")
@@ -750,50 +838,100 @@ async def spontaneous_conversation(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.post("/api/chat")
+async def simple_chat(request: Request):
+    """
+    SIMPLE CHAT ENDPOINT
+    ====================
+    
+    Për përdorim të thjeshtë - thjesht dërgo mesazhin dhe merr përgjigje.
+    
+    Body:
+    {
+        "message": "Përshëndetje! Si je?"
+    }
+    
+    Returns:
+    {
+        "response": "Mirëdita! Jam mirë, faleminderit...",
+        "sources": ["coingecko", "internal_knowledge"],
+        "confidence": 0.92
+    }
+    """
+    if not orchestrator:
+        raise HTTPException(status_code=503, detail="Orchestrator not initialized")
+    
+    try:
+        body = await request.json()
+        message = body.get("message", body.get("query", "")).strip()
+        
+        if not message:
+            return {
+                "response": "Ju lutem shkruani diçka për të vazhduar bisedën.",
+                "sources": [],
+                "confidence": 1.0
+            }
+        
+        logger.info(f"💬 Simple chat: {message[:50]}...")
+        
+        # Use async orchestrator with real knowledge
+        try:
+            result = await orchestrator.process_query_async(message)
+            return {
+                "response": result.fused_answer,
+                "sources": result.sources_cited,
+                "confidence": result.confidence,
+                "query_category": result.query_category.value if hasattr(result.query_category, 'value') else str(result.query_category)
+            }
+        except Exception as e:
+            logger.warning(f"Async failed: {e}, using sync")
+            result = orchestrator.process_query(message)
+            return {
+                "response": result.fused_answer,
+                "sources": result.sources_cited,
+                "confidence": result.confidence
+            }
+    
+    except Exception as e:
+        logger.error(f"Simple chat error: {e}")
+        return {
+            "response": f"Ndodhi një gabim: {str(e)}. Ju lutem provoni përsëri.",
+            "sources": [],
+            "confidence": 0.0
+        }
+
+
 @app.post("/api/chat/orchestrated")
 async def orchestrated_response(request: Request):
     """
-    ORCHESTRATED RESPONSE MODE
-    ==========================
+    ORCHESTRATED RESPONSE MODE - REAL KNOWLEDGE + AUTOLEARNING
+    ===========================================================
     
-    The BRAIN is thinking and deciding!
+    The BRAIN is thinking with REAL DATA and LEARNING!
     
-    This endpoint uses the Response Orchestrator to:
-    1. UNDERSTAND the query with depth
-    2. DECIDE which experts to consult
-    3. CONSULT personas, labs, and modules
-    4. FUSE responses into natural narrative
-    5. LEARN for next time
+    INTERNAL (Independent - No API dependencies):
+    - 23 Internal Laboratories
+    - 14 Expert Personas
+    - 61 Alphabet Layers
+    - 12 Backend Layers
+    - ASI Trinity (Alba/Albi/Jona)
+    - Knowledge Accumulator (learns from every query)
+    - Pattern Detector (learns patterns)
     
-    Returns:
-    - query_category: How the brain categorized this query
-    - understanding: Deep analysis of what was asked
-    - consulted_experts: List of who was asked
-    - fused_answer: The unified, narrative response
-    - confidence: How confident the answer is
-    - narrative_quality: How natural/human-like the response is
-    - learning_record: What did we learn from this?
+    EXTERNAL (Bonus - Optional):
+    - CoinGecko (Crypto prices)
+    - OpenWeatherMap (Weather)
+    - PubMed (Medical research)
+    - ArXiv (Scientific papers)
     
-    Example:
-    POST /api/chat/orchestrated
-    {
-        "query": "How can AI help solve climate change?",
-        "conversation_context": ["Earlier we discussed renewable energy..."]
-    }
-    
-    Response will consult:
-    - AGI Specialist + Academic personas
-    - Environmental + Energy labs
-    - AI lab + Data lab
-    - Blerina for narrative
-    - Ageim for analysis
+    Returns natural, conversational responses with real data.
     """
     if not orchestrator:
         raise HTTPException(status_code=503, detail="Response Orchestrator not initialized")
     
     try:
         body = await request.json()
-        query = body.get("query", "").strip()
+        query = body.get("query", body.get("message", "")).strip()
         conversation_context = body.get("conversation_context", [])
         
         if not query:
@@ -801,21 +939,73 @@ async def orchestrated_response(request: Request):
         
         logger.info(f"🧠 ORCHESTRATOR processing: {query[:60]}...")
         
-        # Process through the orchestrator brain
-        orchestrated = orchestrator.process_query(query, conversation_context)
+        # STEP 1: Check Autolearning Engine for cached/learned responses
+        knowledge_id = None
+        learning_result = None
+        
+        if autolearning_engine:
+            learning_result = autolearning_engine.process_query(query)
+            logger.info(f"   📚 Pattern: {learning_result['pattern_type']}, Cached: {learning_result['cached_knowledge'] is not None}")
+            
+            # If we have a high-confidence cached response, use it first
+            if learning_result.get('cached_knowledge'):
+                cached = learning_result['cached_knowledge']
+                if cached.get('helpfulness', 0) > 0.7 and cached.get('confidence', 0) > 0.85:
+                    logger.info(f"   ✅ Using learned response (helpfulness: {cached['helpfulness']:.0%})")
+                    return {
+                        "type": "learned_response",
+                        "query": query,
+                        "query_category": "learned",
+                        "understanding": {"from": "autolearning", "times_used": cached['times_used']},
+                        "consulted_experts": [],
+                        "fused_answer": cached['response'],
+                        "sources_cited": ["autolearning_engine"],
+                        "confidence": cached['confidence'],
+                        "narrative_quality": cached['helpfulness'],
+                        "learning_record": {"knowledge_id": cached['knowledge_id']},
+                        "timestamp": datetime.utcnow().isoformat()
+                    }
+            
+            # If we have a pattern response (greeting, farewell, etc), use it
+            if learning_result.get('pattern_response'):
+                logger.info(f"   ✅ Using pattern response for: {learning_result['pattern_type']}")
+                return {
+                    "type": "pattern_response",
+                    "query": query,
+                    "query_category": learning_result['pattern_type'],
+                    "understanding": {"pattern": learning_result['pattern_type']},
+                    "consulted_experts": [],
+                    "fused_answer": learning_result['pattern_response'],
+                    "sources_cited": ["pattern_detector"],
+                    "confidence": 0.95,
+                    "narrative_quality": 0.90,
+                    "learning_record": {},
+                    "timestamp": datetime.utcnow().isoformat()
+                }
+        
+        # STEP 2: Try async processing with orchestrator
+        try:
+            orchestrated = await orchestrator.process_query_async(query, conversation_context)
+        except Exception as async_error:
+            logger.warning(f"Async processing failed, falling back to sync: {async_error}")
+            orchestrated = orchestrator.process_query(query, conversation_context)
+        
+        # STEP 3: Learn from this response
+        if autolearning_engine and learning_result and learning_result.get('should_learn', True):
+            knowledge_id = autolearning_engine.learn_from_response(
+                query=query,
+                response=orchestrated.fused_answer,
+                sources=orchestrated.sources_cited,
+                confidence=orchestrated.confidence
+            )
+            logger.info(f"   📝 Learned as: {knowledge_id}")
         
         # Convert to JSON-serializable format
         return {
             "type": "orchestrated_response",
             "query": orchestrated.query,
-            "query_category": orchestrated.query_category.value,
-            "understanding": {
-                "intent": orchestrated.understanding["intent"],
-                "category": orchestrated.understanding["category"].value,
-                "emotional_tone": orchestrated.understanding["emotional_tone"],
-                "complexity_level": orchestrated.understanding["complexity_level"],
-                "context_importance": orchestrated.understanding["context_importance"],
-            },
+            "query_category": orchestrated.query_category.value if hasattr(orchestrated.query_category, 'value') else str(orchestrated.query_category),
+            "understanding": orchestrated.understanding if isinstance(orchestrated.understanding, dict) else {"raw": str(orchestrated.understanding)},
             "consulted_experts": [
                 {
                     "type": c.expert_type,
@@ -824,13 +1014,13 @@ async def orchestrated_response(request: Request):
                     "relevance": c.relevance_score,
                 }
                 for c in orchestrated.consulted_experts
-            ],
+            ] if orchestrated.consulted_experts else [],
             "fused_answer": orchestrated.fused_answer,
             "sources_cited": orchestrated.sources_cited,
             "confidence": orchestrated.confidence,
             "narrative_quality": orchestrated.narrative_quality,
-            "learning_record": orchestrated.learning_record,
-            "timestamp": orchestrated.timestamp
+            "learning_record": {"knowledge_id": knowledge_id} if knowledge_id else orchestrated.learning_record,
+            "timestamp": orchestrated.timestamp if hasattr(orchestrated, 'timestamp') else datetime.utcnow().isoformat()
         }
     
     except ValueError as e:
@@ -858,6 +1048,74 @@ async def get_orchestrator_learning():
         }
     except Exception as e:
         logger.error(f"Learning matrix error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/autolearning/stats")
+async def get_autolearning_stats():
+    """
+    Get Autolearning Engine statistics
+    
+    Shows:
+    - Total knowledge entries learned
+    - Top queries used
+    - Pattern statistics
+    - Session learning info
+    """
+    if not autolearning_engine:
+        raise HTTPException(status_code=503, detail="Autolearning Engine not initialized")
+    
+    try:
+        stats = autolearning_engine.get_learning_stats()
+        return {
+            "type": "autolearning_stats",
+            "knowledge_base": stats["knowledge_base"],
+            "patterns": stats["patterns"],
+            "session": stats["session"],
+            "independence": {
+                "internal_sources": True,
+                "external_api_dependency": False,
+                "description": "Sistemi mëson dhe funksionon pa varësi nga API të jashtme"
+            },
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Autolearning stats error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/autolearning/feedback")
+async def autolearning_feedback(request: Request):
+    """
+    Record user feedback for a response
+    
+    Body:
+    - knowledge_id: ID of the knowledge entry
+    - helpful: true/false
+    """
+    if not autolearning_engine:
+        raise HTTPException(status_code=503, detail="Autolearning Engine not initialized")
+    
+    try:
+        body = await request.json()
+        knowledge_id = body.get("knowledge_id")
+        helpful = body.get("helpful", True)
+        
+        if not knowledge_id:
+            raise ValueError("knowledge_id is required")
+        
+        autolearning_engine.record_feedback(knowledge_id, helpful)
+        
+        return {
+            "status": "recorded",
+            "knowledge_id": knowledge_id,
+            "feedback": "helpful" if helpful else "not_helpful",
+            "message": "Faleminderit për feedback-un! Sistemi do të mësojë nga kjo."
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Feedback error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -1115,6 +1373,396 @@ async def get_laboratories_by_function(keyword: str):
         raise
     except Exception as e:
         logger.error(f"Laboratory function lookup error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# =============================================================================
+# MEGA SIGNAL INTEGRATOR ENDPOINTS
+# =============================================================================
+
+@app.get("/api/signals/overview")
+async def get_signals_overview():
+    """
+    🌊 MEGA SIGNAL SYSTEM OVERVIEW
+    
+    Returns status of all signal managers:
+    - Cycles, Alignments, Proposals
+    - Kubernetes, CI/CD
+    - News, Data Sources (5000+ from 200+ countries)
+    """
+    try:
+        from mega_signal_integrator import get_mega_signal_integrator
+        integrator = get_mega_signal_integrator()
+        overview = integrator.get_system_overview()
+        
+        return {
+            "type": "mega_signal_overview",
+            "status": "connected",
+            "overview": overview,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Mega Signal overview error: {e}")
+        return {
+            "type": "mega_signal_overview",
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+
+@app.post("/api/signals/query")
+async def query_signals(request: Request):
+    """
+    🔍 QUERY MEGA SIGNAL SYSTEM
+    
+    Ask about cycles, alignments, proposals, kubernetes, 
+    data sources, and more!
+    """
+    try:
+        from mega_signal_integrator import get_mega_signal_integrator
+        integrator = get_mega_signal_integrator()
+        
+        body = await request.json()
+        query = body.get("query", body.get("message", "")).strip()
+        
+        if not query:
+            raise ValueError("Query cannot be empty")
+        
+        result = await integrator.process_query(query)
+        
+        return {
+            "type": "mega_signal_query",
+            "query": query,
+            "response": result.get("response", ""),
+            "sources_checked": result.get("sources_checked", []),
+            "signals": result.get("signals", []),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Mega Signal query error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/signals/cycles")
+async def get_cycles():
+    """Get all active cycles"""
+    try:
+        from mega_signal_integrator import get_mega_signal_integrator
+        integrator = get_mega_signal_integrator()
+        cycles = integrator.cycle_manager.get_active_cycles()
+        
+        return {
+            "type": "cycles",
+            "count": len(cycles),
+            "cycles": cycles,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Cycles error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/signals/cycles")
+async def create_cycle(request: Request):
+    """Create a new cycle"""
+    try:
+        from mega_signal_integrator import get_mega_signal_integrator
+        integrator = get_mega_signal_integrator()
+        
+        body = await request.json()
+        domain = body.get("domain", "general")
+        source = body.get("source", "api")
+        interval = body.get("interval_seconds", 300)
+        
+        signal = integrator.cycle_manager.create_cycle(domain, source, interval)
+        
+        return {
+            "type": "cycle_created",
+            "signal": {
+                "id": signal.signal_id,
+                "message": signal.message,
+                "data": signal.data
+            },
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Create cycle error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/signals/proposals")
+async def create_proposal(request: Request):
+    """Create a new proposal"""
+    try:
+        from mega_signal_integrator import get_mega_signal_integrator
+        integrator = get_mega_signal_integrator()
+        
+        body = await request.json()
+        title = body.get("title", "New Proposal")
+        domain = body.get("domain", "general")
+        description = body.get("description", "")
+        
+        signal = integrator.proposal_manager.create_proposal(title, domain, description)
+        
+        return {
+            "type": "proposal_created",
+            "signal": {
+                "id": signal.signal_id,
+                "message": signal.message,
+                "data": signal.data
+            },
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Create proposal error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/signals/kubernetes")
+async def get_kubernetes_status():
+    """Get Kubernetes cluster status"""
+    try:
+        from mega_signal_integrator import get_mega_signal_integrator
+        integrator = get_mega_signal_integrator()
+        signal = integrator.devops_manager.get_kubernetes_status()
+        
+        return {
+            "type": "kubernetes_status",
+            "message": signal.message,
+            "data": signal.data,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Kubernetes status error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/signals/data-sources")
+async def get_data_sources_summary():
+    """
+    🌍 GET 5000+ DATA SOURCES FROM 200+ COUNTRIES
+    
+    Returns summary of all available data sources:
+    - EEG/Neuro (OpenNeuro, PhysioNet)
+    - Scientific (PubMed, ArXiv, NCBI)
+    - Statistics EU (Eurostat, Destatis, INSEE)
+    - Statistics Asia (China NBS, Japan, Korea)
+    - Finance (ECB, IMF, World Bank, CoinGecko)
+    - Environment (Copernicus, NASA, NOAA)
+    - Health (WHO, CDC, ECDC)
+    - News (NewsAPI, Guardian, NY Times)
+    - IoT (FIWARE, Smart Data Models)
+    - International (UN Data, WTO, ILO, FAO)
+    """
+    try:
+        from mega_signal_integrator import get_mega_signal_integrator
+        integrator = get_mega_signal_integrator()
+        signal = integrator.news_data_manager.get_data_sources_summary()
+        
+        return {
+            "type": "data_sources",
+            "message": signal.message,
+            "total_sources": signal.data.get("total", 0),
+            "categories": signal.data.get("categories", {}),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Data sources error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/signals/data-sources/search")
+async def search_data_sources(query: str = Query(..., description="Search query for data sources")):
+    """Search data sources by keyword"""
+    try:
+        from mega_signal_integrator import get_mega_signal_integrator
+        integrator = get_mega_signal_integrator()
+        results = integrator.news_data_manager.search_sources(query)
+        
+        return {
+            "type": "data_sources_search",
+            "query": query,
+            "count": len(results),
+            "results": results,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Data sources search error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/signals/lora")
+async def get_lora_status():
+    """
+    📡 GET LORA/LORAWAN NETWORK STATUS
+    
+    Returns status of LoRa gateways and nodes.
+    Low-power wide-area network for IoT.
+    """
+    try:
+        from mega_signal_integrator import get_mega_signal_integrator
+        integrator = get_mega_signal_integrator()
+        signal = integrator.lora_manager.get_network_status()
+        
+        return {
+            "type": "lora_status",
+            "message": signal.message,
+            "data": signal.data,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"LoRa status error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/signals/lora/nodes")
+async def register_lora_node(request: Request):
+    """Register a new LoRa node"""
+    try:
+        from mega_signal_integrator import get_mega_signal_integrator
+        integrator = get_mega_signal_integrator()
+        
+        body = await request.json()
+        node_id = body.get("node_id", f"node_{datetime.utcnow().timestamp()}")
+        node_type = body.get("node_type", "sensor")
+        metadata = body.get("metadata", {})
+        
+        signal = integrator.lora_manager.register_node(node_id, node_type, metadata)
+        
+        return {
+            "type": "lora_node_registered",
+            "signal": {"id": signal.signal_id, "message": signal.message, "data": signal.data},
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"LoRa node registration error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/signals/nanogrid")
+async def get_nanogrid_status():
+    """
+    🔌 GET NANOGRID GATEWAY STATUS
+    
+    Returns status of embedded devices:
+    - ESP32 (WiFi, BLE, I2C)
+    - STM32 (LoRa, UART, DMA)
+    - ASIC (LoRa, UART)
+    - Raspberry Pi
+    """
+    try:
+        from mega_signal_integrator import get_mega_signal_integrator
+        integrator = get_mega_signal_integrator()
+        signal = integrator.nanogrid_manager.get_gateway_status()
+        
+        return {
+            "type": "nanogrid_status",
+            "message": signal.message,
+            "data": signal.data,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Nanogrid status error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/signals/nanogrid/devices")
+async def register_nanogrid_device(request: Request):
+    """Register a new Nanogrid device"""
+    try:
+        from mega_signal_integrator import get_mega_signal_integrator
+        integrator = get_mega_signal_integrator()
+        
+        body = await request.json()
+        device_id = body.get("device_id", f"dev_{datetime.utcnow().timestamp()}")
+        model = body.get("model", "CUSTOM_IOT")
+        metadata = body.get("metadata", {})
+        
+        signal = integrator.nanogrid_manager.register_device(device_id, model, metadata)
+        
+        return {
+            "type": "nanogrid_device_registered",
+            "signal": {"id": signal.signal_id, "message": signal.message, "data": signal.data},
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Nanogrid device registration error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/signals/nanogrid/telemetry")
+async def receive_telemetry(request: Request):
+    """Receive telemetry from Nanogrid device"""
+    try:
+        from mega_signal_integrator import get_mega_signal_integrator
+        integrator = get_mega_signal_integrator()
+        
+        body = await request.json()
+        device_id = body.get("device_id")
+        payload = body.get("payload", {})
+        
+        if not device_id:
+            raise ValueError("device_id is required")
+        
+        signal = integrator.nanogrid_manager.process_telemetry(device_id, payload)
+        
+        return {
+            "type": "telemetry_received",
+            "signal": {"id": signal.signal_id, "message": signal.message},
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Telemetry error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/signals/nodes")
+async def get_nodes_status():
+    """Get nodes, arrays, and buffers status"""
+    try:
+        from mega_signal_integrator import get_mega_signal_integrator
+        integrator = get_mega_signal_integrator()
+        status = integrator.node_array_manager.get_status()
+        
+        return {
+            "type": "node_array_status",
+            "data": status,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Nodes status error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/signals/formats")
+async def get_data_formats():
+    """
+    📦 GET SUPPORTED DATA FORMATS
+    
+    Returns info about supported formats:
+    - CBOR (39% smaller than JSON)
+    - JSON (human readable)
+    - YAML (config files)
+    - MsgPack (30% smaller than JSON)
+    """
+    try:
+        from mega_signal_integrator import get_mega_signal_integrator
+        integrator = get_mega_signal_integrator()
+        signal = integrator.format_manager.get_all_formats()
+        
+        return {
+            "type": "data_formats",
+            "message": signal.message,
+            "formats": signal.data,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Formats error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
