@@ -400,7 +400,7 @@ async def get_unified_dashboard(request: Request) -> Response:
 async def get_metrics_history(
     request: Request,
     hours: int = Query(24, ge=1, le=720),
-    metric_type: str = Query("all", regex="^(all|api|ai|infrastructure)$")
+    metric_type: str = Query("all", pattern="^(all|api|ai|infrastructure)$")
 ) -> Response:
     """
     Merr historiken e metrikave për periudhën e caktuar

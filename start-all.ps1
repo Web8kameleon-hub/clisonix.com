@@ -66,6 +66,7 @@ $Script:ServicePorts = @{
     "Grafana"          = 3001
     "Loki"             = 3100
     "Victoria-Metrics" = 8428
+    "ocean-core"       = 8030
 }
 
 $Script:Services = @{
@@ -214,7 +215,7 @@ function Test-Prerequisites {
     # Check Python
     Show-Status "Checking Python..." "WAIT"
     try {
-        $pythonVersion = python --version 2>&1
+        python --version 2>&1
         if ($LASTEXITCODE -eq 0) {
             Show-Status "Python installed" "OK"
         } else {
@@ -229,13 +230,17 @@ function Test-Prerequisites {
     if ($Mode -eq "docker") {
         Show-Status "Checking Docker..." "WAIT"
         try {
+            # PSScriptAnalyzer: Variables are used in string interpolation below
+            [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
             $dockerVersion = docker --version 2>&1
             if ($LASTEXITCODE -eq 0) {
-                Show-Status "Docker installed" "OK"
+                Show-Status "Docker: $dockerVersion" "OK"
                 
+                [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
                 $dockerInfo = docker info 2>&1
                 if ($LASTEXITCODE -eq 0) {
-                    Show-Status "Docker daemon running" "OK"
+                    $firstLine = ($dockerInfo -split "`n")[0]
+                    Show-Status "Docker daemon: $firstLine" "OK"
                 } else {
                     Show-Status "Docker daemon not running" "ERROR"
                     $allPassed = $false
