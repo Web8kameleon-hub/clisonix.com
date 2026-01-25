@@ -2,12 +2,15 @@ FROM node:20-alpine AS frontend-builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json ./
-COPY apps/web/package.json apps/web/package-lock.json apps/web/
+# Copy package files from root (monorepo uses root package-lock.json)
+COPY package.json package-lock.json* ./
+COPY apps/web/package.json apps/web/
 
 # Install dependencies
-RUN npm ci
+RUN npm ci --workspace=apps/web || npm install
+
+# Copy frontend source
+COPY apps/web apps/web
 
 # Build frontend
 WORKDIR /app/apps/web
