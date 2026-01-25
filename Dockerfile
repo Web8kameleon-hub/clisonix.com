@@ -26,15 +26,15 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Python requirements
+# Copy Python requirements (only files that exist)
 COPY requirements.txt .
+COPY requirements-ocean.txt .
 COPY apps/api/requirements.txt apps/api/
-COPY ocean-core/requirements.txt ocean-core/
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir -r apps/api/requirements.txt && \
-    pip install --no-cache-dir -r ocean-core/requirements.txt
+    pip install --no-cache-dir -r requirements-ocean.txt && \
+    pip install --no-cache-dir -r apps/api/requirements.txt
 
 # Copy application code
 COPY apps/api /app/apps/api
