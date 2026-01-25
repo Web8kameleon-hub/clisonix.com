@@ -9,18 +9,68 @@
 
 import { motion } from 'framer-motion';
 import { useASIStore } from '@/lib/stores/asi-store';
-import { 
-  sandboxShield,
-  gradientText,
-  safeGlow
-} from '@/styles/asi.css';
-import { 
-  asiButton, 
-  statusBadge, 
-  progressBar,
-  progressBarFill
-} from '@/lib/components/variants';
 import { clsx } from 'clsx';
+
+// Tailwind classes instead of CSS module imports
+const sandboxShield = 'bg-slate-800/50 backdrop-blur-sm border border-purple-500/30 rounded-xl p-6';
+const gradientText = 'bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent';
+const safeGlow = 'shadow-lg shadow-purple-500/10';
+
+// Progress bar helpers
+const progressBar = ({ size }: { size?: string }) => {
+  const base = 'w-full bg-gray-700/50 rounded-full overflow-hidden';
+  const sizeClass = size === 'lg' ? 'h-4' : 'h-2';
+  return `${base} ${sizeClass}`;
+};
+
+const progressBarFill = ({ level, color }: { level?: string; color?: string }) => {
+  const base = 'h-full rounded-full transition-all duration-500';
+  const colorMap: Record<string, string> = {
+    safe: 'bg-green-500',
+    moderate: 'bg-yellow-500',
+    warning: 'bg-orange-500',
+    critical: 'bg-red-500',
+    success: 'bg-green-500',
+    error: 'bg-red-500',
+  };
+  return `${base} ${colorMap[color || level || 'safe']}`;
+};
+
+// ASI Button helper
+const asiButton = ({ variant, size }: { variant?: string; size?: string }) => {
+  const base = 'inline-flex items-center justify-center rounded-lg font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900';
+  const sizeClasses: Record<string, string> = {
+    sm: 'px-3 py-1.5 text-xs',
+    default: 'px-4 py-2 text-sm',
+    lg: 'px-6 py-3 text-base',
+  };
+  const variantClasses: Record<string, string> = {
+    primary: 'bg-purple-600 hover:bg-purple-700 text-white focus:ring-purple-500',
+    secondary: 'bg-slate-600 hover:bg-slate-700 text-white focus:ring-slate-500',
+    destructive: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500',
+    ghost: 'bg-transparent hover:bg-slate-700 text-gray-300',
+    outline: 'border border-purple-500 text-purple-400 hover:bg-purple-500/10',
+  };
+  return `${base} ${sizeClasses[size || 'default']} ${variantClasses[variant || 'primary']}`;
+};
+
+// Card helpers
+const cardHeader = 'flex items-center justify-between mb-4';
+const cardTitle = 'text-lg font-semibold text-white';
+
+// Status badge helper
+const statusBadge = ({ status, size }: { status: string; size?: string }) => {
+  const base = 'inline-flex items-center rounded-full font-semibold transition-colors';
+  const sizeClass = size === 'lg' ? 'px-4 py-2 text-sm' : 'px-3 py-1 text-xs';
+  const statusColors: Record<string, string> = {
+    active: 'bg-green-500/20 text-green-400 border border-green-500/30',
+    inactive: 'bg-gray-500/20 text-gray-400 border border-gray-500/30',
+    processing: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30',
+    warning: 'bg-orange-500/20 text-orange-400 border border-orange-500/30',
+    error: 'bg-red-500/20 text-red-400 border border-red-500/30',
+  };
+  return `${base} ${sizeClass} ${statusColors[status] || statusColors.inactive}`;
+};
 
 interface SandboxShieldProps {
   className?: string;

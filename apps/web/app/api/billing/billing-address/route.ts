@@ -17,7 +17,7 @@ interface BillingAddress {
   phone?: string;
 }
 
-export async function GET(_request: Request) {
+export async function GET() {
   try {
     // Check if Stripe is configured
     if (

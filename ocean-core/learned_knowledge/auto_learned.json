@@ -196,7 +196,7 @@
       "avg_relevance": 0.69,
       "total_data_points": 410,
       "learned_at": "2026-01-24T18:43:03.958658",
-      "times_used": 8
+      "times_used": 9
     },
     {
       "id": "know_3ed2bfdd",
@@ -241,7 +241,7 @@
       "avg_relevance": 0.61,
       "total_data_points": 423,
       "learned_at": "2026-01-24T18:43:11.610940",
-      "times_used": 7
+      "times_used": 9
     },
     {
       "id": "know_49bf3a54",
@@ -268,7 +268,7 @@
       "avg_relevance": 0.62,
       "total_data_points": 361,
       "learned_at": "2026-01-24T18:43:15.158984",
-      "times_used": 2
+      "times_used": 3
     },
     {
       "id": "know_735c2168",
@@ -421,7 +421,7 @@
       "avg_relevance": 0.69,
       "total_data_points": 341,
       "learned_at": "2026-01-24T18:43:37.921610",
-      "times_used": 5
+      "times_used": 6
     },
     {
       "id": "know_0482a095",
@@ -439,7 +439,7 @@
       "avg_relevance": 0.76,
       "total_data_points": 302,
       "learned_at": "2026-01-24T18:43:40.068911",
-      "times_used": 6
+      "times_used": 8
     },
     {
       "id": "know_57483271",
@@ -754,7 +754,7 @@
       "avg_relevance": 0.7,
       "total_data_points": 350,
       "learned_at": "2026-01-24T18:44:26.544596",
-      "times_used": 3
+      "times_used": 4
     },
     {
       "id": "know_10bf888c",
@@ -979,7 +979,7 @@
       "avg_relevance": 0.59,
       "total_data_points": 259,
       "learned_at": "2026-01-24T18:45:01.367949",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_a3f8bfe7",
@@ -997,7 +997,7 @@
       "avg_relevance": 0.6,
       "total_data_points": 389,
       "learned_at": "2026-01-24T18:45:04.685346",
-      "times_used": 6
+      "times_used": 8
     },
     {
       "id": "know_8ad58aa7",
@@ -1069,7 +1069,7 @@
       "avg_relevance": 0.57,
       "total_data_points": 324,
       "learned_at": "2026-01-24T18:45:14.859544",
-      "times_used": 6
+      "times_used": 7
     },
     {
       "id": "know_cf46f212",
@@ -1249,7 +1249,7 @@
       "avg_relevance": 0.7,
       "total_data_points": 376,
       "learned_at": "2026-01-24T18:45:49.520084",
-      "times_used": 2
+      "times_used": 3
     },
     {
       "id": "know_b9f9ee8a",
@@ -1312,7 +1312,7 @@
       "avg_relevance": 0.65,
       "total_data_points": 270,
       "learned_at": "2026-01-24T18:45:59.402990",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_4f7e06a3",
@@ -1384,7 +1384,7 @@
       "avg_relevance": 0.7,
       "total_data_points": 335,
       "learned_at": "2026-01-24T18:46:12.327869",
-      "times_used": 3
+      "times_used": 4
     },
     {
       "id": "know_ac7f26df",
@@ -1726,7 +1726,7 @@
       "avg_relevance": 0.78,
       "total_data_points": 327,
       "learned_at": "2026-01-24T18:47:13.839247",
-      "times_used": 4
+      "times_used": 5
     },
     {
       "id": "know_3bde0406",
@@ -2122,7 +2122,7 @@
       "avg_relevance": 0.62,
       "total_data_points": 333,
       "learned_at": "2026-01-24T18:48:28.913575",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_35d94fac",
@@ -2203,7 +2203,7 @@
       "avg_relevance": 0.68,
       "total_data_points": 287,
       "learned_at": "2026-01-24T18:48:39.889298",
-      "times_used": 3
+      "times_used": 4
     },
     {
       "id": "know_7ce9fd7c",
@@ -2221,7 +2221,7 @@
       "avg_relevance": 0.68,
       "total_data_points": 385,
       "learned_at": "2026-01-24T18:48:42.691369",
-      "times_used": 3
+      "times_used": 4
     },
     {
       "id": "know_06c913fc",
@@ -3202,7 +3202,7 @@
       "avg_relevance": 0.64,
       "total_data_points": 323,
       "learned_at": "2026-01-24T18:52:20.403082",
-      "times_used": 3
+      "times_used": 4
     },
     {
       "id": "know_cda318a9",
@@ -3238,7 +3238,7 @@
       "avg_relevance": 0.74,
       "total_data_points": 486,
       "learned_at": "2026-01-24T18:52:27.892065",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_251125a6",
@@ -3382,7 +3382,7 @@
       "avg_relevance": 0.68,
       "total_data_points": 387,
       "learned_at": "2026-01-24T18:52:57.398303",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_792633c4",
@@ -3490,7 +3490,7 @@
       "avg_relevance": 0.67,
       "total_data_points": 423,
       "learned_at": "2026-01-24T18:53:16.948990",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_1c652408",
@@ -3607,7 +3607,7 @@
       "avg_relevance": 0.63,
       "total_data_points": 337,
       "learned_at": "2026-01-24T18:53:46.618693",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_e099a305",
@@ -3670,7 +3670,7 @@
       "avg_relevance": 0.69,
       "total_data_points": 309,
       "learned_at": "2026-01-24T18:54:04.507202",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_3259f509",
@@ -3697,7 +3697,7 @@
       "avg_relevance": 0.7,
       "total_data_points": 374,
       "learned_at": "2026-01-24T18:54:12.904587",
-      "times_used": 1
+      "times_used": 3
     },
     {
       "id": "know_5be9564a",
@@ -3841,7 +3841,7 @@
       "avg_relevance": 0.77,
       "total_data_points": 278,
       "learned_at": "2026-01-24T18:54:43.464635",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_55f40b03",
@@ -3850,7 +3850,7 @@
       "avg_relevance": 0.69,
       "total_data_points": 367,
       "learned_at": "2026-01-24T18:54:46.049014",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_572618bd",
@@ -4093,7 +4093,7 @@
       "avg_relevance": 0.78,
       "total_data_points": 457,
       "learned_at": "2026-01-24T18:55:42.475539",
-      "times_used": 2
+      "times_used": 3
     },
     {
       "id": "know_c2e00838",
@@ -4291,7 +4291,7 @@
       "avg_relevance": 0.65,
       "total_data_points": 314,
       "learned_at": "2026-01-24T18:56:36.386781",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_909b7685",
@@ -4399,7 +4399,7 @@
       "avg_relevance": 0.62,
       "total_data_points": 289,
       "learned_at": "2026-01-24T18:57:06.375587",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_6c40375e",
@@ -4570,7 +4570,7 @@
       "avg_relevance": 0.65,
       "total_data_points": 296,
       "learned_at": "2026-01-24T18:57:58.877738",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_f176363c",
@@ -4606,7 +4606,7 @@
       "avg_relevance": 0.62,
       "total_data_points": 374,
       "learned_at": "2026-01-24T18:58:05.951338",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_831a250f",
@@ -4769,9 +4769,369 @@
       "total_data_points": 383,
       "learned_at": "2026-01-24T18:58:48.592493",
       "times_used": 1
+    },
+    {
+      "id": "know_d30f2673",
+      "question": "How does bacteria work?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.65,
+      "total_data_points": 263,
+      "learned_at": "2026-01-24T18:58:49.636694",
+      "times_used": 1
+    },
+    {
+      "id": "know_fda28225",
+      "question": "Latest cloud computing news",
+      "sources_consulted": 13,
+      "avg_relevance": 0.73,
+      "total_data_points": 293,
+      "learned_at": "2026-01-24T18:58:53.152426",
+      "times_used": 1
+    },
+    {
+      "id": "know_eaedbdeb",
+      "question": "What causes Dogecoin?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.66,
+      "total_data_points": 283,
+      "learned_at": "2026-01-24T18:58:54.674326",
+      "times_used": 1
+    },
+    {
+      "id": "know_691eca88",
+      "question": "Latest NASA news",
+      "sources_consulted": 13,
+      "avg_relevance": 0.59,
+      "total_data_points": 317,
+      "learned_at": "2026-01-24T18:58:56.674351",
+      "times_used": 1
+    },
+    {
+      "id": "know_9177daa8",
+      "question": "How to understand planets?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.61,
+      "total_data_points": 348,
+      "learned_at": "2026-01-24T18:59:01.221956",
+      "times_used": 1
+    },
+    {
+      "id": "know_09f5845d",
+      "question": "What is the price of asteroids?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.62,
+      "total_data_points": 338,
+      "learned_at": "2026-01-24T18:59:03.501682",
+      "times_used": 1
+    },
+    {
+      "id": "know_554752c8",
+      "question": "What causes Polkadot?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.64,
+      "total_data_points": 364,
+      "learned_at": "2026-01-24T18:59:04.588742",
+      "times_used": 1
+    },
+    {
+      "id": "know_dfdeeaa6",
+      "question": "How does trade work?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.57,
+      "total_data_points": 313,
+      "learned_at": "2026-01-24T18:59:07.580169",
+      "times_used": 1
+    },
+    {
+      "id": "know_f1275fbe",
+      "question": "What is the meaning of stock market?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.69,
+      "total_data_points": 362,
+      "learned_at": "2026-01-24T18:59:08.787792",
+      "times_used": 1
+    },
+    {
+      "id": "know_0017cb73",
+      "question": "How to understand ethics?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.58,
+      "total_data_points": 351,
+      "learned_at": "2026-01-24T18:59:13.501215",
+      "times_used": 1
+    },
+    {
+      "id": "know_068d85a6",
+      "question": "Why is Jupiter important?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.69,
+      "total_data_points": 367,
+      "learned_at": "2026-01-24T18:59:14.787195",
+      "times_used": 1
+    },
+    {
+      "id": "know_a79e814b",
+      "question": "How does quantum mechanics work?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.72,
+      "total_data_points": 304,
+      "learned_at": "2026-01-24T18:59:15.750740",
+      "times_used": 1
+    },
+    {
+      "id": "know_d02d4694",
+      "question": "How does DNA work?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.62,
+      "total_data_points": 360,
+      "learned_at": "2026-01-24T18:59:19.236283",
+      "times_used": 1
+    },
+    {
+      "id": "know_b89c13c9",
+      "question": "Define morality",
+      "sources_consulted": 13,
+      "avg_relevance": 0.57,
+      "total_data_points": 403,
+      "learned_at": "2026-01-24T18:59:23.937132",
+      "times_used": 1
+    },
+    {
+      "id": "know_af80f4db",
+      "question": "Is reality real?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.59,
+      "total_data_points": 342,
+      "learned_at": "2026-01-24T18:59:27.724793",
+      "times_used": 1
+    },
+    {
+      "id": "know_c7d47baf",
+      "question": "What causes probability?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.73,
+      "total_data_points": 313,
+      "learned_at": "2026-01-24T18:59:29.043865",
+      "times_used": 1
+    },
+    {
+      "id": "know_73006e90",
+      "question": "How to understand encryption?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.62,
+      "total_data_points": 420,
+      "learned_at": "2026-01-24T18:59:30.501783",
+      "times_used": 1
+    },
+    {
+      "id": "know_509ac8d4",
+      "question": "Why is evolution important?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.61,
+      "total_data_points": 407,
+      "learned_at": "2026-01-24T18:59:31.739996",
+      "times_used": 1
+    },
+    {
+      "id": "know_d6ec6886",
+      "question": "Can multiverse exist?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.75,
+      "total_data_points": 343,
+      "learned_at": "2026-01-24T18:59:32.625739",
+      "times_used": 1
+    },
+    {
+      "id": "know_63661e1b",
+      "question": "Can morality exist?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.66,
+      "total_data_points": 300,
+      "learned_at": "2026-01-24T18:59:33.958616",
+      "times_used": 1
+    },
+    {
+      "id": "know_ce31e5dd",
+      "question": "How does logic work?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.62,
+      "total_data_points": 235,
+      "learned_at": "2026-01-24T18:59:35.144301",
+      "times_used": 1
+    },
+    {
+      "id": "know_1da57f92",
+      "question": "How much is knowledge?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.64,
+      "total_data_points": 263,
+      "learned_at": "2026-01-24T18:59:36.579401",
+      "times_used": 1
+    },
+    {
+      "id": "know_628e59ac",
+      "question": "What is the price of infinity?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.6,
+      "total_data_points": 337,
+      "learned_at": "2026-01-24T18:59:37.740885",
+      "times_used": 1
+    },
+    {
+      "id": "know_1a4ca160",
+      "question": "Latest quantum computing news",
+      "sources_consulted": 13,
+      "avg_relevance": 0.61,
+      "total_data_points": 342,
+      "learned_at": "2026-01-24T18:59:44.378719",
+      "times_used": 1
+    },
+    {
+      "id": "know_beb99ff1",
+      "question": "How much is galaxies?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.68,
+      "total_data_points": 404,
+      "learned_at": "2026-01-24T18:59:45.389855",
+      "times_used": 1
+    },
+    {
+      "id": "know_c431207c",
+      "question": "Explain stars",
+      "sources_consulted": 13,
+      "avg_relevance": 0.65,
+      "total_data_points": 517,
+      "learned_at": "2026-01-24T18:59:47.686880",
+      "times_used": 1
+    },
+    {
+      "id": "know_bbd1b6ab",
+      "question": "What is planets?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.77,
+      "total_data_points": 410,
+      "learned_at": "2026-01-24T18:59:50.092793",
+      "times_used": 1
+    },
+    {
+      "id": "know_730ebb9f",
+      "question": "What is IoT?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.67,
+      "total_data_points": 290,
+      "learned_at": "2026-01-24T18:59:51.144555",
+      "times_used": 1
+    },
+    {
+      "id": "know_a4934678",
+      "question": "Can beauty exist?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.61,
+      "total_data_points": 284,
+      "learned_at": "2026-01-24T18:59:57.073952",
+      "times_used": 1
+    },
+    {
+      "id": "know_8c164988",
+      "question": "What is Ethereum?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.62,
+      "total_data_points": 293,
+      "learned_at": "2026-01-24T18:59:58.122443",
+      "times_used": 1
+    },
+    {
+      "id": "know_0d69f7bd",
+      "question": "What is the price of prime numbers?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.62,
+      "total_data_points": 281,
+      "learned_at": "2026-01-24T18:59:59.555126",
+      "times_used": 1
+    },
+    {
+      "id": "know_e7c85160",
+      "question": "Define Mars",
+      "sources_consulted": 13,
+      "avg_relevance": 0.66,
+      "total_data_points": 326,
+      "learned_at": "2026-01-24T19:00:02.925355",
+      "times_used": 1
+    },
+    {
+      "id": "know_cf32ae4c",
+      "question": "Current topology status",
+      "sources_consulted": 13,
+      "avg_relevance": 0.67,
+      "total_data_points": 185,
+      "learned_at": "2026-01-24T19:00:05.461642",
+      "times_used": 1
+    },
+    {
+      "id": "know_ce2a8a0b",
+      "question": "Why is Cardano important?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.7,
+      "total_data_points": 347,
+      "learned_at": "2026-01-24T19:00:08.096447",
+      "times_used": 1
+    },
+    {
+      "id": "know_494d3ca6",
+      "question": "What is statistics?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.63,
+      "total_data_points": 351,
+      "learned_at": "2026-01-24T19:00:11.103515",
+      "times_used": 1
+    },
+    {
+      "id": "know_c9a11174",
+      "question": "What is the price of dark matter?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.54,
+      "total_data_points": 284,
+      "learned_at": "2026-01-24T19:00:12.522532",
+      "times_used": 1
+    },
+    {
+      "id": "know_e83084f0",
+      "question": "Why is quantum computing important?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.6,
+      "total_data_points": 306,
+      "learned_at": "2026-01-24T19:00:13.810228",
+      "times_used": 1
+    },
+    {
+      "id": "know_7e6abcc8",
+      "question": "Define justice",
+      "sources_consulted": 13,
+      "avg_relevance": 0.64,
+      "total_data_points": 305,
+      "learned_at": "2026-01-24T19:00:15.186390",
+      "times_used": 1
+    },
+    {
+      "id": "know_80ea040f",
+      "question": "Is derivatives real?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.65,
+      "total_data_points": 420,
+      "learned_at": "2026-01-24T19:00:16.138591",
+      "times_used": 1
+    },
+    {
+      "id": "know_dbe4930c",
+      "question": "Is evolution real?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.78,
+      "total_data_points": 430,
+      "learned_at": "2026-01-24T19:00:17.398992",
+      "times_used": 1
     }
   ],
   "stats": {
-    "total_learned": 530
+    "total_learned": 570
   }
 }

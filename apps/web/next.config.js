@@ -19,6 +19,9 @@ const nextConfig = {
   transpilePackages: ["framer-motion"],
   staticPageGenerationTimeout: 600,
 
+  // Fix for monorepo lockfile detection
+  outputFileTracingRoot: __dirname,
+
   // ==========================================================================
   // IMAGE OPTIMIZATION (85% size reduction with WebP/AVIF)
   // ==========================================================================

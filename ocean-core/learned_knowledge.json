@@ -1,0 +1,51 @@
+{
+  "knowledge": [
+    {
+      "knowledge_id": "know_734315584bfe",
+      "query": "What is consciousness?",
+      "query_hash": "993434e4d2d7adc80d25110a2a62ce1f",
+      "response": "Response to: What is consciousness?",
+      "sources": [
+        "test"
+      ],
+      "confidence": 0.85,
+      "times_used": 7,
+      "times_helpful": 0,
+      "times_not_helpful": 0,
+      "created_at": "2026-01-24T17:14:56.075633+00:00",
+      "updated_at": "2026-01-24T17:38:04.330174+00:00"
+    },
+    {
+      "knowledge_id": "know_e4e26f9c5dc0",
+      "query": "How many data sources do we have?",
+      "query_hash": "a5607aefca7f997892a2a2952707d0b8",
+      "response": "Response to: How many data sources do we have?",
+      "sources": [
+        "test"
+      ],
+      "confidence": 0.85,
+      "times_used": 7,
+      "times_helpful": 0,
+      "times_not_helpful": 0,
+      "created_at": "2026-01-24T17:14:56.076285+00:00",
+      "updated_at": "2026-01-24T17:38:04.330974+00:00"
+    },
+    {
+      "knowledge_id": "know_95069efac4ae",
+      "query": "What's the weather in Tirana?",
+      "query_hash": "9bab40c27d6b680e3f60daafee96f236",
+      "response": "Response to: What's the weather in Tirana?",
+      "sources": [
+        "test"
+      ],
+      "confidence": 0.85,
+      "times_used": 7,
+      "times_helpful": 0,
+      "times_not_helpful": 0,
+      "created_at": "2026-01-24T17:14:56.076921+00:00",
+      "updated_at": "2026-01-24T17:38:04.331727+00:00"
+    }
+  ],
+  "total_entries": 3,
+  "updated_at": "2026-01-24T17:38:04.331743+00:00"
+}

@@ -6,7 +6,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-export async function GET(_request: Request) {
+export async function GET() {
   try {
     // Check if Stripe is configured
     if (

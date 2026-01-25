@@ -168,6 +168,35 @@ services:
       - clisonix-net
 
   # ==========================
+  # OCEAN-CORE - KNOWLEDGE ENGINE (PORT 8030)
+  # ==========================
+  ocean-core:
+    build:
+      context: .
+      dockerfile: ocean-core/Dockerfile
+    container_name: clisonix-ocean-core
+    environment:
+      PYTHONUNBUFFERED: "1"
+      LOG_LEVEL: "INFO"
+      PORT: "8030"
+    ports:
+      - "8030:8030"
+    volumes:
+      - ./ocean-core:/app/ocean-core:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8030/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - clisonix-net
+
+  # ==========================
   # FRONTEND
   # ==========================
   web:

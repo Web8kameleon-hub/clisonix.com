@@ -170,3 +170,8 @@ session_report_*.json
 
 # Clisonix nested repo
 Clisonix-cloud/
+
+# Build artifacts to ignore
+frontend/.next/
+*.pack.gz
+*.pack.gz.old

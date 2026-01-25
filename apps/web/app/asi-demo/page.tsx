@@ -13,19 +13,29 @@ import { useEffect, useState } from 'react';
 import { ASITerminal } from '@/components/asi/ASITerminal';
 import { SandboxShield } from '@/components/asi/SandboxShield';
 import { useASIStore } from '@/lib/stores/asi-store';
-import { 
-  asiContainer, 
-  gradientText,
-  agentCardAlba,
-  agentCardAlbi,
-  agentCardJona,
-  healthBar,
-  healthBarFill
-} from '@/styles/asi.css';
-import { 
-  statusBadge,
-  asiButton
-} from '@/lib/components/variants';
+
+// Tailwind classes instead of CSS module imports
+const asiContainer = 'min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 text-white';
+const gradientText = 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent';
+const agentCardAlba = 'bg-slate-800/50 backdrop-blur-sm border border-sky-500/30 rounded-xl p-6 hover:border-sky-400/50 transition-all';
+const agentCardAlbi = 'bg-slate-800/50 backdrop-blur-sm border border-emerald-500/30 rounded-xl p-6 hover:border-emerald-400/50 transition-all';
+const agentCardJona = 'bg-slate-800/50 backdrop-blur-sm border border-purple-500/30 rounded-xl p-6 hover:border-purple-400/50 transition-all';
+const healthBar = 'h-2 bg-gray-700 rounded-full overflow-hidden';
+const healthBarFill = 'h-full rounded-full transition-all';
+
+// Status badge helper
+const statusBadge = ({ status, size }: { status: string; size?: string }) => {
+  const base = 'inline-flex items-center rounded-full font-semibold transition-colors';
+  const sizeClass = size === 'lg' ? 'px-4 py-2 text-sm' : 'px-3 py-1 text-xs';
+  const statusColors: Record<string, string> = {
+    active: 'bg-green-500/20 text-green-400 border border-green-500/30',
+    inactive: 'bg-gray-500/20 text-gray-400 border border-gray-500/30',
+    processing: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30',
+    warning: 'bg-orange-500/20 text-orange-400 border border-orange-500/30',
+    error: 'bg-red-500/20 text-red-400 border border-red-500/30',
+  };
+  return `${base} ${sizeClass} ${statusColors[status] || statusColors.inactive}`;
+};
 
 // Client-only time display component to prevent hydration mismatch
 function ClientTimeDisplay({ timestamp }: { timestamp: number }) {
