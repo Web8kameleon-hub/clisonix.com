@@ -106,9 +106,9 @@ export default function HomePage() {
     : MODULES.filter(m => m.category === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white text-gray-900">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200 shadow-sm">
+      <nav className="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
@@ -119,15 +119,15 @@ export default function HomePage() {
                 <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
                   Clisonix
                 </span>
-                <span className="text-xs text-gray-500 block -mt-1">Neural Intelligence</span>
+                <span className="text-xs text-gray-400 block -mt-1">Neural Intelligence</span>
               </div>
             </div>
             
             <div className="hidden md:flex items-center gap-8">
-              <a href="#asi-trinity" className="text-gray-600 hover:text-cyan-600 transition-colors">ASI Trinity</a>
-              <a href="#modules" className="text-gray-600 hover:text-cyan-600 transition-colors">Tools</a>
-              <a href="#tech-stack" className="text-gray-600 hover:text-cyan-600 transition-colors">Why Us</a>
-              <Link href="/modules" className="text-gray-600 hover:text-cyan-600 transition-colors">Dashboard</Link>
+              <a href="#asi-trinity" className="text-gray-400 hover:text-cyan-400 transition-colors">ASI Trinity</a>
+              <a href="#modules" className="text-gray-400 hover:text-cyan-400 transition-colors">Tools</a>
+              <a href="#tech-stack" className="text-gray-400 hover:text-cyan-400 transition-colors">Why Us</a>
+              <Link href="/modules" className="text-gray-400 hover:text-cyan-400 transition-colors">Dashboard</Link>
             </div>
             
             <div className="flex items-center gap-4">
@@ -152,27 +152,27 @@ export default function HomePage() {
         
         <div className="max-w-7xl mx-auto text-center relative z-10">
           {/* Live Status Badge */}
-          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-gray-100 border border-gray-300 mb-8">
-            <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
-            <span className="text-sm text-gray-700 font-medium">
+          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-slate-800/50 border border-cyan-500/30 mb-8">
+            <span className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse"></span>
+            <span className="text-sm text-cyan-300 font-medium">
               Platform Online • 99.97% Uptime
             </span>
           </div>
 
           {/* Main Headline */}
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            <span className="text-gray-900">
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
               Clisonix
             </span>
             <br />
-            <span className="text-3xl md:text-5xl text-gray-700">
+            <span className="text-3xl md:text-5xl text-gray-300">
               Neural Intelligence Platform
             </span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed">
-            Powered by <span className="text-gray-900 font-semibold">ASI Trinity</span> — 
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-10 leading-relaxed">
+            Powered by <span className="text-cyan-400 font-semibold">ASI Trinity</span> — 
             Three artificial superintelligences working in harmony for 
             neuroscience research, cognitive analysis, and AI-driven insights.
           </p>
@@ -188,7 +188,7 @@ export default function HomePage() {
             </Link>
             <Link 
               href="/modules"
-              className="w-full sm:w-auto px-8 py-4 bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-cyan-500 rounded-xl font-semibold text-lg text-gray-700 transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-4 bg-slate-800 hover:bg-slate-700 border border-slate-600 hover:border-cyan-500 rounded-xl font-semibold text-lg text-gray-300 transition-all flex items-center justify-center gap-2"
             >
               <span>📊</span>
               View All Modules
@@ -196,46 +196,46 @@ export default function HomePage() {
           </div>
 
           {/* Status Badge */}
-          <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-100 border border-green-300">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-            <span className="text-green-700 font-medium">All Systems Online</span>
+          <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-900/30 border border-green-500/30">
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+            <span className="text-green-400 font-medium">All Systems Online</span>
           </div>
         </div>
       </section>
 
       {/* AI Features Section */}
-      <section id="asi-trinity" className="py-20 px-4 bg-gradient-to-b from-transparent to-gray-100">
+      <section id="asi-trinity" className="py-20 px-4 bg-gradient-to-b from-transparent to-slate-900/50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
               Powered by AI
             </h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
               Advanced neural intelligence powering your experience
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="p-8 rounded-2xl bg-white border border-gray-200 hover:border-cyan-500 hover:shadow-xl transition-all text-center shadow-lg">
+            <div className="p-8 rounded-2xl bg-slate-800/50 border border-slate-700 hover:border-cyan-500 hover:shadow-xl hover:shadow-cyan-500/10 transition-all text-center">
               <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center mb-6 shadow-lg">
                 <span className="text-3xl">🔬</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Smart Analysis</h3>
-              <p className="text-gray-600">Pattern recognition and data insights</p>
+              <h3 className="text-xl font-bold text-white mb-2">Smart Analysis</h3>
+              <p className="text-gray-400">Pattern recognition and data insights</p>
             </div>
-            <div className="p-8 rounded-2xl bg-white border border-gray-200 hover:border-purple-500 hover:shadow-xl transition-all text-center shadow-lg">
+            <div className="p-8 rounded-2xl bg-slate-800/50 border border-slate-700 hover:border-purple-500 hover:shadow-xl hover:shadow-purple-500/10 transition-all text-center">
               <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center mb-6 shadow-lg">
                 <span className="text-3xl">🎨</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Creative Tools</h3>
-              <p className="text-gray-600">AI-powered creative assistance</p>
+              <h3 className="text-xl font-bold text-white mb-2">Creative Tools</h3>
+              <p className="text-gray-400">AI-powered creative assistance</p>
             </div>
-            <div className="p-8 rounded-2xl bg-white border border-gray-200 hover:border-amber-500 hover:shadow-xl transition-all text-center shadow-lg">
+            <div className="p-8 rounded-2xl bg-slate-800/50 border border-slate-700 hover:border-amber-500 hover:shadow-xl hover:shadow-amber-500/10 transition-all text-center">
               <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-6 shadow-lg">
                 <span className="text-3xl">✨</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Seamless Experience</h3>
-              <p className="text-gray-600">Unified and harmonious interface</p>
+              <h3 className="text-xl font-bold text-white mb-2">Seamless Experience</h3>
+              <p className="text-gray-400">Unified and harmonious interface</p>
             </div>
           </div>
         </div>
@@ -245,10 +245,10 @@ export default function HomePage() {
       <section id="modules" className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
               Platform Modules
             </h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto mb-8">
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto mb-8">
               Real-time data, no fake values, production-ready tools
             </p>
             
@@ -261,7 +261,7 @@ export default function HomePage() {
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                     selectedCategory === category
                       ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/25'
-                      : 'bg-gray-100 text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+                      : 'bg-slate-800 text-gray-400 hover:text-white hover:bg-slate-700'
                   }`}
                 >
                   {category === 'all' ? 'All Modules' : category}
@@ -275,10 +275,10 @@ export default function HomePage() {
               <Link 
                 key={module.id}
                 href={`/modules/${module.id}`}
-                className={`p-6 rounded-2xl bg-white border shadow-lg hover:shadow-xl transition-all group relative ${
+                className={`p-6 rounded-2xl bg-slate-800/50 border hover:shadow-xl hover:shadow-cyan-500/10 transition-all group relative ${
                   (module as any).isNew 
                     ? 'border-green-500/50 hover:border-green-400 ring-1 ring-green-500/20' 
-                    : 'border-gray-200 hover:border-cyan-500'
+                    : 'border-slate-700 hover:border-cyan-500'
                 }`}
               >
                 {(module as any).isNew && (
@@ -290,13 +290,13 @@ export default function HomePage() {
                   <span className="text-2xl">{module.icon}</span>
                 </div>
                 <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-xl font-semibold text-gray-900">{module.name}</h3>
-                  <span className="px-2 py-0.5 text-xs rounded-full bg-cyan-100 text-cyan-700">
+                  <h3 className="text-xl font-semibold text-white">{module.name}</h3>
+                  <span className="px-2 py-0.5 text-xs rounded-full bg-cyan-500/20 text-cyan-400">
                     {module.category}
                   </span>
                 </div>
-                <p className="text-gray-600">{module.description}</p>
-                <div className="mt-4 flex items-center gap-2 text-cyan-600 group-hover:gap-3 transition-all">
+                <p className="text-gray-400">{module.description}</p>
+                <div className="mt-4 flex items-center gap-2 text-cyan-400 group-hover:gap-3 transition-all">
                   <span className="text-sm font-medium">Open Module</span>
                   <span>→</span>
                 </div>
@@ -307,13 +307,13 @@ export default function HomePage() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section id="tech-stack" className="py-20 px-4 bg-gradient-to-b from-transparent to-gray-100">
+      <section id="tech-stack" className="py-20 px-4 bg-gradient-to-b from-transparent to-slate-900/50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 text-gray-900">
+            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
               Why Clisonix?
             </h2>
-            <p className="text-gray-600 text-lg">
+            <p className="text-gray-400 text-lg">
               Built for you, powered by innovation
             </p>
           </div>
@@ -327,11 +327,11 @@ export default function HomePage() {
             ].map((item) => (
               <div 
                 key={item.name}
-                className="p-6 rounded-xl bg-white border border-gray-200 text-center hover:border-cyan-500 hover:shadow-lg transition-all shadow-md"
+                className="p-6 rounded-xl bg-slate-800/50 border border-slate-700 text-center hover:border-cyan-500 hover:shadow-lg hover:shadow-cyan-500/10 transition-all"
               >
                 <span className="text-4xl mb-3 block">{item.icon}</span>
-                <h4 className="font-semibold text-gray-900 text-lg">{item.name}</h4>
-                <p className="text-sm text-gray-600 mt-1">{item.desc}</p>
+                <h4 className="font-semibold text-white text-lg">{item.name}</h4>
+                <p className="text-sm text-gray-400 mt-1">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -341,27 +341,27 @@ export default function HomePage() {
       {/* Get Started Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="p-8 rounded-2xl bg-gradient-to-br from-cyan-50 to-blue-50 border border-cyan-200 shadow-lg">
+          <div className="p-8 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-cyan-500/30 shadow-lg shadow-cyan-500/10">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">🚀 Ready to Start?</h2>
-              <p className="text-gray-600">Explore our tools and start your journey</p>
+              <h2 className="text-3xl font-bold text-white mb-2">🚀 Ready to Start?</h2>
+              <p className="text-gray-400">Explore our tools and start your journey</p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-lg bg-white border border-gray-100 text-center shadow-sm">
+              <div className="p-4 rounded-lg bg-slate-700/50 border border-slate-600 text-center">
                 <p className="text-3xl mb-2">📱</p>
-                <p className="text-gray-700 text-sm font-medium">Mobile Friendly</p>
-                <p className="text-xs text-gray-500">Use on any device</p>
+                <p className="text-gray-200 text-sm font-medium">Mobile Friendly</p>
+                <p className="text-xs text-gray-400">Use on any device</p>
               </div>
-              <div className="p-4 rounded-lg bg-white border border-gray-100 text-center shadow-sm">
+              <div className="p-4 rounded-lg bg-slate-700/50 border border-slate-600 text-center">
                 <p className="text-3xl mb-2">🌟</p>
-                <p className="text-gray-700 text-sm font-medium">Free to Try</p>
-                <p className="text-xs text-gray-500">No credit card needed</p>
+                <p className="text-gray-200 text-sm font-medium">Free to Try</p>
+                <p className="text-xs text-gray-400">No credit card needed</p>
               </div>
-              <div className="p-4 rounded-lg bg-white border border-gray-100 text-center shadow-sm">
+              <div className="p-4 rounded-lg bg-slate-700/50 border border-slate-600 text-center">
                 <p className="text-3xl mb-2">⚡</p>
-                <p className="text-gray-700 text-sm font-medium">Instant Access</p>
-                <p className="text-xs text-gray-500">Start immediately</p>
+                <p className="text-gray-200 text-sm font-medium">Instant Access</p>
+                <p className="text-xs text-gray-400">Start immediately</p>
               </div>
             </div>
             
@@ -379,44 +379,44 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 py-12 px-4 bg-gray-50">
+      <footer className="border-t border-slate-800 py-12 px-4 bg-slate-900/50">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-2xl">🧠</span>
-                <span className="text-lg font-bold text-gray-900">Clisonix</span>
+                <span className="text-lg font-bold text-white">Clisonix</span>
               </div>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-400 text-sm">
                 Neural Intelligence Platform<br />
                 AI-Powered Tools
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4 text-gray-800">Platform</h4>
-              <ul className="space-y-2 text-gray-600 text-sm">
-                <li><Link href="/modules" className="hover:text-cyan-600 transition-colors">Dashboard</Link></li>
-                <li><Link href="/modules/curiosity-ocean" className="hover:text-cyan-600 transition-colors">Curiosity Ocean</Link></li>
-                <li><Link href="/modules/eeg-analysis" className="hover:text-cyan-600 transition-colors">EEG Analysis</Link></li>
+              <h4 className="font-semibold mb-4 text-white">Platform</h4>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li><Link href="/modules" className="hover:text-cyan-400 transition-colors">Dashboard</Link></li>
+                <li><Link href="/modules/curiosity-ocean" className="hover:text-cyan-400 transition-colors">Curiosity Ocean</Link></li>
+                <li><Link href="/modules/eeg-analysis" className="hover:text-cyan-400 transition-colors">EEG Analysis</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4 text-gray-800">Resources</h4>
-              <ul className="space-y-2 text-gray-600 text-sm">
-                <li><Link href="/developers" className="hover:text-cyan-600 transition-colors">Documentation</Link></li>
-                <li><Link href="/marketplace" className="hover:text-cyan-600 transition-colors">Marketplace</Link></li>
+              <h4 className="font-semibold mb-4 text-white">Resources</h4>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li><Link href="/developers" className="hover:text-cyan-400 transition-colors">Documentation</Link></li>
+                <li><Link href="/marketplace" className="hover:text-cyan-400 transition-colors">Marketplace</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4 text-gray-800">Company</h4>
-              <ul className="space-y-2 text-gray-600 text-sm">
-                <li><span className="text-gray-700">Ledjan Ahmati</span></li>
-                <li><span className="text-gray-700">WEB8euroweb GmbH</span></li>
-                <li><a href="mailto:support@clisonix.com" className="hover:text-cyan-600 transition-colors">Contact</a></li>
+              <h4 className="font-semibold mb-4 text-white">Company</h4>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li><span className="text-gray-300">Ledjan Ahmati</span></li>
+                <li><span className="text-gray-300">WEB8euroweb GmbH</span></li>
+                <li><a href="mailto:support@clisonix.com" className="hover:text-cyan-400 transition-colors">Contact</a></li>
               </ul>
             </div>
           </div>
-          <div className="pt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
+          <div className="pt-8 border-t border-slate-800 text-center text-gray-500 text-sm">
             © 2026 Clisonix. All rights reserved.
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Cloud, Brain, Thermometer, Wind, Droplets, AlertTriangle, Activity, RefreshCw, Sun, Moon, Gauge, Zap } from 'lucide-react';
+import { Cloud, Brain, Thermometer, Wind, Droplets, AlertTriangle, Activity, RefreshCw, Sun, Gauge, Zap } from 'lucide-react';
 
 /**
  * BIOMETRIC ENVIRONMENT MONITOR
@@ -46,39 +46,143 @@ interface APIResponse {
 export default function BiometricEnvironmentMonitor() {
     const [data, setData] = useState<APIResponse | null>(null);
     const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
     const [selectedCity, setSelectedCity] = useState<string>('Tirana');
+    const [activeTab, setActiveTab] = useState<'cities' | 'search' | 'coordinates'>('cities');
+    
+    // Search state
+    const [searchQuery, setSearchQuery] = useState<string>('');
+    const [searchResults, setSearchResults] = useState<Array<{name: string; country: string; lat: number; lon: number}>>([]);
+    const [searchLoading, setSearchLoading] = useState(false);
+    const [searchWeather, setSearchWeather] = useState<WeatherData | null>(null);
+    
+    // Coordinates state
+    const [customLat, setCustomLat] = useState<string>('');
+    const [customLon, setCustomLon] = useState<string>('');
+    const [coordWeather, setCoordWeather] = useState<WeatherData | null>(null);
+    const [coordLoading, setCoordLoading] = useState(false);
+
+    // Albanian cities with real coordinates (default)
+    const cities = [
+        { name: 'Tirana', lat: 41.3275, lon: 19.8187, country: 'Albania' },
+        { name: 'Durrës', lat: 41.3246, lon: 19.4565, country: 'Albania' },
+        { name: 'Vlorë', lat: 40.4667, lon: 19.4897, country: 'Albania' },
+        { name: 'Shkodër', lat: 42.0693, lon: 19.5033, country: 'Albania' },
+        { name: 'Elbasan', lat: 41.1125, lon: 20.0822, country: 'Albania' },
+        { name: 'Korçë', lat: 40.6186, lon: 20.7808, country: 'Albania' },
+    ];
+
+    // Search for any location using Open-Meteo Geocoding API (FREE, no key)
+    const searchLocation = useCallback(async (query: string) => {
+        if (query.length < 2) {
+            setSearchResults([]);
+            return;
+        }
+        setSearchLoading(true);
+        try {
+            const response = await fetch(
+                `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=10&language=en&format=json`
+            );
+            const result = await response.json();
+            if (result.results) {
+                setSearchResults(result.results.map((r: { name: string; country: string; latitude: number; longitude: number; admin1?: string }) => ({
+                    name: r.admin1 ? `${r.name}, ${r.admin1}` : r.name,
+                    country: r.country,
+                    lat: r.latitude,
+                    lon: r.longitude
+                })));
+            } else {
+                setSearchResults([]);
+            }
+        } catch {
+            setSearchResults([]);
+        } finally {
+            setSearchLoading(false);
+        }
+    }, []);
+
+    // Fetch weather for a specific location
+    const fetchWeatherForLocation = useCallback(async (lat: number, lon: number, name: string, country: string): Promise<WeatherData> => {
+        const response = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,surface_pressure,weather_code&timezone=auto`
+        );
+        const result = await response.json();
+        return {
+            city: name,
+            country: country,
+            temperature: result.current?.temperature_2m ?? 0,
+            humidity: result.current?.relative_humidity_2m ?? 0,
+            windSpeed: result.current?.wind_speed_10m ?? 0,
+            pressure: result.current?.surface_pressure ?? 1013,
+            weatherCode: result.current?.weather_code ?? 0,
+            uvIndex: 0
+        };
+    }, []);
+
+    // Handle selecting a search result
+    const handleSelectSearchResult = useCallback(async (location: {name: string; country: string; lat: number; lon: number}) => {
+        setSearchLoading(true);
+        try {
+            const weather = await fetchWeatherForLocation(location.lat, location.lon, location.name, location.country);
+            setSearchWeather(weather);
+            setSearchResults([]);
+            setSearchQuery(`${location.name}, ${location.country}`);
+        } catch {
+            setError('Failed to fetch weather for selected location');
+        } finally {
+            setSearchLoading(false);
+        }
+    }, [fetchWeatherForLocation]);
+
+    // Handle coordinates search
+    const handleCoordinatesSearch = useCallback(async () => {
+        const lat = parseFloat(customLat);
+        const lon = parseFloat(customLon);
+        if (isNaN(lat) || isNaN(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+            setError('Invalid coordinates. Lat: -90 to 90, Lon: -180 to 180');
+            return;
+        }
+        setCoordLoading(true);
+        setError(null);
+        try {
+            const weather = await fetchWeatherForLocation(lat, lon, `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`, 'Coordinates');
+            setCoordWeather(weather);
+        } catch {
+            setError('Failed to fetch weather for coordinates');
+        } finally {
+            setCoordLoading(false);
+        }
+    }, [customLat, customLon, fetchWeatherForLocation]);
 
     const fetchData = useCallback(async () => {
         const startTime = performance.now();
         setLoading(true);
 
         try {
-        // Fetch real weather data from Open-Meteo via our API
-        const weatherResponse = await fetch('/api/weather/multiple-cities');
-        const weatherResult = await weatherResponse.json();
+            // Fetch REAL weather data directly from Open-Meteo API (no API key needed)
+            const weatherPromises = cities.map(async (city) => {
+                const response = await fetch(
+                    `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,surface_pressure,weather_code&timezone=Europe/Tirane`
+                );
+                const result = await response.json();
+                return {
+                    city: city.name,
+                    country: city.country,
+                    temperature: result.current?.temperature_2m ?? 0,
+                    humidity: result.current?.relative_humidity_2m ?? 0,
+                    windSpeed: result.current?.wind_speed_10m ?? 0,
+                    pressure: result.current?.surface_pressure ?? 1013,
+                    weatherCode: result.current?.weather_code ?? 0,
+                    uvIndex: 0
+                };
+            });
 
-        // Fetch ASI status for correlation
-        const asiResponse = await fetch('/api/asi/status');
-        const asiResult = await asiResponse.json();
-
-        const endTime = performance.now();
-
-        if (weatherResult.ok && weatherResult.data) {
-            const weatherData: WeatherData[] = weatherResult.data.map((city: any) => ({
-                city: city.city,
-                country: city.location?.country || 'Unknown',
-                temperature: city.weather?.temperature_2m || 0,
-                humidity: city.weather?.relative_humidity_2m || 0,
-                windSpeed: city.weather?.wind_speed_10m || 0,
-                pressure: city.weather?.surface_pressure || 1013,
-                weatherCode: city.weather?.weather_code || 0,
-                uvIndex: city.weather?.uv_index || 0
-            }));
+            const weatherData: WeatherData[] = await Promise.all(weatherPromises);
+            const endTime = performance.now();
 
             // Calculate cognitive impact based on environmental factors
             const currentCity = weatherData.find(w => w.city === selectedCity) || weatherData[0];
-            const cognitive = calculateCognitiveImpact(currentCity, asiResult);
+            const cognitive = calculateCognitiveImpact(currentCity);
 
             setData({
                 weather: weatherData,
@@ -88,17 +192,15 @@ export default function BiometricEnvironmentMonitor() {
                 responseTime: Math.round(endTime - startTime)
             });
             setError(null);
-        } else {
-            throw new Error('Failed to fetch weather data');
-        }
     } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
         setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCity]);
 
-    const calculateCognitiveImpact = (weather: WeatherData, asiData: any): CognitiveImpact => {
+    const calculateCognitiveImpact = (weather: WeatherData): CognitiveImpact => {
         // Temperature impact (optimal: 18-24°C)
         const tempOptimal = weather.temperature >= 18 && weather.temperature <= 24;
         const tempImpact = tempOptimal ? 'Optimal' : weather.temperature < 18 ? 'Cool - may reduce alertness' : 'Warm - may cause fatigue';
@@ -223,6 +325,219 @@ export default function BiometricEnvironmentMonitor() {
                                   Low pressure detected ({currentWeather?.pressure.toFixed(0)} hPa).
                                   Migraine risk elevated. Consider preventive measures.
                               </p>
+                          </div>
+                      </div>
+                  </div>
+              )}
+
+              {/* TABS - Cities / Search / Coordinates */}
+              <div className="flex gap-2 mb-6">
+                  <button
+                      onClick={() => setActiveTab('cities')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                          activeTab === 'cities' 
+                              ? 'bg-blue-600 text-white' 
+                              : 'bg-white/10 text-gray-400 hover:bg-white/20'
+                      }`}
+                  >
+                      🏙️ Qytete
+                  </button>
+                  <button
+                      onClick={() => setActiveTab('search')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                          activeTab === 'search' 
+                              ? 'bg-blue-600 text-white' 
+                              : 'bg-white/10 text-gray-400 hover:bg-white/20'
+                      }`}
+                  >
+                      🔍 Kërko Lokacion
+                  </button>
+                  <button
+                      onClick={() => setActiveTab('coordinates')}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                          activeTab === 'coordinates' 
+                              ? 'bg-blue-600 text-white' 
+                              : 'bg-white/10 text-gray-400 hover:bg-white/20'
+                      }`}
+                  >
+                      📍 Koordinata
+                  </button>
+              </div>
+
+              {/* SEARCH TAB */}
+              {activeTab === 'search' && (
+                  <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 mb-6">
+                      <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                          🔍 Kërko Çdo Vendndodhje
+                      </h2>
+                      <p className="text-gray-400 text-sm mb-4">
+                          Shkruaj emrin e aeroportit, qytetit, ose vendndodhjes për të marrë motin real
+                      </p>
+                      <div className="relative">
+                          <input
+                              type="text"
+                              value={searchQuery}
+                              onChange={(e) => {
+                                  setSearchQuery(e.target.value);
+                                  searchLocation(e.target.value);
+                              }}
+                              placeholder="p.sh. Heathrow, New York, Tokyo Airport..."
+                              className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                          />
+                          {searchLoading && (
+                              <div className="absolute right-3 top-3">
+                                  <RefreshCw className="w-5 h-5 text-blue-400 animate-spin" />
+                              </div>
+                          )}
+                      </div>
+                      
+                      {/* Search Results Dropdown */}
+                      {searchResults.length > 0 && (
+                          <div className="mt-2 bg-slate-800 border border-slate-600 rounded-lg max-h-60 overflow-y-auto">
+                              {searchResults.map((result, idx) => (
+                                  <button
+                                      key={idx}
+                                      onClick={() => handleSelectSearchResult(result)}
+                                      className="w-full px-4 py-3 text-left hover:bg-slate-700 transition-colors border-b border-slate-700 last:border-b-0"
+                                  >
+                                      <span className="text-white font-medium">{result.name}</span>
+                                      <span className="text-gray-400 ml-2">{result.country}</span>
+                                      <span className="text-gray-500 text-xs ml-2">
+                                          ({result.lat.toFixed(2)}°, {result.lon.toFixed(2)}°)
+                                      </span>
+                                  </button>
+                              ))}
+                          </div>
+                      )}
+
+                      {/* Search Weather Result */}
+                      {searchWeather && (
+                          <div className="mt-6 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-xl p-6">
+                              <div className="flex items-center justify-between mb-4">
+                                  <div>
+                                      <h3 className="text-2xl font-bold text-white">{searchWeather.city}</h3>
+                                      <p className="text-gray-400">{searchWeather.country}</p>
+                                  </div>
+                                  <div className="text-right">
+                                      {getWeatherIcon(searchWeather.weatherCode)}
+                                      <p className="text-4xl font-bold text-white mt-2">
+                                          {searchWeather.temperature.toFixed(1)}°C
+                                      </p>
+                                  </div>
+                              </div>
+                              <div className="grid grid-cols-3 gap-4">
+                                  <div className="text-center bg-white/5 rounded-lg p-3">
+                                      <Droplets className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+                                      <p className="text-white font-medium">{searchWeather.humidity}%</p>
+                                      <p className="text-gray-500 text-xs">Lagështi</p>
+                                  </div>
+                                  <div className="text-center bg-white/5 rounded-lg p-3">
+                                      <Wind className="w-5 h-5 text-cyan-400 mx-auto mb-1" />
+                                      <p className="text-white font-medium">{searchWeather.windSpeed.toFixed(1)} km/h</p>
+                                      <p className="text-gray-500 text-xs">Erë</p>
+                                  </div>
+                                  <div className="text-center bg-white/5 rounded-lg p-3">
+                                      <Gauge className="w-5 h-5 text-purple-400 mx-auto mb-1" />
+                                      <p className="text-white font-medium">{searchWeather.pressure.toFixed(0)} hPa</p>
+                                      <p className="text-gray-500 text-xs">Presion</p>
+                                  </div>
+                              </div>
+                          </div>
+                      )}
+                  </div>
+              )}
+
+              {/* COORDINATES TAB */}
+              {activeTab === 'coordinates' && (
+                  <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 mb-6">
+                      <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                          📍 Kërko me Koordinata
+                      </h2>
+                      <p className="text-gray-400 text-sm mb-4">
+                          Fut koordinatat GPS për të marrë motin e saktë
+                      </p>
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                          <div>
+                              <label className="text-gray-400 text-sm block mb-1">Latitude (Gj-V)</label>
+                              <input
+                                  type="text"
+                                  value={customLat}
+                                  onChange={(e) => setCustomLat(e.target.value)}
+                                  placeholder="p.sh. 41.3275"
+                                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                              />
+                          </div>
+                          <div>
+                              <label className="text-gray-400 text-sm block mb-1">Longitude (L-P)</label>
+                              <input
+                                  type="text"
+                                  value={customLon}
+                                  onChange={(e) => setCustomLon(e.target.value)}
+                                  placeholder="p.sh. 19.8187"
+                                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                              />
+                          </div>
+                      </div>
+                      <button
+                          onClick={handleCoordinatesSearch}
+                          disabled={coordLoading || !customLat || !customLon}
+                          className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg text-white font-medium transition-colors flex items-center justify-center gap-2"
+                      >
+                          {coordLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : '🔍'}
+                          Kërko Motin
+                      </button>
+
+                      {/* Coordinates Weather Result */}
+                      {coordWeather && (
+                          <div className="mt-6 bg-gradient-to-br from-green-600/20 to-cyan-600/20 rounded-xl p-6">
+                              <div className="flex items-center justify-between mb-4">
+                                  <div>
+                                      <h3 className="text-2xl font-bold text-white">{coordWeather.city}</h3>
+                                      <p className="text-gray-400">{coordWeather.country}</p>
+                                  </div>
+                                  <div className="text-right">
+                                      {getWeatherIcon(coordWeather.weatherCode)}
+                                      <p className="text-4xl font-bold text-white mt-2">
+                                          {coordWeather.temperature.toFixed(1)}°C
+                                      </p>
+                                  </div>
+                              </div>
+                              <div className="grid grid-cols-3 gap-4">
+                                  <div className="text-center bg-white/5 rounded-lg p-3">
+                                      <Droplets className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+                                      <p className="text-white font-medium">{coordWeather.humidity}%</p>
+                                      <p className="text-gray-500 text-xs">Lagështi</p>
+                                  </div>
+                                  <div className="text-center bg-white/5 rounded-lg p-3">
+                                      <Wind className="w-5 h-5 text-cyan-400 mx-auto mb-1" />
+                                      <p className="text-white font-medium">{coordWeather.windSpeed.toFixed(1)} km/h</p>
+                                      <p className="text-gray-500 text-xs">Erë</p>
+                                  </div>
+                                  <div className="text-center bg-white/5 rounded-lg p-3">
+                                      <Gauge className="w-5 h-5 text-purple-400 mx-auto mb-1" />
+                                      <p className="text-white font-medium">{coordWeather.pressure.toFixed(0)} hPa</p>
+                                      <p className="text-gray-500 text-xs">Presion</p>
+                                  </div>
+                              </div>
+                          </div>
+                      )}
+
+                      {/* Quick Examples */}
+                      <div className="mt-4 text-gray-500 text-xs">
+                          <p className="mb-1">Shembuj koordinatash:</p>
+                          <div className="flex flex-wrap gap-2">
+                              <button onClick={() => { setCustomLat('41.4147'); setCustomLon('19.7206'); }} className="px-2 py-1 bg-slate-800 rounded hover:bg-slate-700">
+                                  ✈️ Rinas Airport
+                              </button>
+                              <button onClick={() => { setCustomLat('48.8566'); setCustomLon('2.3522'); }} className="px-2 py-1 bg-slate-800 rounded hover:bg-slate-700">
+                                  🗼 Paris
+                              </button>
+                              <button onClick={() => { setCustomLat('40.7128'); setCustomLon('-74.0060'); }} className="px-2 py-1 bg-slate-800 rounded hover:bg-slate-700">
+                                  🗽 New York
+                              </button>
+                              <button onClick={() => { setCustomLat('35.6762'); setCustomLon('139.6503'); }} className="px-2 py-1 bg-slate-800 rounded hover:bg-slate-700">
+                                  🗾 Tokyo
+                              </button>
                           </div>
                       </div>
                   </div>
