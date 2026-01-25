@@ -81,6 +81,10 @@ updates:
       - "ci"
     commit-message:
       prefix: "ci(actions)"
+    # Ignore unreachable/private actions
+    ignore:
+      - dependency-name: "open-policy-agent/conftest-action"
+        versions: ["*"]
 
   # Docker dependencies
   - package-ecosystem: "docker"
