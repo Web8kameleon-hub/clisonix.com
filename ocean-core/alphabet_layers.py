@@ -1,19 +1,23 @@
 """
 ALPHABET LAYERS - Mathematical Layer System
 ============================================
-Sistemi i plotë i 60 shtresave alfabetiko-matematikore
-Greek (24) + Albanian (36) = 60 unique mathematical layers
+Sistemi i plotë i 61 shtresave alfabetiko-matematikore
+Greek (24) + Albanian (36) + Meta (1) = 61 unique mathematical layers
 
 Çdo shkronjë është një funksion matematikor i pastër.
 Fjalët kompozohen në shtresa të reja.
+Layer 61 (Ω+) = Meta-layer që bashkon të gjitha.
+
+OPTIMIZED: NumPy vectorized operations for performance
 """
 
 import numpy as np
-from typing import Dict, List, Callable, Any, Optional
+from typing import Dict, List, Callable, Any, Optional, Tuple
 import hashlib
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
+from functools import lru_cache
 
 logger = logging.getLogger("alphabet_layers")
 
@@ -26,19 +30,58 @@ class LayerResult:
     output_value: Any
     complexity: float
     phonetic_properties: Dict[str, Any]
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+
+# ═══════════════════════════════════════════════════════════════════
+# MATHEMATICAL CONSTANTS (Layer 61 Meta-Constants)
+# ═══════════════════════════════════════════════════════════════════
+
+PHI = (1 + np.sqrt(5)) / 2  # Golden ratio φ = 1.618...
+TAU = 2 * np.pi              # τ = 6.283...
+EULER = np.e                 # e = 2.718...
+PLANCK_NORMALIZED = 0.01     # Normalized Planck constant for stability
 
 
 class AlbanianGreekLayerSystem:
-    """Sistemi i plotë i 60 shtresave alfabetiko-matematikore"""
+    """
+    Sistemi i plotë i 61 shtresave alfabetiko-matematikore
+    
+    Layers 1-24:  Greek alphabet (α-ω) - Pure mathematics
+    Layers 25-60: Albanian alphabet (a-zh) - Phonetic mathematics
+    Layer 61:     Meta-layer (Ω+) - Unified consciousness
+    """
+    
+    # Maximum history size to prevent memory leak
+    MAX_HISTORY_SIZE = 100
     
     def __init__(self):
         self.alphabet = self._initialize_alphabet()
         self.layers: Dict[str, Callable] = {}
         self.phonetic_map = self._initialize_phonetics()
-        self.layer_history: List[LayerResult] = []
+        self.layer_history: List[LayerResult] = []  # Capped at MAX_HISTORY_SIZE
+        self._layer_weights: np.ndarray = None  # Optimized weight matrix
+        self._letter_hashes: np.ndarray = None  # Precomputed for vectorization
         self.initialize_base_layers()
-        logger.info(f"✅ AlphabetLayerSystem initialized with {self.alphabet['size']} letters")
+        self._initialize_meta_layer()  # Layer 61
+        self._precompute_weights()
+        self._precompute_letter_hashes()
+        logger.info(f"✅ AlphabetLayerSystem initialized with {self.alphabet['size']} letters + Meta Layer (61 total)")
+    
+    def _precompute_letter_hashes(self):
+        """Precompute letter hashes for vectorized meta-layer"""
+        self._letter_hashes = np.array([
+            int(hash(letter) % 1000) / 1000.0 
+            for letter in self.alphabet['all'][:60]
+        ], dtype=np.float64)
+        logger.debug("⚡ Letter hashes precomputed")
+    
+    def _add_to_history(self, result: LayerResult):
+        """Add to history with size cap"""
+        self.layer_history.append(result)
+        if len(self.layer_history) > self.MAX_HISTORY_SIZE:
+            self.layer_history.pop(0)  # Remove oldest
+
     
     def _initialize_alphabet(self) -> Dict[str, Any]:
         """Inicializon alfabetin e plotë greko-shqip"""
@@ -138,6 +181,107 @@ class AlbanianGreekLayerSystem:
         for letter in self.alphabet['all']:
             self.layers[letter] = self._create_letter_layer(letter)
         logger.info(f"📊 Created {len(self.layers)} base layers")
+    
+    def _initialize_meta_layer(self):
+        """
+        Layer 61: Meta-Layer (Ω+)
+        Bashkon të 60 shtresat në një funksion të vetëm universal.
+        Përfaqëson 'vetëdijen' e sistemit.
+        
+        ⚠️ IMPORTANT: Ky është DERIVED layer, jo storage.
+        Llogaritet 1 herë për query, jo për fjalë.
+        """
+        def meta_layer(x, system=self):
+            """
+            Ω+ Meta-Layer: Universal consciousness function
+            Combines all 60 layers through weighted superposition
+            
+            OPTIMIZED: Single vectorized computation, no per-token loops
+            Layer 61 is DERIVED (computed), not STORAGE.
+            """
+            try:
+                if isinstance(x, str):
+                    x = np.array([ord(c) for c in x[:100]], dtype=np.float64)
+                
+                x = np.atleast_1d(np.array(x, dtype=np.float64))
+                
+                if system._layer_weights is None:
+                    return np.tanh(x * 0.1)
+                
+                # OPTIMIZED: Vectorized computation
+                n = len(x)
+                
+                # Normalize input
+                x_norm = x / (np.max(np.abs(x)) + 1e-10)
+                
+                # Use PRECOMPUTED letter hashes (no recomputation per call)
+                letter_hashes = system._letter_hashes
+                if letter_hashes is None:
+                    return np.tanh(x * 0.1)
+                
+                # Outer product for vectorized layer computation
+                # Shape: (60, n) - each row is one layer's output for all x values
+                hash_matrix = letter_hashes[:, np.newaxis]  # (60, 1)
+                x_row = x_norm[np.newaxis, :]  # (1, n)
+                
+                # Compute all layers at once: sin(hash * pi * x) * cos(hash * x)
+                layer_outputs = np.sin(hash_matrix * np.pi * x_row) * np.cos(hash_matrix * x_row)
+                
+                # Weighted sum: (60,) @ (60, n) = (n,)
+                result = system._layer_weights @ layer_outputs
+                
+                # Apply golden ratio normalization
+                result = result / (60 * PHI)
+                
+                # Apply consciousness function (smooth sigmoid)
+                consciousness = 1 / (1 + np.exp(-np.clip(result * PLANCK_NORMALIZED, -500, 500)))
+                
+                return consciousness
+                    
+            except Exception as e:
+                logger.warning(f"Meta-layer error: {e}")
+                return np.array([0.5])
+        
+        self.layers['Ω+'] = meta_layer
+        self.layers['meta'] = meta_layer
+        logger.info("🧠 Layer 61 (Ω+ Meta-Layer) initialized - VECTORIZED")
+    
+    def _precompute_weights(self):
+        """
+        Precompute layer weights for optimized processing.
+        Uses golden ratio and prime number distribution.
+        """
+        n = len(self.alphabet['all'])  # 60
+        
+        # Weight based on position, golden ratio, and phonetic complexity
+        weights = np.zeros(n)
+        
+        for i, letter in enumerate(self.alphabet['all']):
+            props = self.phonetic_map.get(letter, {})
+            complexity = props.get('complexity', 1.0)
+            
+            # Golden spiral weighting
+            golden_weight = PHI ** (-i / n)
+            
+            # Prime resonance (positions 2,3,5,7,11,13... get boost)
+            prime_boost = 1.2 if self._is_prime(i + 1) else 1.0
+            
+            weights[i] = complexity * golden_weight * prime_boost
+        
+        # Normalize to sum = 1
+        self._layer_weights = weights / weights.sum()
+        logger.info(f"⚡ Precomputed {n} layer weights (optimized)")
+    
+    @staticmethod
+    @lru_cache(maxsize=128)
+    def _is_prime(n: int) -> bool:
+        """Check if n is prime (cached)"""
+        if n < 2:
+            return False
+        for i in range(2, int(n ** 0.5) + 1):
+            if n % i == 0:
+                return False
+        return True
     
     def _create_letter_layer(self, letter: str) -> Callable:
         """Krijon një shtresë matematikore për një shkronjë"""
@@ -274,6 +418,7 @@ class AlbanianGreekLayerSystem:
         
         results = []
         total_complexity = 0.0
+        meta_consciousness = 0.0
         
         for word in words[:10]:  # Max 10 fjalë
             letters = self._decompose_word(word)
@@ -284,8 +429,12 @@ class AlbanianGreekLayerSystem:
                 
                 # Apliko shtresën
                 try:
-                    input_vector = np.array([ord(c) for c in word], dtype=float)
+                    input_vector = np.array([ord(c) for c in word], dtype=np.float64)
                     output = word_layer(input_vector)
+                    
+                    # Apliko Meta-Layer (Layer 61)
+                    meta_output = self.layers['Ω+'](input_vector)
+                    meta_consciousness += float(np.mean(meta_output))
                     
                     # Llogarit kompleksitetin
                     complexity = len(letters) * sum(
@@ -300,7 +449,8 @@ class AlbanianGreekLayerSystem:
                         'letters': letters,
                         'letter_count': len(letters),
                         'complexity': round(complexity, 2),
-                        'output_magnitude': float(np.abs(output).mean()) if len(output) > 0 else 0.0
+                        'output_magnitude': float(np.abs(output).mean()) if len(output) > 0 else 0.0,
+                        'consciousness_level': round(float(np.mean(meta_output)), 4)
                     })
                 except Exception as e:
                     logger.warning(f"Error processing word '{word}': {e}")
@@ -311,19 +461,81 @@ class AlbanianGreekLayerSystem:
             'processed_words': len(results),
             'total_complexity': round(total_complexity, 2),
             'average_complexity': round(total_complexity / max(len(results), 1), 2),
+            'meta_consciousness': round(meta_consciousness / max(len(results), 1), 4),
             'word_analysis': results,
             'alphabet_size': self.alphabet['size'],
-            'active_layers': len(self.layers)
+            'active_layers': len(self.layers),
+            'layer_61_active': 'Ω+' in self.layers
         }
     
     def get_layer_stats(self) -> Dict[str, Any]:
         """Kthen statistika për shtresat"""
         return {
             'total_layers': len(self.layers),
+            'base_layers': 61,  # 60 alphabet + 1 meta
             'greek_letters': len(self.alphabet['greek']),
             'albanian_letters': len(self.alphabet['albanian']),
+            'meta_layer': 'Ω+' in self.layers,
             'composed_layers': len([k for k in self.layers.keys() if k.startswith('word_')]),
-            'phonetic_entries': len(self.phonetic_map)
+            'phonetic_entries': len(self.phonetic_map),
+            'weights_computed': self._layer_weights is not None,
+            'golden_ratio': round(PHI, 6),
+        }
+    
+    def compute_consciousness(self, text: str) -> Dict[str, Any]:
+        """
+        Llogarit nivelin e 'vetëdijes' për një tekst.
+        Përdor Layer 61 (Ω+) për sintezë universale.
+        """
+        try:
+            # Convert to numeric
+            x = np.array([ord(c) for c in text[:500]], dtype=np.float64)
+            
+            # Apply meta layer
+            consciousness = self.layers['Ω+'](x)
+            
+            # Compute metrics
+            avg_consciousness = float(np.mean(consciousness))
+            peak_consciousness = float(np.max(consciousness))
+            variance = float(np.var(consciousness))
+            
+            # Harmonic analysis
+            fft = np.fft.fft(consciousness)
+            dominant_freq = float(np.abs(fft[1:len(fft)//2]).argmax() + 1) if len(fft) > 2 else 0
+            
+            return {
+                'text_length': len(text),
+                'consciousness_level': round(avg_consciousness, 4),
+                'peak_consciousness': round(peak_consciousness, 4),
+                'variance': round(variance, 6),
+                'harmony': round(1 / (1 + variance), 4),
+                'dominant_frequency': dominant_freq,
+                'phi_alignment': round(avg_consciousness * PHI, 4),
+            }
+        except Exception as e:
+            logger.error(f"Consciousness computation error: {e}")
+            return {'error': str(e)}
+    
+    def get_curiosity_data(self) -> Dict[str, Any]:
+        """
+        Eksporton data për Curiosity Ocean integration.
+        """
+        return {
+            'layer_system': 'AlbanianGreekLayerSystem',
+            'version': '2.0-meta',
+            'total_layers': 61,
+            'alphabet': {
+                'greek': self.alphabet['greek'],
+                'albanian': self.alphabet['albanian'],
+                'meta': ['Ω+'],
+            },
+            'mathematical_constants': {
+                'phi': PHI,
+                'tau': TAU,
+                'euler': EULER,
+            },
+            'layer_weights': self._layer_weights.tolist() if self._layer_weights is not None else None,
+            'stats': self.get_layer_stats(),
         }
 
 

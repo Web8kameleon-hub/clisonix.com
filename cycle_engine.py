@@ -272,6 +272,71 @@ class CycleEngine:
         
         return gaps
     
+    # ==================== CYCLE CONTROL ====================
+    
+    async def pause_cycle(self, cycle_id: str) -> bool:
+        """⏸️ Ndal përkohësisht një cycle"""
+        if cycle_id not in self.cycles:
+            return False
+        
+        cycle = self.cycles[cycle_id]
+        if cycle.status != CycleStatus.ACTIVE:
+            return False
+        
+        cycle.status = CycleStatus.PAUSED
+        self.metrics["active_cycles"] -= 1
+        print(f"⏸️ Paused: {cycle_id}")
+        return True
+    
+    async def resume_cycle(self, cycle_id: str) -> bool:
+        """▶️ Rifillo një cycle të ndalur"""
+        if cycle_id not in self.cycles:
+            return False
+        
+        cycle = self.cycles[cycle_id]
+        if cycle.status != CycleStatus.PAUSED:
+            return False
+        
+        cycle.status = CycleStatus.ACTIVE
+        self.metrics["active_cycles"] += 1
+        print(f"▶️ Resumed: {cycle_id}")
+        
+        # Rinis task nëse është interval/event/stream
+        if cycle.cycle_type in (CycleType.INTERVAL, CycleType.EVENT, CycleType.STREAM):
+            execution = CycleExecution(cycle_id=cycle_id)
+            self.executions[cycle_id].append(execution)
+            
+            if cycle.cycle_type == CycleType.INTERVAL:
+                task = asyncio.create_task(self._run_interval_cycle(cycle, execution))
+            elif cycle.cycle_type == CycleType.EVENT:
+                task = asyncio.create_task(self._run_event_cycle(cycle, execution))
+            else:
+                task = asyncio.create_task(self._run_stream_cycle(cycle, execution))
+            
+            self.active_tasks[cycle_id] = task
+        
+        return True
+    
+    async def stop_cycle(self, cycle_id: str) -> bool:
+        """⏹️ Ndal përfundimisht një cycle"""
+        if cycle_id not in self.cycles:
+            return False
+        
+        cycle = self.cycles[cycle_id]
+        cycle.status = CycleStatus.COMPLETED
+        
+        # Cancel task nëse ekziston
+        if cycle_id in self.active_tasks:
+            self.active_tasks[cycle_id].cancel()
+            del self.active_tasks[cycle_id]
+        
+        if cycle.status == CycleStatus.ACTIVE:
+            self.metrics["active_cycles"] -= 1
+        self.metrics["completed_cycles"] += 1
+        
+        print(f"⏹️ Stopped: {cycle_id}")
+        return True
+    
     # ==================== CYCLE EXECUTION ====================
     
     async def start_cycle(self, cycle_id: str) -> CycleExecution:
