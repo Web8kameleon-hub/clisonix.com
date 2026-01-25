@@ -1,7 +1,12 @@
 # Dependabot Configuration for Clisonix Cloud
 # Automatically updates dependencies and checks for vulnerabilities
+# Auto-rebase enabled to keep PRs in sync with main branch
 
 version: 2
+
+# Global rebase strategy - auto rebase when main changes
+registries: {}
+
 updates:
   # Python dependencies (main API)
   - package-ecosystem: "pip"
@@ -12,6 +17,7 @@ updates:
       time: "04:00"
       timezone: "Europe/Berlin"
     open-pull-requests-limit: 5
+    rebase-strategy: "auto"
     labels:
       - "dependencies"
       - "python"
@@ -37,6 +43,7 @@ updates:
       time: "04:00"
       timezone: "Europe/Berlin"
     open-pull-requests-limit: 5
+    rebase-strategy: "auto"
     labels:
       - "dependencies"
       - "javascript"
@@ -60,6 +67,7 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 3
+    rebase-strategy: "auto"
     labels:
       - "dependencies"
       - "root"
@@ -70,6 +78,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    rebase-strategy: "auto"
     labels:
       - "dependencies"
       - "ci"
@@ -81,6 +90,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    rebase-strategy: "auto"
     labels:
       - "dependencies"
       - "docker"
