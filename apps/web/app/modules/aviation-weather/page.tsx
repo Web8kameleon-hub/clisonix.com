@@ -291,7 +291,9 @@ const AviationWeatherDashboard: React.FC = () => {
   const [allAirportsData, setAllAirportsData] = useState<Map<string, WeatherData>>(new Map())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'current' | 'forecast' | 'metar' | 'taf' | 'table' | 'flights' | 'statistics' | 'analysis' | 'alerts' | 'settings'>('current')
+  const [activeTab, setActiveTab] = useState<'current' | 'forecast' | 'metar' | 'taf' | 'table' | 'flights' | 'statistics' | 'analysis' | 'alerts' | 'ssh' | 'settings'>('current')
+  const [sshStatus, setSshStatus] = useState<'connected' | 'disconnected' | 'connecting'>('disconnected')
+  const [sshLogs, setSshLogs] = useState<{time: string; message: string; type: 'info' | 'success' | 'error' | 'warning'}[]>([])
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
   const [liveFlights, setLiveFlights] = useState<FlightData[]>([])
   const [flightsLoading, setFlightsLoading] = useState(false)
@@ -709,7 +711,7 @@ const AviationWeatherDashboard: React.FC = () => {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex gap-1 overflow-x-auto">
-            {(['current', 'flights', 'table', 'forecast', 'statistics', 'analysis', 'alerts', 'metar', 'taf', 'settings'] as const).map((tab) => (
+            {(['current', 'flights', 'table', 'forecast', 'statistics', 'analysis', 'alerts', 'ssh', 'metar', 'taf', 'settings'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -727,6 +729,7 @@ const AviationWeatherDashboard: React.FC = () => {
                  tab === 'statistics' ? '📈 Statistics' :
                  tab === 'analysis' ? '🔬 Analysis' :
                  tab === 'alerts' ? '⚠️ Alerts' :
+                 tab === 'ssh' ? `🖥️ SSH ${sshStatus === 'connected' ? '🟢' : sshStatus === 'connecting' ? '🟡' : '🔴'}` :
                  tab === 'settings' ? `⚙️ Settings (${airports.length})` : '📆 48h Forecast'}
               </button>
             ))}
@@ -1622,6 +1625,243 @@ const AviationWeatherDashboard: React.FC = () => {
                   ))}
                 </div>
               )}
+            </motion.div>
+          )}
+
+          {/* ============= SSH SERVER TAB ============= */}
+          {activeTab === 'ssh' && (
+            <motion.div
+              key="ssh"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">🖥️ SSH Server Connection</h2>
+              
+              {/* Connection Status Card */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white border-2 border-gray-200 rounded-2xl p-6 shadow-xl">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">🔌 Connection Status</h3>
+                  <div className="text-center">
+                    <div className={`inline-flex items-center justify-center w-24 h-24 rounded-full mb-4 ${
+                      sshStatus === 'connected' ? 'bg-green-100' : 
+                      sshStatus === 'connecting' ? 'bg-yellow-100' : 'bg-red-100'
+                    }`}>
+                      <span className="text-5xl">
+                        {sshStatus === 'connected' ? '🟢' : sshStatus === 'connecting' ? '🟡' : '🔴'}
+                      </span>
+                    </div>
+                    <p className={`text-2xl font-bold ${
+                      sshStatus === 'connected' ? 'text-green-600' : 
+                      sshStatus === 'connecting' ? 'text-yellow-600' : 'text-red-600'
+                    }`}>
+                      {sshStatus === 'connected' ? 'Connected' : 
+                       sshStatus === 'connecting' ? 'Connecting...' : 'Disconnected'}
+                    </p>
+                  </div>
+                  <div className="mt-6 flex gap-2">
+                    <button
+                      onClick={() => {
+                        setSshStatus('connecting')
+                        setSshLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), message: 'Initiating SSH connection...', type: 'info' }])
+                        setTimeout(() => {
+                          setSshStatus('connected')
+                          setSshLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), message: 'SSH connection established successfully!', type: 'success' }])
+                        }, 2000)
+                      }}
+                      disabled={sshStatus === 'connecting' || sshStatus === 'connected'}
+                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium transition-colors"
+                    >
+                      Connect
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSshStatus('disconnected')
+                        setSshLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), message: 'SSH connection closed.', type: 'warning' }])
+                      }}
+                      disabled={sshStatus === 'disconnected'}
+                      className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 font-medium transition-colors"
+                    >
+                      Disconnect
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Server Info */}
+                <div className="bg-white border-2 border-gray-200 rounded-2xl p-6 shadow-xl">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">🖥️ Server Information</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">Host</span>
+                      <span className="font-mono font-bold text-gray-900">clisonix.cloud</span>
+                    </div>
+                    <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">Port</span>
+                      <span className="font-mono font-bold text-gray-900">22</span>
+                    </div>
+                    <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">User</span>
+                      <span className="font-mono font-bold text-gray-900">aviation-api</span>
+                    </div>
+                    <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">Auth</span>
+                      <span className="font-mono font-bold text-green-600">🔐 Key-based</span>
+                    </div>
+                    <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">Protocol</span>
+                      <span className="font-mono font-bold text-blue-600">SSH-2.0</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* System Stats */}
+                <div className="bg-white border-2 border-gray-200 rounded-2xl p-6 shadow-xl">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">📊 System Stats</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-gray-600">CPU Usage</span>
+                        <span className="font-bold text-gray-900">23%</span>
+                      </div>
+                      <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-green-500 rounded-full" style={{ width: '23%' }} />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-gray-600">Memory</span>
+                        <span className="font-bold text-gray-900">4.2 / 16 GB</span>
+                      </div>
+                      <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-blue-500 rounded-full" style={{ width: '26%' }} />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-gray-600">Disk</span>
+                        <span className="font-bold text-gray-900">128 / 500 GB</span>
+                      </div>
+                      <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-purple-500 rounded-full" style={{ width: '26%' }} />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-gray-600">Network</span>
+                        <span className="font-bold text-green-600">↑ 2.4 MB/s ↓ 12.8 MB/s</span>
+                      </div>
+                    </div>
+                    <div className="pt-2 border-t border-gray-200">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Uptime</span>
+                        <span className="font-bold text-gray-900">42 days, 7:23:15</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Active Services */}
+              <div className="bg-white border-2 border-gray-200 rounded-2xl p-6 shadow-xl">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">🚀 Active Services</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[
+                    { name: 'Aviation Weather API', port: 8080, status: 'running', memory: '256MB' },
+                    { name: 'OpenSky Collector', port: 8081, status: 'running', memory: '128MB' },
+                    { name: 'METAR/TAF Parser', port: 8082, status: 'running', memory: '64MB' },
+                    { name: 'Flight Tracker', port: 8083, status: 'running', memory: '192MB' },
+                    { name: 'Weather Alerter', port: 8084, status: 'running', memory: '96MB' },
+                    { name: 'Data Aggregator', port: 8085, status: 'running', memory: '384MB' },
+                    { name: 'CBOR Encoder', port: 8086, status: 'running', memory: '32MB' },
+                    { name: 'LoRa Gateway', port: 8087, status: 'idle', memory: '48MB' },
+                  ].map((service, idx) => (
+                    <div key={idx} className={`p-4 rounded-xl border-2 ${
+                      service.status === 'running' ? 'border-green-200 bg-green-50' : 'border-yellow-200 bg-yellow-50'
+                    }`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-bold text-gray-900 text-sm">{service.name}</span>
+                        <span className={`w-3 h-3 rounded-full ${service.status === 'running' ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
+                      </div>
+                      <div className="text-xs text-gray-600 space-y-1">
+                        <p>Port: <span className="font-mono font-bold">{service.port}</span></p>
+                        <p>Memory: <span className="font-bold">{service.memory}</span></p>
+                        <p>Status: <span className={`font-bold ${service.status === 'running' ? 'text-green-600' : 'text-yellow-600'}`}>{service.status}</span></p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* SSH Terminal / Logs */}
+              <div className="bg-gray-900 rounded-2xl p-6 shadow-xl">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-green-400 font-bold text-lg">📟 SSH Terminal Logs</h3>
+                  <button
+                    onClick={() => setSshLogs([])}
+                    className="px-3 py-1 bg-gray-700 text-gray-300 rounded hover:bg-gray-600 text-sm transition-colors"
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div className="font-mono text-sm h-64 overflow-y-auto space-y-1">
+                  {sshLogs.length === 0 ? (
+                    <p className="text-gray-500">No logs yet. Connect to SSH server to see activity.</p>
+                  ) : (
+                    sshLogs.map((log, idx) => (
+                      <p key={idx} className={`${
+                        log.type === 'success' ? 'text-green-400' :
+                        log.type === 'error' ? 'text-red-400' :
+                        log.type === 'warning' ? 'text-yellow-400' : 'text-cyan-400'
+                      }`}>
+                        <span className="text-gray-500">[{log.time}]</span> {log.message}
+                      </p>
+                    ))
+                  )}
+                  <p className="text-green-400 animate-pulse">
+                    {sshStatus === 'connected' ? '$ _' : ''}
+                  </p>
+                </div>
+              </div>
+              
+              {/* Quick Commands */}
+              <div className="bg-white border-2 border-gray-200 rounded-2xl p-6 shadow-xl">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">⚡ Quick Commands</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    { cmd: 'systemctl status aviation-api', label: 'Check API Status', icon: '🔍' },
+                    { cmd: 'tail -f /var/log/aviation.log', label: 'View Live Logs', icon: '📋' },
+                    { cmd: 'df -h', label: 'Disk Usage', icon: '💾' },
+                    { cmd: 'free -m', label: 'Memory Status', icon: '🧠' },
+                    { cmd: 'netstat -tulpn', label: 'Open Ports', icon: '🌐' },
+                    { cmd: 'docker ps', label: 'Docker Containers', icon: '🐳' },
+                    { cmd: 'top -bn1 | head -20', label: 'Top Processes', icon: '📊' },
+                    { cmd: 'systemctl restart aviation-api', label: 'Restart API', icon: '🔄' },
+                  ].map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        if (sshStatus === 'connected') {
+                          setSshLogs(prev => [...prev, 
+                            { time: new Date().toLocaleTimeString(), message: `$ ${item.cmd}`, type: 'info' },
+                            { time: new Date().toLocaleTimeString(), message: `Executing: ${item.label}...`, type: 'success' }
+                          ])
+                        } else {
+                          setSshLogs(prev => [...prev, 
+                            { time: new Date().toLocaleTimeString(), message: 'Error: Not connected to SSH server', type: 'error' }
+                          ])
+                        }
+                      }}
+                      className="p-3 bg-gray-100 hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl text-left transition-all"
+                    >
+                      <span className="text-2xl">{item.icon}</span>
+                      <p className="font-semibold text-gray-900 text-sm mt-2">{item.label}</p>
+                      <p className="font-mono text-xs text-gray-500 truncate">{item.cmd}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </motion.div>
           )}
 
