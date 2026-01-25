@@ -1,4 +1,4 @@
-name: 🔧 CI - Quantum Pipeline (Elastic, Self-Healing)
+name: CI - Quantum Pipeline (Elastic, Self-Healing)
 
 on:
   push:
@@ -77,7 +77,7 @@ jobs:
           fetch-depth: 0
 
       - name: Gitleaks - Scan for secrets (BLOCKING)
-        uses: gitleaks/gitleaks-action@v3
+        uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
@@ -169,7 +169,7 @@ jobs:
         continue-on-error: true
 
       - name: Trivy Image Scan (CRITICAL/HIGH only)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
           format: 'sarif'
@@ -188,7 +188,7 @@ jobs:
           fi
 
       - name: Trivy FS Scan (CRITICAL/HIGH only)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'fs'
           scan-ref: '.'

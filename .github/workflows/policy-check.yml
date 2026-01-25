@@ -15,10 +15,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Run conftest against Dockerfiles
-        uses: open-policy-agent/conftest-action@v1
+        uses: open-policy-agent/conftest-action@v2
         with:
           # Teston të gjithë skedarët që fillojnë me 'Dockerfile'
           input: 'Dockerfile*'
@@ -28,7 +28,7 @@ jobs:
           namespace: 'main.docker'
 
       - name: Run conftest against Docker Compose files
-        uses: open-policy-agent/conftest-action@v1
+        uses: open-policy-agent/conftest-action@v2
         with:
           # Teston të gjithë skedarët docker-compose
           input: 'docker-compose*.yml'
@@ -37,7 +37,7 @@ jobs:
           namespace: 'main.compose'
 
       - name: Run conftest against Kubernetes manifests (if any)
-        uses: open-policy-agent/conftest-action@v1
+        uses: open-policy-agent/conftest-action@v2
         with:
           # Teston skedarët .yaml dhe .yml (p.sh., për Kubernetes)
           # Vazhdon edhe nëse nuk gjen skedarë, për të mos bllokuar workflow-in

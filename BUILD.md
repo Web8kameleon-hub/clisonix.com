@@ -44,6 +44,7 @@ docker run -p 80:80 -p 443:443 \
 ## Container Details
 
 ### Image Specifications
+
 - **Base**: node:20-alpine (production build)
 - **Size**: ~300-400MB (multi-stage optimized)
 - **Port**: 3000 (default Next.js)
@@ -152,6 +153,7 @@ spec:
 ## Troubleshooting
 
 ### Container won't start
+
 ```bash
 # Check logs
 docker logs clisonix-public
@@ -161,12 +163,14 @@ docker ps | grep clisonix-public
 ```
 
 ### High memory usage
+
 ```bash
 # Increase Node.js memory
 docker run -e NODE_OPTIONS="--max_old_space_size=2048" ...
 ```
 
 ### Port already in use
+
 ```bash
 # Find and stop container using port 3000
 lsof -i :3000
