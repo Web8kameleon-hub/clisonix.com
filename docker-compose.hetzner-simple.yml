@@ -113,6 +113,35 @@ services:
       - clisonix
     restart: always
 
+  # ===========================================
+  # AUTO-LEARNING SERVICE
+  # ===========================================
+  autolearning:
+    build:
+      context: .
+      dockerfile: Dockerfile.autolearning
+    container_name: clisonix-autolearning
+    environment:
+      - HETZNER_API_URL=http://clisonix-api:8000
+      - HETZNER_EXTERNAL_URL=https://api.clisonix.com
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - autolearning_data:/app/ocean-core/learned_knowledge
+    networks:
+      - clisonix
+    depends_on:
+      - postgres
+      - redis
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
 networks:
   clisonix:
     driver: bridge
@@ -124,3 +153,4 @@ volumes:
   prometheus_data:
   grafana_data:
   tempo_data:
+  autolearning_data:
