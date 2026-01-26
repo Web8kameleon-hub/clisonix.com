@@ -1818,6 +1818,11 @@ async def system_status_api():
     """Proxy endpoint for frontend API calls (same as /status)"""
     return await status_full()
 
+@app.get("/api/status", response_model=StatusResponse, responses={503: {"model": ErrorEnvelope}, 500: {"model": ErrorEnvelope}})
+async def api_status():
+    """API status endpoint - alias for /status"""
+    return await status_full()
+
 # ------------- EEG Processing (REAL) -------------
 def _eeg_band_powers(raw: "mne.io.BaseRaw", fmin: float, fmax: float) -> Dict[str, float]:
     data = raw.get_data(return_times=False)

@@ -69,11 +69,12 @@ logger = logging.getLogger("ocean_api")
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Curiosity Ocean 8030",
+    title="Curiosity Ocean",
     description="Universal Knowledge Aggregation Engine with 14 Expert Personas - Internal Data Only",
     version="4.0.0",
-    docs_url="/api/docs",
-    openapi_url="/api/openapi.json"
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json"
 )
 
 # Add CORS middleware
