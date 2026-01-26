@@ -41,6 +41,18 @@ def health() -> Dict[str, Any]:
     return {"status": "running", "service": "Economy API", "port": PORT}
 
 
+@app.get("/status")
+@app.get("/api/status")
+def api_status() -> Dict[str, Any]:
+    return {
+        "status": "operational",
+        "service": "Economy API",
+        "version": "0.1.0",
+        "port": PORT,
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    }
+
+
 @app.get("/")
 def root() -> Dict[str, Any]:
     return {

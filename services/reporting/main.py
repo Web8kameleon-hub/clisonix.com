@@ -251,6 +251,7 @@ async def health():
 
 
 @app.get("/status")
+@app.get("/api/status")
 async def status():
     """Status endpoint for compatibility with frontend"""
     containers = get_docker_containers_real()

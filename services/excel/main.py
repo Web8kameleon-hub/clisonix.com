@@ -112,6 +112,20 @@ async def health():
     }
 
 
+@app.get("/status")
+@app.get("/api/status")
+async def api_status():
+    """API status endpoint"""
+    return {
+        "status": "operational",
+        "service": "Clisonix Excel Service",
+        "version": "2.0.0",
+        "excel_available": EXCEL_AVAILABLE,
+        "pandas_available": PANDAS_AVAILABLE,
+        "timestamp": datetime.now().isoformat()
+    }
+
+
 @app.get("/api/excel/generate")
 async def generate_excel(
     title: str = "Clisonix Data Export",

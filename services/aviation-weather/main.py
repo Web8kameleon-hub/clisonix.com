@@ -224,6 +224,19 @@ async def health():
         "port": 8030
     }
 
+
+@app.get("/status")
+@app.get("/api/status")
+async def api_status():
+    """API status endpoint"""
+    return {
+        "status": "operational",
+        "service": "Aviation Weather API",
+        "version": "1.0.0",
+        "port": 8030,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
 @app.get("/metar/{icao}")
 async def get_metar(icao: str):
     """

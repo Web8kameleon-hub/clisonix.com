@@ -267,6 +267,7 @@ async def chat_ui():
         return {"error": "Chat UI not found"}
 
 
+@app.get("/status")
 @app.get("/api/status")
 async def get_status():
     """Get service status"""
