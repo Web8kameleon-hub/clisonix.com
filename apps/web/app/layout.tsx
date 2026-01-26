@@ -139,15 +139,6 @@ export default function RootLayout({
         className={`${inter.variable} antialiased`}
         suppressHydrationWarning
       >
-        {/* BETA banner removed - platform is now stable
-        <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 text-white text-center py-2 px-4 text-sm font-medium shadow-lg z-50 relative">
-          <span className="inline-flex items-center gap-2">
-            🚧 <strong>BETA</strong> - System is under construction 🚧
-          </span>
-        </div>
-        */}
-        {/* DynamicFavicon disabled - causing too many requests in dev mode */}
-        {/* <DynamicFavicon /> */}
         <RequestLogger />
         {children}
       </body>
