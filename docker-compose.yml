@@ -88,15 +88,15 @@ services:
     container_name: clisonix-ocean-core
     environment:
       PYTHONUNBUFFERED: "1"
-      OCEAN_PORT: "8031"
+      OCEAN_PORT: "8030"
       REDIS_URL: "redis://redis:6379/0"
     ports:
-      - "8031:8031"
+      - "8030:8030"
     depends_on:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8031/api/status"]
+      test: ["CMD", "curl", "-f", "http://localhost:8030/api/status"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -112,13 +112,13 @@ services:
     container_name: clisonix-aviation
     environment:
       PYTHONUNBUFFERED: "1"
-      AVIATION_PORT: "8030"
+      AVIATION_PORT: "8080"
       AVWX_API_KEY: "${AVWX_API_KEY:-}"
       CHECKWX_API_KEY: "${CHECKWX_API_KEY:-}"
     ports:
-      - "8030:8030"
+      - "8080:8080"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8030/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3

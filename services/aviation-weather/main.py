@@ -221,7 +221,7 @@ async def health():
         "status": "healthy",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "service": "aviation-weather-api",
-        "port": 8030
+        "port": 8080
     }
 
 
@@ -233,7 +233,7 @@ async def api_status():
         "status": "operational",
         "service": "Aviation Weather API",
         "version": "1.0.0",
-        "port": 8030,
+        "port": 8080,
         "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
@@ -392,6 +392,6 @@ async def search_airports(
 # =====================
 
 if __name__ == "__main__":
-    port = int(os.getenv("AVIATION_PORT", 8030))
+    port = int(os.getenv("AVIATION_PORT", 8080))
     logger.info(f"🛫 Starting Aviation Weather API on port {port}")
     uvicorn.run(app, host="0.0.0.0", port=port)
