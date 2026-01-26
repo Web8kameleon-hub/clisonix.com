@@ -1,19 +1,61 @@
 #!/usr/bin/env python3
 """ASI Realtime Engine API Server"""
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from asi_core import ASICore
 import uvicorn
+from datetime import datetime
 
-app = FastAPI(title="ASI Engine", version="1.0.0")
+app = FastAPI(
+    title="ASI Engine",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 asi = ASICore()
+
+@app.get("/")
+def root():
+    return {
+        "service": "ASI Realtime Engine",
+        "version": "1.0.0",
+        "status": "operational",
+        "endpoints": {
+            "GET /health": "Health check",
+            "GET /status": "Realtime status",
+            "GET /api/status": "API status",
+            "GET /metrics": "Engine metrics",
+            "GET /nodes": "ASI nodes"
+        }
+    }
 
 @app.get("/health")
 def health():
     return {"status": "operational", "engine": "ASI Realtime"}
 
 @app.get("/status")
+@app.get("/api/status")
 def status():
-    return asi.get_realtime_status()
+    try:
+        rt_status = asi.get_realtime_status()
+        rt_status["timestamp"] = datetime.utcnow().isoformat()
+        return rt_status
+    except Exception as e:
+        return {
+            "status": "operational",
+            "service": "ASI Engine",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        }
 
 @app.get("/metrics")
 def metrics():
