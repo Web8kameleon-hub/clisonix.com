@@ -599,6 +599,21 @@ async def get_aggregate_research():
 
 # ============== HEALTH CHECK ==============
 
+@app.get("/")
+async def root():
+    return {
+        "service": "Behavioral Science API",
+        "version": "1.0.0",
+        "status": "operational",
+        "endpoints": {
+            "GET /health": "Health check",
+            "GET /api/status": "Service status",
+            "POST /api/behavioral/mood/sync": "Sync mood data",
+            "POST /api/behavioral/habits/sync": "Sync habit data",
+            "GET /api/behavioral/insights/{device_id}": "Get insights"
+        }
+    }
+
 @app.get("/health")
 @app.get("/api/behavioral/health")
 async def health_check():
@@ -620,6 +635,21 @@ async def health_check():
         }
     }
 
+@app.get("/api/status")
+@app.get("/status")
+async def api_status():
+    return {
+        "status": "operational",
+        "service": "Behavioral Science API",
+        "version": "1.0.0",
+        "timestamp": datetime.utcnow().isoformat(),
+        "dataPoints": {
+            "moodEntries": sum(len(v) for v in mood_data.values()),
+            "focusSessions": sum(len(v) for v in focus_data.values()),
+            "habitLogs": sum(len(v) for v in habit_data.values())
+        }
+    }
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8002)
+    uvicorn.run(app, host="0.0.0.0", port=8003)
