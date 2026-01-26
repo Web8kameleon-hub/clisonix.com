@@ -1769,10 +1769,11 @@ async def get_data_formats():
 if __name__ == "__main__":
     import uvicorn
     
-    logger.info("🌊 Starting Curiosity Ocean 8030...")
+    port = int(os.environ.get("OCEAN_PORT", 8031))
+    logger.info(f"🌊 Starting Curiosity Ocean on port {port}...")
     uvicorn.run(
         app,
         host="0.0.0.0",
-        port=8030,
+        port=port,
         log_level="info"
     )

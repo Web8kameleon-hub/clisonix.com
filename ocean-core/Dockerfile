@@ -15,12 +15,15 @@ COPY ocean-core/ /app/
 RUN pip install --no-cache-dir -r requirements.txt 2>/dev/null || \
     pip install --no-cache-dir fastapi uvicorn httpx pydantic redis aiohttp numpy
 
+# Environment variable for port
+ENV OCEAN_PORT=8031
+
 # Expose port
-EXPOSE 8030
+EXPOSE 8031
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8030/api/status || exit 1
+    CMD curl -f http://localhost:8031/api/status || exit 1
 
 # Start Ocean-Core API
 CMD ["python", "ocean_api.py"]
