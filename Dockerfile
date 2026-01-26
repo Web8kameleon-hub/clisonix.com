@@ -30,11 +30,13 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 COPY requirements-ocean.txt .
 COPY apps/api/requirements.txt apps/api/
+COPY apps/api/requirements-excel.txt apps/api/
 
-# Install Python dependencies
+# Install Python dependencies (numpy first, then Excel deps isolated)
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir -r requirements-ocean.txt && \
-    pip install --no-cache-dir -r apps/api/requirements.txt
+    pip install --no-cache-dir -r apps/api/requirements.txt && \
+    pip install --no-cache-dir -r apps/api/requirements-excel.txt
 
 # Copy application code
 COPY apps/api /app/apps/api
