@@ -10,7 +10,11 @@ from datetime import datetime
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'ocean-core'))
 
 # Import AutoLearningOptimized directly
-from auto_learning_optimized import AutoLearningOptimized
+try:
+    from auto_learning_optimized import AutoLearningOptimized  # type: ignore
+except ImportError:
+    # Fallback for direct execution
+    from ocean_core.auto_learning_optimized import AutoLearningOptimized  # type: ignore
 
 print("✅ AutoLearningOptimized imported successfully")
 

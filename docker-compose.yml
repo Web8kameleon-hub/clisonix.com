@@ -81,6 +81,28 @@ services:
     restart: unless-stopped
 
   # ==========================
+  # AVIATION WEATHER API (Microservice)
+  # ==========================
+  aviation:
+    build:
+      context: ./services/aviation-weather
+      dockerfile: Dockerfile
+    container_name: clisonix-aviation
+    environment:
+      PYTHONUNBUFFERED: "1"
+      AVIATION_PORT: "8030"
+      AVWX_API_KEY: "${AVWX_API_KEY:-}"
+      CHECKWX_API_KEY: "${CHECKWX_API_KEY:-}"
+    ports:
+      - "8030:8030"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8030/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ==========================
   # API BACKEND (JONA - Coordinator)
   # ==========================
   api:
@@ -187,6 +209,29 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ==========================
+  # EXCEL MICROSERVICE
+  # ==========================
+  excel:
+    build:
+      context: ./services/excel
+      dockerfile: Dockerfile
+    container_name: clisonix-excel
+    environment:
+      PYTHONUNBUFFERED: "1"
+      CORE_API_URL: "http://clisonix-api:8000"
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./excel_files:/app/excel_files
+      - ./uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
       interval: 30s
       timeout: 10s
       retries: 3

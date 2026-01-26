@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { Cloud, Brain, Thermometer, Wind, Droplets, AlertTriangle, Activity, RefreshCw, Sun, Gauge, Zap } from 'lucide-react';
 
@@ -10,7 +10,14 @@ import { Cloud, Brain, Thermometer, Wind, Droplets, AlertTriangle, Activity, Ref
  * 
  * Analyzes how weather conditions affect cognitive performance
  * Real Open-Meteo API + Neural Performance Correlation
+ * 
+ * Rate Limited: Max 1 request per 30 seconds to avoid 429 errors
  */
+
+// Simple cache to avoid excessive API calls
+const weatherCache: { data: WeatherData[] | null; timestamp: number } = { data: null, timestamp: 0 };
+const CACHE_DURATION = 60000; // 1 minute cache
+const MIN_REQUEST_INTERVAL = 30000; // 30 seconds between requests
 
 interface WeatherData {
     city: string;
@@ -49,6 +56,8 @@ export default function BiometricEnvironmentMonitor() {
     const [error, setError] = useState<string | null>(null);
     const [selectedCity, setSelectedCity] = useState<string>('Tirana');
     const [activeTab, setActiveTab] = useState<'cities' | 'search' | 'coordinates'>('cities');
+    const [rateLimited, setRateLimited] = useState(false);
+    const lastRequestTime = useRef<number>(0);
     
     // Search state
     const [searchQuery, setSearchQuery] = useState<string>('');
@@ -154,18 +163,53 @@ export default function BiometricEnvironmentMonitor() {
         }
     }, [customLat, customLon, fetchWeatherForLocation]);
 
-    const fetchData = useCallback(async () => {
+    const fetchData = useCallback(async (forceRefresh = false) => {
+        const now = Date.now();
+        
+        // Rate limiting check
+        if (!forceRefresh && now - lastRequestTime.current < MIN_REQUEST_INTERVAL) {
+            const waitTime = Math.ceil((MIN_REQUEST_INTERVAL - (now - lastRequestTime.current)) / 1000);
+            setError(`Rate limited. Please wait ${waitTime}s before refreshing.`);
+            setRateLimited(true);
+            setTimeout(() => setRateLimited(false), MIN_REQUEST_INTERVAL - (now - lastRequestTime.current));
+            return;
+        }
+        
+        // Use cache if valid
+        if (!forceRefresh && weatherCache.data && (now - weatherCache.timestamp < CACHE_DURATION)) {
+            const cachedData = weatherCache.data;
+            const currentCity = cachedData.find(w => w.city === selectedCity) || cachedData[0];
+            const cognitive = calculateCognitiveImpact(currentCity);
+            setData({
+                weather: cachedData,
+                cognitive,
+                alertActive: cognitive.factors.pressure.migraineRisk > 60,
+                timestamp: new Date(weatherCache.timestamp).toISOString(),
+                responseTime: 0
+            });
+            setLoading(false);
+            return;
+        }
+        
         const startTime = performance.now();
         setLoading(true);
+        lastRequestTime.current = now;
 
         try {
             // Fetch REAL weather data directly from Open-Meteo API (no API key needed)
-            const weatherPromises = cities.map(async (city) => {
+            // Use sequential requests with delay to avoid 429
+            const weatherData: WeatherData[] = [];
+            for (const city of cities) {
                 const response = await fetch(
                     `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,surface_pressure,weather_code&timezone=Europe/Tirane`
                 );
+                
+                if (response.status === 429) {
+                    throw new Error('Too many requests. Please wait a minute before refreshing.');
+                }
+                
                 const result = await response.json();
-                return {
+                weatherData.push({
                     city: city.name,
                     country: city.country,
                     temperature: result.current?.temperature_2m ?? 0,
@@ -174,10 +218,16 @@ export default function BiometricEnvironmentMonitor() {
                     pressure: result.current?.surface_pressure ?? 1013,
                     weatherCode: result.current?.weather_code ?? 0,
                     uvIndex: 0
-                };
-            });
+                });
+                
+                // Small delay between requests to avoid rate limiting
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+            
+            // Update cache
+            weatherCache.data = weatherData;
+            weatherCache.timestamp = now;
 
-            const weatherData: WeatherData[] = await Promise.all(weatherPromises);
             const endTime = performance.now();
 
             // Calculate cognitive impact based on environmental factors
@@ -296,12 +346,12 @@ export default function BiometricEnvironmentMonitor() {
                   </div>
 
                   <button
-                      onClick={fetchData}
-                      disabled={loading}
+                      onClick={() => fetchData(true)}
+                      disabled={loading || rateLimited}
                       className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
                   >
                       <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                      Refresh
+                      {rateLimited ? 'Wait...' : 'Refresh'}
                   </button>
               </div>
 

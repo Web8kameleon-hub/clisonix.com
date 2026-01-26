@@ -39,13 +39,13 @@ def get_alphabet_system():
     global _alphabet_system
     if _alphabet_system is None:
         try:
-            from ocean_core.alphabet_layers import get_alphabet_layer_system
+            from ocean_core.alphabet_layers import get_alphabet_layer_system  # type: ignore
             _alphabet_system = get_alphabet_layer_system()
         except ImportError:
             try:
                 import sys
                 sys.path.insert(0, str(Path(__file__).parent.parent / "ocean-core"))
-                from alphabet_layers import get_alphabet_layer_system
+                from alphabet_layers import get_alphabet_layer_system  # type: ignore
                 _alphabet_system = get_alphabet_layer_system()
             except ImportError:
                 logger.warning("Alphabet layer system not available")
@@ -58,13 +58,13 @@ def get_auto_learning():
     global _auto_learning
     if _auto_learning is None:
         try:
-            from ocean_core.auto_learning_optimized import AutoLearningOptimized
+            from ocean_core.auto_learning_optimized import AutoLearningOptimized  # type: ignore
             _auto_learning = AutoLearningOptimized()
         except ImportError:
             try:
                 import sys
                 sys.path.insert(0, str(Path(__file__).parent.parent / "ocean-core"))
-                from auto_learning_optimized import AutoLearningOptimized
+                from auto_learning_optimized import AutoLearningOptimized  # type: ignore
                 _auto_learning = AutoLearningOptimized()
             except ImportError:
                 logger.warning("Auto-learning system not available")
