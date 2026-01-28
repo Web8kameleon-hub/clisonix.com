@@ -107,7 +107,16 @@ jobs:
       - name: Get LoadBalancer IP
         run: |
           echo "Waiting for LoadBalancer IP..."
-          kubectl get svc clisonix-frontend -n clisonix -w
+          for i in {1..30}; do
+            IP=$(kubectl get svc clisonix-frontend -n clisonix -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
+            if [ -n "$IP" ]; then
+              echo "LoadBalancer IP: $IP"
+              break
+            fi
+            echo "Attempt $i/30: Waiting for IP..."
+            sleep 10
+          done
+          kubectl get svc clisonix-frontend -n clisonix
 
   health-check:
     name: Health Check

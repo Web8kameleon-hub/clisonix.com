@@ -275,13 +275,18 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:8030/api/chat';
+        // Auto-detect API URL based on environment
+        // API uses version prefix: /api/v1/...
+        let API_URL = '/api/v1/chat/specialized';
         
-        // Use current domain if running on Hetzner
-        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-            const API_URL_OVERRIDE = `http://${window.location.hostname}:8030/api/chat`;
-            console.log('Using API URL:', API_URL_OVERRIDE);
+        // If running locally, use full URL
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            API_URL = 'http://localhost:8030/api/v1/chat/specialized';
+        } else {
+            // Use current protocol and hostname for remote
+            API_URL = `${window.location.protocol}//${window.location.hostname}:8030/api/v1/chat/specialized`;
         }
+        console.log('Using API URL:', API_URL);
         
         const chatArea = document.getElementById('chatArea');
         const queryInput = document.getElementById('queryInput');
