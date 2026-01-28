@@ -22,7 +22,7 @@ import re
 
 # Language detection
 try:
-    from langdetect import detect as detect_language
+    from langdetect import detect as detect_language  # type: ignore
     LANGDETECT_AVAILABLE = True
 except ImportError:
     LANGDETECT_AVAILABLE = False
@@ -33,13 +33,10 @@ except ImportError:
         sq_score = sum(1 for char in sq_chars if char in text_lower)
         return 'sq' if sq_score >= 2 else 'en'
 
-# Translation support
-try:
-    from deep_translator import GoogleTranslator
-    TRANSLATOR_AVAILABLE = True
-except ImportError:
-    TRANSLATOR_AVAILABLE = False
-    GoogleTranslator = None
+# Translation support - DISABLED (100% lokal, pa API të jashtme me pagesë)
+# GoogleTranslator heq sepse kërkon API të jashtme
+TRANSLATOR_AVAILABLE = False
+GoogleTranslator = None
 
 logger = logging.getLogger("real_answer_engine")
 
@@ -96,8 +93,8 @@ class RealAnswerEngine:
             if services_path not in sys.path:
                 sys.path.insert(0, services_path)
             
-            from reasoning_engine import ReasoningEngine
-            from knowledge_router import KnowledgeRouter
+            from reasoning_engine import ReasoningEngine  # type: ignore
+            from knowledge_router import KnowledgeRouter  # type: ignore
             self.reasoning_engine = ReasoningEngine()
             self.knowledge_router = KnowledgeRouter()
             logger.info("✅ Internal AGI initialized (Reasoning + Knowledge Router)")

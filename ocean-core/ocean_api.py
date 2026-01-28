@@ -41,7 +41,8 @@ from persona_router import PersonaRouter
 from laboratories import get_laboratory_network
 from real_data_engine import get_real_data_engine
 from specialized_chat_engine import get_specialized_chat, initialize_specialized_chat
-from response_orchestrator import get_orchestrator
+# ORCHESTRATOR V5 - Production Brain (minimal, fast, 100% lokal)
+from response_orchestrator_v5 import get_orchestrator_v5, ResponseOrchestratorV5
 from autolearning_engine import get_autolearning_engine, AutolearningEngine
 
 # Curiosity Algebra System - Universal Signal Integration
@@ -175,10 +176,10 @@ async def startup_event():
         specialized_chat = await initialize_specialized_chat()
         logger.info("[OK] Specialized Chat Engine ready - clean, expert-focused interface!")
         
-        # Initialize orchestrator - THE BRAIN
-        logger.info("→ Initializing Response Orchestrator (The Brain)...")
-        orchestrator = get_orchestrator()
-        logger.info("🧠 [OK] Response Orchestrator online - Ready to think and decide!")
+        # Initialize orchestrator v5 - THE NEW BRAIN (fast, minimal, 100% lokal)
+        logger.info("→ Initializing Response Orchestrator v5 (Production Brain)...")
+        orchestrator = get_orchestrator_v5()
+        logger.info("🧠 [OK] Orchestrator v5 online - Fast path conversational ready!")
         
         # Initialize knowledge engine - CRITICAL COMPONENT
         logger.info("→ Initializing knowledge engine with internal data sources...")
@@ -215,9 +216,10 @@ async def startup_event():
         raise
 
 
-@app.get("/")
-async def root():
-    """Root endpoint"""
+@app.get("/api/info")
+@app.get(f"{API_PREFIX}/info")
+async def api_info():
+    """API info endpoint"""
     internal_data = internal_data_sources.get_all_data() if internal_data_sources else {}
     
     return {
@@ -275,9 +277,13 @@ async def favicon():
 
 
 @app.get("/")
-async def root():
-    """Redirect to chat interface"""
-    return FileResponse("specialized_chat.html", media_type="text/html")
+async def root_chat_ui():
+    """Serve the specialized chat interface at root"""
+    import os
+    file_path = os.path.join(os.path.dirname(__file__), "specialized_chat.html")
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="text/html")
+    return {"error": "Chat UI not found", "tip": "Try /api/info for API info"}
 
 
 @app.get("/chat")
@@ -610,10 +616,51 @@ async def query_ocean(request: Request):
     try:
         logger.info(f"🧠 Received query: {question}")
         
-        # 0. ULTRA MODE: Try to get real data from laboratories first!
+        # 0. ORCHESTRATOR V5 (Brain with Ollama/Knowledge Seeds) - First Priority!
+        orchestrator_result = None
+        if orchestrator:
+            try:
+                logger.info("🧠 Using Orchestrator v5 (Ollama + Knowledge Seeds)...")
+                orchestrator_result = await orchestrator.orchestrate(question)
+                # OrchestratedResponse is a dataclass - use attributes, not .get()
+                if orchestrator_result and hasattr(orchestrator_result, 'fused_answer') and orchestrator_result.fused_answer:
+                    sources = orchestrator_result.sources_cited if hasattr(orchestrator_result, 'sources_cited') else []
+                    source_str = sources[0] if sources else "orchestrator_v5"
+                    logger.info(f"✅ Orchestrator v5 answered (source: {source_str})")
+            except Exception as orch_err:
+                logger.warning(f"Orchestrator v5 error: {orch_err}")
+        
+        # If orchestrator gave real answer, use it
+        if orchestrator_result and hasattr(orchestrator_result, 'fused_answer') and orchestrator_result.fused_answer:
+            sources = orchestrator_result.sources_cited if hasattr(orchestrator_result, 'sources_cited') else []
+            response_source = sources[0] if sources else "orchestrator_v5"
+            response_content = orchestrator_result.fused_answer
+            confidence = orchestrator_result.confidence if hasattr(orchestrator_result, 'confidence') else 0.9
+            
+            # Check if this is from Ollama or Knowledge Seeds (not a fallback/template)
+            is_real_answer = any(s.startswith(("ollama", "knowledge_seed")) for s in sources) if sources else False
+            
+            if is_real_answer or (response_content and len(response_content) > 50):
+                return {
+                    "query": question,
+                    "intent": str(orchestrator_result.query_category.value) if hasattr(orchestrator_result, 'query_category') else "general",
+                    "response": response_content,
+                    "persona_answer": response_content,
+                    "key_findings": [{"finding": response_content[:500], "importance": 0.95, "source": response_source, "confidence": confidence}],
+                    "sources": {"internal": sources, "external": []},
+                    "confidence": confidence,
+                    "processing_time_ms": 0,
+                    "curiosity_threads": generate_curiosity_threads(question, []),
+                    "data_sources_used": ["orchestrator_v5"] + sources,
+                    "ollama_used": any(s.startswith("ollama") for s in sources),
+                    "knowledge_seed_used": any(s.startswith("knowledge_seed") for s in sources),
+                    "timestamp": datetime.now().isoformat()
+                }
+        
+        # 1. FALLBACK: Real laboratories data
         lab_data = None
         if real_data_engine:
-            logger.info("🔬 ULTRA MODE: Querying real laboratories for data...")
+            logger.info("🔬 Fallback: Querying real laboratories for data...")
             try:
                 lab_data = await real_data_engine.get_comprehensive_response(question)
                 logger.info(f"✅ Real labs returned {lab_data.get('total_labs_queried', 0)} responses")
@@ -900,10 +947,10 @@ async def chat_test(message: str = Query(default="Hello", description="Mesazhi p
 @app.post(f"{API_PREFIX}/chat")
 async def simple_chat(request: Request):
     """
-    SIMPLE CHAT ENDPOINT
-    ====================
+    SIMPLE CHAT ENDPOINT - ORCHESTRATOR V5
+    =======================================
     
-    Për përdorim të thjeshtë - thjesht dërgo mesazhin dhe merr përgjigje.
+    Fast path conversational - 100% lokal, pa API të jashtme.
     
     Body:
     {
@@ -913,8 +960,8 @@ async def simple_chat(request: Request):
     Returns:
     {
         "response": "Mirëdita! Jam mirë, faleminderit...",
-        "sources": ["coingecko", "internal_knowledge"],
-        "confidence": 0.92
+        "sources": ["conversational_greeting"],
+        "confidence": 0.98
     }
     """
     if not orchestrator:
@@ -931,28 +978,20 @@ async def simple_chat(request: Request):
                 "confidence": 1.0
             }
         
-        logger.info(f"💬 Simple chat: {message[:50]}...")
+        logger.info(f"💬 Chat v5: {message[:50]}...")
         
-        # Use async orchestrator with real knowledge
-        try:
-            result = await orchestrator.process_query_async(message)
-            return {
-                "response": result.fused_answer,
-                "sources": result.sources_cited,
-                "confidence": result.confidence,
-                "query_category": result.query_category.value if hasattr(result.query_category, 'value') else str(result.query_category)
-            }
-        except Exception as e:
-            logger.warning(f"Async failed: {e}, using sync")
-            result = orchestrator.process_query(message)
-            return {
-                "response": result.fused_answer,
-                "sources": result.sources_cited,
-                "confidence": result.confidence
-            }
+        # Use Orchestrator v5 - fast conversational path
+        result = await orchestrator.orchestrate(message, mode="conversational")
+        return {
+            "response": result.fused_answer,
+            "sources": result.sources_cited,
+            "confidence": result.confidence,
+            "language": result.language,
+            "query_category": result.query_category.value if hasattr(result.query_category, 'value') else str(result.query_category)
+        }
     
     except Exception as e:
-        logger.error(f"Simple chat error: {e}")
+        logger.error(f"Chat v5 error: {e}")
         return {
             "response": f"Ndodhi një gabim: {str(e)}. Ju lutem provoni përsëri.",
             "sources": [],
@@ -1054,108 +1093,82 @@ async def binary_chat(request: Request):
 @app.post(f"{API_PREFIX}/chat/orchestrated")
 async def orchestrated_response(request: Request):
     """
-    ORCHESTRATED RESPONSE MODE - REAL KNOWLEDGE + AUTOLEARNING
-    ===========================================================
+    ORCHESTRATED RESPONSE - ORCHESTRATOR V5 (DEEP MODE)
+    ====================================================
     
-    The BRAIN is thinking with REAL DATA and LEARNING!
+    Deep mode - përdor edhe ekspertë kur ka sens.
+    100% LOKAL - pa API të jashtme me pagesë.
     
-    INTERNAL (Independent - No API dependencies):
-    - 23 Internal Laboratories
-    - 14 Expert Personas
-    - 61 Alphabet Layers
-    - 12 Backend Layers
-    - ASI Trinity (Alba/Albi/Jona)
-    - Knowledge Accumulator (learns from every query)
-    - Pattern Detector (learns patterns)
-    
-    EXTERNAL (Bonus - Optional):
-    - CoinGecko (Crypto prices)
-    - OpenWeatherMap (Weather)
-    - PubMed (Medical research)
-    - ArXiv (Scientific papers)
-    
-    Returns natural, conversational responses with real data.
+    Features:
+    - RealAnswerEngine (fast path)
+    - Minimal experts (1 persona + 1 lab + 1 module)
+    - Multilingual support
+    - Timeouts për ekspertët
     """
     if not orchestrator:
-        raise HTTPException(status_code=503, detail="Response Orchestrator not initialized")
+        raise HTTPException(status_code=503, detail="Orchestrator v5 not initialized")
     
     try:
         body = await request.json()
         query = body.get("query", body.get("message", "")).strip()
         conversation_context = body.get("conversation_context", [])
+        mode = body.get("mode", "deep")  # Default: deep mode për orchestrated
         
         if not query:
             raise ValueError("Query cannot be empty")
         
-        logger.info(f"🧠 ORCHESTRATOR processing: {query[:60]}...")
+        logger.info(f"🧠 Orchestrator v5 ({mode}): {query[:60]}...")
         
-        # STEP 1: Check Autolearning Engine for cached/learned responses
+        # Check Autolearning Engine for cached responses
         knowledge_id = None
-        learning_result = None
-        
         if autolearning_engine:
             learning_result = autolearning_engine.process_query(query)
-            logger.info(f"   📚 Pattern: {learning_result['pattern_type']}, Cached: {learning_result['cached_knowledge'] is not None}")
             
-            # If we have a high-confidence cached response, use it first
+            # Use cached if high-confidence
             if learning_result.get('cached_knowledge'):
                 cached = learning_result['cached_knowledge']
                 if cached.get('helpfulness', 0) > 0.7 and cached.get('confidence', 0) > 0.85:
-                    logger.info(f"   ✅ Using learned response (helpfulness: {cached['helpfulness']:.0%})")
+                    logger.info(f"   ✅ Using learned response")
                     return {
                         "type": "learned_response",
                         "query": query,
                         "query_category": "learned",
-                        "understanding": {"from": "autolearning", "times_used": cached['times_used']},
-                        "consulted_experts": [],
                         "fused_answer": cached['response'],
-                        "sources_cited": ["autolearning_engine"],
+                        "sources_cited": ["autolearning"],
                         "confidence": cached['confidence'],
-                        "narrative_quality": cached['helpfulness'],
-                        "learning_record": {"knowledge_id": cached['knowledge_id']},
                         "timestamp": datetime.utcnow().isoformat()
                     }
             
-            # If we have a pattern response (greeting, farewell, etc), use it
+            # Use pattern response if available
             if learning_result.get('pattern_response'):
-                logger.info(f"   ✅ Using pattern response for: {learning_result['pattern_type']}")
                 return {
                     "type": "pattern_response",
                     "query": query,
                     "query_category": learning_result['pattern_type'],
-                    "understanding": {"pattern": learning_result['pattern_type']},
-                    "consulted_experts": [],
                     "fused_answer": learning_result['pattern_response'],
                     "sources_cited": ["pattern_detector"],
                     "confidence": 0.95,
-                    "narrative_quality": 0.90,
-                    "learning_record": {},
                     "timestamp": datetime.utcnow().isoformat()
                 }
         
-        # STEP 2: Try async processing with orchestrator
-        try:
-            orchestrated = await orchestrator.process_query_async(query, conversation_context)
-        except Exception as async_error:
-            logger.warning(f"Async processing failed, falling back to sync: {async_error}")
-            orchestrated = orchestrator.process_query(query, conversation_context)
+        # Use Orchestrator v5
+        orchestrated = await orchestrator.orchestrate(query, conversation_context, mode=mode)
         
-        # STEP 3: Learn from this response
-        if autolearning_engine and learning_result and learning_result.get('should_learn', True):
+        # Learn from response
+        if autolearning_engine:
             knowledge_id = autolearning_engine.learn_from_response(
                 query=query,
                 response=orchestrated.fused_answer,
                 sources=orchestrated.sources_cited,
                 confidence=orchestrated.confidence
             )
-            logger.info(f"   📝 Learned as: {knowledge_id}")
         
-        # Convert to JSON-serializable format
         return {
-            "type": "orchestrated_response",
+            "type": "orchestrated_v5",
             "query": orchestrated.query,
-            "query_category": orchestrated.query_category.value if hasattr(orchestrated.query_category, 'value') else str(orchestrated.query_category),
-            "understanding": orchestrated.understanding if isinstance(orchestrated.understanding, dict) else {"raw": str(orchestrated.understanding)},
+            "query_category": orchestrated.query_category.value,
+            "language": orchestrated.language,
+            "understanding": orchestrated.understanding,
             "consulted_experts": [
                 {
                     "type": c.expert_type,
@@ -1164,19 +1177,19 @@ async def orchestrated_response(request: Request):
                     "relevance": c.relevance_score,
                 }
                 for c in orchestrated.consulted_experts
-            ] if orchestrated.consulted_experts else [],
+            ],
             "fused_answer": orchestrated.fused_answer,
             "sources_cited": orchestrated.sources_cited,
             "confidence": orchestrated.confidence,
             "narrative_quality": orchestrated.narrative_quality,
-            "learning_record": {"knowledge_id": knowledge_id} if knowledge_id else orchestrated.learning_record,
-            "timestamp": orchestrated.timestamp if hasattr(orchestrated, 'timestamp') else datetime.utcnow().isoformat()
+            "learning_record": {"knowledge_id": knowledge_id} if knowledge_id else {},
+            "timestamp": orchestrated.timestamp
         }
     
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error(f"Orchestrator error: {e}")
+        logger.error(f"Orchestrator v5 error: {e}")
         import traceback
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
@@ -1184,20 +1197,22 @@ async def orchestrated_response(request: Request):
 
 @app.get(f"{API_PREFIX}/orchestrator/learning")
 async def get_orchestrator_learning():
-    """Get the learning matrix from the orchestrator"""
+    """Get the learning stats from orchestrator v5"""
     if not orchestrator:
-        raise HTTPException(status_code=503, detail="Response Orchestrator not initialized")
+        raise HTTPException(status_code=503, detail="Orchestrator v5 not initialized")
     
     try:
-        learning_matrix = orchestrator.get_learning_matrix()
+        stats = orchestrator.get_stats()
         return {
-            "type": "learning_matrix",
-            "total_queries_processed": learning_matrix["total_queries_processed"],
-            "categories_seen": learning_matrix["categories_seen"],
+            "type": "orchestrator_v5_stats",
+            "version": stats.get("version", "v5"),
+            "engine_active": stats.get("engine_active", False),
+            "learning_history_count": stats.get("learning_history_count", 0),
+            "expert_timeout_ms": stats.get("expert_timeout_ms", 500),
             "timestamp": datetime.utcnow().isoformat()
         }
     except Exception as e:
-        logger.error(f"Learning matrix error: {e}")
+        logger.error(f"Orchestrator stats error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

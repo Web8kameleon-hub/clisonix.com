@@ -83,8 +83,8 @@ services:
   # ==========================
   ocean-core:
     build:
-      context: .
-      dockerfile: ocean-core/Dockerfile
+      context: ./ocean-core
+      dockerfile: Dockerfile
     container_name: clisonix-ocean-core
     environment:
       PYTHONUNBUFFERED: "1"

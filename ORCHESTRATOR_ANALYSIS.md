@@ -3,6 +3,7 @@
 ## 📊 STATUS: ÇFARË KEMI SOT
 
 ### **LAYER 1: INPUT UNDERSTANDING ✅ EKZISTON**
+
 **Dosje**: `ocean-core/query_processor.py` (320 linja)
 
 ```python
@@ -34,6 +35,7 @@
 ---
 
 ### **LAYER 2: PERSONA & LAB QUERY ⚠️ PARTIAL**
+
 **Dosje**: `ocean-core/persona_router.py` (60 linja)
 
 ```python
@@ -72,6 +74,7 @@
 ---
 
 ### **LAYER 3: LABORATORY NETWORK ✅ EKZISTON**
+
 **Dosje**: `ocean-core/laboratories.py` + `ocean-core/real_data_engine.py`
 
 ```python
@@ -111,6 +114,7 @@
 ---
 
 ### **LAYER 4: KNOWLEDGE ENGINE ✅ EKZISTON**
+
 **Dosje**: `ocean-core/knowledge_engine.py`
 
 ```python
@@ -127,6 +131,7 @@
 ### **LAYER 5: MODULE INTEGRATION ⚠️ PARTIAL**
 
 **Modulet që duhen pyers**:
+
 - ✅ Alba (Network Monitor)
 - ✅ Albi (Neural Processor)
 - ✅ Jona (Data Coordinator)
@@ -140,6 +145,7 @@
 ---
 
 ### **LAYER 6: RESPONSE AGGREGATION ✅ PARTIAL**
+
 **Dosje**: `ocean-core/real_data_engine.py` (linja 439)
 
 ```python
@@ -159,7 +165,7 @@
 
 ### **LAYER 7: DIRECT ROUTING OPTIMIZATION ❌ NUK EKZISTON**
 
-```
+```text
 ❌ Nuk ka learning mechanism
 ❌ Nuk ka caching të "pyetje tipike → burime"
 ❌ Pyet të gjithë çdo herë (waste)
@@ -173,7 +179,8 @@
 ## 🎯 ÇFARË NA MUNGON (Orchestrator i Vërtetë)
 
 ### **#1: META-ROUTER (The Brain)**
-```
+
+```text
 ❌ Nuk ekziston:
    - Një klasa që koordinon të gjithë sistemin
    - Vendos se cilat persona + labs + modules të pyet
@@ -183,7 +190,8 @@
 ```
 
 ### **#2: Intelligent Query Decomposition**
-```
+
+```text
 ❌ Nuk ekziston:
    - Ndarja e pyetjeve komplekse në sub-queries
    - Mapping sub-query → responsible persona/lab/module
@@ -191,7 +199,8 @@
 ```
 
 ### **#3: Response Fusion Engine**
-```
+
+```text
 ⚠️ Basic version ekziston, por:
    - Nuk e bën deduplication inteligjente
    - Nuk e rendit sipas relevancës
@@ -200,7 +209,8 @@
 ```
 
 ### **#4: Learning & Optimization**
-```
+
+```text
 ❌ Nuk ekziston:
    - Pattern recognition për pyetje
    - Caching optimal paths
@@ -209,7 +219,8 @@
 ```
 
 ### **#5: Module Orchestration**
-```
+
+```text
 ⚠️ Partial:
    - Alba, Albi, Jona, ASI mentioned
    - Nuk ka systematic querying
@@ -222,7 +233,8 @@
 ## 📋 SHËNIMET - ÇFARË DO TË BËJMË
 
 ### **PHASE 1: Build the Meta-Orchestrator**
-```
+
+```text
 □ Krijo class: ResponseOrchestrator
   - Input: PyetjaOriginale + QueryIntent
   - Process: Decide cilët personas/labs/modules të pyet
@@ -240,7 +252,8 @@
 ```
 
 ### **PHASE 2: Smart Routing Matrix**
-```
+
+```text
 □ Krijo routing matrix:
   Technical Questions → {AI Lab, ASI, SaaS, Elbasan}
   Financial Questions → {Finance Lab, Albi, Zurich}
@@ -254,7 +267,8 @@
 ```
 
 ### **PHASE 3: Module Coordination**
-```
+
+```text
 □ Orchestrate:
   - Alba (Network monitoring)
   - Albi (Neural processing)
@@ -269,7 +283,8 @@
 ```
 
 ### **PHASE 4: Narrative Integration**
-```
+
+```text
 □ Build narrative engine:
   - 23 labs speak with their voice
   - 14 personas contribute
@@ -283,6 +298,7 @@
 ## ✅ SUMMARY - Për Miratim
 
 **Çfarë ekziston sot:**
+
 1. ✅ QueryIntent detection (input understanding)
 2. ✅ PersonaRouter (14 personas)
 3. ✅ LaboratoryNetwork (23 labs)
@@ -290,6 +306,7 @@
 5. ⚠️ Knowledge Engine (basic)
 
 **Çfarë na mungon për Orchestrator të vërtetë:**
+
 1. ❌ Meta-Orchestrator class (koordinator qendror)
 2. ❌ Query decomposition (ndarje pyetjesh)
 3. ❌ Intelligent response fusion (kombinim i zgjueshëm)
@@ -297,6 +314,7 @@
 5. ❌ Full module orchestration (koordinim modulesh)
 
 **Pasiguria:**
+
 - 🤔 A duhet ta ndashim Orchestrator nga QueryProcessor?
 - 🤔 Ku vendosim routing logic - në layer-in e ri?
 - 🤔 Si e manjegohem persistence të optimal paths?
@@ -306,17 +324,19 @@
 ## 🎓 Përfundim
 
 Kemi **50% të Orchestrator-it**:
+
 - ✅ Input understanding → QueryIntent
 - ✅ Source access → Personas + Labs + Modules
 - ✅ Basic aggregation → Real Data Engine
 
 Na mungon **50%**:
+
 - ❌ The Brain (Meta-Orchestrator)
 - ❌ Smart decision making
 - ❌ Intelligent fusion
 - ❌ Learning mechanism
 
-**Arqitektura është e logjike, por nuk ka një "TRU QENDROR" 
+**Arqitektura është e logjike, por nuk ka një "TRU QENDROR"
 që koordinon gjithçka në mënyrë inteligjente.**
 
 ---

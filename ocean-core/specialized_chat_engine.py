@@ -21,6 +21,15 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 from dataclasses import dataclass
 
+# Import Ollama for real AI responses
+try:
+    from ollama_engine import get_ollama_engine, OllamaEngine
+    OLLAMA_AVAILABLE = True
+except ImportError:
+    OLLAMA_AVAILABLE = False
+    get_ollama_engine = None
+    OllamaEngine = None
+
 logger = logging.getLogger("specialized_chat")
 
 
@@ -277,10 +286,26 @@ class SpecializedChatEngine:
     async def _formulate_expert_answer(self, query: str, domain_context: Optional[Dict]) -> str:
         """
         Formulate a real, specialized answer based on domain expertise.
-        No system metrics, no ASI status - just expert knowledge.
+        Uses Ollama for intelligent AI responses.
         """
+        # Try Ollama first for real AI responses
+        if OLLAMA_AVAILABLE:
+            try:
+                ollama = get_ollama_engine()
+                if ollama:
+                    # Build domain-aware prompt
+                    domain_name = domain_context.get("focus", "general knowledge") if domain_context else "general knowledge"
+                    system = f"You are an expert in {domain_name}. Give concise, professional answers. Respond in the same language as the question."
+                    
+                    response = await ollama.generate(query, system=system)
+                    if response and response.content and not response.content.startswith("⚠️"):
+                        logger.info(f"🦙 Ollama generated expert response for domain: {domain_name}")
+                        return response.content
+            except Exception as e:
+                logger.warning(f"Ollama error in specialized chat: {e}")
+        
+        # Fallback to template responses
         if not domain_context:
-            # General fallback
             return f"I can help you explore this topic. Could you provide more specifics about what aspect interests you most?"
         
         domain = None
