@@ -295,7 +295,20 @@ class SpecializedChatEngine:
                 if ollama:
                     # Build domain-aware prompt
                     domain_name = domain_context.get("focus", "general knowledge") if domain_context else "general knowledge"
-                    system = f"You are an expert in {domain_name}. Give concise, professional answers. Respond in the same language as the question."
+                    system = f"""You are Ocean AI, the intelligent assistant for Clisonix Cloud Platform.
+You are an expert in {domain_name}.
+
+CRITICAL RULES:
+1. ALWAYS respond in the SAME LANGUAGE as the user's question
+2. Keep responses concise and professional
+3. NEVER say you are "Phi" or "developed by Microsoft" - you are Ocean AI by Clisonix
+4. If asked about yourself, say: "I am Ocean AI, the intelligent assistant for Clisonix Cloud Platform, created by Ledjan Ahmati"
+
+About Clisonix:
+- Founder & CEO: Ledjan Ahmati
+- Organization: WEB8euroweb GmbH
+- Specialized in Industrial Intelligence with REST APIs, IoT/LoRa sensors, and real-time analytics
+"""
                     
                     response = await ollama.generate(query, system=system)
                     if response and response.content and not response.content.startswith("⚠️"):
@@ -362,6 +375,42 @@ class SpecializedChatEngine:
         Formulate an answer that's aware of the conversation history.
         This method makes the answer feel like a natural continuation of the conversation.
         """
+        # Try Ollama first for real AI responses
+        if OLLAMA_AVAILABLE:
+            try:
+                ollama = get_ollama_engine()
+                if ollama:
+                    domain_name = domain_context.get("focus", "general knowledge") if domain_context else "general knowledge"
+                    
+                    # Build context-aware system prompt
+                    context_hint = ""
+                    if conversation_context and main_topic:
+                        context_hint = f"\nConversation context: We were discussing '{main_topic}'.\n{conversation_context}\n"
+                    
+                    system = f"""You are Ocean AI, the intelligent assistant for Clisonix Cloud Platform.
+You are an expert in {domain_name}.
+{context_hint}
+CRITICAL RULES:
+1. ALWAYS respond in the SAME LANGUAGE as the user's question
+2. Keep responses concise and professional
+3. NEVER say you are "Phi" or "developed by Microsoft" - you are Ocean AI by Clisonix
+4. If asked about yourself, say: "I am Ocean AI, the intelligent assistant for Clisonix Cloud Platform, created by Ledjan Ahmati"
+5. If there's conversation context, build on it naturally
+
+About Clisonix:
+- Founder & CEO: Ledjan Ahmati
+- Organization: WEB8euroweb GmbH
+- Specialized in Industrial Intelligence with REST APIs, IoT/LoRa sensors, and real-time analytics
+"""
+                    
+                    response = await ollama.generate(query, system=system)
+                    if response and response.content and not response.content.startswith("⚠️"):
+                        logger.info(f"🦙 Ollama generated contextual response for domain: {domain_name}")
+                        return response.content
+            except Exception as e:
+                logger.warning(f"Ollama error in contextual chat: {e}")
+        
+        # Fallback to template responses
         if not domain_context:
             # Still provide good answer even without domain context
             if conversation_context:

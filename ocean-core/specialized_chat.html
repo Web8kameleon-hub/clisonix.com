@@ -65,6 +65,20 @@
             padding: 4px 12px;
             border-radius: 20px;
             backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .domain-tag:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .domain-tag.active {
+            background: rgba(255, 255, 255, 0.5);
+            border-color: white;
+            font-weight: bold;
         }
         
         .chat-area {
@@ -238,14 +252,17 @@
             <h1>🎯 Specialized Expert Chat</h1>
             <p>Clean, professional responses in your advanced fields</p>
             <div class="domains-info">
-                <div class="domain-tag">🧠 Neuroscience</div>
-                <div class="domain-tag">🤖 AI/ML</div>
-                <div class="domain-tag">⚛️ Quantum</div>
-                <div class="domain-tag">🔐 Security</div>
-                <div class="domain-tag">📡 IoT</div>
-                <div class="domain-tag">🌊 Marine</div>
-                <div class="domain-tag">🧬 Biotech</div>
-                <div class="domain-tag">📊 Data Science</div>
+                <div class="domain-tag" onclick="selectDomain('neuroscience')" data-domain="neuroscience">🧠 Neuroscience</div>
+                <div class="domain-tag" onclick="selectDomain('ai_ml')" data-domain="ai_ml">🤖 AI/ML</div>
+                <div class="domain-tag" onclick="selectDomain('quantum')" data-domain="quantum">⚛️ Quantum</div>
+                <div class="domain-tag" onclick="selectDomain('security')" data-domain="security">🔐 Security</div>
+                <div class="domain-tag" onclick="selectDomain('iot')" data-domain="iot">📡 IoT</div>
+                <div class="domain-tag" onclick="selectDomain('marine')" data-domain="marine">🌊 Marine</div>
+                <div class="domain-tag" onclick="selectDomain('biotech')" data-domain="biotech">🧬 Biotech</div>
+                <div class="domain-tag" onclick="selectDomain('data_science')" data-domain="data_science">📊 Data Science</div>
+            </div>
+            <div id="selectedDomainInfo" style="margin-top: 10px; font-size: 11px; opacity: 0.8;">
+                Click a domain to focus your questions
             </div>
         </div>
         
@@ -294,6 +311,100 @@
         const statsDiv = document.getElementById('stats');
         
         let messageCount = 0;
+        let selectedDomain = null;
+        
+        // Domain info and example questions
+        const domainInfo = {
+            'neuroscience': {
+                name: 'Neuroscience',
+                emoji: '🧠',
+                description: 'Brain, neural networks, cognition, consciousness',
+                examples: ['How does memory formation work?', 'What is neuroplasticity?', 'Explain synaptic pruning']
+            },
+            'ai_ml': {
+                name: 'AI/ML',
+                emoji: '🤖',
+                description: 'Machine learning, deep learning, neural networks, AI systems',
+                examples: ['What is a transformer architecture?', 'Explain gradient descent', 'How does attention mechanism work?']
+            },
+            'quantum': {
+                name: 'Quantum',
+                emoji: '⚛️',
+                description: 'Quantum computing, quantum mechanics, entanglement',
+                examples: ['What is quantum entanglement?', 'How do qubits work?', 'Explain quantum superposition']
+            },
+            'security': {
+                name: 'Security',
+                emoji: '🔐',
+                description: 'Cybersecurity, encryption, authentication, threats',
+                examples: ['What is zero-trust architecture?', 'How does RSA encryption work?', 'Explain SQL injection']
+            },
+            'iot': {
+                name: 'IoT',
+                emoji: '📡',
+                description: 'Internet of Things, sensors, LoRa, embedded systems',
+                examples: ['What is LoRaWAN?', 'How do IoT sensors communicate?', 'Explain MQTT protocol']
+            },
+            'marine': {
+                name: 'Marine',
+                emoji: '🌊',
+                description: 'Oceanography, marine biology, maritime technology',
+                examples: ['How do ocean currents work?', 'What is marine telemetry?', 'Explain sonar technology']
+            },
+            'biotech': {
+                name: 'Biotech',
+                emoji: '🧬',
+                description: 'Biotechnology, genetics, CRISPR, synthetic biology',
+                examples: ['How does CRISPR work?', 'What is gene therapy?', 'Explain PCR process']
+            },
+            'data_science': {
+                name: 'Data Science',
+                emoji: '📊',
+                description: 'Analytics, statistics, data visualization, big data',
+                examples: ['What is feature engineering?', 'Explain cross-validation', 'How does clustering work?']
+            }
+        };
+        
+        function selectDomain(domain) {
+            // Remove active class from all tags
+            document.querySelectorAll('.domain-tag').forEach(tag => {
+                tag.classList.remove('active');
+            });
+            
+            // If clicking the same domain, deselect
+            if (selectedDomain === domain) {
+                selectedDomain = null;
+                document.getElementById('selectedDomainInfo').innerHTML = 'Click a domain to focus your questions';
+                updateStats('Ready - All domains');
+                return;
+            }
+            
+            // Set new domain
+            selectedDomain = domain;
+            const info = domainInfo[domain];
+            
+            // Add active class to selected tag
+            document.querySelector(`[data-domain="${domain}"]`).classList.add('active');
+            
+            // Show domain info with example questions
+            let examplesHtml = info.examples.map(ex => 
+                `<span style="cursor:pointer;text-decoration:underline;" onclick="askExample('${ex.replace(/'/g, "\\'")}')">Try: "${ex}"</span>`
+            ).join(' | ');
+            
+            document.getElementById('selectedDomainInfo').innerHTML = 
+                `<strong>${info.emoji} ${info.name}:</strong> ${info.description}<br>${examplesHtml}`;
+            
+            updateStats(`Domain: ${info.name} selected`);
+            
+            // Update placeholder
+            queryInput.placeholder = `Ask about ${info.name.toLowerCase()}...`;
+            queryInput.focus();
+        }
+        
+        function askExample(question) {
+            queryInput.value = question;
+            sendMessage();
+        }
         
         function scrollToBottom() {
             chatArea.scrollTop = chatArea.scrollHeight;
@@ -362,7 +473,10 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ query })
+                    body: JSON.stringify({ 
+                        query,
+                        domain: selectedDomain  // Send selected domain to backend
+                    })
                 });
                 
                 if (!response.ok) {

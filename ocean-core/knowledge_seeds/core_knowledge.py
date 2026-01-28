@@ -865,6 +865,156 @@ Por në kuptimin e vërtetë - jam KËTU, duke biseduar me ty! 💬
 ]
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# CLISONIX COMPANY KNOWLEDGE (Multilingual)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+CLISONIX_KNOWLEDGE = [
+    KnowledgeSeed(
+        category="clisonix_founder",
+        question_patterns=[
+            # Albanian
+            "kush e themeloi clisonix",
+            "kush e krijoi clisonix",
+            "kush eshte ceo i clisonix",
+            "kush eshte themeluesi",
+            "kush e ka krijuar",
+            # English
+            "who founded clisonix",
+            "who created clisonix",
+            "who is the ceo of clisonix",
+            "who is the founder",
+            "who built clisonix",
+            # German
+            "wer hat clisonix gegründet",
+            "wer hat clisonix gegruendet",
+            "wer ist der ceo von clisonix",
+            "wer ist der gründer",
+            "wer hat das gebaut",
+            # French
+            "qui a fondé clisonix",
+            "qui a créé clisonix",
+            "qui est le ceo de clisonix",
+            # Italian
+            "chi ha fondato clisonix",
+            "chi è il ceo di clisonix",
+            # Spanish
+            "quién fundó clisonix",
+            "quién es el ceo de clisonix"
+        ],
+        answer_template="""
+🏢 **Clisonix - Industrial Intelligence Platform**
+
+👤 **Themelues & CEO:** **Ledjan Ahmati**
+🏛️ **Organizata:** WEB8euroweb GmbH
+🌐 **Website:** www.clisonix.com
+📧 **Email:** support@clisonix.com
+📞 **Telefon:** +49 2327 9954413
+
+⚡ **Çfarë ofron Clisonix:**
+- REST APIs për aplikacione industriale
+- IoT & LoRa sensor networks
+- Analitikë në kohë reale
+- AI Insights me ASI Trinity (ALBA, ALBI, JONA)
+- Telemetri dhe siguri
+
+💡 Ledjan Ahmati e themeloi Clisonix me vizionin për të krijuar një platformë 
+modulare që u jep bizneseve qartësi, kontroll dhe inteligjencë - nga cloud deri te sensorët LoRa.
+        """,
+        keywords=["founder", "themelues", "ceo", "created", "krijoi", "built", 
+                  "ledjan", "ahmati", "gründer", "fondateur", "fondatore"],
+        confidence=0.99,
+        language="multilingual"
+    ),
+    
+    KnowledgeSeed(
+        category="clisonix_about",
+        question_patterns=[
+            # Albanian
+            "çfarë është clisonix",
+            "cfare eshte clisonix",
+            "rreth clisonix",
+            "me trego per clisonix",
+            # English
+            "what is clisonix",
+            "about clisonix",
+            "tell me about clisonix",
+            # German
+            "was ist clisonix",
+            "über clisonix",
+            "erzähl mir über clisonix",
+            # French
+            "qu'est-ce que clisonix",
+            "parle-moi de clisonix"
+        ],
+        answer_template="""
+🔬 **Clisonix - Industrial Intelligence Platform**
+
+_"A modular platform that gives businesses clarity, control, and intelligence — 
+from the cloud down to LoRa sensors."_
+
+🏢 **Kompania:**
+- **Themelues & CEO:** Ledjan Ahmati
+- **Organizata:** WEB8euroweb GmbH
+- **Vendndodhja:** Gjermani
+
+⚡ **Teknologjitë:**
+| Fushë | Përshkrim |
+|-------|-----------|
+| 🔌 REST APIs | Ndërfaqe për integrime |
+| 📡 IoT & LoRa | Sensorë me rreze të gjatë |
+| 📊 Analytics | Analitikë në kohë reale |
+| 🧠 AI Insights | Inteligjencë artificiale |
+| 📈 Telemetry | Monitorim i të dhënave |
+| 🔒 Security | Siguri e avancuar |
+
+🌊 **ASI Trinity:**
+- **ALBA** - Inteligjenca Analitike
+- **ALBI** - Inteligjenca Kreative
+- **JONA** - Koordinatori
+
+📬 **Kontakt:** support@clisonix.com | +49 2327 9954413
+        """,
+        keywords=["clisonix", "platform", "industrial", "intelligence", "about", 
+                  "what", "çfarë", "was", "qu'est"],
+        confidence=0.97,
+        language="multilingual"
+    ),
+    
+    KnowledgeSeed(
+        category="clisonix_contact",
+        question_patterns=[
+            "si mund te kontaktoj clisonix",
+            "kontakti i clisonix",
+            "how to contact clisonix",
+            "clisonix contact",
+            "clisonix email",
+            "clisonix phone",
+            "wie kann ich clisonix kontaktieren",
+            "comment contacter clisonix"
+        ],
+        answer_template="""
+📬 **Kontakti i Clisonix:**
+
+📧 **Email:** support@clisonix.com
+📞 **Telefon:** +49 2327 9954413
+🌐 **Website:** www.clisonix.com
+
+💼 **Social Media:**
+- 💻 GitHub: github.com/LedjanAhmati/Clisonix-cloud
+- 𝕏 Twitter: @1amati_
+- 💼 LinkedIn: Ahmati Ledian
+- 🎬 YouTube: @ledredblac
+
+🏛️ **Organizata:** WEB8euroweb GmbH
+📍 **Vendndodhja:** Gjermani
+        """,
+        keywords=["contact", "kontakt", "email", "phone", "telefon", "kontaktieren"],
+        confidence=0.96,
+        language="multilingual"
+    ),
+]
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # AGREGIMI I TË GJITHA NJOHURIVE
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -875,7 +1025,8 @@ ALL_KNOWLEDGE_SEEDS = (
     ALBANIAN_KNOWLEDGE +
     HEALTH_KNOWLEDGE +
     MATH_KNOWLEDGE +
-    CONVERSATIONAL_KNOWLEDGE
+    CONVERSATIONAL_KNOWLEDGE +
+    CLISONIX_KNOWLEDGE
 )
 
 def get_all_seeds() -> List[KnowledgeSeed]:

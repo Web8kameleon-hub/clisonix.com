@@ -47,6 +47,22 @@ except ImportError:
     get_ollama_engine = None
     OllamaEngine = None
 
+# Import Albanian Dictionary
+try:
+    from albanian_dictionary import (
+        get_albanian_response, 
+        detect_albanian, 
+        ALL_ALBANIAN_WORDS,
+        CLISONIX_TERMS,
+        SENTENCE_PATTERNS
+    )
+    ALBANIAN_DICT_AVAILABLE = True
+except ImportError:
+    ALBANIAN_DICT_AVAILABLE = False
+    get_albanian_response = None
+    detect_albanian = None
+    ALL_ALBANIAN_WORDS = {}
+
 logger = logging.getLogger("orchestrator_v5")
 
 
@@ -490,8 +506,22 @@ class ResponseOrchestratorV5:
                 used_knowledge_seed = True
                 logger.info(f"📚 Knowledge Seed matched: {seed.category}")
         
+        # 3.1.5) Provo Albanian Dictionary për pyetje shqip
+        used_albanian_dict = False
+        if not used_knowledge_seed and ALBANIAN_DICT_AVAILABLE and lang == "sq":
+            try:
+                albanian_response = get_albanian_response(query)
+                if albanian_response:
+                    base_text = albanian_response
+                    sources = ["albanian_dictionary"]
+                    base_confidence = 0.92
+                    used_albanian_dict = True
+                    logger.info("🇦🇱 Albanian Dictionary matched")
+            except Exception as e:
+                logger.warning(f"Albanian Dictionary error: {e}")
+        
         # 3.2) Përdor OLLAMA (Local AI) nëse Knowledge Seeds nuk ka përgjigje
-        if not used_knowledge_seed and self.ollama_engine:
+        if not used_knowledge_seed and not used_albanian_dict and self.ollama_engine:
             try:
                 ollama_available = await self.ollama_engine.is_available()
                 if ollama_available:
@@ -506,7 +536,7 @@ class ResponseOrchestratorV5:
                 logger.warning(f"Ollama error: {e}")
         
         # 3.3) Fallback to RealAnswerEngine if no Ollama
-        if not used_knowledge_seed and not used_ollama and self.real_answer_engine:
+        if not used_knowledge_seed and not used_albanian_dict and not used_ollama and self.real_answer_engine:
             try:
                 base_result = await self.real_answer_engine.answer(query)
                 base_text = base_result.answer
@@ -516,7 +546,7 @@ class ResponseOrchestratorV5:
                 logger.error(f"RealAnswerEngine error: {e}")
                 base_text = self.language_layer.get_fallback(lang, query)
                 sources = ["fallback"]
-        elif not used_knowledge_seed and not used_ollama:
+        elif not used_knowledge_seed and not used_albanian_dict and not used_ollama:
             base_text = self.language_layer.get_fallback(lang, query)
             sources = ["no_engine"]
         
