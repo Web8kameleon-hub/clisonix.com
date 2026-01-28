@@ -14,9 +14,17 @@ from pydantic import BaseModel
 
 from economy_layer import EconomyLayer
 
+# API Version
+API_V1 = "/api/v1"
 PORT = int(os.getenv("ECONOMY_API_PORT", "9093"))
 
-app = FastAPI(title="Earthmind Economy API", version="0.1.0")
+app = FastAPI(
+    title="Earthmind Economy API", 
+    version="0.1.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json"
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -43,6 +51,7 @@ def health() -> Dict[str, Any]:
 
 @app.get("/status")
 @app.get("/api/status")
+@app.get(API_V1 + "/status")
 def api_status() -> Dict[str, Any]:
     return {
         "status": "operational",
@@ -83,6 +92,11 @@ def report() -> Dict[str, Any]:
     rep = ECONOMY.generate_report()
     rep["generated_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     return rep
+
+
+@app.get(API_V1 + "/spec")
+def api_spec():
+    return app.openapi()
 
 
 if __name__ == "__main__":

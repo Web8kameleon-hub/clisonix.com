@@ -227,8 +227,22 @@ class AlbanianGreekLayerSystem:
                 # Compute all layers at once: sin(hash * pi * x) * cos(hash * x)
                 layer_outputs = np.sin(hash_matrix * np.pi * x_row) * np.cos(hash_matrix * x_row)
                 
-                # Weighted sum: (60,) @ (60, n) = (n,)
-                result = system._layer_weights @ layer_outputs
+                # Ensure dimensions match for matrix multiplication
+                weights_len = len(system._layer_weights)
+                outputs_rows = layer_outputs.shape[0]
+                
+                if weights_len != outputs_rows:
+                    # Pad or trim to match dimensions
+                    min_dim = min(weights_len, outputs_rows)
+                    weights_to_use = system._layer_weights[:min_dim]
+                    layer_outputs = layer_outputs[:min_dim, :]
+                    # Re-normalize weights
+                    weights_to_use = weights_to_use / (weights_to_use.sum() + 1e-10)
+                else:
+                    weights_to_use = system._layer_weights
+                
+                # Weighted sum: (dim,) @ (dim, n) = (n,)
+                result = weights_to_use @ layer_outputs
                 
                 # Apply golden ratio normalization
                 result = result / (60 * PHI)

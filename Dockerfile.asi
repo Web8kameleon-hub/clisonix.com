@@ -7,9 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies directly
+RUN pip install --no-cache-dir fastapi uvicorn pydantic httpx aiohttp redis psutil
 
 # Copy ASI service files and dependencies
 COPY asi_api_server.py .

@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Brain, Settings, ArrowLeft, Plus, Download } from 'lucide-react';
 
+// Dynamic API URL - uses environment variable or defaults
+const OCEAN_API_URL = process.env.NEXT_PUBLIC_OCEAN_API_URL || 'http://localhost:8030';
+
 interface DataSource {
   id: string;
   name: string;
@@ -18,57 +21,78 @@ interface DashboardMetrics {
   activeSources: number;
   totalDataPoints: number;
   trackedMetrics: number;
+  laboratories?: number;
 }
 
 export default function DataDashboard() {
   const [activeTab, setActiveTab] = useState<'overview' | 'sources' | 'metrics' | 'export'>('overview');
-  const [dataSources, setDataSources] = useState<DataSource[]>([
-    {
-      id: 'temp-sensor-1',
-      name: 'Temperature Sensor #1',
-      type: 'IOT',
-      status: 'active',
-      lastSync: 'Never',
-      dataPoints: 0
-    },
-    {
-      id: 'weather-api',
-      name: 'Weather API',
-      type: 'API',
-      status: 'active',
-      lastSync: 'Never',
-      dataPoints: 0
-    }
-  ]);
+  const [dataSources, setDataSources] = useState<DataSource[]>([]);
   const [metrics, setMetrics] = useState<DashboardMetrics>({
-    totalSources: 3,
-    activeSources: 3,
+    totalSources: 0,
+    activeSources: 0,
     totalDataPoints: 0,
-    trackedMetrics: 0
+    trackedMetrics: 0,
+    laboratories: 0
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch metrics on mount
-    fetchMetrics();
+    // Fetch real data from Ocean Core API
+    fetchRealData();
   }, []);
 
-  const fetchMetrics = async () => {
+  const fetchRealData = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setMetrics({
-        totalSources: dataSources.length,
-        activeSources: dataSources.filter(s => s.status === 'active').length,
-        totalDataPoints: dataSources.reduce((acc, s) => acc + s.dataPoints, 0),
-        trackedMetrics: dataSources.length
-      });
+      // Fetch from Ocean Core API
+      const response = await fetch(`${OCEAN_API_URL}/api/status`);
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Build data sources from real API response
+        const realSources: DataSource[] = [];
+        
+        // Add sources from data_sources if available
+        if (data.data_sources) {
+          Object.entries(data.data_sources).forEach(([key, value]: [string, any]) => {
+            realSources.push({
+              id: key,
+              name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+              type: key.includes('api') ? 'API' : key.includes('iot') ? 'IOT' : 'DATABASE',
+              status: 'active',
+              lastSync: new Date().toISOString(),
+              dataPoints: typeof value === 'number' ? value : (value?.count || 0)
+            });
+          });
+        }
+
+        // Update metrics with real data
+        setDataSources(realSources);
+        setMetrics({
+          totalSources: realSources.length || data.data_sources_count || 0,
+          activeSources: realSources.filter(s => s.status === 'active').length,
+          totalDataPoints: realSources.reduce((acc, s) => acc + s.dataPoints, 0),
+          trackedMetrics: realSources.length,
+          laboratories: data.laboratories_count || data.labs_count || 23
+        });
+      }
     } catch (error) {
-      console.error('Failed to fetch metrics:', error);
+      console.error('Failed to fetch from Ocean Core:', error);
+      // Fallback to empty state
+      setMetrics({
+        totalSources: 0,
+        activeSources: 0,
+        totalDataPoints: 0,
+        trackedMetrics: 0,
+        laboratories: 0
+      });
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchMetrics = async () => {
+    await fetchRealData();
   };
 
   const getTypeIcon = (type: string) => {

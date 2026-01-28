@@ -14,7 +14,6 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
-import json
 import os
 import hashlib
 import logging
@@ -23,18 +22,59 @@ from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, field, asdict
 from collections import defaultdict
 import re
+import json  # Needed for legacy file migration and stats output
+
+# Binary storage - CBOR2 primary, JSON fallback
+try:
+    import cbor2
+    HAS_CBOR2 = True
+except ImportError:
+    HAS_CBOR2 = False
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 # =============================================================================
-# KNOWLEDGE STORAGE
+# KNOWLEDGE STORAGE - BINARY (CBOR2)
 # =============================================================================
 
-KNOWLEDGE_FILE = os.path.join(os.path.dirname(__file__), "learned_knowledge.json")
-PATTERNS_FILE = os.path.join(os.path.dirname(__file__), "learned_patterns.json")
-FEEDBACK_FILE = os.path.join(os.path.dirname(__file__), "user_feedback.json")
+# Binary files - .cbor extension
+KNOWLEDGE_FILE = os.path.join(os.path.dirname(__file__), "learned_knowledge.cbor")
+PATTERNS_FILE = os.path.join(os.path.dirname(__file__), "learned_patterns.cbor")
+FEEDBACK_FILE = os.path.join(os.path.dirname(__file__), "user_feedback.cbor")
+
+# Legacy JSON files for migration
+KNOWLEDGE_FILE_JSON = os.path.join(os.path.dirname(__file__), "learned_knowledge.json")
+PATTERNS_FILE_JSON = os.path.join(os.path.dirname(__file__), "learned_patterns.json")
+FEEDBACK_FILE_JSON = os.path.join(os.path.dirname(__file__), "user_feedback.json")
+
+
+def _save_cbor(filepath: str, data: Any):
+    """Save data to CBOR binary file"""
+    if HAS_CBOR2:
+        with open(filepath, 'wb') as f:
+            cbor2.dump(data, f)
+    else:
+        # Fallback to JSON
+        json_path = filepath.replace('.cbor', '.json')
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def _load_cbor(filepath: str) -> Any:
+    """Load data from CBOR binary file"""
+    if HAS_CBOR2 and os.path.exists(filepath):
+        with open(filepath, 'rb') as f:
+            return cbor2.load(f)
+    
+    # Try legacy JSON
+    json_path = filepath.replace('.cbor', '.json')
+    if os.path.exists(json_path):
+        with open(json_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    
+    return None
 
 
 @dataclass
@@ -146,27 +186,27 @@ class PatternDetector:
         self._load_patterns()
     
     def _load_patterns(self):
-        """Ngarko patterns e mësuara"""
-        if os.path.exists(PATTERNS_FILE):
-            try:
-                with open(PATTERNS_FILE, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    for p in data.get("patterns", []):
-                        pattern = QueryPattern(**p)
-                        self.custom_patterns[pattern.pattern_id] = pattern
-                logger.info(f"📚 Loaded {len(self.custom_patterns)} custom patterns")
-            except Exception as e:
-                logger.warning(f"Could not load patterns: {e}")
+        """Ngarko patterns e mësuara - CBOR binary"""
+        try:
+            data = _load_cbor(PATTERNS_FILE)
+            if data:
+                for p in data.get("patterns", []):
+                    pattern = QueryPattern(**p)
+                    self.custom_patterns[pattern.pattern_id] = pattern
+                logger.info(f"📚 Loaded {len(self.custom_patterns)} custom patterns (CBOR binary)")
+        except Exception as e:
+            logger.warning(f"Could not load patterns: {e}")
     
     def _save_patterns(self):
-        """Ruaj patterns"""
+        """Ruaj patterns - CBOR binary"""
         try:
             data = {
                 "patterns": [p.to_dict() for p in self.custom_patterns.values()],
-                "updated_at": datetime.now(timezone.utc).isoformat()
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "format": "cbor2"
             }
-            with open(PATTERNS_FILE, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
+            _save_cbor(PATTERNS_FILE, data)
+            logger.debug(f"💾 Saved {len(self.custom_patterns)} patterns (CBOR binary)")
         except Exception as e:
             logger.error(f"Could not save patterns: {e}")
     
@@ -232,29 +272,29 @@ class KnowledgeAccumulator:
         self._load_knowledge()
     
     def _load_knowledge(self):
-        """Ngarko dijet e mësuara"""
-        if os.path.exists(KNOWLEDGE_FILE):
-            try:
-                with open(KNOWLEDGE_FILE, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    for k in data.get("knowledge", []):
-                        knowledge = LearnedKnowledge(**k)
-                        self.knowledge_base[knowledge.knowledge_id] = knowledge
-                        self.query_cache[knowledge.query_hash] = knowledge.knowledge_id
-                logger.info(f"📚 Loaded {len(self.knowledge_base)} knowledge entries")
-            except Exception as e:
-                logger.warning(f"Could not load knowledge: {e}")
+        """Ngarko dijet e mësuara - CBOR binary"""
+        try:
+            data = _load_cbor(KNOWLEDGE_FILE)
+            if data:
+                for k in data.get("knowledge", []):
+                    knowledge = LearnedKnowledge(**k)
+                    self.knowledge_base[knowledge.knowledge_id] = knowledge
+                    self.query_cache[knowledge.query_hash] = knowledge.knowledge_id
+                logger.info(f"📚 Loaded {len(self.knowledge_base)} knowledge entries (CBOR binary)")
+        except Exception as e:
+            logger.warning(f"Could not load knowledge: {e}")
     
     def _save_knowledge(self):
-        """Ruaj dijet"""
+        """Ruaj dijet - CBOR binary"""
         try:
             data = {
                 "knowledge": [k.to_dict() for k in self.knowledge_base.values()],
                 "total_entries": len(self.knowledge_base),
-                "updated_at": datetime.now(timezone.utc).isoformat()
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "format": "cbor2"
             }
-            with open(KNOWLEDGE_FILE, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
+            _save_cbor(KNOWLEDGE_FILE, data)
+            logger.debug(f"💾 Saved {len(self.knowledge_base)} knowledge entries (CBOR binary)")
         except Exception as e:
             logger.error(f"Could not save knowledge: {e}")
     

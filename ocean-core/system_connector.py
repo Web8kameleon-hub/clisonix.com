@@ -805,12 +805,15 @@ class UniversalSystemConnector:
             self.labs = None
         
         try:
-            from alphabet_layers import AlphabetLayerSystem
-            self.alphabet = AlphabetLayerSystem()
+            from alphabet_layers import get_alphabet_layer_system
+            self.alphabet = get_alphabet_layer_system()
             self.components_status["alphabet_layers"] = True
-            logger.info(f"✅ Connected: {len(self.alphabet.layers)} Alphabet Layers")
-        except ImportError:
-            logger.warning("⚠️ Alphabet Layers not available in this context")
+            logger.info(f"✅ Connected: {len(self.alphabet.layers)} Alphabet Layers (61 GR+AL)")
+        except ImportError as e:
+            logger.warning(f"⚠️ Alphabet Layers import failed: {e}")
+            self.alphabet = None
+        except Exception as e:
+            logger.warning(f"⚠️ Alphabet Layers init error: {e}")
             self.alphabet = None
     
     def _log_status(self):

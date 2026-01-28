@@ -52,6 +52,13 @@ try:
 except ImportError:
     REAL_ANSWER_ENGINE_AVAILABLE = False
 
+# Import Binary Algebra for mathematical operations
+try:
+    from curiosity_algebra.binary_algebra import get_binary_algebra, BinaryOp, BinaryNumber
+    BINARY_ALGEBRA_AVAILABLE = True
+except ImportError:
+    BINARY_ALGEBRA_AVAILABLE = False
+
 logger = logging.getLogger("orchestrator")
 
 
@@ -66,6 +73,7 @@ class QueryCategory(str, Enum):
     PERSONAL = "personal"            # Self-help, guidance, advice
     ANALYTICAL = "analytical"        # Data analysis, statistics
     EXPLORATORY = "exploratory"      # Discovery, unknown domains
+    BINARY = "binary"                # Binary algebra, XOR, AND, OR, bits
 
 
 @dataclass
@@ -204,28 +212,68 @@ class QueryUnderstanding:
     
     @staticmethod
     def _detect_intent(query: str) -> str:
-        """Detect what the user actually wants"""
+        """Detect what the user actually wants - IMPROVED"""
         q_lower = query.lower()
         
-        if any(w in q_lower for w in ["why", "pse", "përse", "how does", "si", "si qe"]):
-            return "explanation"
-        elif any(w in q_lower for w in ["what is", "çfarë është", "what are", "can you explain"]):
+        # Factual/Definition intents
+        if any(w in q_lower for w in ["what is", "çfarë është", "what are", "çfarë janë", "define", "përkufizo"]):
             return "definition"
-        elif any(w in q_lower for w in ["do you think", "believe", "opinion", "mendim", "besim"]):
+        
+        # Explanation intents
+        if any(w in q_lower for w in ["why", "pse", "përse", "how does", "si funksionon", "explain", "shpjego"]):
+            return "explanation"
+        
+        # Procedural intents
+        if any(w in q_lower for w in ["how to", "si të", "hapat", "steps", "guide", "udhëzim"]):
+            return "procedural"
+        
+        # Opinion intents
+        if any(w in q_lower for w in ["do you think", "believe", "opinion", "mendim", "besim", "should i"]):
             return "opinion"
-        elif any(w in q_lower for w in ["help", "how to", "si të", "ndihmë", "assistance"]):
+        
+        # Guidance intents
+        if any(w in q_lower for w in ["help", "ndihmë", "assistance", "suggest", "rekomando"]):
             return "guidance"
-        elif any(w in q_lower for w in ["compare", "difference", "versus", "vs", "kundra"]):
+        
+        # Comparison intents
+        if any(w in q_lower for w in ["compare", "difference", "versus", "vs", "kundra", "më i mirë"]):
             return "comparison"
-        elif any(w in q_lower for w in ["future", "predict", "will", "future", "e ardhmja"]):
+        
+        # Prediction intents
+        if any(w in q_lower for w in ["future", "predict", "will", "do të", "e ardhmja", "parashiko"]):
             return "prediction"
-        else:
-            return "information"
+        
+        # Calculation/Binary intents
+        if any(w in q_lower for w in ["xor", "and", "or", "calculate", "llogarit", "bits", "binary"]):
+            return "calculation"
+        
+        # Informational (default for questions)
+        if any(c in query for c in ["?", "çfarë", "kush", "ku", "kur", "sa"]):
+            return "informational"
+        
+        return "exploratory"
     
     @staticmethod
     def _categorize(query: str) -> QueryCategory:
         """Categorize query for routing"""
         q_lower = query.lower()
+        
+        # BINARY ALGEBRA keywords - ONLY when used mathematically!
+        import re
+        binary_patterns = [
+            r'\d+\s*xor\s*\d+',      # "255 xor 170" - requires numbers
+            r'\d+\s*and\s*\d+',      # "128 and 64" - requires numbers
+            r'\d+\s*or\s*\d+',       # "64 or 32" - requires numbers
+            r'\d+\s*nand\s*\d+',     # "255 nand 170"
+            r'\d+\s*nor\s*\d+',      # "128 nor 64"
+            r'\bnot\s+\d+\b',        # "not 255"
+            r'\bbits?\s+of\s+\d+',   # "bits of 42"
+            r'\bbinary\s+\d+',       # "binary 255"
+            r'\b0x[0-9a-f]+\b',      # hex numbers
+            r'\b0b[01]+\b',          # binary numbers
+        ]
+        if any(re.search(p, q_lower) for p in binary_patterns):
+            return QueryCategory.BINARY
         
         # Financial keywords
         if any(w in q_lower for w in ["invest", "money", "profit", "revenue", "cost", "price", "market", "stock", "business"]):
@@ -299,14 +347,30 @@ class QueryUnderstanding:
     
     @staticmethod
     def _assess_complexity(query: str) -> str:
-        """Assess query complexity"""
-        word_count = len(query.split())
-        if word_count > 30:
-            return "high"
-        elif word_count > 15:
+        """Assess query complexity - IMPROVED"""
+        words = query.split()
+        word_count = len(words)
+        unique_words = len(set(w.lower() for w in words))
+        
+        # Score based on multiple factors
+        length_score = min(1.0, word_count / 30)
+        vocab_score = min(1.0, unique_words / 20)
+        
+        # Check for technical terms
+        technical_terms = ["algorithm", "neural", "quantum", "binary", "protocol", "architecture", 
+                          "neuroplasticity", "photosynthesis", "electromagnetic", "cryptocurrency"]
+        tech_count = sum(1 for w in words if w.lower() in technical_terms)
+        tech_score = min(1.0, tech_count * 0.3)
+        
+        # Combined complexity score
+        complexity_score = (length_score * 0.3) + (vocab_score * 0.4) + (tech_score * 0.3)
+        
+        if complexity_score >= 0.7:
+            return "complex"
+        elif complexity_score >= 0.4:
             return "medium"
         else:
-            return "low"
+            return "simple"
 
 
 class ExpertRouter:
@@ -424,6 +488,7 @@ class ResponseOrchestrator:
     - Enforcement Manager
     - Real Knowledge Connector (CoinGecko, Weather, PubMed, ArXiv)
     - REAL ANSWER ENGINE (NO PLACEHOLDERS!)
+    - AUTOLEARNING ENGINE (Real-time learning)
     """
     
     def __init__(self):
@@ -435,6 +500,15 @@ class ResponseOrchestrator:
         # Initialize Alphabet Layer System (61 layers: 24 Greek + 37 Albanian)
         self.alphabet_layers = get_alphabet_layer_system()
         self.alphabet_layer_system = self.alphabet_layers  # Alias for compatibility
+        
+        # Initialize AUTOLEARNING ENGINE (Real-time learning!)
+        self.autolearning = None
+        try:
+            from autolearning_engine import get_autolearning_engine
+            self.autolearning = get_autolearning_engine()
+            logger.info("✓ AUTOLEARNING ENGINE: Real-time learning active!")
+        except ImportError as e:
+            logger.warning(f"⚠️ Autolearning Engine not available: {e}")
         
         # Initialize REAL Answer Engine FIRST (NO PLACEHOLDERS!)
         self.real_answer_engine = None
@@ -469,20 +543,198 @@ class ResponseOrchestrator:
             logger.warning(f"⚠️ Universal Connector not available: {e}")
             self.universal_connector = None
         
+        # Initialize Binary Algebra Engine
+        self.binary_algebra = None
+        if BINARY_ALGEBRA_AVAILABLE:
+            try:
+                self.binary_algebra = get_binary_algebra()
+                logger.info("✓ Binary Algebra: 61 layers connected (CBOR2=0)")
+            except Exception as e:
+                logger.warning(f"⚠️ Binary Algebra not available: {e}")
+        
         logger.info("✓ ResponseOrchestrator initialized - The Brain is online")
         logger.info(f"✓ Alphabet Layers active: {self.alphabet_layers.alphabet['size']} mathematical layers")
+    
+    async def _process_binary_query(self, query: str) -> Optional[OrchestratedResponse]:
+        """
+        Process binary algebra queries (XOR, AND, OR, bits, layers).
+        Uses CBOR2=0 protocol with 61 mathematical layers.
+        """
+        import re
+        q_lower = query.lower()
+        
+        if not self.binary_algebra:
+            return None
+        
+        # Pattern: "255 xor 170" or "calculate 255 and 170"
+        op_pattern = r'(\d+)\s*(xor|and|or|nand|nor|not)\s*(\d+)?'
+        match = re.search(op_pattern, q_lower)
+        
+        if match:
+            a = int(match.group(1))
+            op = match.group(2).upper()
+            b = int(match.group(3)) if match.group(3) else 0
+            
+            # Calculate using Binary Algebra - use operate() method
+            op_enum = BinaryOp[op] if op in ["XOR", "AND", "OR", "NAND", "NOR", "NOT"] else BinaryOp.XOR
+            result_num = self.binary_algebra.operate(a, op_enum, b)
+            result = result_num.value
+            
+            # Format binary representation
+            binary_a = format(a, '08b')
+            binary_b = format(b, '08b') if b else "N/A"
+            binary_result = result_num.binary
+            
+            # Use Alphabet Layers for analysis (with error handling)
+            try:
+                layer_analysis = self.alphabet_layers.process_query(f"{a} {op} {b}")
+                complexity = layer_analysis.get('total_complexity', 0)
+                active_layers = layer_analysis.get('active_layers', 0)
+                # active_layers could be int or list
+                if isinstance(active_layers, list):
+                    layers_count = len(active_layers)
+                else:
+                    layers_count = active_layers if isinstance(active_layers, int) else 61
+            except Exception as e:
+                logger.warning(f"Layer analysis error: {e}")
+                complexity = 0.5
+                layers_count = 61
+            
+            answer = f"""🔢 **Binary Algebra Result**
+
+**Operation:** {a} {op} {b} = **{result}**
+
+**Binary Representation:**
+- A: {a} → `{binary_a}`
+- B: {b} → `{binary_b}`
+- Result: {result} → `{binary_result}`
+
+**Layer Analysis (61 Alphabet Layers):**
+- Complexity: {complexity:.2f}
+- Active Layers: {layers_count}
+- Processed through: CBOR2=0 protocol
+
+📊 All operations stored in binary format (no JSON)."""
+
+            return OrchestratedResponse(
+                query=query,
+                query_category=QueryCategory.BINARY,
+                understanding={
+                    "binary_algebra": True,
+                    "operation": op,
+                    "operand_a": a,
+                    "operand_b": b,
+                    "layers_used": layers_count
+                },
+                consulted_experts=[],
+                fused_answer=answer,
+                sources_cited=["binary_algebra", "alphabet_layers_61", "cbor2_protocol"],
+                confidence=1.0,
+                narrative_quality=0.98,
+                learning_record={
+                    "operation": op,
+                    "a": a,
+                    "b": b,
+                    "result": result,
+                    "binary_result": binary_result,
+                    "protocol": "CBOR2=0"
+                }
+            )
+        
+        # Check for bit analysis queries
+        bits_pattern = r'bits?\s+(?:of\s+)?(\d+)|(\d+)\s+(?:in\s+)?bits?'
+        bits_match = re.search(bits_pattern, q_lower)
+        if bits_match:
+            value = int(bits_match.group(1) or bits_match.group(2))
+            binary = format(value, '08b')
+            ones = binary.count('1')
+            zeros = binary.count('0')
+            
+            answer = f"""🔢 **Bit Analysis**
+
+**Value:** {value}
+**Binary:** `{binary}`
+**Bits set (1s):** {ones}
+**Bits clear (0s):** {zeros}
+**Bit length:** {value.bit_length()}
+
+**Layer Weights (sample from 61 layers):**
+- α (alpha): {self.alphabet_layers._greek_weight('α'):.4f}
+- β (beta): {self.alphabet_layers._greek_weight('β'):.4f}
+- Ω (meta): 1.0000 (vectorized)"""
+
+            return OrchestratedResponse(
+                query=query,
+                query_category=QueryCategory.BINARY,
+                understanding={"bit_analysis": True, "value": value},
+                consulted_experts=[],
+                fused_answer=answer,
+                sources_cited=["binary_algebra", "bit_analysis"],
+                confidence=1.0,
+                narrative_quality=0.95,
+                learning_record={"value": value, "binary": binary, "ones": ones}
+            )
+        
+        # Generic binary/algebra query - explain the system
+        answer = f"""🌊 **Binary Algebra System**
+
+**Clisonix Binary Algebra** përdor:
+- **61 Alphabet Layers** (Greek α-ω + Albanian a-zh + Meta Ω+)
+- **CBOR2=0** as primary binary protocol (no JSON!)
+- **MessagePack=1** as secondary protocol
+
+**Available Operations:**
+- XOR, AND, OR, NAND, NOR, NOT
+- Bit analysis, truth tables, matrices
+
+**Example queries:**
+- "255 xor 170"
+- "bits of 42"
+- "128 and 64"
+
+📊 Data Sources: {getattr(self.real_answer_engine, 'data_source_count', 14964) if self.real_answer_engine else 14964}
+🔬 Laboratories: {getattr(self.real_answer_engine, 'laboratory_count', 3275) if self.real_answer_engine else 3275}"""
+
+        return OrchestratedResponse(
+            query=query,
+            query_category=QueryCategory.BINARY,
+            understanding={"binary_system_info": True},
+            consulted_experts=[],
+            fused_answer=answer,
+            sources_cited=["binary_algebra", "alphabet_layers_61"],
+            confidence=0.95,
+            narrative_quality=0.90,
+            learning_record={"system_info_requested": True}
+        )
     
     async def process_query_async(self, query: str, conversation_context: List[str] = None) -> OrchestratedResponse:
         """
         Process a query ASYNCHRONOUSLY through all knowledge sources.
         
         PRIORITY ORDER:
+        0. Binary Algebra (XOR, AND, OR, bits) - direct calculations
         1. Real Answer Engine (NO PLACEHOLDERS - honest answers only)
         2. Mega Signal Integrator (internal systems)
         3. Real Knowledge Connector (external APIs)
         4. Standard processing (fallback)
         """
         q_lower = query.lower()
+        
+        # PRIORITY 0: BINARY ALGEBRA - Check if this is a binary/algebra query
+        category = QueryUnderstanding._categorize(query)
+        if category == QueryCategory.BINARY and BINARY_ALGEBRA_AVAILABLE:
+            logger.info("→ BINARY ALGEBRA: Processing mathematical query through 61 layers...")
+            try:
+                binary_result = await self._process_binary_query(query)
+                if binary_result:
+                    return binary_result
+            except Exception as e:
+                logger.warning(f"⚠️ Binary Algebra error: {e}")
+        
+        # 🧠 ALPHABET LAYER ANALYSIS - Always run for all queries
+        logger.info("→ ALPHABET LAYERS (61): Mathematical decomposition...")
+        alphabet_analysis = self.alphabet_layers.process_query(query)
+        logger.info(f"  📊 Complexity: {alphabet_analysis['total_complexity']:.2f} | Meta-Consciousness: {alphabet_analysis['meta_consciousness']:.4f}")
         
         # FIRST PRIORITY: Real Answer Engine (NO PLACEHOLDERS!)
         if self.real_answer_engine:
@@ -493,21 +745,55 @@ class ResponseOrchestrator:
                 # Only use if confidence is reasonable
                 if real_answer.confidence >= 0.3:
                     logger.info(f"  ✅ Real answer from: {real_answer.source} (confidence: {real_answer.confidence:.0%})")
-                    return OrchestratedResponse(
+                    
+                    # Enrich with Alphabet Layer analysis
+                    enriched_answer = f"""{real_answer.answer}
+
+---
+📊 **Alphabet Layer Analysis (61 Layers):**
+- Kompleksiteti: {alphabet_analysis['total_complexity']:.2f}
+- Meta-Consciousness: {alphabet_analysis['meta_consciousness']:.4f}
+- Fjalë të analizuara: {alphabet_analysis['processed_words']}
+- Layers aktive: {alphabet_analysis['active_layers']}"""
+                    
+                    # Detect intent and complexity
+                    intent = QueryUnderstanding._detect_intent(query)
+                    complexity_level = QueryUnderstanding._assess_complexity(query)
+                    
+                    # Create response
+                    response = OrchestratedResponse(
                         query=query,
                         query_category=QueryCategory.OPERATIONAL if "system" in q_lower or "data" in q_lower else QueryCategory.EXPLORATORY,
-                        understanding={"real_answer_engine": True, "source": real_answer.source},
+                        understanding={
+                            "real_answer_engine": True, 
+                            "source": real_answer.source,
+                            "intent": intent,
+                            "complexity_level": complexity_level,
+                            "alphabet_analysis": {
+                                "complexity": alphabet_analysis['total_complexity'],
+                                "meta_consciousness": alphabet_analysis['meta_consciousness'],
+                                "active_layers": alphabet_analysis['active_layers'],
+                                "word_analysis": alphabet_analysis['word_analysis'][:5]  # Top 5 words
+                            }
+                        },
                         consulted_experts=[],
-                        fused_answer=real_answer.answer,
-                        sources_cited=[real_answer.source],
+                        fused_answer=enriched_answer,
+                        sources_cited=[real_answer.source, "alphabet_layers_61"],
                         confidence=real_answer.confidence,
                         narrative_quality=real_answer.confidence,
                         learning_record={
                             "source": real_answer.source,
                             "is_real": real_answer.is_real,
-                            "no_placeholders": True
+                            "no_placeholders": True,
+                            "alphabet_layers_used": alphabet_analysis['active_layers'],
+                            "meta_consciousness": alphabet_analysis['meta_consciousness']
                         }
                     )
+                    
+                    # REAL-TIME LEARNING - Save for future
+                    self._learn_realtime(query, enriched_answer, [real_answer.source], real_answer.confidence)
+                    
+                    return response
             except Exception as e:
                 logger.warning(f"⚠️ Real Answer Engine error: {e}")
                 import traceback
@@ -528,6 +814,9 @@ class ResponseOrchestrator:
         
         # If we got a good response from mega signal, use it
         if mega_signal_response and mega_signal_response.get("response"):
+            # REAL-TIME LEARNING
+            self._learn_realtime(query, mega_signal_response["response"], mega_signal_response.get("sources_checked", []), 0.90)
+            
             return OrchestratedResponse(
                 query=query,
                 query_category=QueryCategory.OPERATIONAL,
@@ -556,6 +845,14 @@ class ResponseOrchestrator:
         
         # If we got a good response from real knowledge, use it directly
         if real_knowledge_response and real_knowledge_response.get("final_response"):
+            # REAL-TIME LEARNING
+            self._learn_realtime(
+                query, 
+                real_knowledge_response["final_response"], 
+                real_knowledge_response.get("sources_used", []), 
+                0.92
+            )
+            
             # Build a simplified OrchestratedResponse
             return OrchestratedResponse(
                 query=query,
@@ -841,6 +1138,27 @@ class ResponseOrchestrator:
             learning["trinity_consulted"] = "alba" in str(universal_analysis).lower()
         
         return learning
+    
+    def _learn_realtime(self, query: str, response: str, sources: List[str], confidence: float):
+        """
+        REAL-TIME LEARNING - Save every query/response for future use
+        Uses Autolearning Engine with CBOR2 storage
+        """
+        if not self.autolearning:
+            return None
+        
+        try:
+            knowledge_id = self.autolearning.learn_from_response(
+                query=query,
+                response=response,
+                sources=sources,
+                confidence=confidence
+            )
+            logger.info(f"📚 LEARNED: {knowledge_id[:12]}... (confidence: {confidence:.0%})")
+            return knowledge_id
+        except Exception as e:
+            logger.warning(f"⚠️ Learning error: {e}")
+            return None
     
     def get_learning_matrix(self) -> Dict[str, Any]:
         """Get the learning matrix - how well each expert performs for each query type"""

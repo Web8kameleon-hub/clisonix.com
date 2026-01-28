@@ -9,12 +9,16 @@ This is the bridge between Ocean-Core and the main Clisonix API.
 
 import logging
 import asyncio
+import os
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 import aiohttp
 import requests
 
 logger = logging.getLogger("central_api_connector")
+
+# Get Central API URL from environment or default
+CENTRAL_API_URL = os.getenv("CENTRAL_API_URL", "http://localhost:8000")
 
 
 class CentralAPIConnector:
@@ -23,73 +27,164 @@ class CentralAPIConnector:
     to get real data from all services.
     """
     
-    def __init__(self, base_url: str = "http://localhost:8000"):
-        self.base_url = base_url
+    def __init__(self, base_url: str = None):
+        self.base_url = base_url or CENTRAL_API_URL
         self.connected = False
         self.last_check = None
         self._session = None
         
-        # ALL API endpoints available in central API
+        # ALL API endpoints available in central API - COMPLETE LIST
         self.endpoints = {
-            # System Status
+            # ==================== SYSTEM STATUS ====================
             "health": "/health",
             "status": "/status",
             "system_status": "/api/system-status",
             "api_info": "/api",
+            "system_metrics": "/api/system-metrics",
             
-            # Ocean APIs
+            # ==================== OCEAN / LABS ====================
             "ocean_status": "/api/ocean/status",
             "ocean_labs_list": "/api/ocean/labs/list",
             "ocean_cells": "/api/ocean/cells",
+            "ocean_query": "/api/ocean/query",
+            "labs_list": "/api/labs",
+            "laboratories": "/api/laboratories",
+            "laboratories_summary": "/api/laboratories/summary",
+            "laboratories_types": "/api/laboratories/types",
             
-            # ASI (Artificial Super Intelligence) APIs
+            # ==================== ASI (Artificial Super Intelligence) ====================
             "asi_status": "/api/asi/status",
             "asi_health": "/api/asi/health",
+            "asi_query": "/api/asi/query",
             "alba_metrics": "/api/asi/alba/metrics",
+            "alba_status": "/api/asi/alba/status",
             "albi_metrics": "/api/asi/albi/metrics",
+            "albi_status": "/api/asi/albi/status",
             "jona_metrics": "/api/asi/jona/metrics",
+            "jona_status": "/api/asi/jona/status",
             
-            # ALBI (Brain Interface) APIs  
+            # ==================== ALBI (Brain Interface) ====================
             "albi_eeg_analysis": "/api/albi/eeg/analysis",
             "albi_eeg_waves": "/api/albi/eeg/waves",
             "albi_eeg_quality": "/api/albi/eeg/quality",
             "albi_health": "/api/albi/health",
+            "albi_biometrics": "/api/albi/biometrics",
             
-            # JONA (Audio) APIs
-            "jona_status": "/api/jona/status",
+            # ==================== JONA (Audio) ====================
             "jona_health": "/api/jona/health",
             "jona_audio_list": "/api/jona/audio/list",
             "jona_session": "/api/jona/session",
             
-            # Spectrum APIs
+            # ==================== SPECTRUM ====================
             "spectrum_live": "/api/spectrum/live",
             "spectrum_bands": "/api/spectrum/bands",
             "spectrum_history": "/api/spectrum/history",
             
-            # Monitoring APIs
+            # ==================== CYCLES & ALIGNMENTS ====================
+            "cycles_status": "/api/cycles/status",
+            "cycles_current": "/api/cycles/current",
+            "cycles_history": "/api/cycles/history",
+            "cycles_alignments": "/api/cycles/alignments",
+            "alignments_planetary": "/api/alignments/planetary",
+            "alignments_cosmic": "/api/alignments/cosmic",
+            
+            # ==================== GLOBAL REGIONS ====================
+            "region_europe": "/api/regions/europe",
+            "region_asia": "/api/regions/asia",
+            "region_china": "/api/regions/china",
+            "region_india": "/api/regions/india",
+            "region_americas": "/api/regions/americas",
+            "region_oceania": "/api/regions/oceania",
+            "region_africa": "/api/regions/africa",
+            "region_middle_east": "/api/regions/middle-east",
+            
+            # ==================== ALPHABET 61 LETTERS (AL-GR) ====================
+            "alphabet_status": "/api/alphabet/status",
+            "alphabet_layers": "/api/alphabet/layers",
+            "alphabet_layer_0": "/api/alphabet/layer/0",
+            "alphabet_layer_1": "/api/alphabet/layer/1",
+            "alphabet_layer_2": "/api/alphabet/layer/2",
+            "alphabet_all_letters": "/api/alphabet/all",
+            "alphabet_albanian": "/api/alphabet/albanian",
+            "alphabet_greek": "/api/alphabet/greek",
+            
+            # ==================== GIT & VERSION CONTROL ====================
+            "git_status": "/api/git/status",
+            "git_commits": "/api/git/commits",
+            "git_branches": "/api/git/branches",
+            "git_tags": "/api/git/tags",
+            
+            # ==================== DOCKER & CONTAINERS ====================
+            "docker_status": "/api/docker/status",
+            "docker_containers": "/api/docker/containers",
+            "docker_images": "/api/docker/images",
+            "docker_stats": "/api/docker/stats",
+            "docker_networks": "/api/docker/networks",
+            
+            # ==================== CI/CD PIPELINE ====================
+            "pipeline_status": "/api/pipeline/status",
+            "pipeline_runs": "/api/pipeline/runs",
+            "pipeline_workflows": "/api/pipeline/workflows",
+            "github_actions": "/api/github/actions",
+            
+            # ==================== MONITORING ====================
             "monitoring_dashboards": "/api/monitoring/dashboards",
             "monitoring_metrics": "/api/monitoring/real-metrics-info",
+            "monitoring_alerts": "/api/monitoring/alerts",
             
-            # External Data APIs
+            # ==================== EXTERNAL DATA ====================
             "crypto_market": "/api/crypto/market",
+            "crypto_prices": "/api/crypto/prices",
             "weather": "/api/weather",
+            "weather_forecast": "/api/weather/forecast",
+            "news": "/api/news",
+            "stocks": "/api/stocks",
             
-            # Real Data Dashboard
+            # ==================== REAL DATA DASHBOARD ====================
             "realdata_dashboard": "/api/realdata/dashboard",
+            "realdata_sources": "/api/realdata/sources",
             
-            # AI APIs
+            # ==================== AI AGENTS ====================
             "ai_health": "/api/ai/health",
             "ai_agents_status": "/api/ai/agents-status",
+            "ai_agents_list": "/api/ai/agents",
+            "ai_models": "/api/ai/models",
             
-            # Billing
+            # ==================== BEHAVIORAL & ANALYTICS ====================
+            "behavioral_status": "/api/behavioral/status",
+            "behavioral_analysis": "/api/behavioral/analysis",
+            "analytics_dashboard": "/api/analytics/dashboard",
+            
+            # ==================== AVIATION WEATHER ====================
+            "aviation_status": "/api/aviation/status",
+            "aviation_metar": "/api/aviation/metar",
+            "aviation_taf": "/api/aviation/taf",
+            
+            # ==================== EXCEL & REPORTING ====================
+            "excel_status": "/api/excel/status",
+            "excel_reports": "/api/excel/reports",
+            "reporting_dashboard": "/api/reporting/dashboard",
+            
+            # ==================== MARKETPLACE ====================
+            "marketplace_status": "/api/marketplace/status",
+            "marketplace_products": "/api/marketplace/products",
+            
+            # ==================== ECONOMY ====================
+            "economy_status": "/api/economy/status",
+            "economy_indicators": "/api/economy/indicators",
+            
+            # ==================== BILLING ====================
             "billing_metering": "/api/billing/metering-status",
+            "billing_usage": "/api/billing/usage",
             
-            # Database/Redis
+            # ==================== DATABASE ====================
             "db_ping": "/db/ping",
             "redis_ping": "/redis/ping",
+            "db_status": "/api/db/status",
             
-            # Metrics
+            # ==================== METRICS ====================
             "metrics": "/metrics",
+            "prometheus_metrics": "/api/metrics/prometheus",
         }
         
         logger.info(f"🌐 Central API Connector initialized - {len(self.endpoints)} endpoints available")

@@ -6,11 +6,15 @@ from asi_core import ASICore
 import uvicorn
 from datetime import datetime
 
+# API Version
+API_V1 = "/api/v1"
+
 app = FastAPI(
     title="ASI Engine",
     version="1.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    openapi_url="/openapi.json"
 )
 
 app.add_middleware(
@@ -44,6 +48,7 @@ def health():
 
 @app.get("/status")
 @app.get("/api/status")
+@app.get(API_V1 + "/status")
 def status():
     try:
         rt_status = asi.get_realtime_status()
@@ -56,6 +61,10 @@ def status():
             "error": str(e),
             "timestamp": datetime.utcnow().isoformat()
         }
+
+@app.get(API_V1 + "/spec")
+def api_spec():
+    return app.openapi()
 
 @app.get("/metrics")
 def metrics():

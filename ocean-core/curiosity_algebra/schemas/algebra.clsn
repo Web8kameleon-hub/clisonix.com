@@ -1,0 +1,50 @@
+# Clisonix Binary Schema - Binary Algebra Response
+# Version: 1.0
+# Magic: BALG
+
+name: AlgebraResponse
+version: 1
+type_id: 0x30
+
+header:
+  - name: magic
+    type: bytes[4]
+    value: "BALG"
+    description: "Binary Algebra magic"
+  
+  - name: version
+    type: uint8
+    description: "Protocol version"
+  
+  - name: timestamp
+    type: uint64
+    description: "Timestamp in microseconds"
+  
+  - name: field_count
+    type: uint16
+    description: "Number of fields"
+
+fields:
+  - name: operation
+    type: string
+    description: "Operation performed (and, or, xor, etc.)"
+  
+  - name: operand_a
+    type: int64
+    description: "First operand"
+  
+  - name: operand_b
+    type: int64
+    description: "Second operand"
+  
+  - name: result
+    type: int64
+    description: "Result value"
+  
+  - name: result_binary
+    type: string
+    description: "Result as binary string"
+  
+  - name: bits
+    type: uint8
+    description: "Bit width (8, 16, 32, 64)"

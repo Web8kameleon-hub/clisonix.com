@@ -197,6 +197,26 @@ async def health():
             "timestamp": datetime.now(timezone.utc).isoformat()
         }
 
+
+@app.get("/api/v1/status")
+@app.get("/api/status")
+async def api_status():
+    """API v1 status endpoint"""
+    return {
+        "service": "ALBA Collector",
+        "version": "1.0.0",
+        "status": "operational",
+        "uptime_seconds": time.time() - START_TIME,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@app.get("/api/v1/spec")
+async def api_spec():
+    """OpenAPI specification"""
+    return app.openapi()
+
+
 @app.post("/execute")
 async def execute_action(action: Dict[str, Any]):
     """Execute service action"""

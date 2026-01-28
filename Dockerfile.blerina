@@ -1,0 +1,297 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# DOCKERFILE.BLERINA - Document Intelligence & Narrative Engine
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# BLERINA is a powerful module for:
+# - YouTube integration and analysis
+# - Document reformatting
+# - Media processing
+# - Narrative generation
+# ═══════════════════════════════════════════════════════════════════════════════
+
+FROM python:3.11-slim
+
+LABEL maintainer="Clisonix Cloud Team"
+LABEL description="BLERINA - Document Intelligence & Narrative Engine"
+LABEL version="1.0.0"
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy Blerina module
+COPY blerina_reformatter.py ./
+
+# Create Blerina service wrapper
+COPY <<EOF /app/blerina_service.py
+"""
+BLERINA SERVICE - Document Intelligence & Narrative Engine
+Powerful module for media, documents, and narrative generation.
+"""
+
+import os
+import time
+import logging
+import hashlib
+from datetime import datetime, timezone
+from typing import Dict, Any, List, Optional
+from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("Blerina")
+
+BLERINA_PORT = int(os.getenv("BLERINA_PORT", "8035"))
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "")
+
+app = FastAPI(
+    title="BLERINA - Document Intelligence",
+    description="Document Intelligence & Narrative Engine",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json"
+)
+
+# API Version prefix
+API_V1 = "/api/v1"
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+START_TIME = time.time()
+processed_documents: List[Dict[str, Any]] = []
+narratives_generated: List[Dict[str, Any]] = []
+
+
+class DocumentRequest(BaseModel):
+    content: str
+    format: str = "text"
+    action: str = "analyze"
+
+
+class NarrativeRequest(BaseModel):
+    topic: str
+    style: str = "informative"
+    length: str = "medium"
+    language: str = "en"
+
+
+class YouTubeRequest(BaseModel):
+    channel_id: Optional[str] = None
+    video_id: Optional[str] = None
+    action: str = "analyze"
+
+
+def classify_quality(text: str) -> str:
+    """Classify document quality"""
+    if len(text) < 100:
+        return "low"
+    elif len(text) < 1000:
+        return "medium"
+    else:
+        return "high"
+
+
+def remove_artifacts(text: str) -> str:
+    """Remove common artifacts from text"""
+    import re
+    # Remove multiple spaces
+    text = re.sub(r'\s+', ' ', text)
+    # Remove common artifacts
+    text = text.replace('\\n', '\n').replace('\\t', '\t')
+    return text.strip()
+
+
+def calculate_statistics(text: str) -> Dict[str, Any]:
+    """Calculate text statistics"""
+    words = text.split()
+    return {
+        "characters": len(text),
+        "words": len(words),
+        "sentences": text.count('.') + text.count('!') + text.count('?'),
+        "paragraphs": text.count('\n\n') + 1,
+        "avg_word_length": sum(len(w) for w in words) / len(words) if words else 0
+    }
+
+
+def generate_hash(text: str) -> str:
+    """Generate hash for document"""
+    return hashlib.sha256(text.encode()).hexdigest()[:16]
+
+
+@app.get(f"{API_V1}/health")
+@app.get("/health")  # Docker healthcheck
+async def health_check():
+    return {
+        "status": "healthy",
+        "youtube_configured": bool(YOUTUBE_API_KEY),
+        "documents_processed": len(processed_documents),
+        "narratives_generated": len(narratives_generated),
+        "uptime_seconds": time.time() - START_TIME,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@app.get(f"{API_V1}/status")
+@app.get("/api/status")
+async def api_status():
+    return {
+        "service": "BLERINA - Document Intelligence",
+        "version": "1.0.0",
+        "status": "operational",
+        "documents_processed": len(processed_documents),
+        "narratives_generated": len(narratives_generated),
+        "uptime_seconds": time.time() - START_TIME,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@app.get(f"{API_V1}/spec")
+async def api_spec():
+    return app.openapi()
+
+
+@app.post(f"{API_V1}/documents/analyze")
+async def analyze_document(request: DocumentRequest):
+    """Analyze a document"""
+    doc_id = f"doc_{len(processed_documents) + 1:04d}"
+    
+    # Process document
+    cleaned = remove_artifacts(request.content)
+    stats = calculate_statistics(cleaned)
+    quality = classify_quality(cleaned)
+    doc_hash = generate_hash(cleaned)
+    
+    result = {
+        "document_id": doc_id,
+        "format": request.format,
+        "quality": quality,
+        "hash": doc_hash,
+        "statistics": stats,
+        "processed_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    processed_documents.append(result)
+    logger.info(f"Analyzed document {doc_id}: {stats['words']} words, quality={quality}")
+    
+    return result
+
+
+@app.post(f"{API_V1}/documents/reformat")
+async def reformat_document(request: DocumentRequest):
+    """Reformat a document"""
+    cleaned = remove_artifacts(request.content)
+    
+    # Apply formatting based on target format
+    if request.format == "markdown":
+        formatted = f"# Document\n\n{cleaned}"
+    elif request.format == "html":
+        formatted = f"<article><p>{cleaned.replace(chr(10), '</p><p>')}</p></article>"
+    else:
+        formatted = cleaned
+    
+    return {
+        "original_length": len(request.content),
+        "formatted_length": len(formatted),
+        "format": request.format,
+        "content": formatted[:1000] + "..." if len(formatted) > 1000 else formatted
+    }
+
+
+@app.post(f"{API_V1}/narratives/generate")
+async def generate_narrative(request: NarrativeRequest):
+    """Generate a narrative"""
+    narrative_id = f"nar_{len(narratives_generated) + 1:04d}"
+    
+    # Style templates
+    styles = {
+        "informative": f"📖 Exploring {request.topic}: This comprehensive overview delves into the key aspects and implications. Understanding {request.topic} requires examining multiple perspectives and considering its broader context.",
+        "storytelling": f"🎭 Once upon a time, in a world where {request.topic} shaped the course of events, a remarkable journey began. The tale of {request.topic} is one of discovery, challenge, and transformation.",
+        "academic": f"📚 Abstract: This analysis examines {request.topic} through a scholarly lens, drawing upon established research and theoretical frameworks. The investigation reveals significant insights into the nature of {request.topic}.",
+        "casual": f"💡 Hey! Let's talk about {request.topic}. It's actually pretty interesting when you think about it. Here's what you need to know..."
+    }
+    
+    narrative = styles.get(request.style, styles["informative"])
+    
+    result = {
+        "narrative_id": narrative_id,
+        "topic": request.topic,
+        "style": request.style,
+        "language": request.language,
+        "narrative": narrative,
+        "word_count": len(narrative.split()),
+        "generated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    narratives_generated.append(result)
+    logger.info(f"Generated narrative {narrative_id}: {request.topic} ({request.style})")
+    
+    return result
+
+
+@app.post(f"{API_V1}/youtube/analyze")
+async def analyze_youtube(request: YouTubeRequest):
+    """Analyze YouTube content"""
+    if not YOUTUBE_API_KEY:
+        return {
+            "status": "warning",
+            "message": "YouTube API key not configured",
+            "channel_id": request.channel_id,
+            "video_id": request.video_id,
+            "mock_data": True,
+            "analysis": {
+                "type": "channel" if request.channel_id else "video",
+                "engagement_score": 0.75,
+                "content_quality": "medium",
+                "recommendation": "Configure YOUTUBE_API_KEY for real analysis"
+            }
+        }
+    
+    return {
+        "status": "configured",
+        "channel_id": request.channel_id,
+        "video_id": request.video_id,
+        "action": request.action
+    }
+
+
+@app.get(f"{API_V1}/stats")
+async def get_stats():
+    """Get Blerina service statistics"""
+    return {
+        "documents_processed": len(processed_documents),
+        "narratives_generated": len(narratives_generated),
+        "youtube_configured": bool(YOUTUBE_API_KEY),
+        "uptime_hours": (time.time() - START_TIME) / 3600,
+        "capabilities": ["document_analysis", "reformatting", "narrative_generation", "youtube_integration"]
+    }
+
+
+if __name__ == "__main__":
+    import uvicorn
+    logger.info(f"📖 Starting BLERINA - Document Intelligence on port {BLERINA_PORT}")
+    logger.info(f"🔑 YouTube API: {'Configured' if YOUTUBE_API_KEY else 'Not configured'}")
+    uvicorn.run(app, host="0.0.0.0", port=BLERINA_PORT)
+EOF
+
+EXPOSE 8035
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8035/health || exit 1
+
+CMD ["python", "blerina_service.py"]

@@ -59,8 +59,8 @@ class InternalDataSources:
     This replaces the old isolated approach with real API connectivity.
     """
     
-    def __init__(self, central_api_url: str = "http://localhost:8000"):
-        self.central_api_url = central_api_url
+    def __init__(self, central_api_url: str = None):
+        self.central_api_url = central_api_url or os.getenv("CENTRAL_API_URL", "http://localhost:8000")
         self.central_api = None
         self._cache = {}
         self._cache_time = None

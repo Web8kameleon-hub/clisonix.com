@@ -16,9 +16,22 @@ import logging
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 import asyncio
+
+# Binary protocol support (CBOR2, MessagePack)
+try:
+    import cbor2
+    HAS_CBOR2 = True
+except ImportError:
+    HAS_CBOR2 = False
+
+try:
+    import msgpack
+    HAS_MSGPACK = True
+except ImportError:
+    HAS_MSGPACK = False
 
 # Local imports
 from data_sources import get_internal_data_sources as get_all_sources
@@ -30,6 +43,9 @@ from real_data_engine import get_real_data_engine
 from specialized_chat_engine import get_specialized_chat, initialize_specialized_chat
 from response_orchestrator import get_orchestrator
 from autolearning_engine import get_autolearning_engine, AutolearningEngine
+
+# Curiosity Algebra System - Universal Signal Integration
+from curiosity_algebra.api import router as curiosity_router
 
 
 async def get_knowledge_engine_hybrid(data_sources):
@@ -67,6 +83,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger("ocean_api")
 
+# API Version prefix - SECURITY REQUIREMENT
+API_VERSION = "v1"
+API_PREFIX = f"/api/{API_VERSION}"
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Curiosity Ocean",
@@ -85,6 +105,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include Curiosity Algebra Router - Universal Signal System
+app.include_router(curiosity_router)
+logger.info("✅ Curiosity Algebra System integrated - /api/curiosity endpoints active")
 
 # Global instances
 internal_data_sources = None
@@ -268,7 +292,7 @@ async def chat_ui():
 
 
 @app.get("/status")
-@app.get("/api/status")
+@app.get(f"{API_PREFIX}/status")
 async def get_status():
     """Get service status"""
     if not internal_data_sources:
@@ -308,7 +332,7 @@ async def get_status():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/system-full")
+@app.get(f"{API_PREFIX}/system-full")
 async def get_full_system_status():
     """
     Get COMPLETE system status with ALL components:
@@ -385,7 +409,7 @@ async def get_full_system_status():
         return {"error": str(e), "status": "error"}
 
 
-@app.get("/api/sources")
+@app.get(f"{API_PREFIX}/sources")
 async def get_sources():
     """List available data sources (INTERNAL ONLY)"""
     if not internal_data_sources:
@@ -523,7 +547,7 @@ def generate_curiosity_threads(question: str, findings: list) -> list:
     return thread_templates[:3]  # Return top 3 threads
 
 
-@app.get("/api/personas")
+@app.get(f"{API_PREFIX}/personas")
 async def get_personas():
     """List all 14 specialist personas"""
     if not persona_router:
@@ -544,7 +568,7 @@ async def get_personas():
     }
 
 
-@app.post("/api/query")
+@app.post(f"{API_PREFIX}/query")
 async def query_ocean(request: Request):
     """
     Query Ocean with 14 Specialist Personas
@@ -692,8 +716,8 @@ async def query_ocean(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/chat")
-async def specialized_chat(request: Request):
+@app.post(f"{API_PREFIX}/chat/specialized")
+async def specialized_chat_endpoint(request: Request):
     """
     Specialized Expert Chat - Clean Interface
     
@@ -714,7 +738,7 @@ async def specialized_chat(request: Request):
     
     try:
         body = await request.json()
-        query = body.get("query", "").strip()
+        query = body.get("query", body.get("message", "")).strip()
         
         if not query:
             raise ValueError("Query cannot be empty")
@@ -741,7 +765,7 @@ async def specialized_chat(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/chat/history")
+@app.post(f"{API_PREFIX}/chat/history")
 async def get_chat_history(request: Request):
     """Get chat conversation history"""
     if not specialized_chat:
@@ -764,7 +788,7 @@ async def get_chat_history(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/chat/clear")
+@app.post(f"{API_PREFIX}/chat/clear")
 async def clear_chat():
     """Clear chat history for new conversation"""
     if not specialized_chat:
@@ -778,7 +802,7 @@ async def clear_chat():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/chat/spontaneous")
+@app.post(f"{API_PREFIX}/chat/spontaneous")
 async def spontaneous_conversation(request: Request):
     """
     SPONTANEOUS CONVERSATION MODE
@@ -840,7 +864,40 @@ async def spontaneous_conversation(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/chat")
+@app.get(f"{API_PREFIX}/chat")
+async def chat_test(message: str = Query(default="Hello", description="Mesazhi për të testuar")):
+    """
+    GET CHAT ENDPOINT - Për testim në browser
+    ==========================================
+    
+    Shembull: http://localhost:8030/api/chat?message=What%20is%20neuroplasticity
+    """
+    if not orchestrator:
+        raise HTTPException(status_code=503, detail="Orchestrator not initialized")
+    
+    try:
+        logger.info(f"💬 GET chat test: {message[:50]}...")
+        result = await orchestrator.process_query_async(message)
+        
+        # Extract intent and complexity from understanding
+        understanding = result.understanding or {}
+        intent = understanding.get("intent", "exploratory")
+        complexity = understanding.get("complexity_level", "simple")
+        
+        return {
+            "response": result.fused_answer,
+            "sources": result.sources_cited,
+            "confidence": result.confidence,
+            "query_category": result.query_category.value if hasattr(result.query_category, 'value') else str(result.query_category),
+            "intent": intent,
+            "complexity": complexity
+        }
+    except Exception as e:
+        logger.error(f"GET chat error: {e}")
+        return {"response": f"Gabim: {e}", "sources": [], "confidence": 0.0, "intent": "error", "complexity": "unknown"}
+
+
+@app.post(f"{API_PREFIX}/chat")
 async def simple_chat(request: Request):
     """
     SIMPLE CHAT ENDPOINT
@@ -903,7 +960,98 @@ async def simple_chat(request: Request):
         }
 
 
-@app.post("/api/chat/orchestrated")
+@app.post(f"{API_PREFIX}/chat/binary")
+async def binary_chat(request: Request):
+    """
+    BINARY CHAT ENDPOINT - CBOR2 / MessagePack
+    ==========================================
+    
+    Pranon dhe kthen të dhëna në format binary (CBOR2 ose MessagePack).
+    
+    Content-Type pranuar:
+    - application/cbor (CBOR2 - preferuar)
+    - application/msgpack (MessagePack)
+    - application/json (fallback)
+    
+    Returns: Same format as input (binary response)
+    """
+    if not orchestrator:
+        raise HTTPException(status_code=503, detail="Orchestrator not initialized")
+    
+    try:
+        content_type = request.headers.get("content-type", "application/json")
+        raw_body = await request.body()
+        
+        # Parse based on content type
+        if "cbor" in content_type and HAS_CBOR2:
+            body = cbor2.loads(raw_body)
+            response_format = "cbor"
+            logger.info("📦 CBOR2 request received")
+        elif "msgpack" in content_type and HAS_MSGPACK:
+            body = msgpack.loads(raw_body)
+            response_format = "msgpack"
+            logger.info("📦 MessagePack request received")
+        else:
+            import json
+            body = json.loads(raw_body)
+            response_format = "json"
+        
+        message = body.get("message", body.get("query", "")).strip()
+        
+        if not message:
+            result_data = {
+                "response": "Ju lutem shkruani diçka.",
+                "sources": [],
+                "confidence": 1.0,
+                "format": response_format
+            }
+        else:
+            logger.info(f"💬 Binary chat ({response_format}): {message[:50]}...")
+            
+            try:
+                result = await orchestrator.process_query_async(message)
+                result_data = {
+                    "response": result.fused_answer,
+                    "sources": result.sources_cited,
+                    "confidence": result.confidence,
+                    "query_category": result.query_category.value if hasattr(result.query_category, 'value') else str(result.query_category),
+                    "format": response_format
+                }
+            except Exception as e:
+                logger.warning(f"Async failed: {e}, using sync")
+                result = orchestrator.process_query(message)
+                result_data = {
+                    "response": result.fused_answer,
+                    "sources": result.sources_cited,
+                    "confidence": result.confidence,
+                    "format": response_format
+                }
+        
+        # Return in same format
+        if response_format == "cbor" and HAS_CBOR2:
+            return Response(
+                content=cbor2.dumps(result_data),
+                media_type="application/cbor"
+            )
+        elif response_format == "msgpack" and HAS_MSGPACK:
+            return Response(
+                content=msgpack.dumps(result_data),
+                media_type="application/msgpack"
+            )
+        else:
+            return result_data
+            
+    except Exception as e:
+        logger.error(f"Binary chat error: {e}")
+        error_data = {
+            "response": f"Gabim: {str(e)}",
+            "sources": [],
+            "confidence": 0.0
+        }
+        return error_data
+
+
+@app.post(f"{API_PREFIX}/chat/orchestrated")
 async def orchestrated_response(request: Request):
     """
     ORCHESTRATED RESPONSE MODE - REAL KNOWLEDGE + AUTOLEARNING
@@ -1034,7 +1182,7 @@ async def orchestrated_response(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/orchestrator/learning")
+@app.get(f"{API_PREFIX}/orchestrator/learning")
 async def get_orchestrator_learning():
     """Get the learning matrix from the orchestrator"""
     if not orchestrator:
@@ -1053,7 +1201,7 @@ async def get_orchestrator_learning():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/autolearning/stats")
+@app.get(f"{API_PREFIX}/autolearning/stats")
 async def get_autolearning_stats():
     """
     Get Autolearning Engine statistics
@@ -1086,7 +1234,7 @@ async def get_autolearning_stats():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/autolearning/feedback")
+@app.post(f"{API_PREFIX}/autolearning/feedback")
 async def autolearning_feedback(request: Request):
     """
     Record user feedback for a response
@@ -1121,7 +1269,7 @@ async def autolearning_feedback(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/chat/domains")
+@app.get(f"{API_PREFIX}/chat/domains")
 async def get_domains():
     """Get available expertise domains"""
     if not specialized_chat:
@@ -1144,7 +1292,7 @@ async def get_domains():
     }
 
 
-@app.get("/api/labs")
+@app.get(f"{API_PREFIX}/labs")
 async def get_labs():
     """Get all location labs data"""
     if not laboratory_network:
@@ -1163,7 +1311,7 @@ async def get_labs():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/agents")
+@app.get(f"{API_PREFIX}/agents")
 async def get_agents():
     """Get all agent telemetry"""
     if not internal_data_sources:
@@ -1181,7 +1329,7 @@ async def get_agents():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/threads/{topic}")
+@app.get(API_PREFIX + "/threads/{topic}")
 async def get_curiosity_thread(topic: str):
     """Get curiosity threads for exploration"""
     
@@ -1245,7 +1393,30 @@ async def health_check():
     }
 
 
-@app.get("/api/laboratories")
+@app.get(f"{API_PREFIX}/spec")
+async def api_spec():
+    """OpenAPI specification"""
+    return app.openapi()
+
+
+@app.get("/api/chat")
+async def api_chat_redirect():
+    """Redirect to chat UI"""
+    return FileResponse("specialized_chat.html", media_type="text/html")
+
+
+@app.get("/api/status")
+async def api_status_short():
+    """Short status endpoint without version"""
+    return {
+        "service": "Curiosity Ocean",
+        "version": "4.0.0",
+        "status": "operational",
+        "timestamp": datetime.now().isoformat()
+    }
+
+
+@app.get(f"{API_PREFIX}/laboratories")
 async def get_all_laboratories():
     """Get all 23 specialized laboratories with their functions"""
     try:
@@ -1261,7 +1432,7 @@ async def get_all_laboratories():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/laboratories/summary")
+@app.get(f"{API_PREFIX}/laboratories/summary")
 async def get_laboratories_summary():
     """Get summary of all 23 laboratories"""
     try:
@@ -1272,7 +1443,7 @@ async def get_laboratories_summary():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/laboratories/types")
+@app.get(f"{API_PREFIX}/laboratories/types")
 async def get_laboratory_types():
     """Get all unique laboratory types"""
     try:
@@ -1287,7 +1458,7 @@ async def get_laboratory_types():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/laboratories/{lab_id}")
+@app.get(API_PREFIX + "/laboratories/{lab_id}")
 async def get_laboratory(lab_id: str):
     """Get specific laboratory by ID"""
     try:
@@ -1309,7 +1480,7 @@ async def get_laboratory(lab_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/laboratories/type/{lab_type}")
+@app.get(API_PREFIX + "/laboratories/type/{lab_type}")
 async def get_laboratories_by_type(lab_type: str):
     """Get laboratories by type"""
     try:
@@ -1332,7 +1503,7 @@ async def get_laboratories_by_type(lab_type: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/laboratories/location/{location}")
+@app.get(API_PREFIX + "/laboratories/location/{location}")
 async def get_laboratories_by_location(location: str):
     """Get laboratories by location"""
     try:
@@ -1355,7 +1526,7 @@ async def get_laboratories_by_location(location: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/laboratories/function/{keyword}")
+@app.get(API_PREFIX + "/laboratories/function/{keyword}")
 async def get_laboratories_by_function(keyword: str):
     """Get laboratories by function keyword"""
     try:
@@ -1382,7 +1553,7 @@ async def get_laboratories_by_function(keyword: str):
 # MEGA SIGNAL INTEGRATOR ENDPOINTS
 # =============================================================================
 
-@app.get("/api/signals/overview")
+@app.get(f"{API_PREFIX}/signals/overview")
 async def get_signals_overview():
     """
     🌊 MEGA SIGNAL SYSTEM OVERVIEW
@@ -1413,7 +1584,7 @@ async def get_signals_overview():
         }
 
 
-@app.post("/api/signals/query")
+@app.post(f"{API_PREFIX}/signals/query")
 async def query_signals(request: Request):
     """
     🔍 QUERY MEGA SIGNAL SYSTEM
@@ -1448,7 +1619,7 @@ async def query_signals(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/signals/cycles")
+@app.get(f"{API_PREFIX}/signals/cycles")
 async def get_cycles():
     """Get all active cycles"""
     try:
@@ -1467,7 +1638,7 @@ async def get_cycles():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/signals/cycles")
+@app.post(f"{API_PREFIX}/signals/cycles")
 async def create_cycle(request: Request):
     """Create a new cycle"""
     try:
@@ -1495,7 +1666,7 @@ async def create_cycle(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/signals/proposals")
+@app.post(f"{API_PREFIX}/signals/proposals")
 async def create_proposal(request: Request):
     """Create a new proposal"""
     try:
@@ -1523,7 +1694,7 @@ async def create_proposal(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/signals/kubernetes")
+@app.get(f"{API_PREFIX}/signals/kubernetes")
 async def get_kubernetes_status():
     """Get Kubernetes cluster status"""
     try:
@@ -1542,7 +1713,7 @@ async def get_kubernetes_status():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/signals/data-sources")
+@app.get(f"{API_PREFIX}/signals/data-sources")
 async def get_data_sources_summary():
     """
     🌍 GET 5000+ DATA SOURCES FROM 200+ COUNTRIES
@@ -1576,7 +1747,7 @@ async def get_data_sources_summary():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/signals/data-sources/search")
+@app.get(f"{API_PREFIX}/signals/data-sources/search")
 async def search_data_sources(query: str = Query(..., description="Search query for data sources")):
     """Search data sources by keyword"""
     try:
@@ -1596,7 +1767,7 @@ async def search_data_sources(query: str = Query(..., description="Search query 
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/signals/lora")
+@app.get(f"{API_PREFIX}/signals/lora")
 async def get_lora_status():
     """
     📡 GET LORA/LORAWAN NETWORK STATUS
@@ -1620,7 +1791,7 @@ async def get_lora_status():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/signals/lora/nodes")
+@app.post(f"{API_PREFIX}/signals/lora/nodes")
 async def register_lora_node(request: Request):
     """Register a new LoRa node"""
     try:
@@ -1644,7 +1815,7 @@ async def register_lora_node(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/signals/nanogrid")
+@app.get(f"{API_PREFIX}/signals/nanogrid")
 async def get_nanogrid_status():
     """
     🔌 GET NANOGRID GATEWAY STATUS
@@ -1671,7 +1842,7 @@ async def get_nanogrid_status():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/signals/nanogrid/devices")
+@app.post(f"{API_PREFIX}/signals/nanogrid/devices")
 async def register_nanogrid_device(request: Request):
     """Register a new Nanogrid device"""
     try:
@@ -1695,7 +1866,7 @@ async def register_nanogrid_device(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/signals/nanogrid/telemetry")
+@app.post(f"{API_PREFIX}/signals/nanogrid/telemetry")
 async def receive_telemetry(request: Request):
     """Receive telemetry from Nanogrid device"""
     try:
@@ -1723,7 +1894,7 @@ async def receive_telemetry(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/signals/nodes")
+@app.get(f"{API_PREFIX}/signals/nodes")
 async def get_nodes_status():
     """Get nodes, arrays, and buffers status"""
     try:
@@ -1741,7 +1912,7 @@ async def get_nodes_status():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/signals/formats")
+@app.get(f"{API_PREFIX}/signals/formats")
 async def get_data_formats():
     """
     📦 GET SUPPORTED DATA FORMATS
@@ -1771,7 +1942,7 @@ async def get_data_formats():
 if __name__ == "__main__":
     import uvicorn
     
-    port = int(os.environ.get("OCEAN_PORT", 8031))
+    port = int(os.environ.get("OCEAN_PORT", 8030))
     logger.info(f"🌊 Starting Curiosity Ocean on port {port}...")
     uvicorn.run(
         app,

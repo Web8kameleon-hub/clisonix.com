@@ -9,11 +9,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy Ocean-Core source code only
-COPY ocean-core/ /app/
+COPY . /app/
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt 2>/dev/null || \
-    pip install --no-cache-dir fastapi uvicorn httpx pydantic redis aiohttp numpy
+    pip install --no-cache-dir fastapi uvicorn httpx pydantic redis aiohttp numpy requests
 
 # Environment variable for port
 ENV OCEAN_PORT=8030
