@@ -54,7 +54,7 @@ export default function DataDashboard() {
         
         // Add sources from data_sources if available
         if (data.data_sources) {
-          Object.entries(data.data_sources).forEach(([key, value]: [string, any]) => {
+          Object.entries(data.data_sources).forEach(([key, value]: [string, unknown]) => {
             realSources.push({
               id: key,
               name: key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
@@ -136,7 +136,7 @@ export default function DataDashboard() {
             {['overview', 'sources', 'metrics', 'export'].map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab as any)}
+                onClick={() => setActiveTab(tab as 'overview' | 'sources' | 'metrics' | 'exports')}
                 className={`px-4 py-2 rounded-lg transition-all font-medium text-sm ${
                   activeTab === tab
                     ? 'bg-cyan-600 text-white'

@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
 }
 
 function calculateHabitStats(habits: Habit[], logs: HabitLog[]) {
-  const statsMap: Record<string, any> = {};
+  const statsMap: Record<string, unknown> = {};
 
   habits.forEach(habit => {
     const habitLogs = logs.filter(l => l.habitId === habit.id);

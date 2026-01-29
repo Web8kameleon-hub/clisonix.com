@@ -80,7 +80,7 @@ export default function CompanyPage() {
           About Clisonix
         </h1>
         <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-          We're building the future of AI infrastructure — powerful, accessible, 
+          We&apos;re building the future of AI infrastructure — powerful, accessible, 
           and designed for developers who demand excellence.
         </p>
       </section>
@@ -92,7 +92,7 @@ export default function CompanyPage() {
             <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
             <p className="text-xl text-gray-300 leading-relaxed">
               To democratize artificial superintelligence by providing 
-              <span className="text-cyan-400"> enterprise-grade AI infrastructure</span> that's 
+              <span className="text-cyan-400"> enterprise-grade AI infrastructure</span> that&apos;s 
               accessible to every developer, from solo hackers to Fortune 500 enterprises.
             </p>
           </div>
@@ -133,9 +133,9 @@ export default function CompanyPage() {
               automation, and much more.
             </p>
             <p className="text-lg text-gray-300">
-              But we're just getting started. Our roadmap includes expanding into new 
+              But we&apos;re just getting started. Our roadmap includes expanding into new 
               regions, launching additional modules, and continuing to push the 
-              boundaries of what's possible with AI infrastructure.
+              boundaries of what&apos;s possible with AI infrastructure.
             </p>
           </div>
         </div>

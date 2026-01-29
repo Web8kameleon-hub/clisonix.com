@@ -276,7 +276,7 @@ export default function MoodJournalPage() {
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setView(tab.id as any)}
+              onClick={() => setView(tab.id as 'log' | 'history' | 'insights')}
               className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${
                 view === tab.id 
                   ? 'bg-white text-purple-900' 
@@ -436,7 +436,7 @@ export default function MoodJournalPage() {
                           })}
                         </p>
                         {entry.note && (
-                          <p className="text-white/80 text-sm mt-1 italic">"{entry.note}"</p>
+                          <p className="text-white/80 text-sm mt-1 italic">&quot;{entry.note}&quot;</p>
                         )}
                       </div>
                     </div>

@@ -509,7 +509,7 @@ export default function NeuralSynthesisPage() {
                           </h4>
                           <div className="text-center py-4">
                             <p className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                              "{(response.data as JonaMetrics).current_symphony}"
+                              &quot;{(response.data as JonaMetrics).current_symphony}&quot;
                             </p>
                             <div className="flex items-center justify-center gap-4 mt-4">
                               {!isPlaying ? (

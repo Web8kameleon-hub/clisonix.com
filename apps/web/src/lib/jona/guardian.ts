@@ -10,7 +10,7 @@ export class JONAEthicsGuardian {
     return Promise.resolve();
   }
 
-  async evaluateEthicalAction(action: any, context: any) {
+  async evaluateEthicalAction(action: unknown, context: unknown) {
     // Stub implementation for minimal Clisonix setup
     return {
       overallApproval: true,

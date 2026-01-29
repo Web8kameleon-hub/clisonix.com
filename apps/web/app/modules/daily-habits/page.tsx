@@ -281,7 +281,7 @@ export default function DailyHabitsPage() {
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => setView(tab.id as any)}
+              onClick={() => setView(tab.id as 'today' | 'week' | 'stats')}
               className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${
                 view === tab.id 
                   ? 'bg-white text-emerald-900' 
