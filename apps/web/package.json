@@ -8,7 +8,7 @@
     "build": "next build",
     "postbuild": "next-sitemap",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
@@ -40,12 +40,14 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@eslint/eslintrc": "^3.0.0",
     "@types/body-parser": "^1.19.6",
     "@types/connect": "^3.4.38",
     "@types/mime": "^3.0.4",
     "@types/node": "^24.9.2",
     "autoprefixer": "^10.4.20",
-    "eslint": "^8.0.0",
+    "eslint": "^9.0.0",
     "eslint-config-next": "15.5.4",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17"
