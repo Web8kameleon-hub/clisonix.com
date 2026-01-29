@@ -36,8 +36,8 @@ export default function UltraReportingDashboard() {
   const [activeTab, setActiveTab] = useState<'overview' | 'services' | 'metrics' | 'exports'>('overview');
   const [exporting, setExporting] = useState(false);
   const [showErrorTracker, setShowErrorTracker] = useState(false);
-  const [errors, setErrors] = useState<any[]>([]);
-  const [errorSummary, setErrorSummary] = useState<any>(null);
+  const [errors, setErrors] = useState<unknown[]>([]);
+  const [errorSummary, setErrorSummary] = useState<Record<string, unknown> | null>(null);
   const [loadingErrors, setLoadingErrors] = useState(false);
 
   const fetchData = useCallback(async () => {

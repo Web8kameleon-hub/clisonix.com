@@ -94,7 +94,7 @@ export default function CuriosityOceanChat() {
         responseContent += `**Complexity:** ${data.understanding.complexity_level}\n\n`;
 
         responseContent += `**Consulted Experts:**\n`;
-        data.consulted_experts.forEach((expert: any) => {
+        data.consulted_experts.forEach((expert: { name: string; type: string; confidence: number }) => {
           responseContent += `• ${expert.name} (${expert.type}) - Confidence: ${Math.round(expert.confidence * 100)}%\n`;
         });
 
@@ -175,7 +175,7 @@ export default function CuriosityOceanChat() {
             <div className="flex items-center gap-3">
               <select
                 value={curiosityLevel}
-                onChange={(e) => setCuriosityLevel(e.target.value as any)}
+                onChange={(e) => setCuriosityLevel(e.target.value as 'curious' | 'wild' | 'chaos' | 'genius')}
                 className="bg-gray-100 border border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-700"
               >
                 <option value="curious">🔍 Curious</option>

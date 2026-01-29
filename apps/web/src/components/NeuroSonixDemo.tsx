@@ -346,7 +346,7 @@ export default function ClisonixDemo() {
               <div className="text-center py-8 text-slate-400">
                 <Server className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>System offline</p>
-                <p className="text-sm">Click "Start Demo" to begin</p>
+                <p className="text-sm">Click &quot;Start Demo&quot; to begin</p>
               </div>
             )}
           </CardContent>

@@ -348,9 +348,9 @@ export default function AboutUsPage() {
         {/* Clisonix in One Sentence */}
         <section className="text-center py-12 border-t border-white/10">
           <blockquote className="text-2xl md:text-3xl text-white font-light italic max-w-4xl mx-auto">
-            "A modular platform that gives businesses <span className="text-cyan-400">clarity</span>, 
+            &quot;A modular platform that gives businesses <span className="text-cyan-400">clarity</span>, 
             <span className="text-emerald-400"> control</span>, and 
-            <span className="text-purple-400"> intelligence</span> — from the cloud down to LoRa sensors."
+            <span className="text-purple-400"> intelligence</span> — from the cloud down to LoRa sensors.&quot;
           </blockquote>
         </section>
 

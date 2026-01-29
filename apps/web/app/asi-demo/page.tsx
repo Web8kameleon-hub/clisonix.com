@@ -130,7 +130,7 @@ export default function ASIDemoPage() {
             transition={{ delay: 0.5 }}
             className="text-xl text-slate-300 max-w-3xl mx-auto mb-6"
           >
-            The world's first <span className="text-cyan-400">Artificial General Intelligence</span> system 
+            The world&apos;s first <span className="text-cyan-400">Artificial General Intelligence</span> system 
             built on foundations of <span className="text-purple-400">love</span>, <span className="text-green-400">protection</span> and <span className="text-sky-400">cooperation</span>
           </motion.p>
 
@@ -186,7 +186,7 @@ export default function ASIDemoPage() {
                   <p className="text-sm text-gray-400">{agent.role}</p>
                 </div>
                 <div className={statusBadge({ 
-                  status: getStatusBadgeVariant(agent.status) as any,
+                  status: getStatusBadgeVariant(agent.status) as 'active' | 'learning' | 'idle',
                   size: 'lg'
                 })}>
                   {agent.status.toUpperCase()}

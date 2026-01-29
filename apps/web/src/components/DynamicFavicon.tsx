@@ -308,7 +308,7 @@ export function DynamicFavicon() {
   // Expose methods for external state changes
   useEffect(() => {
     // Global function to trigger favicon states from anywhere
-    (window as any).setFaviconState = (state: FaviconState, duration?: number) => {
+    (window as WindowWithFavicon).setFaviconState = (state: FaviconState, duration?: number) => {
       currentStateRef.current = state;
       drawFavicon(state, pulsePhaseRef.current);
       
@@ -320,7 +320,7 @@ export function DynamicFavicon() {
     };
 
     return () => {
-      delete (window as any).setFaviconState;
+      delete (window as WindowWithFavicon).setFaviconState;
     };
   }, [drawFavicon, getFinalState]);
 
@@ -329,11 +329,11 @@ export function DynamicFavicon() {
 
 // Export utility functions for triggering states programmatically
 export const faviconStates = {
-  thinking: () => (window as any).setFaviconState?.('thinking'),
-  success: () => (window as any).setFaviconState?.('success', 3000),
-  alert: () => (window as any).setFaviconState?.('alert'),
-  analyzing: () => (window as any).setFaviconState?.('analyzing'),
-  happy: () => (window as any).setFaviconState?.('happy', 5000),
+  thinking: () => (window as WindowWithFavicon).setFaviconState?.('thinking'),
+  success: () => (window as WindowWithFavicon).setFaviconState?.('success', 3000),
+  alert: () => (window as WindowWithFavicon).setFaviconState?.('alert'),
+  analyzing: () => (window as WindowWithFavicon).setFaviconState?.('analyzing'),
+  happy: () => (window as WindowWithFavicon).setFaviconState?.('happy', 5000),
 };
 
 export default DynamicFavicon;

@@ -65,6 +65,24 @@ interface NetworkInfo {
     effectiveType: string;
 }
 
+interface BatteryManager {
+  level: number;
+  charging: boolean;
+  chargingTime: number;
+  dischargingTime: number;
+  addEventListener(type: string, listener: () => void): void;
+  removeEventListener(type: string, listener: () => void): void;
+}
+
+interface NetworkConnection {
+  type: string;
+  downlink: number;
+  rtt: number;
+  effectiveType: string;
+  addEventListener(type: string, listener: () => void): void;
+  removeEventListener(type: string, listener: () => void): void;
+}
+
 interface AudioAnalysis {
     frequency: number;
     amplitude: number;
@@ -184,9 +202,9 @@ export default function ClisonixPhoneSensorsMax() {
     const startMotionSensors = async (): Promise<boolean> => {
         if (!window.DeviceMotionEvent) return false;
 
-    if (typeof (DeviceMotionEvent as any).requestPermission === 'function') {
+    if (typeof (DeviceMotionEvent as { requestPermission?: () => Promise<PermissionState> }).requestPermission === 'function') {
       try {
-        const permission = await (DeviceMotionEvent as any).requestPermission();
+        const permission = await (DeviceMotionEvent as { requestPermission: () => Promise<PermissionState> }).requestPermission();
           if (permission !== 'granted') return false;
       } catch (e) {
           return false;
@@ -246,9 +264,9 @@ export default function ClisonixPhoneSensorsMax() {
     const startOrientationSensors = async (): Promise<boolean> => {
         if (!window.DeviceOrientationEvent) return false;
 
-    if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+    if (typeof (DeviceOrientationEvent as { requestPermission?: () => Promise<PermissionState> }).requestPermission === 'function') {
       try {
-        const permission = await (DeviceOrientationEvent as any).requestPermission();
+        const permission = await (DeviceOrientationEvent as { requestPermission: () => Promise<PermissionState> }).requestPermission();
           if (permission !== 'granted') return false;
       } catch (e) {
           return false;
@@ -285,7 +303,7 @@ export default function ClisonixPhoneSensorsMax() {
         if (!('getBattery' in navigator)) return false;
 
         try {
-            const batteryManager = await (navigator as any).getBattery();
+            const batteryManager = await (navigator as { getBattery: () => Promise<BatteryManager> }).getBattery();
 
             const update = () => {
                 setBattery({
@@ -309,7 +327,7 @@ export default function ClisonixPhoneSensorsMax() {
     const startNetworkMonitoring = async (): Promise<boolean> => {
         if (!('connection' in navigator)) return false;
 
-        const conn = (navigator as any).connection;
+        const conn = (navigator as { connection: NetworkConnection }).connection;
 
         const update = () => {
             setNetwork({
@@ -775,12 +793,12 @@ export default function ClisonixPhoneSensorsMax() {
                                       <div key={axis} className="bg-gray-800/50 rounded-xl p-4">
                                           <div className="text-xs text-gray-400 uppercase">{axis} Accel</div>
                                           <div className="text-xl font-mono text-cyan-300 transition-all duration-500 ease-out">
-                                              {(motionData.acceleration as any)[axis].toFixed(2)}
+                                              {(motionData.acceleration as Record<string, number>)[axis].toFixed(2)}
                                           </div>
                                           <div className="h-1.5 bg-gray-700 rounded-full mt-2 overflow-hidden">
                                               <div
                                                   className="h-full bg-cyan-500 transition-all duration-700 ease-out"
-                                                  style={{ width: Math.min(Math.abs((motionData.acceleration as any)[axis]) * 15, 100) + '%' }}
+                                                  style={{ width: Math.min(Math.abs((motionData.acceleration as Record<string, number>)[axis]) * 15, 100) + '%' }}
                                               />
                                           </div>
                                       </div>

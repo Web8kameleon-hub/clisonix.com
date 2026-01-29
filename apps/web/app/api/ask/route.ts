@@ -94,11 +94,11 @@ export async function POST(request: Request) {
     };
 
     return NextResponse.json(response, { status: 200 });
-  } catch (err: any) {
-    telemetry.log(`❌ Error: ${err.message}`);
+  } catch (err: unknown) {
+    telemetry.log(`❌ Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
     const errorResp = {
       error: "Processing failure in ALBA/JONA pipeline",
-      details: err.message,
+      details: err instanceof Error ? err.message : 'Unknown error',
       logs: telemetry.logs,
       timestamp: new Date().toISOString(),
     };

@@ -237,7 +237,7 @@ export default function PlatformPage() {
       <section className="py-20 px-6 text-center">
         <h2 className="text-3xl font-bold mb-4">Ready to Build?</h2>
         <p className="text-gray-400 mb-8 max-w-xl mx-auto">
-          Start with our free tier and scale when you're ready.
+          Start with our free tier and scale when you&apos;re ready.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <Link

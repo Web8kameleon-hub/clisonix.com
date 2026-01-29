@@ -276,12 +276,12 @@ export default function HomePage() {
                 key={module.id}
                 href={`/modules/${module.id}`}
                 className={`p-6 rounded-2xl bg-slate-800/50 border hover:shadow-xl hover:shadow-cyan-500/10 transition-all group relative ${
-                  (module as any).isNew 
+                  (module as { isNew?: boolean }).isNew 
                     ? 'border-green-500/50 hover:border-green-400 ring-1 ring-green-500/20' 
                     : 'border-slate-700 hover:border-cyan-500'
                 }`}
               >
-                {(module as any).isNew && (
+                {(module as { isNew?: boolean }).isNew && (
                   <div className="absolute -top-2 -right-2 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-xs font-bold text-white shadow-lg animate-pulse">
                     NEW ✨
                   </div>
