@@ -94,7 +94,7 @@ export default function CuriosityOceanChat() {
         responseContent += `**Complexity:** ${data.understanding.complexity_level}\n\n`;
 
         responseContent += `**Consulted Experts:**\n`;
-        data.consulted_experts.forEach((expert: Record<string, unknown>) => {
+        data.consulted_experts.forEach((expert: { name: string; type: string; confidence: number }) => {
           responseContent += `• ${expert.name} (${expert.type}) - Confidence: ${Math.round(expert.confidence * 100)}%\n`;
         });
 

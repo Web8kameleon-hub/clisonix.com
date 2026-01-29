@@ -65,6 +65,24 @@ interface NetworkInfo {
     effectiveType: string;
 }
 
+interface BatteryManager {
+  level: number;
+  charging: boolean;
+  chargingTime: number;
+  dischargingTime: number;
+  addEventListener(type: string, listener: () => void): void;
+  removeEventListener(type: string, listener: () => void): void;
+}
+
+interface NetworkConnection {
+  type: string;
+  downlink: number;
+  rtt: number;
+  effectiveType: string;
+  addEventListener(type: string, listener: () => void): void;
+  removeEventListener(type: string, listener: () => void): void;
+}
+
 interface AudioAnalysis {
     frequency: number;
     amplitude: number;
@@ -285,7 +303,7 @@ export default function ClisonixPhoneSensorsMax() {
         if (!('getBattery' in navigator)) return false;
 
         try {
-            const batteryManager = await (navigator as { getBattery: () => Promise<unknown> }).getBattery();
+            const batteryManager = await (navigator as { getBattery: () => Promise<BatteryManager> }).getBattery();
 
             const update = () => {
                 setBattery({
@@ -309,7 +327,7 @@ export default function ClisonixPhoneSensorsMax() {
     const startNetworkMonitoring = async (): Promise<boolean> => {
         if (!('connection' in navigator)) return false;
 
-        const conn = (navigator as { connection: unknown }).connection;
+        const conn = (navigator as { connection: NetworkConnection }).connection;
 
         const update = () => {
             setNetwork({

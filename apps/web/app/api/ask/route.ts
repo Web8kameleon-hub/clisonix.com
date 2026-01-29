@@ -98,7 +98,7 @@ export async function POST(request: Request) {
     telemetry.log(`❌ Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
     const errorResp = {
       error: "Processing failure in ALBA/JONA pipeline",
-      details: err.message,
+      details: err instanceof Error ? err.message : 'Unknown error',
       logs: telemetry.logs,
       timestamp: new Date().toISOString(),
     };

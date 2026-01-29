@@ -61,7 +61,7 @@ export default function DataDashboard() {
               type: key.includes('api') ? 'API' : key.includes('iot') ? 'IOT' : 'DATABASE',
               status: 'active',
               lastSync: new Date().toISOString(),
-              dataPoints: typeof value === 'number' ? value : (value?.count || 0)
+              dataPoints: typeof value === 'number' ? value : ((value as { count?: number })?.count || 0)
             });
           });
         }
