@@ -136,7 +136,7 @@ export default function DataDashboard() {
             {['overview', 'sources', 'metrics', 'export'].map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab as 'overview' | 'sources' | 'metrics' | 'exports')}
+                onClick={() => setActiveTab(tab as 'overview' | 'sources' | 'metrics' | 'export')}
                 className={`px-4 py-2 rounded-lg transition-all font-medium text-sm ${
                   activeTab === tab
                     ? 'bg-cyan-600 text-white'

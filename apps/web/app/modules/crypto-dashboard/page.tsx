@@ -59,10 +59,10 @@ export default function NeuralMarketSentiment() {
       const endTime = performance.now();
 
       if (marketResult.ok && marketResult.data) {
-        const rawData = marketResult.data;
+        const rawData = marketResult.data as Record<string, Record<string, number>>;
 
         // Transform CoinGecko data
-        const marketData: MarketData[] = Object.entries(rawData).map(([id, values]: [string, Record<string, number>]) => ({
+        const marketData: MarketData[] = Object.entries(rawData).map(([id, values]) => ({
           symbol: id.toUpperCase(),
           name: id.charAt(0).toUpperCase() + id.slice(1),
           price: values.usd || 0,
