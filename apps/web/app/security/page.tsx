@@ -89,7 +89,7 @@ export default function SecurityPage() {
           <div className="flex items-center gap-6">
             <Link href="/platform" className="text-gray-400 hover:text-white transition-colors">Platform</Link>
             <Link href="/status" className="text-gray-400 hover:text-white transition-colors">Status</Link>
-            <Link href="/modules" className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors">
+            <Link href="/modules" className="px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg transition-colors">
               Dashboard
             </Link>
           </div>
@@ -129,7 +129,7 @@ export default function SecurityPage() {
                     ? 'bg-green-500/20 text-green-400'
                     : cert.status === 'In Progress'
                     ? 'bg-yellow-500/20 text-yellow-400'
-                    : 'bg-cyan-500/20 text-cyan-400'
+                    : 'bg-violet-500/20 text-violet-400'
                 }`}>
                   {cert.status}
                 </span>
@@ -151,7 +151,7 @@ export default function SecurityPage() {
             {securityFeatures.map((feature) => (
               <div
                 key={feature.title}
-                className="p-6 rounded-xl bg-slate-800/30 border border-slate-700 hover:border-cyan-500/30 transition-colors"
+                className="p-6 rounded-xl bg-slate-800/30 border border-slate-700 hover:border-violet-500/30 transition-colors"
               >
                 <div className="text-3xl mb-3">{feature.icon}</div>
                 <h3 className="font-semibold mb-2">{feature.title}</h3>
@@ -173,7 +173,7 @@ export default function SecurityPage() {
                 key={practice.title}
                 className="p-6 rounded-xl bg-slate-800/50 border border-slate-700"
               >
-                <h3 className="font-bold text-lg mb-4 text-cyan-400">{practice.title}</h3>
+                <h3 className="font-bold text-lg mb-4 text-violet-400">{practice.title}</h3>
                 <ul className="space-y-3">
                   {practice.items.map((item) => (
                     <li key={item} className="flex items-center gap-3 text-gray-300">
@@ -207,13 +207,13 @@ export default function SecurityPage() {
               <div className="text-3xl mb-3">🇺🇸</div>
               <h3 className="font-semibold">US (East)</h3>
               <p className="text-sm text-gray-400">Enterprise option</p>
-              <p className="text-xs text-cyan-400 mt-2">● Available</p>
+              <p className="text-xs text-violet-400 mt-2">● Available</p>
             </div>
             <div className="p-6 rounded-xl bg-slate-800/30 border border-slate-700">
               <div className="text-3xl mb-3">🌏</div>
               <h3 className="font-semibold">Asia (Singapore)</h3>
               <p className="text-sm text-gray-400">Enterprise option</p>
-              <p className="text-xs text-cyan-400 mt-2">● Available</p>
+              <p className="text-xs text-violet-400 mt-2">● Available</p>
             </div>
           </div>
         </div>
@@ -222,7 +222,7 @@ export default function SecurityPage() {
       {/* Bug Bounty */}
       <section className="py-16 px-6">
         <div className="max-w-3xl mx-auto">
-          <div className="p-8 rounded-2xl bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/20 text-center">
+          <div className="p-8 rounded-2xl bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 text-center">
             <h2 className="text-2xl font-bold mb-4">🐛 Security Research</h2>
             <p className="text-gray-400 mb-6">
               Found a vulnerability? We appreciate responsible disclosure and reward 
@@ -230,7 +230,7 @@ export default function SecurityPage() {
             </p>
             <Link
               href="mailto:support@clisonix.com?subject=Security%20Vulnerability%20Report"
-              className="inline-flex px-6 py-3 bg-cyan-600 hover:bg-cyan-500 rounded-xl font-semibold transition-colors"
+              className="inline-flex px-6 py-3 bg-violet-600 hover:bg-violet-500 rounded-xl font-semibold transition-colors"
             >
               Report a Vulnerability
             </Link>
@@ -256,9 +256,9 @@ export default function SecurityPage() {
       <footer className="py-12 px-6 border-t border-slate-800">
         <div className="max-w-6xl mx-auto text-center text-gray-500 text-sm">
           © 2026 Clisonix. All rights reserved. | 
-          <Link href="/status" className="hover:text-cyan-400 ml-2">Status</Link> | 
-          <Link href="/platform" className="hover:text-cyan-400 ml-2">Platform</Link> | 
-          <Link href="/company" className="hover:text-cyan-400 ml-2">Company</Link>
+          <Link href="/status" className="hover:text-violet-400 ml-2">Status</Link> | 
+          <Link href="/platform" className="hover:text-violet-400 ml-2">Platform</Link> | 
+          <Link href="/company" className="hover:text-violet-400 ml-2">Company</Link>
         </div>
       </footer>
     </div>

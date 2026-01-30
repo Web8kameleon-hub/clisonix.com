@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: "2025-12-15.clover",
+      
     });
 
     // Get pricing for the selected plan
@@ -151,3 +151,4 @@ export async function POST(request: Request) {
     );
   }
 }
+

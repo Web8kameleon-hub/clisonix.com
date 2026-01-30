@@ -355,6 +355,6 @@ async def health():
 
 if __name__ == "__main__":
     import uvicorn
-    # Port 8008 - Knowledge Index (HQ is 8000, ALBA 5555, ALBI 6666, JONA 7777, Ocean 8009)
+    # Port 8008 - Knowledge Index (HQ is 8000, ALBA 5555, ALBI 6680, JONA 7777, Ocean 8009)
     # This is a SUB-SERVICE - can be accessed via HQ at /knowledge-index/*
     uvicorn.run(app, host="0.0.0.0", port=8008)

@@ -109,7 +109,7 @@ class UniversalSignalIntegrator:
             ("clisonix-marketplace", "Marketplace", "docker", 8004),
             ("clisonix-asi", "ASI Engine", "docker", 9094),
             ("clisonix-alba", "ALBA Neural", "docker", 5555),
-            ("clisonix-albi", "ALBI Brain", "docker", 6666),
+            ("clisonix-albi", "ALBI Brain", "docker", 6680),
             ("clisonix-excel", "Excel Generator", "docker", 8002),
             ("clisonix-reporting", "Reporting", "docker", 8001),
             ("clisonix-economy", "Economy API", "docker", 9093),

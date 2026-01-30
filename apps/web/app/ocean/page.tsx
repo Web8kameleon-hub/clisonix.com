@@ -162,10 +162,10 @@ export default function OceanPage() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-900 to-blue-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-400 mx-auto"></div>
-          <p className="mt-4 text-cyan-300">Connecting to Ocean Core...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-violet-400 mx-auto"></div>
+          <p className="mt-4 text-violet-300">Connecting to Ocean Core...</p>
         </div>
       </div>
     )
@@ -186,7 +186,7 @@ export default function OceanPage() {
           </div>
           <button 
             onClick={() => window.location.reload()}
-            className="mt-6 px-6 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition-colors"
+            className="mt-6 px-6 py-2 bg-violet-500 hover:bg-violet-600 text-white rounded-lg transition-colors"
           >
             Retry Connection
           </button>
@@ -196,14 +196,14 @@ export default function OceanPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-900">
       {/* Header */}
-      <header className="border-b border-cyan-800/50 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
+      <header className="border-b border-slate-800/50 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-4xl">🌊</span>
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-violet-400 bg-clip-text text-transparent">
                 Curiosity Ocean
               </h1>
               <p className="text-xs text-gray-400">AI Orchestrator • 14 Personas • 23 Labs • 61 Layers</p>
@@ -230,8 +230,8 @@ export default function OceanPage() {
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                   msg.role === 'user'
-                    ? 'bg-cyan-600 text-white rounded-br-md'
-                    : 'bg-slate-800 text-gray-100 rounded-bl-md border border-cyan-800/30'
+                    ? 'bg-violet-600 text-white rounded-br-md'
+                    : 'bg-slate-800 text-gray-100 rounded-bl-md border border-slate-800/30'
                 }`}
               >
                 {/* Message content with markdown-like formatting */}
@@ -251,7 +251,7 @@ export default function OceanPage() {
                 
                 {/* Metadata for assistant messages */}
                 {msg.role === 'assistant' && (msg.sources?.length || msg.confidence) && (
-                  <div className="mt-2 pt-2 border-t border-cyan-800/30 text-xs text-gray-400 flex gap-4">
+                  <div className="mt-2 pt-2 border-t border-slate-800/30 text-xs text-gray-400 flex gap-4">
                     {msg.confidence && (
                       <span>Confidence: {Math.round(msg.confidence * 100)}%</span>
                     )}
@@ -271,14 +271,14 @@ export default function OceanPage() {
           {/* Loading indicator */}
           {chatLoading && (
             <div className="flex justify-start">
-              <div className="bg-slate-800 rounded-2xl rounded-bl-md px-4 py-3 border border-cyan-800/30">
+              <div className="bg-slate-800 rounded-2xl rounded-bl-md px-4 py-3 border border-slate-800/30">
                 <div className="flex items-center gap-2">
                   <div className="animate-pulse flex gap-1">
-                    <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></span>
-                    <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></span>
-                    <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
+                    <span className="w-2 h-2 bg-violet-400 rounded-full animate-bounce"></span>
+                    <span className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></span>
+                    <span className="w-2 h-2 bg-violet-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
                   </div>
-                  <span className="text-cyan-300 text-sm">Orchestrator is thinking...</span>
+                  <span className="text-violet-300 text-sm">Orchestrator is thinking...</span>
                 </div>
               </div>
             </div>
@@ -288,21 +288,21 @@ export default function OceanPage() {
         </div>
 
         {/* Input Area */}
-        <div className="border-t border-cyan-800/50 pt-4">
+        <div className="border-t border-slate-800/50 pt-4">
           <div className="flex gap-3">
             <textarea
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="Ask anything... (Press Enter to send)"
-              className="flex-1 bg-slate-800 border border-cyan-800/50 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
+              className="flex-1 bg-slate-800 border border-slate-800/50 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
               rows={2}
               disabled={chatLoading}
             />
             <button
               onClick={sendMessage}
               disabled={!inputMessage.trim() || chatLoading}
-              className="px-6 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-medium transition-all"
+              className="px-6 bg-gradient-to-r from-violet-500 to-violet-500 hover:from-violet-600 hover:to-violet-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-medium transition-all"
             >
               {chatLoading ? '...' : 'Send'}
             </button>

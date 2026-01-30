@@ -285,7 +285,7 @@ export default function NeuralSynthesisPage() {
     if (method === 'GET') return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
     if (method === 'POST') return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
     if (method === 'DELETE') return 'bg-red-500/20 text-red-400 border-red-500/30';
-    return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+    return 'bg-violet-500/20 text-violet-400 border-violet-500/30';
   };
 
   const formatBytes = (bytes: number) => {
@@ -470,12 +470,12 @@ export default function NeuralSynthesisPage() {
                               {(response.data as JonaMetrics).status || 'Unknown'}
                             </p>
                           </div>
-                          <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20">
+                          <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-violet-500/10 border border-violet-500/20">
                             <div className="flex items-center gap-2 mb-2">
-                              <Brain className="w-5 h-5 text-cyan-400" />
+                              <Brain className="w-5 h-5 text-violet-400" />
                               <span className="text-sm text-slate-400">Neural Freq</span>
                             </div>
-                            <p className="text-xl font-bold text-cyan-400">
+                            <p className="text-xl font-bold text-violet-400">
                               {(response.data as JonaMetrics).neural_frequency?.toFixed(1) || 0} Hz
                             </p>
                           </div>

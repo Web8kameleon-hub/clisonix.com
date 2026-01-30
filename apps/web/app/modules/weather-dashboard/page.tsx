@@ -315,7 +315,7 @@ export default function BiometricEnvironmentMonitor() {
     const getWeatherIcon = (code: number) => {
         if (code === 0 || code === 1) return <Sun className="w-8 h-8 text-yellow-400" />;
         if (code >= 2 && code <= 3) return <Cloud className="w-8 h-8 text-gray-400" />;
-        return <Cloud className="w-8 h-8 text-blue-400" />;
+        return <Cloud className="w-8 h-8 text-violet-400" />;
     };
 
     const getImpactColor = (impact: string) => {
@@ -327,17 +327,17 @@ export default function BiometricEnvironmentMonitor() {
     const currentWeather = data?.weather.find(w => w.city === selectedCity) || data?.weather[0];
 
   return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-              <Link href="/modules" className="text-blue-400 hover:text-blue-300 mb-4 inline-flex items-center gap-2">
+              <Link href="/modules" className="text-violet-400 hover:text-violet-300 mb-4 inline-flex items-center gap-2">
                   ← Back to Modules
               </Link>
 
               <div className="flex items-center justify-between mb-8">
                   <div>
                       <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                          <Cloud className="w-8 h-8 text-blue-400" />
+                          <Cloud className="w-8 h-8 text-violet-400" />
                           Biometric Environment Monitor
                       </h1>
                       <p className="text-gray-400 mt-1">
@@ -348,7 +348,7 @@ export default function BiometricEnvironmentMonitor() {
                   <button
                       onClick={() => fetchData(true)}
                       disabled={loading || rateLimited}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
+                      className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors disabled:opacity-50"
                   >
                       <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                       {rateLimited ? 'Wait...' : 'Refresh'}
@@ -386,7 +386,7 @@ export default function BiometricEnvironmentMonitor() {
                       onClick={() => setActiveTab('cities')}
                       className={`px-4 py-2 rounded-lg font-medium transition-all ${
                           activeTab === 'cities' 
-                              ? 'bg-blue-600 text-white' 
+                              ? 'bg-violet-600 text-white' 
                               : 'bg-white/10 text-gray-400 hover:bg-white/20'
                       }`}
                   >
@@ -396,7 +396,7 @@ export default function BiometricEnvironmentMonitor() {
                       onClick={() => setActiveTab('search')}
                       className={`px-4 py-2 rounded-lg font-medium transition-all ${
                           activeTab === 'search' 
-                              ? 'bg-blue-600 text-white' 
+                              ? 'bg-violet-600 text-white' 
                               : 'bg-white/10 text-gray-400 hover:bg-white/20'
                       }`}
                   >
@@ -406,7 +406,7 @@ export default function BiometricEnvironmentMonitor() {
                       onClick={() => setActiveTab('coordinates')}
                       className={`px-4 py-2 rounded-lg font-medium transition-all ${
                           activeTab === 'coordinates' 
-                              ? 'bg-blue-600 text-white' 
+                              ? 'bg-violet-600 text-white' 
                               : 'bg-white/10 text-gray-400 hover:bg-white/20'
                       }`}
                   >
@@ -432,11 +432,11 @@ export default function BiometricEnvironmentMonitor() {
                                   searchLocation(e.target.value);
                               }}
                               placeholder="p.sh. Heathrow, New York, Tokyo Airport..."
-                              className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                              className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-violet-500"
                           />
                           {searchLoading && (
                               <div className="absolute right-3 top-3">
-                                  <RefreshCw className="w-5 h-5 text-blue-400 animate-spin" />
+                                  <RefreshCw className="w-5 h-5 text-violet-400 animate-spin" />
                               </div>
                           )}
                       </div>
@@ -462,7 +462,7 @@ export default function BiometricEnvironmentMonitor() {
 
                       {/* Search Weather Result */}
                       {searchWeather && (
-                          <div className="mt-6 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-xl p-6">
+                          <div className="mt-6 bg-gradient-to-br from-violet-600/20 to-purple-600/20 rounded-xl p-6">
                               <div className="flex items-center justify-between mb-4">
                                   <div>
                                       <h3 className="text-2xl font-bold text-white">{searchWeather.city}</h3>
@@ -477,12 +477,12 @@ export default function BiometricEnvironmentMonitor() {
                               </div>
                               <div className="grid grid-cols-3 gap-4">
                                   <div className="text-center bg-white/5 rounded-lg p-3">
-                                      <Droplets className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+                                      <Droplets className="w-5 h-5 text-violet-400 mx-auto mb-1" />
                                       <p className="text-white font-medium">{searchWeather.humidity}%</p>
                                       <p className="text-gray-500 text-xs">Lagështi</p>
                                   </div>
                                   <div className="text-center bg-white/5 rounded-lg p-3">
-                                      <Wind className="w-5 h-5 text-cyan-400 mx-auto mb-1" />
+                                      <Wind className="w-5 h-5 text-violet-400 mx-auto mb-1" />
                                       <p className="text-white font-medium">{searchWeather.windSpeed.toFixed(1)} km/h</p>
                                       <p className="text-gray-500 text-xs">Erë</p>
                                   </div>
@@ -514,7 +514,7 @@ export default function BiometricEnvironmentMonitor() {
                                   value={customLat}
                                   onChange={(e) => setCustomLat(e.target.value)}
                                   placeholder="p.sh. 41.3275"
-                                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-violet-500"
                               />
                           </div>
                           <div>
@@ -524,14 +524,14 @@ export default function BiometricEnvironmentMonitor() {
                                   value={customLon}
                                   onChange={(e) => setCustomLon(e.target.value)}
                                   placeholder="p.sh. 19.8187"
-                                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-violet-500"
                               />
                           </div>
                       </div>
                       <button
                           onClick={handleCoordinatesSearch}
                           disabled={coordLoading || !customLat || !customLon}
-                          className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg text-white font-medium transition-colors flex items-center justify-center gap-2"
+                          className="w-full px-4 py-3 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 rounded-lg text-white font-medium transition-colors flex items-center justify-center gap-2"
                       >
                           {coordLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : '🔍'}
                           Kërko Motin
@@ -539,7 +539,7 @@ export default function BiometricEnvironmentMonitor() {
 
                       {/* Coordinates Weather Result */}
                       {coordWeather && (
-                          <div className="mt-6 bg-gradient-to-br from-green-600/20 to-cyan-600/20 rounded-xl p-6">
+                          <div className="mt-6 bg-gradient-to-br from-green-600/20 to-violet-600/20 rounded-xl p-6">
                               <div className="flex items-center justify-between mb-4">
                                   <div>
                                       <h3 className="text-2xl font-bold text-white">{coordWeather.city}</h3>
@@ -554,12 +554,12 @@ export default function BiometricEnvironmentMonitor() {
                               </div>
                               <div className="grid grid-cols-3 gap-4">
                                   <div className="text-center bg-white/5 rounded-lg p-3">
-                                      <Droplets className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+                                      <Droplets className="w-5 h-5 text-violet-400 mx-auto mb-1" />
                                       <p className="text-white font-medium">{coordWeather.humidity}%</p>
                                       <p className="text-gray-500 text-xs">Lagështi</p>
                                   </div>
                                   <div className="text-center bg-white/5 rounded-lg p-3">
-                                      <Wind className="w-5 h-5 text-cyan-400 mx-auto mb-1" />
+                                      <Wind className="w-5 h-5 text-violet-400 mx-auto mb-1" />
                                       <p className="text-white font-medium">{coordWeather.windSpeed.toFixed(1)} km/h</p>
                                       <p className="text-gray-500 text-xs">Erë</p>
                                   </div>
@@ -696,7 +696,7 @@ export default function BiometricEnvironmentMonitor() {
                       <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6">
                           <div className="flex items-center justify-between mb-4">
                               <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                                  <Activity className="w-5 h-5 text-cyan-400" />
+                                  <Activity className="w-5 h-5 text-violet-400" />
                                   Environmental Data
                               </h2>
                               {data && (
@@ -714,7 +714,7 @@ export default function BiometricEnvironmentMonitor() {
                                           key={city.city}
                                           onClick={() => setSelectedCity(city.city)}
                           className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${selectedCity === city.city
-                                  ? 'bg-blue-600 text-white'
+                                  ? 'bg-violet-600 text-white'
                                   : 'bg-white/5 text-gray-400 hover:bg-white/10'
                               }`}
                       >
@@ -726,7 +726,7 @@ export default function BiometricEnvironmentMonitor() {
 
                           {/* Current Weather Display */}
                           {currentWeather && (
-                              <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-xl p-6 mb-6">
+                              <div className="bg-gradient-to-br from-violet-600/20 to-purple-600/20 rounded-xl p-6 mb-6">
                                   <div className="flex items-center justify-between">
                                       <div>
                                           <h3 className="text-2xl font-bold text-white">{currentWeather.city}</h3>
@@ -742,12 +742,12 @@ export default function BiometricEnvironmentMonitor() {
 
                                   <div className="grid grid-cols-3 gap-4 mt-6">
                                       <div className="text-center">
-                                          <Droplets className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+                                          <Droplets className="w-5 h-5 text-violet-400 mx-auto mb-1" />
                                           <p className="text-white font-medium">{currentWeather.humidity}%</p>
                                           <p className="text-gray-500 text-xs">Humidity</p>
                                       </div>
                                       <div className="text-center">
-                                          <Wind className="w-5 h-5 text-cyan-400 mx-auto mb-1" />
+                                          <Wind className="w-5 h-5 text-violet-400 mx-auto mb-1" />
                                           <p className="text-white font-medium">{currentWeather.windSpeed.toFixed(1)} km/h</p>
                                           <p className="text-gray-500 text-xs">Wind</p>
                                       </div>

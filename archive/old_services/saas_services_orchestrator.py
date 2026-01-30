@@ -7,7 +7,7 @@
 
 This orchestrator manages:
 - ALBA Collector (5555) - Network telemetry
-- ALBI Processor (6666) - Neural analytics
+- ALBI Processor (6680) - Neural analytics
 - JONA Coordinator (7777) - Data synthesis
 - Mesh HQ (Fallback on 7778) - Node management
 - Service registry & health checks
@@ -47,7 +47,7 @@ tracer = setup_tracing("orchestrator")
 
 SERVICE_PORTS = {
     "alba": 5555,      # Network telemetry collector
-    "albi": 6666,      # Neural analytics processor
+    "albi": 6680,      # Neural analytics processor
     "jona": 7777,      # Data synthesis coordinator
     "mesh": 7778,      # Mesh network orchestrator
 }

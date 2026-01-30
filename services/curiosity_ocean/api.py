@@ -384,7 +384,7 @@ class CuriosityOceanAPI:
             "services": {
                 "hq": {"port": 8000, "status": "active"},
                 "alba": {"port": 5555, "status": "active"},
-                "albi": {"port": 6666, "status": "active"},
+                "albi": {"port": 6680, "status": "active"},
                 "jona": {"port": 7777, "status": "active"}
             }
         }
@@ -585,5 +585,5 @@ if __name__ == "__main__":
     import uvicorn
     
     app = create_app()
-    # Port 8009 - Curiosity Ocean (HQ is 8000, ALBA 5555, ALBI 6666, JONA 7777, Knowledge 8008)
+    # Port 8009 - Curiosity Ocean (HQ is 8000, ALBA 5555, ALBI 6680, JONA 7777, Knowledge 8008)
     uvicorn.run(app, host="0.0.0.0", port=8009)

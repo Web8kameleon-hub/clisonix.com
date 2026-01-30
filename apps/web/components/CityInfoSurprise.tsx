@@ -66,7 +66,7 @@ export const CityInfoSurprise: React.FC = () => {
 
   return (
     <motion.div
-      className="grid md:grid-cols-2 gap-4 p-4 rounded-xl shadow-lg bg-gradient-to-r from-slate-900 to-slate-800 text-white border border-gray-700"
+      className="grid md:grid-cols-2 gap-4 p-4 rounded-xl shadow-lg bg-gradient-to-r from-neutral-900 to-neutral-800 text-white border border-gray-700"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1.2 }}
@@ -74,7 +74,7 @@ export const CityInfoSurprise: React.FC = () => {
       {cities.map((city, index) => (
         <motion.div
           key={index}
-          className="p-4 rounded-lg bg-slate-700 bg-opacity-30 backdrop-blur-lg hover:scale-105 transition-all cursor-pointer"
+          className="p-4 rounded-lg bg-neutral-700 bg-opacity-30 backdrop-blur-lg hover:scale-105 transition-all cursor-pointer"
           whileHover={{ scale: 1.05 }}
         >
           <h2 className="text-xl font-bold mb-2">
@@ -93,7 +93,7 @@ export const CityInfoSurprise: React.FC = () => {
             </span>{' '}
             <span
               className={`px-2 py-1 rounded ${
-                city.coreBStatus === 'active' ? 'bg-blue-600' : 'bg-gray-600'
+                city.coreBStatus === 'active' ? 'bg-violet-600' : 'bg-gray-600'
               }`}
             >
               Core-B: {city.coreBStatus}

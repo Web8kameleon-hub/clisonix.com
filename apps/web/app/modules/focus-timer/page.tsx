@@ -357,7 +357,7 @@ export default function FocusTimerPage() {
                         onClick={() => setAmbientSound(sound.id)}
                         className={`p-2 rounded-xl text-center ${
                           ambientSound === sound.id 
-                            ? 'bg-blue-500 text-white' 
+                            ? 'bg-violet-500 text-white' 
                             : 'bg-white/10 text-white/70'
                         }`}
                       >
@@ -538,7 +538,7 @@ export default function FocusTimerPage() {
                     <p className="text-2xl font-bold text-white">{stats.streak}</p>
                     <p className="text-xs text-white/60">ditë streak</p>
                   </div>
-                  <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-2xl p-4 text-center">
+                  <div className="bg-gradient-to-br from-violet-500/20 to-violet-500/20 border border-violet-500/30 rounded-2xl p-4 text-center">
                     <p className="text-3xl">🍅</p>
                     <p className="text-2xl font-bold text-white">{stats.totalSessions}</p>
                     <p className="text-xs text-white/60">sesione</p>

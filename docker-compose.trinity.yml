@@ -67,13 +67,13 @@ services:
     image: python:3.11-slim
     container_name: clisonix-albi
     working_dir: /app
-    command: bash -c "pip install --quiet fastapi uvicorn redis httpx numpy scipy && python albi_service_6666.py"
+    command: bash -c "pip install --quiet fastapi uvicorn redis httpx numpy scipy && python albi_service_6680.py"
     environment:
       - REDIS_URL=redis://redis:6379/0
       - DATABASE_URL=postgresql://clisonix:clisonix@postgres:5432/clisonixdb
-      - ALBI_PORT=6666
+      - ALBI_PORT=6680
     ports:
-      - "6666:6666"
+      - "6680:6680"
     volumes:
       - /opt/clisonix:/app
     depends_on:
@@ -92,7 +92,7 @@ services:
       - DATABASE_URL=postgresql://clisonix:clisonix@postgres:5432/clisonixdb
       - JONA_PORT=7777
       - ALBA_URL=http://alba:5555
-      - ALBI_URL=http://albi:6666
+      - ALBI_URL=http://albi:6680
     ports:
       - "7777:7777"
     volumes:
@@ -118,7 +118,7 @@ services:
       REDIS_URL: "redis://redis:6379/0"
       GROQ_API_KEY: "${GROQ_API_KEY:-}"
       ALBA_URL: "http://alba:5555"
-      ALBI_URL: "http://albi:6666"
+      ALBI_URL: "http://albi:6680"
       JONA_URL: "http://jona:7777"
     ports:
       - "8000:8000"

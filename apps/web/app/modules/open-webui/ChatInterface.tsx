@@ -35,7 +35,7 @@ export default function OpenWebUIChat() {
   return (
     <div className="min-h-screen bg-white flex">
       {/* Sidebar - Clisonix Modules */}
-      <div className="w-80 bg-gradient-to-b from-slate-900 to-blue-900 text-white p-6">
+      <div className="w-80 bg-gradient-to-b from-slate-900 to-slate-900 text-white p-6">
         <h1 className="text-2xl font-bold mb-2">🧠 Clisonix</h1>
         <p className="text-gray-300 mb-6">AI Chat Interface</p>
         <div className="space-y-3">
@@ -44,7 +44,7 @@ export default function OpenWebUIChat() {
             <div className="font-semibold">🧠 ALBI</div>
             <div className="text-sm text-gray-300">EEG Analysis</div>
           </div>
-          <div className="p-3 bg-blue-500/20 rounded-lg border border-blue-500/30">
+          <div className="p-3 bg-violet-500/20 rounded-lg border border-violet-500/30">
             <div className="font-semibold">📚 ALBA</div>
             <div className="text-sm text-gray-300">Data Collection</div>
           </div>
@@ -94,14 +94,14 @@ export default function OpenWebUIChat() {
             <input
               type="text"
               placeholder="Ask about EEG data analysis, neural synthesis, ALBI patterns, or system status..."
-              className="flex-1 p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
             />
             <button 
               onClick={sendMessage}
-              className="px-8 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition flex items-center space-x-2"
+              className="px-8 py-4 bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition flex items-center space-x-2"
             >
               <span>Send</span>
                 <span>📤</span>

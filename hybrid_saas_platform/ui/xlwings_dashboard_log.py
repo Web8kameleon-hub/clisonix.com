@@ -84,7 +84,7 @@ def log_alert(alert_sheet, row_num: int, alert_type: str,
     
     # Color code by alert type
     if alert_type == 'FAIL':
-        alert_sheet.range(f'A{next_row}:F{next_row}').api.Interior.Color = 0x6666FF  # Red
+        alert_sheet.range(f'A{next_row}:F{next_row}').api.Interior.Color = 0x6680FF  # Red
     elif alert_type == 'ML Anomaly':
         alert_sheet.range(f'A{next_row}:F{next_row}').api.Interior.Color = 0x00A5FF  # Orange
 

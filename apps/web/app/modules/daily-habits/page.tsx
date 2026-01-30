@@ -42,7 +42,7 @@ interface HabitStats {
 }
 
 const DEFAULT_HABITS: Habit[] = [
-  { id: 'water', name: 'Pi ujë', emoji: '💧', frequency: 'daily', targetPerDay: 8, color: 'from-blue-400 to-cyan-500', createdAt: '' },
+  { id: 'water', name: 'Pi ujë', emoji: '💧', frequency: 'daily', targetPerDay: 8, color: 'from-violet-400 to-violet-500', createdAt: '' },
   { id: 'sleep', name: '8 orë gjumë', emoji: '😴', frequency: 'daily', targetPerDay: 1, color: 'from-indigo-400 to-purple-500', createdAt: '' },
   { id: 'exercise', name: 'Stërvitje', emoji: '🏃', frequency: 'daily', targetPerDay: 1, color: 'from-green-400 to-emerald-500', createdAt: '' },
   { id: 'meditate', name: 'Meditim', emoji: '🧘', frequency: 'daily', targetPerDay: 1, color: 'from-purple-400 to-pink-500', createdAt: '' },
@@ -530,7 +530,7 @@ export default function DailyHabitsPage() {
                 </p>
                 <p className="text-xs text-white/60">total</p>
               </div>
-              <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-2xl p-4 text-center">
+              <div className="bg-gradient-to-br from-violet-500/20 to-violet-500/20 border border-violet-500/30 rounded-2xl p-4 text-center">
                 <p className="text-3xl">📊</p>
                 <p className="text-2xl font-bold text-white">
                   {Math.round(

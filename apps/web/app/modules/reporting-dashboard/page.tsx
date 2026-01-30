@@ -181,7 +181,7 @@ export default function UltraReportingDashboard() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-400">Loading ULTRA Reporting Dashboard...</p>
         </div>
       </div>
@@ -195,7 +195,7 @@ export default function UltraReportingDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
                 <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
@@ -262,8 +262,8 @@ export default function UltraReportingDashboard() {
               <div className="p-6 rounded-xl bg-gray-800/50 border border-gray-700/50">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-gray-400 text-sm">CPU Usage</span>
-                  <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
                     </svg>
                   </div>
@@ -273,7 +273,7 @@ export default function UltraReportingDashboard() {
                 </p>
                 <div className="mt-2 h-2 bg-gray-700 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-blue-500 transition-all duration-500"
+                    className="h-full bg-violet-500 transition-all duration-500"
                     style={{ width: `${data.system.cpu_percent}%` }}
                   ></div>
                 </div>
@@ -337,8 +337,8 @@ export default function UltraReportingDashboard() {
 
             {/* Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-6 rounded-xl bg-gradient-to-br from-blue-600/20 to-blue-800/20 border border-blue-500/30">
-                <p className="text-blue-300 text-sm mb-2">API Requests (24h)</p>
+              <div className="p-6 rounded-xl bg-gradient-to-br from-violet-600/20 to-slate-800/20 border border-violet-500/30">
+                <p className="text-violet-300 text-sm mb-2">API Requests (24h)</p>
                 <p className="text-4xl font-bold text-white">{data.api_requests_24h.toLocaleString()}</p>
               </div>
               <div className="p-6 rounded-xl bg-gradient-to-br from-red-600/20 to-red-800/20 border border-red-500/30 cursor-pointer hover:border-red-400/60 transition-all" onClick={() => { setShowErrorTracker(true); fetchErrors(); }}>
@@ -379,9 +379,9 @@ export default function UltraReportingDashboard() {
             </div>
 
             {/* ASI Trinity Architecture */}
-            <div className="p-6 rounded-xl bg-gradient-to-br from-gray-800/70 to-gray-900/70 border border-cyan-500/30">
+            <div className="p-6 rounded-xl bg-gradient-to-br from-gray-800/70 to-gray-900/70 border border-violet-500/30">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <span className="w-3 h-3 bg-cyan-500 rounded-full animate-pulse"></span>
+                <span className="w-3 h-3 bg-violet-500 rounded-full animate-pulse"></span>
                 ASI Trinity Architecture - Real Metrics
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -403,17 +403,17 @@ export default function UltraReportingDashboard() {
                 </div>
 
                 {/* Creative Intelligence */}
-                <div className="p-4 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
+                <div className="p-4 rounded-lg bg-violet-500/10 border border-violet-500/30">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-cyan-400 font-medium">🧠 Creative Intelligence</span>
-                    <span className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></span>
+                    <span className="text-violet-400 font-medium">🧠 Creative Intelligence</span>
+                    <span className="w-2 h-2 bg-violet-500 rounded-full animate-pulse"></span>
                   </div>
                   <p className="text-xs text-gray-400 mb-3">Neural patterns, processing efficiency, real-time metrics</p>
                   <a 
                     href="/api/asi/albi/metrics" 
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
+                    className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1"
                   >
                     → Real metrics endpoint
                   </a>
@@ -443,7 +443,7 @@ export default function UltraReportingDashboard() {
                   href="/api/asi/status" 
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 bg-gray-700/50 hover:bg-gray-600/50 text-cyan-400 text-sm rounded-lg transition-colors"
+                  className="px-4 py-2 bg-gray-700/50 hover:bg-gray-600/50 text-violet-400 text-sm rounded-lg transition-colors"
                 >
                   View ASI Status
                 </a>
@@ -546,7 +546,7 @@ export default function UltraReportingDashboard() {
                       <span className="text-white font-mono">{data.system.cpu_percent}%</span>
                     </div>
                     <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                      <div className="h-full bg-blue-500" style={{ width: `${data.system.cpu_percent}%` }}></div>
+                      <div className="h-full bg-violet-500" style={{ width: `${data.system.cpu_percent}%` }}></div>
                     </div>
                   </div>
                   <div>
@@ -692,7 +692,7 @@ export default function UltraReportingDashboard() {
                   rel="noopener noreferrer"
                   className="p-4 bg-gray-900/50 rounded-lg hover:bg-gray-700/50 transition-colors"
                 >
-                  <code className="text-blue-400 text-sm">GET /api/reporting/dashboard</code>
+                  <code className="text-violet-400 text-sm">GET /api/reporting/dashboard</code>
                   <p className="text-xs text-gray-500 mt-1">Live dashboard metrics</p>
                 </a>
                 <a 
@@ -793,10 +793,10 @@ export default function UltraReportingDashboard() {
                     <tbody>
                       {errors.map((err, idx) => (
                         <tr key={idx} className="border-b border-gray-800 hover:bg-gray-800/50 transition-colors">
-                          <td className="py-3 px-3 font-bold text-cyan-400">{err.error_id}</td>
+                          <td className="py-3 px-3 font-bold text-violet-400">{err.error_id}</td>
                           <td className="py-3 px-3 text-gray-400 text-xs">{new Date(err.timestamp).toLocaleTimeString()}</td>
                           <td className="py-3 px-3 text-yellow-400 font-mono">{err.line_number}</td>
-                          <td className="py-3 px-3 text-blue-400">{err.function_name}</td>
+                          <td className="py-3 px-3 text-violet-400">{err.function_name}</td>
                           <td className="py-3 px-3 text-orange-400">{err.error_type}</td>
                           <td className="py-3 px-3 text-red-400 truncate max-w-xs">{err.error_message}</td>
                         </tr>

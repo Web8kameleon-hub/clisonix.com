@@ -290,10 +290,10 @@ services:
     environment:
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-clisonix}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-clisonixdb}
-      ALBI_PORT: ${ALBI_PORT:-6666}
+      ALBI_PORT: ${ALBI_PORT:-6680}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     ports:
-      - "${ALBI_PORT:-6666}:6666"
+      - "${ALBI_PORT:-6680}:6680"
     depends_on:
       - redis
       - postgres

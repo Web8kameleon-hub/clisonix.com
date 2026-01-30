@@ -34,7 +34,7 @@ IS_IN_DOCKER = os.path.exists("/.dockerenv") or os.environ.get("DOCKER_ENV") == 
 # Use host.docker.internal when in Docker to reach Ollama on host
 OLLAMA_HOST = "host.docker.internal" if IS_IN_DOCKER else "localhost"
 OLLAMA_BASE_URL = f"http://{OLLAMA_HOST}:11434"
-DEFAULT_MODEL = "phi3:mini"
+DEFAULT_MODEL = "clisonix-ocean:v2"
 DEFAULT_TIMEOUT = 60.0  # seconds
 
 # System prompts për kontekstin e Ocean

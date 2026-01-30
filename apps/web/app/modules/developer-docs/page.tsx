@@ -89,7 +89,7 @@ const API_ENDPOINTS = [
 
 const METHOD_COLORS: Record<string, string> = {
   GET: 'bg-green-500',
-  POST: 'bg-blue-500',
+  POST: 'bg-violet-500',
   PUT: 'bg-yellow-500',
   DELETE: 'bg-red-500'
 }
@@ -107,13 +107,13 @@ export default function DeveloperDocs() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 border-b border-gray-700">
+      <div className="bg-gradient-to-r from-purple-600/20 to-violet-600/20 border-b border-gray-700">
         <div className="max-w-6xl mx-auto px-4 py-16">
           <Link href="/" className="text-gray-400 hover:text-white text-sm mb-4 inline-block">
             ← Kthehu në Dashboard
           </Link>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">
               Developer Documentation
             </span>
           </h1>
@@ -167,7 +167,7 @@ export default function DeveloperDocs() {
                 <code className="block bg-gray-900 px-3 py-2 rounded text-sm text-green-400">
                   pip install clisonix
                 </code>
-                <code className="block bg-gray-900 px-3 py-2 rounded text-sm text-blue-400">
+                <code className="block bg-gray-900 px-3 py-2 rounded text-sm text-violet-400">
                   npm install @clisonix/sdk
                 </code>
               </div>
@@ -232,7 +232,7 @@ export default function DeveloperDocs() {
 
             {/* Code */}
             <pre className="p-6 overflow-x-auto text-sm">
-              <code className={activeTab === 'curl' ? 'text-yellow-300' : activeTab === 'python' ? 'text-green-300' : 'text-blue-300'}>
+              <code className={activeTab === 'curl' ? 'text-yellow-300' : activeTab === 'python' ? 'text-green-300' : 'text-violet-300'}>
                 {CODE_EXAMPLES[activeTab]}
               </code>
             </pre>
@@ -289,14 +289,14 @@ export default function DeveloperDocs() {
             </div>
 
             {/* TypeScript SDK */}
-            <div className="bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-xl p-6 border border-blue-500/30">
+            <div className="bg-gradient-to-br from-violet-500/10 to-indigo-500/10 rounded-xl p-6 border border-violet-500/30">
               <div className="text-4xl mb-4">📘</div>
               <h3 className="text-xl font-semibold mb-2">TypeScript SDK</h3>
-              <code className="text-blue-400 text-sm">@clisonix/sdk</code>
+              <code className="text-violet-400 text-sm">@clisonix/sdk</code>
               <div className="mt-4 bg-gray-900 rounded-lg p-3">
-                <code className="text-blue-300 text-sm">npm install @clisonix/sdk</code>
+                <code className="text-violet-300 text-sm">npm install @clisonix/sdk</code>
               </div>
-              <a href="https://github.com/Clisonix/typescript-sdk" target="_blank" rel="noopener" className="mt-4 inline-block text-blue-400 hover:text-blue-300 text-sm">
+              <a href="https://github.com/Clisonix/typescript-sdk" target="_blank" rel="noopener" className="mt-4 inline-block text-violet-400 hover:text-violet-300 text-sm">
                 View on GitHub →
               </a>
             </div>
@@ -317,7 +317,7 @@ export default function DeveloperDocs() {
         </section>
 
         {/* CTA Section */}
-        <section className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-2xl p-8 border border-purple-500/30 text-center">
+        <section className="bg-gradient-to-r from-purple-600/20 to-violet-600/20 rounded-2xl p-8 border border-purple-500/30 text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Build?</h2>
           <p className="text-gray-300 mb-6">Start building with Clisonix today. Free tier available.</p>
           <div className="flex flex-wrap justify-center gap-4">

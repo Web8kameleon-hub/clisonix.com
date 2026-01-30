@@ -141,7 +141,7 @@ class ClisonixIdentity:
                 }
             },
             "ALBI": {
-                "port": 6666,
+                "port": 6680,
                 "function": "Intelligence processing and semantic analysis",
                 "capabilities": ["NLP processing", "Semantic analysis", "Pattern synthesis"],
                 "language_names": {
@@ -252,7 +252,7 @@ class ClisonixIdentity:
             labels["version"]: self.identity.version,
             labels["layers"]: self.identity.layers,
             labels["status"]: "ACTIVE",
-            "Trinity": ["ALBA (5555)", "ALBI (6666)", "JONA (7777)"],
+            "Trinity": ["ALBA (5555)", "ALBI (6680)", "JONA (7777)"],
             "Ocean": "Curiosity Ocean (Layer 7)",
             "Capabilities": len(self.identity.capabilities)
         }

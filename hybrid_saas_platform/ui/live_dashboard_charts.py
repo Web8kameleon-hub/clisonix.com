@@ -19,7 +19,7 @@ status_colors = {
     'RAW': 'FFCCCC',
     'TEST': 'FFF2CC', 
     'READY': 'CCFFCC',
-    'FAIL': 'FF6666'
+    'FAIL': 'FF6680'
 }
 
 maturity_colors = {

@@ -236,7 +236,7 @@ Write-Host "   • API Gateway:    http://localhost:8000" -ForegroundColor White
 Write-Host ""
 Write-Host "🔧 ASI Trinity:" -ForegroundColor $Colors.Info
 Write-Host "   • Alba:           http://localhost:5555" -ForegroundColor White
-Write-Host "   • Albi:           http://localhost:6666" -ForegroundColor White
+Write-Host "   • Albi:           http://localhost:6680" -ForegroundColor White
 Write-Host "   • Jona:           http://localhost:7777" -ForegroundColor White
 Write-Host "   • ASI:            http://localhost:9094" -ForegroundColor White
 Write-Host ""

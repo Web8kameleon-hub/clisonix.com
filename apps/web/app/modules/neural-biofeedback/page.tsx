@@ -155,7 +155,7 @@ export default function NeuralBiofeedbackPage() {
 
   const getCoherenceColor = (coherence: number) => {
     if (coherence >= 80) return 'text-emerald-400';
-    if (coherence >= 60) return 'text-cyan-400';
+    if (coherence >= 60) return 'text-violet-400';
     if (coherence >= 40) return 'text-amber-400';
     return 'text-red-400';
   };
@@ -328,12 +328,12 @@ export default function NeuralBiofeedbackPage() {
                                 {(response.data as BiofeedbackMetrics).status || 'Unknown'}
                               </p>
                             </div>
-                            <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20">
+                            <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-violet-500/10 border border-violet-500/20">
                               <div className="flex items-center gap-2 mb-2">
-                                <Target className="w-5 h-5 text-cyan-400" />
+                                <Target className="w-5 h-5 text-violet-400" />
                                 <span className="text-sm text-slate-400">Total Sessions</span>
                               </div>
-                              <p className="text-xl font-bold text-cyan-400">
+                              <p className="text-xl font-bold text-violet-400">
                                 {(response.data as BiofeedbackMetrics).total_sessions_completed || 0}
                               </p>
                             </div>
@@ -360,8 +360,8 @@ export default function NeuralBiofeedbackPage() {
                           {/* Training Progress */}
                           <div className="grid grid-cols-3 gap-4">
                             {/* Alpha */}
-                            <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20">
-                              <h4 className="text-sm font-semibold text-cyan-400 mb-3 flex items-center gap-2">
+                            <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-violet-500/10 border border-violet-500/20">
+                              <h4 className="text-sm font-semibold text-violet-400 mb-3 flex items-center gap-2">
                                 🌊 Alpha Training
                               </h4>
                               <div className="space-y-2">

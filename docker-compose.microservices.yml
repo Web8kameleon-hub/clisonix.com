@@ -16,7 +16,7 @@
 # │                              ASI TRINITY (Super Intelligence)                                  │
 # │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐                                       │
 # │  │  ALBA    │  │  ALBI    │  │  JONA    │  │   ASI    │                                       │
-# │  │  :5555   │  │  :6666   │  │  :7777   │  │  :9094   │                                       │
+# │  │  :5555   │  │  :6680   │  │  :7777   │  │  :9094   │                                       │
 # │  │ Collector│  │ Learner  │  │ Sandbox  │  │ Combined │                                       │
 # │  └──────────┘  └──────────┘  └──────────┘  └──────────┘                                       │
 # └────────────────────────────────────────────────────────────────────────────────────────────────┘
@@ -207,7 +207,7 @@ services:
     container_name: clisonix-albi
     <<: *python-defaults
     ports:
-      - "6666:6666"
+      - "6680:6680"
     depends_on:
       redis:
         condition: service_healthy
@@ -215,7 +215,7 @@ services:
         condition: service_healthy
     healthcheck:
       <<: *healthcheck-defaults
-      test: ["CMD", "curl", "-f", "http://localhost:6666/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:6680/health"]
     labels:
       clisonix.role: "asi-trinity"
       clisonix.component: "albi"
@@ -257,7 +257,7 @@ services:
     environment:
       <<: *python-env
       ALBA_URL: "http://alba:5555"
-      ALBI_URL: "http://albi:6666"
+      ALBI_URL: "http://albi:6680"
       JONA_URL: "http://jona:7777"
     ports:
       - "9094:9094"
@@ -349,7 +349,7 @@ services:
     environment:
       <<: *python-env
       ALBA_URL: "http://alba:5555"
-      ALBI_URL: "http://albi:6666"
+      ALBI_URL: "http://albi:6680"
       JONA_URL: "http://jona:7777"
       ASI_URL: "http://asi:9094"
       OCEAN_URL: "http://ocean-core:8030"
@@ -1268,7 +1268,7 @@ services:
       SAAS_MODE: "production"
       ASI_URL: "http://asi:9094"
       ALBA_URL: "http://alba:5555"
-      ALBI_URL: "http://albi:6666"
+      ALBI_URL: "http://albi:6680"
       JONA_URL: "http://jona:7777"
     ports:
       - "8040:8040"

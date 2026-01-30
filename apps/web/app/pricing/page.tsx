@@ -107,7 +107,7 @@ export default function PricingPage() {
           <div className="flex items-center gap-6">
             <Link href="/why-clisonix" className="text-gray-400 hover:text-white transition-colors">Why Clisonix</Link>
             <Link href="/platform" className="text-gray-400 hover:text-white transition-colors">Platform</Link>
-            <Link href="/modules" className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors">
+            <Link href="/modules" className="px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg transition-colors">
               Open Dashboard
             </Link>
           </div>
@@ -128,7 +128,7 @@ export default function PricingPage() {
           <button
             onClick={() => setBilling('monthly')}
             className={`px-6 py-2 rounded-lg transition-colors ${
-              billing === 'monthly' ? 'bg-cyan-600 text-white' : 'text-gray-400 hover:text-white'
+              billing === 'monthly' ? 'bg-violet-600 text-white' : 'text-gray-400 hover:text-white'
             }`}
           >
             Monthly
@@ -136,7 +136,7 @@ export default function PricingPage() {
           <button
             onClick={() => setBilling('annual')}
             className={`px-6 py-2 rounded-lg transition-colors ${
-              billing === 'annual' ? 'bg-cyan-600 text-white' : 'text-gray-400 hover:text-white'
+              billing === 'annual' ? 'bg-violet-600 text-white' : 'text-gray-400 hover:text-white'
             }`}
           >
             Annual <span className="text-green-400 text-sm ml-1">Save 17%</span>
@@ -152,12 +152,12 @@ export default function PricingPage() {
               key={plan.name}
               className={`relative rounded-2xl p-8 ${
                 plan.highlighted
-                  ? 'bg-gradient-to-b from-cyan-500/20 to-slate-800 border-2 border-cyan-500'
+                  ? 'bg-gradient-to-b from-violet-500/20 to-slate-800 border-2 border-violet-500'
                   : 'bg-slate-800/50 border border-slate-700'
               }`}
             >
               {plan.badge && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-cyan-500 text-sm font-medium">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-violet-500 text-sm font-medium">
                   {plan.badge}
                 </div>
               )}
@@ -181,7 +181,7 @@ export default function PricingPage() {
                 href={plan.name === 'Enterprise' ? 'mailto:investors@clisonix.com' : '/modules'}
                 className={`block w-full py-3 rounded-xl font-semibold text-center transition-colors mb-8 ${
                   plan.highlighted
-                    ? 'bg-cyan-600 hover:bg-cyan-500'
+                    ? 'bg-violet-600 hover:bg-violet-500'
                     : 'bg-slate-700 hover:bg-slate-600'
                 }`}
               >
@@ -191,7 +191,7 @@ export default function PricingPage() {
               <ul className="space-y-3">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-3">
-                    <span className="text-cyan-400 mt-0.5">✓</span>
+                    <span className="text-violet-400 mt-0.5">✓</span>
                     <span className="text-gray-300">{feature}</span>
                   </li>
                 ))}
@@ -261,9 +261,9 @@ export default function PricingPage() {
       <footer className="py-12 px-6 border-t border-slate-800">
         <div className="max-w-6xl mx-auto text-center text-gray-500 text-sm">
           © 2026 Clisonix. All rights reserved. | 
-          <Link href="/security" className="hover:text-cyan-400 ml-2">Security</Link> | 
-          <Link href="/status" className="hover:text-cyan-400 ml-2">Status</Link> | 
-          <Link href="/company" className="hover:text-cyan-400 ml-2">Company</Link>
+          <Link href="/security" className="hover:text-violet-400 ml-2">Security</Link> | 
+          <Link href="/status" className="hover:text-violet-400 ml-2">Status</Link> | 
+          <Link href="/company" className="hover:text-violet-400 ml-2">Company</Link>
         </div>
       </footer>
     </div>

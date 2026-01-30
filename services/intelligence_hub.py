@@ -64,7 +64,7 @@ NO EXTERNAL AI DEPENDENCIES:
 API PORTS (NO CONFLICTS):
 - HQ Server:        8000 (clisonix.com - MAIN API)
 - ALBA Service:     5555 (Frame Generation)
-- ALBI Service:     6666 (AI Processing)
+- ALBI Service:     6680 (AI Processing)
 - JONA Service:     7777 (Orchestration)
 - Knowledge Index:  8008 (Link Search - sub-service)
 - Curiosity Ocean:  8009 (Knowledge Portal - sub-service)

@@ -1,249 +1,391 @@
 /**
- * Clisonix Public Dashboard
- * 8 public modules accessible to all users
+ * Clisonix Dashboard
+ * Professional UI inspired by Figma, Postman, Datadog, Opera
+ * No emoji - clean Lucide icons only
  */
 
 'use client';
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Brain, Settings } from 'lucide-react';
+import { 
+  Brain, 
+  Settings, 
+  Waves, 
+  GraduationCap, 
+  Plane, 
+  Activity, 
+  Zap, 
+  Dumbbell,
+  Cloud, 
+  User, 
+  BarChart3, 
+  Layout, 
+  Code2, 
+  ChevronRight,
+  Search,
+  Bell,
+  Command,
+  ExternalLink,
+  MessageSquare
+} from 'lucide-react';
+
+// Module definitions with Lucide icons
+const publicModules = [
+  {
+    id: 'curiosity-ocean',
+    name: 'Curiosity Ocean',
+    description: 'AI-powered chat interface for exploring knowledge',
+    icon: Waves,
+    category: 'AI Chat',
+    href: '/modules/curiosity-ocean',
+    accent: 'slate'
+  },
+  {
+    id: 'specialized-chat',
+    name: 'Specialized Expert Chat',
+    description: 'Expert-level AI conversations in advanced domains',
+    icon: GraduationCap,
+    category: 'AI Chat',
+    href: '/modules/specialized-chat',
+    accent: 'slate'
+  },
+  {
+    id: 'specialized-chat-backend',
+    name: 'Specialized Chat (Backend)',
+    description: 'Direct access to Ocean Core Specialized Chat HTML',
+    icon: MessageSquare,
+    category: 'AI Chat',
+    href: 'http://localhost:8030/chat',
+    accent: 'slate',
+    external: true
+  },
+  {
+    id: 'aviation-weather',
+    name: 'Aviation Weather',
+    description: 'METAR, TAF and real-time flight conditions',
+    icon: Plane,
+    category: 'Environment',
+    href: '/modules/aviation-weather',
+    accent: 'slate'
+  },
+  {
+    id: 'eeg-analysis',
+    name: 'EEG Analysis',
+    description: 'Real-time brainwave pattern analysis',
+    icon: Activity,
+    category: 'Neuroscience',
+    href: '/modules/eeg-analysis',
+    accent: 'slate'
+  },
+  {
+    id: 'neural-synthesis',
+    name: 'Neural Synthesis',
+    description: 'Synthesize neural patterns and waveforms',
+    icon: Zap,
+    category: 'Neuroscience',
+    href: '/modules/neural-synthesis',
+    accent: 'slate'
+  },
+  {
+    id: 'fitness-dashboard',
+    name: 'Fitness Dashboard',
+    description: 'Health metrics and performance tracking',
+    icon: Dumbbell,
+    category: 'Health',
+    href: '/modules/fitness-dashboard',
+    accent: 'slate'
+  },
+  {
+    id: 'weather-dashboard',
+    name: 'Weather & Cognitive',
+    description: 'How weather impacts cognitive performance',
+    icon: Cloud,
+    category: 'Environment',
+    href: '/modules/weather-dashboard',
+    accent: 'slate'
+  },
+  {
+    id: 'account',
+    name: 'Account & Billing',
+    description: 'Manage your profile, subscriptions, payment methods and settings',
+    icon: User,
+    category: 'Account',
+    href: '/modules/account',
+    accent: 'slate'
+  },
+  {
+    id: 'my-data-dashboard',
+    name: 'My Data Dashboard',
+    description: 'IoT devices, API integrations, LoRa/GSM networks',
+    icon: BarChart3,
+    category: 'Data',
+    href: '/modules/my-data-dashboard',
+    accent: 'slate'
+  },
+  {
+    id: 'mymirror-now',
+    name: 'MyMirror Now',
+    description: 'Real-time client admin portal with live metrics & data sources',
+    icon: Layout,
+    category: 'Admin',
+    href: '/modules/mymirror-now',
+    accent: 'slate'
+  },
+  {
+    id: 'developer-docs',
+    name: 'Developer Documentation',
+    description: 'API Reference, SDKs, Quick Start Guide',
+    icon: Code2,
+    category: 'Developer',
+    href: '/modules/developer-docs',
+    accent: 'slate'
+  }
+];
+
+// Accent color mapping
+const accentColors = {
+  slate: {
+    bg: 'bg-slate-200',
+    border: 'border-slate-400',
+    borderHover: 'hover:border-slate-500',
+    text: 'text-black',
+    icon: 'text-black',
+    badge: 'bg-slate-200 text-black'
+  },
+  violet: {
+    bg: 'bg-slate-200',
+    border: 'border-slate-400',
+    borderHover: 'hover:border-slate-500',
+    text: 'text-black',
+    icon: 'text-black',
+    badge: 'bg-slate-200 text-black'
+  },
+  orange: {
+    bg: 'bg-slate-200',
+    border: 'border-slate-400',
+    borderHover: 'hover:border-slate-500',
+    text: 'text-black',
+    icon: 'text-black',
+    badge: 'bg-slate-200 text-black'
+  },
+  green: {
+    bg: 'bg-slate-200',
+    border: 'border-slate-400',
+    borderHover: 'hover:border-slate-500',
+    text: 'text-black',
+    icon: 'text-black',
+    badge: 'bg-slate-200 text-black'
+  },
+  neutral: {
+    bg: 'bg-slate-200',
+    border: 'border-slate-400',
+    borderHover: 'hover:border-slate-500',
+    text: 'text-black',
+    icon: 'text-black',
+    badge: 'bg-slate-200 text-black'
+  }
+};
 
 export default function DashboardPage() {
-  const [selectedModule, setSelectedModule] = useState<string | null>(null);
-
-  const publicModules = [
-    {
-      id: 'curiosity-ocean',
-      name: 'Curiosity Ocean',
-      description: 'AI-powered chat interface for exploring knowledge',
-      icon: '🌊',
-      category: 'AI Chat',
-      href: '/modules/curiosity-ocean',
-      color: 'from-cyan-500 to-blue-600'
-    },
-    {
-      id: 'eeg-analysis',
-      name: 'EEG Analysis',
-      description: 'Real-time brainwave pattern analysis',
-      icon: '🧠',
-      category: 'Neuroscience',
-      href: '/modules/eeg-analysis',
-      color: 'from-purple-500 to-pink-600'
-    },
-    {
-      id: 'neural-synthesis',
-      name: 'Neural Synthesis',
-      description: 'Synthesize neural patterns and waveforms',
-      icon: '⚡',
-      category: 'Neuroscience',
-      href: '/modules/neural-synthesis',
-      color: 'from-yellow-500 to-orange-600'
-    },
-    {
-      id: 'fitness-dashboard',
-      name: 'Fitness Dashboard',
-      description: 'Health metrics and performance tracking',
-      icon: '💪',
-      category: 'Health',
-      href: '/modules/fitness-dashboard',
-      color: 'from-red-500 to-pink-600'
-    },
-    {
-      id: 'weather-dashboard',
-      name: 'Weather & Cognitive',
-      description: 'How weather impacts cognitive performance',
-      icon: '🌤️',
-      category: 'Environment',
-      href: '/modules/weather-dashboard',
-      color: 'from-sky-500 to-blue-600'
-    },
-    {
-      id: 'account',
-      name: 'Account & Billing',
-      description: 'Manage your profile, subscriptions, payment methods and settings',
-      icon: '👤',
-      category: 'Account',
-      href: '/modules/account',
-      color: 'from-blue-500 to-indigo-600'
-    },
-    {
-      id: 'my-data-dashboard',
-      name: 'My Data Dashboard',
-      description: 'IoT devices, API integrations, LoRa/GSM networks',
-      icon: '📊',
-      category: 'Data',
-      href: '/modules/my-data-dashboard',
-      color: 'from-green-500 to-teal-600'
-    },
-    {
-      id: 'developer-docs',
-      name: 'Developer Documentation',
-      description: 'API Reference, SDKs, Quick Start Guide',
-      icon: '👨‍💻',
-      category: 'Developer',
-      href: '/modules/developer-docs',
-      color: 'from-purple-500 to-pink-600'
-    }
-  ];
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const categories = ['all', ...new Set(publicModules.map(m => m.category))];
-  const [activeCategory, setActiveCategory] = useState('all');
 
-  const filteredModules = activeCategory === 'all' 
-    ? publicModules 
-    : publicModules.filter(m => m.category === activeCategory);
+  const filteredModules = publicModules.filter(m => {
+    const matchesCategory = activeCategory === 'all' || m.category === activeCategory;
+    const matchesSearch = m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         m.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-xl border-b border-cyan-500/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
-                <span className="text-2xl">🧠</span>
-              </div>
-              <div>
-                <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                  Clisonix
-                </span>
-                <span className="text-xs text-gray-500 block -mt-1">Dashboard</span>
-              </div>
-            </Link>
-            
-            <div className="flex items-center gap-6">
-              <Link href="/" className="text-gray-400 hover:text-cyan-400 transition-colors">
-                Home
-              </Link>
-              <Link href="/modules/account" className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 hover:from-cyan-600/30 hover:to-blue-600/30 rounded-lg transition-all">
-                <Settings className="w-4 h-4" />
-                Settings
-              </Link>
+    <div className="min-h-screen bg-white text-slate-900">
+      {/* Sidebar */}
+      <aside className="fixed left-0 top-0 h-full w-64 bg-slate-100 border-r border-slate-200 z-50">
+        {/* Logo */}
+        <div className="h-16 flex items-center px-5 border-b border-slate-200">
+          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
+              <Brain className="w-5 h-5 text-white" />
             </div>
-          </div>
+            <span className="text-lg font-semibold tracking-tight">Clisonix</span>
+          </Link>
         </div>
-      </nav>
+
+        {/* Navigation */}
+        <nav className="p-4 space-y-1">
+          <div className="text-[11px] font-medium text-black uppercase tracking-wider px-3 mb-3">
+            Modules
+          </div>
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeCategory === cat
+                  ? 'bg-slate-200 text-black border border-slate-400'
+                  : 'text-black hover:text-black hover:bg-slate-200'
+              }`}
+            >
+              {cat === 'all' ? 'All Modules' : cat}
+            </button>
+          ))}
+        </nav>
+
+        {/* Bottom */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-200">
+          <Link 
+            href="/modules/account"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-black hover:text-black hover:bg-slate-200 transition-all"
+          >
+            <Settings className="w-4 h-4" />
+            Settings
+          </Link>
+        </div>
+      </aside>
 
       {/* Main Content */}
-      <div className="pt-20 pb-12 px-4">
-        <div className="max-w-7xl mx-auto">
+      <main className="ml-64">
+        {/* Top Bar */}
+        <header className="h-16 flex items-center justify-between px-8 border-b border-slate-200 bg-white/80 backdrop-blur-xl sticky top-0 z-40">
+          {/* Search */}
+          <div className="relative w-96">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black" />
+            <input
+              type="text"
+              placeholder="Search modules..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-10 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-lg text-sm text-black placeholder:text-black/50 focus:outline-none focus:border-slate-400 transition-colors"
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-black">
+              <Command className="w-3 h-3" />
+              <span className="text-xs">K</span>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-4">
+            <button className="relative p-2 rounded-lg hover:bg-white/[0.04] transition-colors">
+              <Bell className="w-5 h-5 text-black" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-slate-800 rounded-full" />
+            </button>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-sm font-medium">
+              L
+            </div>
+          </div>
+        </header>
+
+        {/* Content */}
+        <div className="p-8">
           {/* Header */}
-          <div className="mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-              Your Dashboard
+          <div className="mb-8">
+            <h1 className="text-2xl font-semibold tracking-tight mb-2">
+              {activeCategory === 'all' ? 'All Modules' : activeCategory}
             </h1>
-            <p className="text-gray-400 text-lg">
-              Access all your Clisonix tools and modules
+            <p className="text-black text-sm">
+              {filteredModules.length} {filteredModules.length === 1 ? 'module' : 'modules'} available
             </p>
           </div>
 
-          {/* Category Filter */}
-          <div className="mb-8 flex flex-wrap gap-3">
-            {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  activeCategory === cat
-                    ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-500/30'
-                    : 'bg-slate-800/50 text-gray-400 hover:text-cyan-400 hover:bg-slate-800/80'
-                }`}
-              >
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </button>
-            ))}
-          </div>
-
           {/* Modules Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredModules.map(module => (
-              <Link
-                key={module.id}
-                href={module.href}
-                className="group relative overflow-hidden rounded-xl border border-cyan-500/20 hover:border-cyan-500/50 bg-gradient-to-br from-slate-900/50 to-slate-800/50 hover:from-slate-900/80 hover:to-slate-800/80 transition-all duration-300 shadow-lg hover:shadow-cyan-500/20"
-              >
-                {/* Background gradient */}
-                <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 bg-gradient-to-br ${module.color} transition-opacity duration-300`} />
-                
-                {/* Content */}
-                <div className="relative p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {filteredModules.map(module => {
+              const colors = accentColors[module.accent as keyof typeof accentColors];
+              const Icon = module.icon;
+              const isExternal = 'external' in module && module.external;
+              
+              const CardContent = (
+                <>
+                  {/* Icon & Category */}
                   <div className="flex items-start justify-between mb-4">
-                    <div className="text-5xl">{module.icon}</div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${module.color} text-white`}>
-                      {module.category}
-                    </span>
+                    <div className={`w-10 h-10 rounded-lg ${colors.bg} flex items-center justify-center`}>
+                      <Icon className={`w-5 h-5 ${colors.icon}`} />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {isExternal && <ExternalLink className="w-3 h-3 text-slate-500" />}
+                      <span className={`px-2 py-1 rounded text-[11px] font-medium ${colors.badge}`}>
+                        {module.category}
+                      </span>
+                    </div>
                   </div>
-                  
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-cyan-300 transition-colors">
+
+                  {/* Title & Description */}
+                  <h3 className="text-[15px] font-medium mb-1.5 group-hover:text-white transition-colors">
                     {module.name}
                   </h3>
-                  
-                  <p className="text-gray-400 text-sm mb-4">
+                  <p className="text-sm text-black leading-relaxed mb-4">
                     {module.description}
                   </p>
-                  
-                  <div className="flex items-center gap-2 text-cyan-400 text-sm font-medium group-hover:gap-3 transition-all">
-                    <span>Open Module</span>
-                    <span>→</span>
+
+                  {/* Action */}
+                  <div className={`flex items-center gap-1 text-sm font-medium ${colors.text} opacity-0 group-hover:opacity-100 transition-opacity`}>
+                    <span>{isExternal ? 'Open in new tab' : 'Open'}</span>
+                    {isExternal ? <ExternalLink className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </div>
-                </div>
-              </Link>
-            ))}
+                </>
+              );
+              
+              return isExternal ? (
+                <a
+                  key={module.id}
+                  href={module.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`group relative p-5 rounded-xl border-2 border-slate-300 bg-white shadow-sm ${colors.border} ${colors.borderHover} transition-all duration-200 hover:bg-slate-200`}
+                >
+                  {CardContent}
+                </a>
+              ) : (
+                <Link
+                  key={module.id}
+                  href={module.href}
+                  className={`group relative p-5 rounded-xl border-2 border-slate-300 bg-white shadow-sm ${colors.border} ${colors.borderHover} transition-all duration-200 hover:bg-slate-200`}
+                >
+                  {CardContent}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Empty State */}
           {filteredModules.length === 0 && (
-            <div className="text-center py-12">
-              <Brain className="w-16 h-16 mx-auto text-gray-600 mb-4" />
-              <p className="text-gray-400">No modules available in this category</p>
+            <div className="flex flex-col items-center justify-center py-16">
+              <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center mb-4">
+                <Search className="w-6 h-6 text-black" />
+              </div>
+              <h3 className="text-lg font-medium mb-2">No modules found</h3>
+              <p className="text-black text-sm">
+                Try adjusting your search or filter criteria
+              </p>
             </div>
           )}
         </div>
-      </div>
 
-      {/* Footer */}
-      <footer className="border-t border-cyan-500/20 bg-slate-950/50 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h4 className="font-semibold mb-4 text-gray-300">Product</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link href="/" className="hover:text-cyan-400 transition-colors">Home</Link></li>
-                <li><Link href="/modules" className="hover:text-cyan-400 transition-colors">Dashboard</Link></li>
-                <li><Link href="/modules/curiosity-ocean" className="hover:text-cyan-400 transition-colors">Curiosity Ocean</Link></li>
-              </ul>
+        {/* Footer */}
+        <footer className="border-t border-slate-200 mt-8">
+          <div className="px-8 py-6 flex items-center justify-between text-sm text-black">
+            <div className="flex items-center gap-6">
+              <Link href="/modules/developer-docs" className="hover:text-black transition-colors">
+                Documentation
+              </Link>
+              <a href="https://github.com/LedjanAhmati/Clisonix-cloud" className="hover:text-black transition-colors">
+                GitHub
+              </a>
+              <a href="mailto:support@clisonix.com" className="hover:text-black transition-colors">
+                Support
+              </a>
             </div>
-            <div>
-              <h4 className="font-semibold mb-4 text-gray-300">Resources</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link href="/modules/developer-docs" className="hover:text-cyan-400 transition-colors">Documentation</Link></li>
-                <li><a href="https://github.com/LedjanAhmati/Clisonix-cloud" className="hover:text-cyan-400 transition-colors">GitHub</a></li>
-                <li><a href="mailto:support@clisonix.com" className="hover:text-cyan-400 transition-colors">Support</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4 text-gray-300">Legal</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" className="hover:text-cyan-400 transition-colors">Privacy</a></li>
-                <li><a href="#" className="hover:text-cyan-400 transition-colors">Terms</a></li>
-                <li><a href="#" className="hover:text-cyan-400 transition-colors">Security</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4 text-gray-300">Company</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><span className="text-gray-500">Ledjan Ahmati</span></li>
-                <li><span className="text-gray-500">WEB8euroweb GmbH</span></li>
-                <li><span className="text-xs text-gray-600">© 2026 Clisonix</span></li>
-              </ul>
+            <div className="flex items-center gap-2">
+              <span>Clisonix</span>
+              <span className="text-black">·</span>
+              <span className="text-black">© 2026</span>
             </div>
           </div>
-          <div className="border-t border-slate-800 pt-8 text-center text-sm text-gray-500">
-            <p>Neural Intelligence Platform | Built with Next.js 15 & React</p>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </main>
     </div>
   );
 }

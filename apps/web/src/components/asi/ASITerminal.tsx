@@ -120,7 +120,7 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
             animate={{ opacity: 1, y: 0 }}
             className="text-gray-400 text-sm space-y-2"
           >
-            <div>🤖 <span className="text-cyan-400">Clisonix ASI</span> Online</div>
+            <div>🤖 <span className="text-violet-400">Clisonix ASI</span> Online</div>
             <div>🔐 <span className="text-purple-400">Jona Sandbox</span> Active</div>
             <div>🌐 <span className="text-sky-400">Alba Network</span> Monitoring</div>
             <div>💡 <span className="text-emerald-400">Albi Intelligence</span> Ready</div>
@@ -148,7 +148,7 @@ export function ASITerminal({ className, maxCommands = 10 }: ASITerminalProps) {
                       <ClientTimeDisplay timestamp={command.timestamp} />
                     </span>
                     <span className="flex-1 font-mono text-sm">
-                      <span className="text-cyan-400">ASI&gt;</span> {command.text}
+                      <span className="text-violet-400">ASI&gt;</span> {command.text}
                     </span>
                   </div>
                   

@@ -226,7 +226,7 @@ export function Avatar({
   if (!src || hasError) {
     return (
       <div
-        className={`flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-medium ${className}`}
+        className={`flex items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 text-white font-medium ${className}`}
         style={{ width: dimension, height: dimension, fontSize: dimension * 0.4 }}
       >
         {fallback || initials}

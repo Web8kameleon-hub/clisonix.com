@@ -15,7 +15,7 @@ interface ServiceHealth {
 const SERVICES = [
   { name: 'Main API', host: 'clisonix-api', port: 8000, path: '/health' },
   { name: 'Core-A (Analytics)', host: 'clisonix-alba', port: 5555, path: '/health' },
-  { name: 'Core-B (Creative)', host: 'clisonix-albi', port: 6666, path: '/health' },
+  { name: 'Core-B (Creative)', host: 'clisonix-albi', port: 6680, path: '/health' },
   { name: 'Frontend', host: 'clisonix-web', port: 3000, path: '/api/ping' },
 ]
 

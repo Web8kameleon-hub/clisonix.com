@@ -136,7 +136,7 @@ class CanonicalTable:
         'NORMALIZED': 'FFE5CC', # Light orange
         'TEST': 'FFF2CC',       # Light yellow
         'READY': 'CCFFCC',      # Light green
-        'FAIL': 'FF6666',       # Red
+        'FAIL': 'FF6680',       # Red
         'ARCHIVED': 'CCCCCC'    # Gray
     }
     

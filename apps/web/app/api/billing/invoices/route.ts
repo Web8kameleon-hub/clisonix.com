@@ -21,7 +21,7 @@ export async function GET() {
     }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: "2025-12-15.clover",
+      
     });
 
     // Get customer email from session/auth (in production, get from authenticated user)
@@ -84,3 +84,4 @@ export async function GET() {
     );
   }
 }
+

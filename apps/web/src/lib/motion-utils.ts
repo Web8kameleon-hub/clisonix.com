@@ -46,15 +46,15 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-slate-900 text-slate-50 hover:bg-slate-800",
+        default: "bg-neutral-900 text-slate-50 hover:bg-neutral-800",
         destructive: "bg-red-600 text-slate-50 hover:bg-red-700",
         outline: "border border-slate-200 bg-white hover:bg-slate-100",
-        secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200",
+        secondary: "bg-slate-100 text-neutral-900 hover:bg-slate-200",
         ghost: "hover:bg-slate-100",
-        link: "text-slate-900 underline-offset-4 hover:underline",
-        alba: "bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-600",
+        link: "text-neutral-900 underline-offset-4 hover:underline",
+        alba: "bg-violet-600 text-white hover:bg-violet-700 focus-visible:ring-violet-600",
         jona: "bg-purple-600 text-white hover:bg-purple-700 focus-visible:ring-purple-600",
-        harmony: "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700",
+        harmony: "bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700",
       },
       size: {
         default: "h-10 px-4 py-2",

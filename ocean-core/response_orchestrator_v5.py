@@ -446,8 +446,8 @@ class ResponseOrchestratorV5:
         self.ollama_engine: Optional[Any] = None
         if OLLAMA_AVAILABLE:
             try:
-                self.ollama_engine = get_ollama_engine("phi3:mini")
-                logger.info("🦙 OllamaEngine initialized (phi3:mini)")
+                self.ollama_engine = get_ollama_engine("clisonix-ocean:v2")
+                logger.info("🦙 OllamaEngine initialized (clisonix-ocean:v2)")
             except Exception as e:
                 logger.warning(f"⚠️ OllamaEngine not available: {e}")
         
@@ -496,8 +496,23 @@ class ResponseOrchestratorV5:
         used_knowledge_seed = False
         used_ollama = False
         
-        # 3.1) Provo Knowledge Seeds FIRST (high-quality curated answers)
-        if KNOWLEDGE_SEEDS_AVAILABLE and find_matching_seed:
+        # 3.1) OLLAMA FIRST - Local AI gets priority for real answers!
+        if self.ollama_engine:
+            try:
+                ollama_available = await self.ollama_engine.is_available()
+                if ollama_available:
+                    ollama_response = await self.ollama_engine.generate(query)
+                    if ollama_response.content and not ollama_response.content.startswith("⚠️"):
+                        base_text = ollama_response.content
+                        sources = ["ollama:clisonix-ocean:v2"]
+                        base_confidence = 0.92
+                        used_ollama = True
+                        logger.info(f"🦙 Ollama generated response ({ollama_response.total_duration_ms:.0f}ms)")
+            except Exception as e:
+                logger.warning(f"Ollama error: {e}")
+        
+        # 3.2) Knowledge Seeds FALLBACK (if Ollama fails or unavailable)
+        if not used_ollama and KNOWLEDGE_SEEDS_AVAILABLE and find_matching_seed:
             seed = find_matching_seed(query)
             if seed:
                 base_text = seed.answer_template.strip()
@@ -506,9 +521,9 @@ class ResponseOrchestratorV5:
                 used_knowledge_seed = True
                 logger.info(f"📚 Knowledge Seed matched: {seed.category}")
         
-        # 3.1.5) Provo Albanian Dictionary për pyetje shqip
+        # 3.3) Albanian Dictionary për pyetje shqip (if nothing else matched)
         used_albanian_dict = False
-        if not used_knowledge_seed and ALBANIAN_DICT_AVAILABLE and lang == "sq":
+        if not used_ollama and not used_knowledge_seed and ALBANIAN_DICT_AVAILABLE and lang == "sq":
             try:
                 albanian_response = get_albanian_response(query)
                 if albanian_response:
@@ -520,23 +535,8 @@ class ResponseOrchestratorV5:
             except Exception as e:
                 logger.warning(f"Albanian Dictionary error: {e}")
         
-        # 3.2) Përdor OLLAMA (Local AI) nëse Knowledge Seeds nuk ka përgjigje
-        if not used_knowledge_seed and not used_albanian_dict and self.ollama_engine:
-            try:
-                ollama_available = await self.ollama_engine.is_available()
-                if ollama_available:
-                    ollama_response = await self.ollama_engine.generate(query)
-                    if ollama_response.content and not ollama_response.content.startswith("⚠️"):
-                        base_text = ollama_response.content
-                        sources = ["ollama:phi3"]
-                        base_confidence = 0.85
-                        used_ollama = True
-                        logger.info(f"🦙 Ollama generated response ({ollama_response.total_duration_ms:.0f}ms)")
-            except Exception as e:
-                logger.warning(f"Ollama error: {e}")
-        
-        # 3.3) Fallback to RealAnswerEngine if no Ollama
-        if not used_knowledge_seed and not used_albanian_dict and not used_ollama and self.real_answer_engine:
+        # 3.4) Fallback to RealAnswerEngine if nothing else worked
+        if not used_ollama and not used_knowledge_seed and not used_albanian_dict and self.real_answer_engine:
             try:
                 base_result = await self.real_answer_engine.answer(query)
                 base_text = base_result.answer
@@ -560,30 +560,21 @@ class ResponseOrchestratorV5:
         # 5) Fusion (vetëm nëse kemi rezultate nga ekspertë)
         fused_answer, quality = self.fusion.fuse(base_text, consulted)
         
-        # 5.5) MEGA LAYER PROCESSING - Miliarda kombinime
+        # 5.5) MEGA LAYER PROCESSING - DISABLED by default (too complex for users)
+        # Mega layers add "science theater" complexity without practical value
+        # Enable only for specific deep analysis requests
         mega_layer_results = None
         layer_summary = ""
-        if self.mega_layer_engine:
-            try:
-                activation, mega_results = self.mega_layer_engine.process_query(query)
-                mega_layer_results = mega_results
-                layer_summary = self.mega_layer_engine.get_layer_summary(activation, mega_results)
-                
-                # Enhance the answer with layer analysis
-                fused_answer = fused_answer + layer_summary
-                sources.append("mega_layers_engine")
-                
-                # Update understanding with layer info
-                understanding["mega_layers"] = {
-                    "combinations_used": mega_results["combinations_used"],
-                    "total_layers_engaged": mega_results["total_layers_engaged"],
-                    "unique_signature": mega_results["unique_signature"],
-                    "meta_consciousness": mega_results["meta_consciousness"],
-                    "quantum_amplitude": mega_results["quantum_amplitude"],
-                    "fractal_depth": mega_results["fractal_depth_used"],
-                }
-            except Exception as e:
-                logger.warning(f"MegaLayerEngine processing error: {e}")
+        # DISABLED: This adds confusion, not value
+        # if self.mega_layer_engine:
+        #     try:
+        #         activation, mega_results = self.mega_layer_engine.process_query(query)
+        #         mega_layer_results = mega_results
+        #         layer_summary = self.mega_layer_engine.get_layer_summary(activation, mega_results)
+        #         fused_answer = fused_answer + layer_summary
+        #         sources.append("mega_layers_engine")
+        #     except Exception as e:
+        #         logger.warning(f"MegaLayerEngine processing error: {e}")
         
         # 6) Ndërto përgjigjen finale
         response = OrchestratedResponse(

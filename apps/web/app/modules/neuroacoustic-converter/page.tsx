@@ -158,7 +158,7 @@ export default function NeuroacousticConverterPage() {
   const getMethodBadge = (method: string) => {
     if (method === 'GET') return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
     if (method === 'POST') return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
-    return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+    return 'bg-violet-500/20 text-violet-400 border-violet-500/30';
   };
 
   return (
@@ -331,12 +331,12 @@ export default function NeuroacousticConverterPage() {
                                 {(response.data as ConverterStatus).status || 'Unknown'}
                               </p>
                             </div>
-                            <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20">
+                            <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-violet-500/10 border border-violet-500/20">
                               <div className="flex items-center gap-2 mb-2">
-                                <Waves className="w-5 h-5 text-cyan-400" />
+                                <Waves className="w-5 h-5 text-violet-400" />
                                 <span className="text-sm text-slate-400">Frequency</span>
                               </div>
-                              <p className="text-xl font-bold text-cyan-400">
+                              <p className="text-xl font-bold text-violet-400">
                                 {(response.data as ConverterStatus).current_output?.current_frequency?.toFixed(1) || 0} Hz
                               </p>
                             </div>
@@ -375,7 +375,7 @@ export default function NeuroacousticConverterPage() {
                                   <p className="text-xs text-slate-500">Mapped Note</p>
                                 </div>
                                 <div>
-                                  <p className="text-2xl font-bold text-cyan-400">
+                                  <p className="text-2xl font-bold text-violet-400">
                                     {(response.data as ConverterStatus).current_output?.current_frequency?.toFixed(1) || 0} Hz
                                   </p>
                                   <p className="text-xs text-slate-500">Frequency</p>
@@ -441,7 +441,7 @@ export default function NeuroacousticConverterPage() {
                                   <p className="text-xs text-slate-500">Total Conversions</p>
                                 </div>
                                 <div className="text-center">
-                                  <p className="text-xl font-bold text-cyan-400">
+                                  <p className="text-xl font-bold text-violet-400">
                                     {(response.data as ConverterStatus).stats?.average_latency_ms?.toFixed(1) || 0} ms
                                   </p>
                                   <p className="text-xs text-slate-500">Avg Latency</p>

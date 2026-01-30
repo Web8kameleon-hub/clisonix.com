@@ -419,7 +419,7 @@ export default function AccountPage() {
     switch (status) {
       case 'active': return 'text-green-400 bg-green-400/10'
       case 'paid': return 'text-green-400 bg-green-400/10'
-      case 'trialing': return 'text-blue-400 bg-blue-400/10'
+      case 'trialing': return 'text-violet-400 bg-violet-400/10'
       case 'canceled': return 'text-red-400 bg-red-400/10'
       case 'past_due': return 'text-yellow-400 bg-yellow-400/10'
       case 'pending': return 'text-yellow-400 bg-yellow-400/10'
@@ -431,7 +431,7 @@ export default function AccountPage() {
   const getPlanColor = (plan: string) => {
     switch (plan) {
       case 'free': return 'from-gray-500 to-gray-600'
-      case 'starter': return 'from-blue-500 to-blue-600'
+      case 'starter': return 'from-violet-500 to-violet-600'
       case 'professional': return 'from-purple-500 to-purple-600'
       case 'enterprise': return 'from-orange-500 to-orange-600'
       default: return 'from-gray-500 to-gray-600'
@@ -443,7 +443,7 @@ export default function AccountPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-400">Loading...</p>
         </div>
       </div>
@@ -476,7 +476,7 @@ export default function AccountPage() {
         {/* Profile Card */}
         <div className="bg-white/5 rounded-2xl border border-white/10 p-6 mb-8">
           <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl font-bold">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-3xl font-bold">
               {user.name.charAt(0)}
             </div>
             <div className="flex-1">
@@ -504,7 +504,7 @@ export default function AccountPage() {
               onClick={() => setActiveTab(tab.id as typeof activeTab)}
               className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all ${
                 activeTab === tab.id
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-violet-600 text-white'
                   : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
               }`}
             >
@@ -546,7 +546,7 @@ export default function AccountPage() {
               )}
               <button 
                 onClick={() => setShowUpgradeModal(true)}
-                className="w-full mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors"
+                className="w-full mt-4 px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg font-medium transition-colors"
               >
                 🚀 {subscription ? t('overview.upgradePlan') : t('overview.choosePlan')}
               </button>
@@ -638,7 +638,7 @@ export default function AccountPage() {
                   <div className="flex gap-3 mt-6">
                     <button 
                       onClick={() => setShowUpgradeModal(true)}
-                      className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors"
+                      className="px-6 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg font-medium transition-colors"
                     >
                       🚀 {t('subscription.upgrade')}
                     </button>
@@ -655,7 +655,7 @@ export default function AccountPage() {
                   <div className="text-gray-400 mb-4">{t('subscription.noActive')}</div>
                   <button 
                     onClick={() => setShowUpgradeModal(true)}
-                    className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors"
+                    className="px-6 py-3 bg-violet-600 hover:bg-violet-500 rounded-lg font-medium transition-colors"
                   >
                     🚀 {t('overview.choosePlan')}
                   </button>
@@ -672,7 +672,7 @@ export default function AccountPage() {
                     key={plan.id}
                     className={`relative p-6 rounded-2xl border transition-all ${
                       user.plan === plan.id 
-                        ? 'bg-blue-600/20 border-blue-500' 
+                        ? 'bg-violet-600/20 border-violet-500' 
                         : 'bg-white/5 border-white/10 hover:border-white/30'
                     }`}
                   >
@@ -707,7 +707,7 @@ export default function AccountPage() {
                           setSelectedPlan(plan.id)
                           setShowUpgradeModal(true)
                         }}
-                        className="w-full py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors"
+                        className="w-full py-2 bg-violet-600 hover:bg-violet-500 rounded-lg font-medium transition-colors"
                       >
                         {PLANS.findIndex(p => p.id === plan.id) > PLANS.findIndex(p => p.id === user.plan) ? t('subscription.upgrade') : t('subscription.downgrade')}
                       </button>
@@ -726,7 +726,7 @@ export default function AccountPage() {
             <div className="bg-white/5 rounded-2xl border border-white/10 p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">{t('billing.paymentMethods')}</h3>
-                <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors">
+                <button className="px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg font-medium transition-colors">
                   {t('billing.addMethod')}
                 </button>
               </div>
@@ -868,7 +868,7 @@ export default function AccountPage() {
             <div className="bg-white/5 rounded-2xl border border-white/10 p-6">
               <h3 className="text-lg font-semibold mb-4">🔐 {t('security.password')}</h3>
               <p className="text-gray-400 mb-4">{t('security.twoFactorDesc')}</p>
-              <button className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors">
+              <button className="px-6 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg font-medium transition-colors">
                 {t('security.changePassword')}
               </button>
             </div>
@@ -915,7 +915,7 @@ export default function AccountPage() {
                 <button 
                   onClick={handleGenerateApiKey}
                   disabled={isGeneratingKey}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors flex items-center gap-2"
+                  className="px-4 py-2 bg-violet-600 hover:bg-violet-500 disabled:bg-violet-600/50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors flex items-center gap-2"
                 >
                   {isGeneratingKey ? (
                     <>
@@ -984,7 +984,7 @@ export default function AccountPage() {
                     type="text" 
                     value={user.name}
                     onChange={(e) => setUser({...user, name: e.target.value})}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                   />
                 </div>
                 <div>
@@ -993,7 +993,7 @@ export default function AccountPage() {
                     type="email" 
                     value={user.email}
                     onChange={(e) => setUser({...user, email: e.target.value})}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                   />
                 </div>
                 <div>
@@ -1002,7 +1002,7 @@ export default function AccountPage() {
                     type="text" 
                     value={user.company || ''}
                     onChange={(e) => setUser({...user, company: e.target.value})}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                   />
                 </div>
                 <div>
@@ -1011,7 +1011,7 @@ export default function AccountPage() {
                     type="tel" 
                     value={user.phone || ''}
                     onChange={(e) => setUser({...user, phone: e.target.value})}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                   />
                 </div>
               </div>
@@ -1019,7 +1019,7 @@ export default function AccountPage() {
                 <button 
                   onClick={handleSaveProfile}
                   disabled={isSavingProfile}
-                  className="w-full md:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                  className="w-full md:w-auto px-8 py-3 bg-violet-600 hover:bg-violet-500 disabled:bg-violet-600/50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
                 >
                   {isSavingProfile ? (
                     <>
@@ -1079,13 +1079,13 @@ export default function AccountPage() {
                         }}
                         className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all ${
                           user.language === lang.code 
-                            ? 'bg-blue-600/30 border-blue-500 text-white' 
+                            ? 'bg-violet-600/30 border-violet-500 text-white' 
                             : 'bg-white/5 border-white/10 text-gray-300 hover:border-white/30'
                         }`}
                       >
                         <span className="text-lg">{lang.flag}</span>
                         <span className="text-sm">{lang.name}</span>
-                        {user.language === lang.code && <span className="ml-auto text-blue-400">✓</span>}
+                        {user.language === lang.code && <span className="ml-auto text-violet-400">✓</span>}
                       </button>
                     ))}
                   </div>
@@ -1132,14 +1132,14 @@ export default function AccountPage() {
                         onClick={() => handleTimezoneChange(zone.tz)}
                         className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg border transition-all ${
                           user.timezone === zone.tz 
-                            ? 'bg-blue-600/30 border-blue-500 text-white' 
+                            ? 'bg-violet-600/30 border-violet-500 text-white' 
                             : 'bg-white/5 border-white/10 text-gray-300 hover:border-white/30'
                         }`}
                       >
                         <span className="text-lg">{zone.flag}</span>
                         <span className="text-sm flex-1 text-left">{zone.label}</span>
                         <span className="text-xs text-gray-400">{zone.offset}</span>
-                        {user.timezone === zone.tz && <span className="text-blue-400">✓</span>}
+                        {user.timezone === zone.tz && <span className="text-violet-400">✓</span>}
                       </button>
                     ))}
                   </div>
@@ -1151,13 +1151,13 @@ export default function AccountPage() {
                 <h4 className="text-sm font-medium text-white mb-4">🎨 {t('preferences.theme')}</h4>
                 <p className="text-xs text-gray-400 mb-3">{t('preferences.themeDesc')}</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <button className="flex items-center gap-3 px-4 py-3 bg-blue-600/30 border border-blue-500 rounded-lg">
+                  <button className="flex items-center gap-3 px-4 py-3 bg-violet-600/30 border border-violet-500 rounded-lg">
                     <span className="text-lg">🌙</span>
                     <div className="text-left">
                       <div className="text-sm font-medium">{t('preferences.darkMode')}</div>
                       <div className="text-xs text-gray-400">{t('common.active')}</div>
                     </div>
-                    <span className="ml-auto text-blue-400">✓</span>
+                    <span className="ml-auto text-violet-400">✓</span>
                   </button>
                   <button className="flex items-center gap-3 px-4 py-3 bg-white/5 border border-white/10 rounded-lg hover:border-white/30 transition-all opacity-50 cursor-not-allowed">
                     <span className="text-lg">☀️</span>
@@ -1195,7 +1195,7 @@ export default function AccountPage() {
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" defaultChecked={item.default} className="sr-only peer" />
-                      <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                      <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-violet-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                     </label>
                   </div>
                 ))}
@@ -1235,11 +1235,11 @@ export default function AccountPage() {
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-gradient-to-b from-slate-800 to-slate-900 rounded-2xl w-full max-w-4xl border border-white/10 overflow-hidden">
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
+            <div className="bg-gradient-to-r from-violet-600 to-purple-600 px-8 py-6">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold">{t('upgrade.title')}</h2>
-                  <p className="text-blue-100 mt-1">{t('upgrade.subtitle')}</p>
+                  <p className="text-violet-100 mt-1">{t('upgrade.subtitle')}</p>
                 </div>
                 <button 
                   onClick={() => setShowUpgradeModal(false)}
@@ -1254,7 +1254,7 @@ export default function AccountPage() {
             <div className="p-8">
               <div className="grid md:grid-cols-3 gap-6">
                 {/* Starter */}
-                <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-blue-500/50 transition-all">
+                <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-violet-500/50 transition-all">
                   <div className="text-center mb-6">
                     <span className="text-3xl">🚀</span>
                     <h3 className="text-xl font-bold mt-2">Starter</h3>
@@ -1276,8 +1276,8 @@ export default function AccountPage() {
                 </div>
 
                 {/* Professional - Recommended */}
-                <div className="bg-gradient-to-b from-blue-600/20 to-purple-600/20 rounded-xl p-6 border-2 border-blue-500 relative">
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full text-xs font-bold">
+                <div className="bg-gradient-to-b from-violet-600/20 to-purple-600/20 rounded-xl p-6 border-2 border-violet-500 relative">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full text-xs font-bold">
                     RECOMMENDED
                   </div>
                   <div className="text-center mb-6">
@@ -1299,7 +1299,7 @@ export default function AccountPage() {
                   <button 
                     onClick={() => handleUpgrade('professional_monthly', 'Professional')}
                     disabled={isCheckoutLoading}
-                    className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-400 hover:to-purple-400 rounded-lg font-bold transition-all shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-3 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-400 hover:to-purple-400 rounded-lg font-bold transition-all shadow-lg shadow-violet-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isCheckoutLoading ? t('upgrade.processing') : t('upgrade.upgradeNow')}
                   </button>
@@ -1333,7 +1333,7 @@ export default function AccountPage() {
               {/* Footer */}
               <div className="mt-8 text-center">
                 <p className="text-gray-400 text-sm">
-                  💳 Secure payment via Stripe • 🔄 Cancel anytime • 📧 Questions? <a href="mailto:contact@clisonix.com" className="text-blue-400 hover:underline">contact@clisonix.com</a>
+                  💳 Secure payment via Stripe • 🔄 Cancel anytime • 📧 Questions? <a href="mailto:contact@clisonix.com" className="text-violet-400 hover:underline">contact@clisonix.com</a>
                 </p>
               </div>
             </div>
@@ -1408,7 +1408,7 @@ export default function AccountPage() {
                   type="text" 
                   name="name"
                   defaultValue={billingAddress?.name || ''}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                 />
               </div>
               <div>
@@ -1418,7 +1418,7 @@ export default function AccountPage() {
                   name="line1"
                   required
                   defaultValue={billingAddress?.line1 || ''}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                   placeholder={t('billing.streetAddress')}
                 />
               </div>
@@ -1428,7 +1428,7 @@ export default function AccountPage() {
                   type="text" 
                   name="line2"
                   defaultValue={billingAddress?.line2 || ''}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                   placeholder={t('billing.aptSuite')}
                 />
               </div>
@@ -1440,7 +1440,7 @@ export default function AccountPage() {
                     name="city"
                     required
                     defaultValue={billingAddress?.city || ''}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                   />
                 </div>
                 <div>
@@ -1450,7 +1450,7 @@ export default function AccountPage() {
                     name="postal_code"
                     required
                     defaultValue={billingAddress?.postal_code || ''}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                   />
                 </div>
               </div>
@@ -1461,7 +1461,7 @@ export default function AccountPage() {
                     type="text" 
                     name="state"
                     defaultValue={billingAddress?.state || ''}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                   />
                 </div>
                 <div>
@@ -1470,7 +1470,7 @@ export default function AccountPage() {
                     name="country"
                     required
                     defaultValue={billingAddress?.country || 'AL'}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                   >
                     <option value="AL">Shqipëri</option>
                     <option value="XK">Kosovë</option>
@@ -1491,7 +1491,7 @@ export default function AccountPage() {
                   type="tel" 
                   name="phone"
                   defaultValue={billingAddress?.phone || ''}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                   placeholder="+355..."
                 />
               </div>
@@ -1506,7 +1506,7 @@ export default function AccountPage() {
                 <button
                   type="submit"
                   disabled={isSavingAddress}
-                  className="flex-1 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/50 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 py-2 bg-violet-600 hover:bg-violet-500 disabled:bg-violet-600/50 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
                 >
                   {isSavingAddress ? (
                     <>

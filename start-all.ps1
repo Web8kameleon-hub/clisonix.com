@@ -55,7 +55,7 @@ $Script:ServicePorts = @{
     "API"              = 8000
     "Frontend"         = 3000
     "ALBA"             = 5555
-    "ALBI"             = 6666
+    "ALBI"             = 6680
     "JONA"             = 7777
     "Orchestrator"     = 9999
     "PostgreSQL"       = 5432
@@ -76,7 +76,7 @@ $Script:Services = @{
     )
     Microservices = @(
         @{ Name = "ALBA"; Script = "python alba_core.py"; Port = 5555; Priority = 3; File = "alba_core.py" }
-        @{ Name = "ALBI"; Script = "python albi_core.py"; Port = 6666; Priority = 3; File = "albi_core.py" }
+        @{ Name = "ALBI"; Script = "python albi_core.py"; Port = 6680; Priority = 3; File = "albi_core.py" }
         @{ Name = "JONA"; Script = "python jona_service_7777.py"; Port = 7777; Priority = 3; File = "jona_service_7777.py" }
     )
     Orchestration = @(
@@ -728,7 +728,7 @@ function Show-Dashboard {
     Write-Host "                                                                               " -ForegroundColor $Script:Colors.Title
     Write-Host "  MICROSERVICES                                                                " -ForegroundColor $Script:Colors.Title
     Write-Host "  - ALBA:          Port 5555                                                   " -ForegroundColor $Script:Colors.Info
-    Write-Host "  - ALBI:          Port 6666                                                   " -ForegroundColor $Script:Colors.Info
+    Write-Host "  - ALBI:          Port 6680                                                   " -ForegroundColor $Script:Colors.Info
     Write-Host "  - JONA:          Port 7777                                                   " -ForegroundColor $Script:Colors.Info
     Write-Host "  - Orchestrator:  Port 9999                                                   " -ForegroundColor $Script:Colors.Info
     Write-Host "                                                                               " -ForegroundColor $Script:Colors.Title

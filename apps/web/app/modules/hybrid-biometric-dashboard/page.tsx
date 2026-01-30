@@ -174,7 +174,7 @@ export default function HybridBiometricDashboard() {
             </span>
             <span className={`px-3 py-1 rounded text-sm font-medium ${
               syncStatus === 'synced' ? 'bg-green-600 text-white' :
-              syncStatus === 'connected' ? 'bg-blue-600 text-white' :
+              syncStatus === 'connected' ? 'bg-violet-600 text-white' :
               'bg-gray-600 text-white'
             }`}>
               {syncStatus.toUpperCase()}
@@ -256,16 +256,16 @@ export default function HybridBiometricDashboard() {
           </div>
 
           {/* Acceleration */}
-          <div className="p-4 bg-blue-900 bg-opacity-50 border border-blue-700 rounded-lg">
-            <div className="text-blue-200 text-sm font-semibold mb-1">📊 Movement</div>
-            <div className="text-3xl font-bold text-blue-100">
+          <div className="p-4 bg-slate-900 bg-opacity-50 border border-violet-700 rounded-lg">
+            <div className="text-violet-200 text-sm font-semibold mb-1">📊 Movement</div>
+            <div className="text-3xl font-bold text-violet-100">
               {Math.sqrt(
                 (currentPhoneData.accelerationX || 0) ** 2 +
                 (currentPhoneData.accelerationY || 0) ** 2 +
                 (currentPhoneData.accelerationZ || 0) ** 2
               ).toFixed(1)} <span className="text-lg">m/s²</span>
             </div>
-            <div className="text-blue-300 text-xs mt-1">Active Motion</div>
+            <div className="text-violet-300 text-xs mt-1">Active Motion</div>
           </div>
         </div>
       )}

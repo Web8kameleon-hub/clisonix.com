@@ -298,7 +298,7 @@ services:
     working_dir: /app
     volumes:
       - ./:/app
-    command: ["sh", "-c", "pip install -q -r requirements.txt && python albi_service_6666.py"]
+    command: ["sh", "-c", "pip install -q -r requirements.txt && python albi_service_6680.py"]
     environment:
       PYTHONUNBUFFERED: "1"
       PORT: "6060"

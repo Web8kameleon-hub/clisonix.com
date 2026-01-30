@@ -615,7 +615,7 @@ export default function FaceDetectionPage() {
             )}
             
             {isAnalyzing && (
-              <div className="absolute top-3 right-3 bg-blue-500/80 text-white text-sm px-2 py-1 rounded">
+              <div className="absolute top-3 right-3 bg-violet-500/80 text-white text-sm px-2 py-1 rounded">
                 ● Analyzing
               </div>
             )}
@@ -636,7 +636,7 @@ export default function FaceDetectionPage() {
                   className={`flex-1 py-3 rounded-xl font-semibold transition-colors ${
                     isAnalyzing 
                       ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                      : 'bg-blue-500 hover:bg-blue-600 text-white'
+                      : 'bg-violet-500 hover:bg-violet-600 text-white'
                   }`}
                 >
                   {isAnalyzing ? '⏸️ Pause' : '▶️ Analyze'}

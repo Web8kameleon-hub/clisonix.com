@@ -56,7 +56,7 @@ def create_canonical_table_template(output_path: str = "canonical_table_template
         'NORMALIZED': 'FFE5CC', # Light orange
         'TEST': 'FFF2CC',       # Light yellow
         'READY': 'CCFFCC',      # Light green
-        'FAIL': 'FF6666',       # Red
+        'FAIL': 'FF6680',       # Red
         'ARCHIVED': 'CCCCCC'    # Gray
     }
     
@@ -74,7 +74,7 @@ def create_canonical_table_template(output_path: str = "canonical_table_template
     
     security_colors = {
         'PASS': 'CCFFCC',       # Light green
-        'FAIL': 'FF6666',       # Red
+        'FAIL': 'FF6680',       # Red
         'PENDING': 'FFF2CC'     # Light yellow
     }
     

@@ -103,11 +103,11 @@ const CHECKWX_API_KEY = process.env.NEXT_PUBLIC_CHECKWX_API_KEY || ''
 
 // Data source protocols available
 const DATA_SOURCES: DataSourceConfig[] = [
-  { protocol: 'api', name: 'REST API', icon: '🔗', color: 'bg-blue-500', description: 'HTTP/REST endpoints (Open-Meteo, CheckWX)', enabled: true },
+  { protocol: 'api', name: 'REST API', icon: '🔗', color: 'bg-violet-500', description: 'HTTP/REST endpoints (Open-Meteo, CheckWX)', enabled: true },
   { protocol: 'adsb', name: 'ADS-B', icon: '📡', color: 'bg-green-500', description: 'Aircraft tracking (OpenSky Network)', enabled: true },
   { protocol: 'lora', name: 'LoRa WAN', icon: '📻', color: 'bg-purple-500', description: 'Long-range IoT sensors', enabled: false },
   { protocol: 'gsm', name: 'GSM/LTE', icon: '📱', color: 'bg-orange-500', description: 'Cellular network data', enabled: false },
-  { protocol: 'cbor', name: 'CBOR', icon: '📦', color: 'bg-cyan-500', description: 'Binary encoded sensor data', enabled: false },
+  { protocol: 'cbor', name: 'CBOR', icon: '📦', color: 'bg-violet-500', description: 'Binary encoded sensor data', enabled: false },
   { protocol: 'mqtt', name: 'MQTT', icon: '🔔', color: 'bg-pink-500', description: 'Publish/subscribe messaging', enabled: false },
   { protocol: 'buffer', name: 'Buffer', icon: '💾', color: 'bg-yellow-500', description: 'Local data buffering & caching', enabled: true },
 ]
@@ -179,7 +179,7 @@ function getFlightCategory(visibility: number, ceiling: number): 'VFR' | 'MVFR' 
 function getCategoryColor(cat: string): string {
   switch (cat) {
     case 'VFR': return 'bg-green-500'
-    case 'MVFR': return 'bg-blue-500'
+    case 'MVFR': return 'bg-violet-500'
     case 'IFR': return 'bg-red-500'
     case 'LIFR': return 'bg-purple-500'
     default: return 'bg-gray-500'
@@ -189,7 +189,7 @@ function getCategoryColor(cat: string): string {
 function getCategoryBadge(cat: string): string {
   switch (cat) {
     case 'VFR': return 'bg-green-100 text-green-800 border-green-300'
-    case 'MVFR': return 'bg-blue-100 text-blue-800 border-blue-300'
+    case 'MVFR': return 'bg-violet-100 text-slate-800 border-violet-300'
     case 'IFR': return 'bg-red-100 text-red-800 border-red-300'
     case 'LIFR': return 'bg-purple-100 text-purple-800 border-purple-300'
     default: return 'bg-gray-100 text-gray-800 border-gray-300'
@@ -616,7 +616,7 @@ const AviationWeatherDashboard: React.FC = () => {
           <motion.p
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 1.5, repeat: Infinity }}
-            className="text-blue-600 text-2xl font-semibold"
+            className="text-violet-600 text-2xl font-semibold"
           >
             Loading Aviation Weather Intelligence...
           </motion.p>
@@ -638,7 +638,7 @@ const AviationWeatherDashboard: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+              <div className="w-14 h-14 bg-violet-600 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-lg">
                 AW
               </div>
               <div>
@@ -654,7 +654,7 @@ const AviationWeatherDashboard: React.FC = () => {
               <button
                 onClick={fetchAllAirports}
                 disabled={loading}
-                className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all font-semibold shadow-lg"
+                className="px-6 py-3 bg-violet-600 text-white rounded-xl hover:bg-violet-700 disabled:opacity-50 transition-all font-semibold shadow-lg"
               >
                 {loading ? 'Refreshing...' : 'Refresh All'}
               </button>
@@ -670,8 +670,8 @@ const AviationWeatherDashboard: React.FC = () => {
                 <span className="text-green-700 font-medium">VFR</span>
               </span>
               <span className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-full bg-blue-500"></span>
-                <span className="text-blue-700 font-medium">MVFR</span>
+                <span className="w-4 h-4 rounded-full bg-violet-500"></span>
+                <span className="text-violet-700 font-medium">MVFR</span>
               </span>
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 rounded-full bg-red-500"></span>
@@ -696,7 +696,7 @@ const AviationWeatherDashboard: React.FC = () => {
               const airport = airports.find(a => a.code === e.target.value)
               if (airport) setSelectedAirport(airport)
             }}
-            className="w-full max-w-xl bg-white text-gray-900 px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-blue-500 focus:outline-none text-lg font-medium"
+            className="w-full max-w-xl bg-white text-gray-900 px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-violet-500 focus:outline-none text-lg font-medium"
           >
             {airports.map(airport => (
               <option key={airport.code} value={airport.code}>
@@ -717,7 +717,7 @@ const AviationWeatherDashboard: React.FC = () => {
                 onClick={() => setActiveTab(tab)}
                 className={`px-6 py-4 font-semibold capitalize transition-all border-b-3 whitespace-nowrap ${
                   activeTab === tab
-                    ? 'border-blue-600 text-blue-600 bg-blue-50'
+                    ? 'border-violet-600 text-violet-600 bg-violet-50'
                     : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
@@ -760,18 +760,18 @@ const AviationWeatherDashboard: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               {/* Selected Airport Header */}
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 mb-6 text-white shadow-xl">
+              <div className="bg-gradient-to-r from-violet-600 to-violet-700 rounded-2xl p-6 mb-6 text-white shadow-xl">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-3xl font-bold">{selectedAirport.code}</h2>
-                    <p className="text-blue-100 text-lg">{selectedAirport.name}</p>
-                    <p className="text-blue-200">{selectedAirport.city}, {selectedAirport.country}</p>
+                    <p className="text-violet-100 text-lg">{selectedAirport.name}</p>
+                    <p className="text-violet-200">{selectedAirport.city}, {selectedAirport.country}</p>
                   </div>
                   <div className="text-right">
                     <span className={`px-4 py-2 rounded-full text-lg font-bold ${getCategoryColor(weatherData.flightCategory)} text-white`}>
                       {weatherData.flightCategory}
                     </span>
-                    <p className="text-blue-100 mt-2 text-sm">
+                    <p className="text-violet-100 mt-2 text-sm">
                       {selectedAirport.lat.toFixed(4)}, {selectedAirport.lon.toFixed(4)}
                     </p>
                   </div>
@@ -782,7 +782,7 @@ const AviationWeatherDashboard: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Temperature */}
                 <motion.div variants={itemVariants} className="bg-white border-2 border-gray-200 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
-                  <h3 className="text-lg font-semibold text-blue-600 mb-3 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-violet-600 mb-3 flex items-center gap-2">
                     [TEMP] Temperature
                   </h3>
                   <p className="text-5xl font-bold text-gray-900 mb-2">{weatherData.temperature.toFixed(1)}C</p>
@@ -790,7 +790,7 @@ const AviationWeatherDashboard: React.FC = () => {
                   <p className="text-gray-500">Humidity: {weatherData.humidity}%</p>
                   <div className="mt-4 h-3 bg-gray-200 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-gradient-to-r from-blue-500 to-red-500 rounded-full transition-all"
+                      className="h-full bg-gradient-to-r from-violet-500 to-red-500 rounded-full transition-all"
                       style={{ width: `${Math.min(100, Math.max(0, (weatherData.temperature + 20) * 2))}%` }}
                     />
                   </div>
@@ -888,13 +888,13 @@ const AviationWeatherDashboard: React.FC = () => {
                       return (
                         <tr 
                           key={airport.code} 
-                          className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 cursor-pointer transition-colors`}
+                          className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-violet-50 cursor-pointer transition-colors`}
                           onClick={() => {
                             setSelectedAirport(airport)
                             setActiveTab('current')
                           }}
                         >
-                          <td className="px-4 py-3 font-mono font-bold text-blue-600">{airport.code}</td>
+                          <td className="px-4 py-3 font-mono font-bold text-violet-600">{airport.code}</td>
                           <td className="px-4 py-3 text-gray-900 font-medium">{airport.city}</td>
                           <td className="px-4 py-3 text-gray-600">{airport.country}</td>
                           <td className="px-4 py-3 text-center">
@@ -947,9 +947,9 @@ const AviationWeatherDashboard: React.FC = () => {
                     key={index}
                     variants={itemVariants}
                     whileHover={{ scale: 1.05, y: -5 }}
-                    className="bg-gray-50 p-5 rounded-xl text-center border-2 border-gray-200 hover:border-blue-400 transition-all shadow-md hover:shadow-lg"
+                    className="bg-gray-50 p-5 rounded-xl text-center border-2 border-gray-200 hover:border-violet-400 transition-all shadow-md hover:shadow-lg"
                   >
-                    <p className="text-blue-600 font-bold text-lg">{item.time}</p>
+                    <p className="text-violet-600 font-bold text-lg">{item.time}</p>
                     <div className="text-4xl my-3">[{item.icon.toUpperCase()}]</div>
                     <p className="text-2xl font-bold text-gray-900">{item.temperature}C</p>
                     <p className="text-gray-600 font-medium text-sm mt-1">{item.weather}</p>
@@ -1053,7 +1053,7 @@ const AviationWeatherDashboard: React.FC = () => {
                 <button
                   onClick={() => fetchLiveFlights(selectedAirport)}
                   disabled={flightsLoading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-all font-medium"
+                  className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 disabled:opacity-50 transition-all font-medium"
                 >
                   {flightsLoading ? 'Loading...' : 'Refresh Flights'}
                 </button>
@@ -1099,9 +1099,9 @@ const AviationWeatherDashboard: React.FC = () => {
                         liveFlights.map((flight, idx) => (
                           <tr 
                             key={flight.icao24}
-                            className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors`}
+                            className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-violet-50 transition-colors`}
                           >
-                            <td className="px-4 py-3 font-mono font-bold text-blue-600 text-lg">
+                            <td className="px-4 py-3 font-mono font-bold text-violet-600 text-lg">
                               {flight.callsign || '------'}
                             </td>
                             <td className="px-4 py-3 font-mono text-gray-600">{flight.icao24}</td>
@@ -1175,7 +1175,7 @@ const AviationWeatherDashboard: React.FC = () => {
               {liveFlights.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
                   <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center shadow-lg">
-                    <p className="text-3xl font-bold text-blue-600">{liveFlights.length}</p>
+                    <p className="text-3xl font-bold text-violet-600">{liveFlights.length}</p>
                     <p className="text-gray-600">Total Aircraft</p>
                   </div>
                   <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center shadow-lg">
@@ -1241,8 +1241,8 @@ const AviationWeatherDashboard: React.FC = () => {
                 <div className="bg-white border-2 border-gray-200 rounded-2xl p-6 shadow-xl">
                   <h3 className="text-lg font-bold text-gray-900 mb-4">🌡️ Temperature Analysis</h3>
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="text-center p-4 bg-blue-50 rounded-xl">
-                      <p className="text-3xl font-bold text-blue-600">
+                    <div className="text-center p-4 bg-violet-50 rounded-xl">
+                      <p className="text-3xl font-bold text-violet-600">
                         {Math.min(...Array.from(allAirportsData.values()).map(d => d.temperature))}°C
                       </p>
                       <p className="text-gray-600 text-sm">Minimum</p>
@@ -1270,7 +1270,7 @@ const AviationWeatherDashboard: React.FC = () => {
                 <div className="bg-white border-2 border-gray-200 rounded-2xl p-6 shadow-xl">
                   <h3 className="text-lg font-bold text-gray-900 mb-4">💨 Wind Speed (km/h)</h3>
                   <div className="text-center">
-                    <p className="text-5xl font-bold text-cyan-600">
+                    <p className="text-5xl font-bold text-violet-600">
                       {allAirportsData.size > 0 
                         ? Math.round(Array.from(allAirportsData.values()).reduce((a, b) => a + b.windSpeed, 0) / allAirportsData.size)
                         : 0}
@@ -1340,7 +1340,7 @@ const AviationWeatherDashboard: React.FC = () => {
                             <td className="px-4 py-3 text-right">{item.data.visibility.toFixed(1)} km</td>
                             <td className="px-4 py-3 text-right">{item.data.windSpeed} km/h</td>
                             <td className="px-4 py-3 text-right">{item.data.cloudCover}%</td>
-                            <td className="px-4 py-3 text-right font-bold text-blue-600">{item.score.toFixed(0)}</td>
+                            <td className="px-4 py-3 text-right font-bold text-violet-600">{item.score.toFixed(0)}</td>
                           </tr>
                         ))}
                     </tbody>
@@ -1472,10 +1472,10 @@ const AviationWeatherDashboard: React.FC = () => {
               <div className="bg-white border-2 border-gray-200 rounded-2xl p-6 shadow-xl">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">📊 Atmospheric Analysis</h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl text-center">
-                    <p className="text-sm text-blue-600 font-semibold">Pressure</p>
-                    <p className="text-3xl font-bold text-blue-800">{weatherData.pressure} hPa</p>
-                    <p className="text-xs text-blue-600 mt-1">
+                  <div className="p-4 bg-gradient-to-br from-violet-50 to-violet-100 rounded-xl text-center">
+                    <p className="text-sm text-violet-600 font-semibold">Pressure</p>
+                    <p className="text-3xl font-bold text-slate-800">{weatherData.pressure} hPa</p>
+                    <p className="text-xs text-violet-600 mt-1">
                       {weatherData.pressure > 1020 ? '⬆️ High (Fair)' : weatherData.pressure < 1000 ? '⬇️ Low (Storm)' : '➡️ Normal'}
                     </p>
                   </div>
@@ -1554,7 +1554,7 @@ const AviationWeatherDashboard: React.FC = () => {
                               className={`p-3 rounded-lg flex items-center gap-3 ${
                                 alert.type === 'danger' ? 'bg-red-50 border-2 border-red-200 text-red-800' :
                                 alert.type === 'warning' ? 'bg-yellow-50 border-2 border-yellow-200 text-yellow-800' :
-                                'bg-blue-50 border-2 border-blue-200 text-blue-800'
+                                'bg-violet-50 border-2 border-violet-200 text-slate-800'
                               }`}
                             >
                               <span className="text-xl">
@@ -1591,7 +1591,7 @@ const AviationWeatherDashboard: React.FC = () => {
                     <span className={`px-3 py-1 rounded font-bold text-white ${getCategoryColor('VFR')}`}>VFR</span>
                     <span className="text-gray-700">Visual Flight Rules - Clear conditions</span>
                   </div>
-                  <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                  <div className="flex items-center gap-3 p-3 bg-violet-50 rounded-lg">
                     <span className={`px-3 py-1 rounded font-bold text-white ${getCategoryColor('MVFR')}`}>MVFR</span>
                     <span className="text-gray-700">Marginal VFR - Caution advised</span>
                   </div>
@@ -1711,7 +1711,7 @@ const AviationWeatherDashboard: React.FC = () => {
                     </div>
                     <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
                       <span className="text-gray-600">Protocol</span>
-                      <span className="font-mono font-bold text-blue-600">SSH-2.0</span>
+                      <span className="font-mono font-bold text-violet-600">SSH-2.0</span>
                     </div>
                   </div>
                 </div>
@@ -1735,7 +1735,7 @@ const AviationWeatherDashboard: React.FC = () => {
                         <span className="font-bold text-gray-900">4.2 / 16 GB</span>
                       </div>
                       <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-blue-500 rounded-full" style={{ width: '26%' }} />
+                        <div className="h-full bg-violet-500 rounded-full" style={{ width: '26%' }} />
                       </div>
                     </div>
                     <div>
@@ -1813,7 +1813,7 @@ const AviationWeatherDashboard: React.FC = () => {
                       <p key={idx} className={`${
                         log.type === 'success' ? 'text-green-400' :
                         log.type === 'error' ? 'text-red-400' :
-                        log.type === 'warning' ? 'text-yellow-400' : 'text-cyan-400'
+                        log.type === 'warning' ? 'text-yellow-400' : 'text-violet-400'
                       }`}>
                         <span className="text-gray-500">[{log.time}]</span> {log.message}
                       </p>
@@ -1853,7 +1853,7 @@ const AviationWeatherDashboard: React.FC = () => {
                           ])
                         }
                       }}
-                      className="p-3 bg-gray-100 hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-xl text-left transition-all"
+                      className="p-3 bg-gray-100 hover:bg-violet-50 border-2 border-gray-200 hover:border-violet-300 rounded-xl text-left transition-all"
                     >
                       <span className="text-2xl">{item.icon}</span>
                       <p className="font-semibold text-gray-900 text-sm mt-2">{item.label}</p>
@@ -1885,7 +1885,7 @@ const AviationWeatherDashboard: React.FC = () => {
                   <div className="flex gap-3">
                     <button
                       onClick={() => setShowAddAirport(!showAddAirport)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
+                      className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 font-medium transition-colors"
                     >
                       {showAddAirport ? 'Cancel' : '+ Add Airport'}
                     </button>
@@ -1903,9 +1903,9 @@ const AviationWeatherDashboard: React.FC = () => {
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
-                    className="mb-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl"
+                    className="mb-6 p-4 bg-violet-50 border-2 border-violet-200 rounded-xl"
                   >
-                    <h3 className="font-bold text-blue-800 mb-4">Add New Airport</h3>
+                    <h3 className="font-bold text-slate-800 mb-4">Add New Airport</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">ICAO Code *</label>
@@ -1915,7 +1915,7 @@ const AviationWeatherDashboard: React.FC = () => {
                           maxLength={4}
                           value={newAirport.code || ''}
                           onChange={(e) => setNewAirport({ ...newAirport, code: e.target.value.toUpperCase() })}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-violet-500 focus:outline-none"
                         />
                       </div>
                       <div>
@@ -1925,7 +1925,7 @@ const AviationWeatherDashboard: React.FC = () => {
                           placeholder="Tirana International"
                           value={newAirport.name || ''}
                           onChange={(e) => setNewAirport({ ...newAirport, name: e.target.value })}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-violet-500 focus:outline-none"
                         />
                       </div>
                       <div>
@@ -1935,7 +1935,7 @@ const AviationWeatherDashboard: React.FC = () => {
                           placeholder="Tirana"
                           value={newAirport.city || ''}
                           onChange={(e) => setNewAirport({ ...newAirport, city: e.target.value })}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-violet-500 focus:outline-none"
                         />
                       </div>
                       <div>
@@ -1945,7 +1945,7 @@ const AviationWeatherDashboard: React.FC = () => {
                           placeholder="Albania"
                           value={newAirport.country || ''}
                           onChange={(e) => setNewAirport({ ...newAirport, country: e.target.value })}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-violet-500 focus:outline-none"
                         />
                       </div>
                       <div>
@@ -1956,7 +1956,7 @@ const AviationWeatherDashboard: React.FC = () => {
                           placeholder="41.4147"
                           value={newAirport.lat || ''}
                           onChange={(e) => setNewAirport({ ...newAirport, lat: parseFloat(e.target.value) })}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-violet-500 focus:outline-none"
                         />
                       </div>
                       <div>
@@ -1967,7 +1967,7 @@ const AviationWeatherDashboard: React.FC = () => {
                           placeholder="19.7206"
                           value={newAirport.lon || ''}
                           onChange={(e) => setNewAirport({ ...newAirport, lon: parseFloat(e.target.value) })}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-violet-500 focus:outline-none"
                         />
                       </div>
                       <div>
@@ -1978,7 +1978,7 @@ const AviationWeatherDashboard: React.FC = () => {
                           maxLength={2}
                           value={newAirport.flag || ''}
                           onChange={(e) => setNewAirport({ ...newAirport, flag: e.target.value.toUpperCase() })}
-                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                          className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-violet-500 focus:outline-none"
                         />
                       </div>
                       <div className="flex items-end">
@@ -2011,7 +2011,7 @@ const AviationWeatherDashboard: React.FC = () => {
                     <tbody className="divide-y divide-gray-100">
                       {airports.map((airport, idx) => (
                         <tr key={airport.code} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                          <td className="px-4 py-3 font-mono font-bold text-blue-600">{airport.code}</td>
+                          <td className="px-4 py-3 font-mono font-bold text-violet-600">{airport.code}</td>
                           <td className="px-4 py-3 text-gray-900">{airport.name}</td>
                           <td className="px-4 py-3 text-gray-600">{airport.city}</td>
                           <td className="px-4 py-3 text-gray-600">[{airport.flag}] {airport.country}</td>
@@ -2126,7 +2126,7 @@ const AviationWeatherDashboard: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
             <div>
-              <p className="text-blue-600 font-bold text-lg">Professional Aviation Weather</p>
+              <p className="text-violet-600 font-bold text-lg">Professional Aviation Weather</p>
               <p className="text-gray-500">Real-time METAR/TAF | Certified Data Sources</p>
             </div>
             <div>

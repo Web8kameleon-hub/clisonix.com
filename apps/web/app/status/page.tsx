@@ -50,7 +50,7 @@ export default function StatusPage() {
       case 'operational': return 'bg-green-500';
       case 'degraded': return 'bg-yellow-500';
       case 'outage': return 'bg-red-500';
-      case 'maintenance': return 'bg-blue-500';
+      case 'maintenance': return 'bg-violet-500';
       default: return 'bg-gray-500';
     }
   };
@@ -77,7 +77,7 @@ export default function StatusPage() {
           <div className="flex items-center gap-6">
             <Link href="/platform" className="text-gray-400 hover:text-white transition-colors">Platform</Link>
             <Link href="/security" className="text-gray-400 hover:text-white transition-colors">Security</Link>
-            <Link href="/modules" className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors">
+            <Link href="/modules" className="px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg transition-colors">
               Dashboard
             </Link>
           </div>
@@ -142,7 +142,7 @@ export default function StatusPage() {
               <div key={month.month} className="text-center p-4 rounded-xl bg-slate-800/50">
                 <div className={`text-2xl font-bold ${
                   month.uptime >= 99.99 ? 'text-green-400' :
-                  month.uptime >= 99.9 ? 'text-cyan-400' :
+                  month.uptime >= 99.9 ? 'text-violet-400' :
                   'text-yellow-400'
                 }`}>
                   {month.uptime}%
@@ -153,7 +153,7 @@ export default function StatusPage() {
           </div>
 
           <div className="mt-6 p-4 rounded-xl bg-slate-800/30 text-center">
-            <span className="text-2xl font-bold text-cyan-400">99.97%</span>
+            <span className="text-2xl font-bold text-violet-400">99.97%</span>
             <span className="text-gray-400 ml-2">6-Month Average Uptime</span>
           </div>
         </div>
@@ -221,9 +221,9 @@ export default function StatusPage() {
       <footer className="py-12 px-6 border-t border-slate-800">
         <div className="max-w-6xl mx-auto text-center text-gray-500 text-sm">
           © 2026 Clisonix. All rights reserved. | 
-          <Link href="/security" className="hover:text-cyan-400 ml-2">Security</Link> | 
-          <Link href="/platform" className="hover:text-cyan-400 ml-2">Platform</Link> | 
-          <Link href="/company" className="hover:text-cyan-400 ml-2">Company</Link>
+          <Link href="/security" className="hover:text-violet-400 ml-2">Security</Link> | 
+          <Link href="/platform" className="hover:text-violet-400 ml-2">Platform</Link> | 
+          <Link href="/company" className="hover:text-violet-400 ml-2">Company</Link>
         </div>
       </footer>
     </div>

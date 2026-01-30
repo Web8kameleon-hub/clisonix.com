@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AGIEM TELEMETRY SERVICE (Port 6666)
+AGIEM TELEMETRY SERVICE (Port 6680)
 Agent Intelligence Metrics & Monitoring
 
 Provides real-time monitoring of:
@@ -38,7 +38,7 @@ app.add_middleware(
 # Initialize core services
 core = AGIEMCore()
 mesh_reporter = MeshReporter(core)
-node = NodeReal(core, node_id="agiem-telemetry-6666")
+node = NodeReal(core, node_id="agiem-telemetry-6680")
 
 # Global state
 SERVICE_START = datetime.now(timezone.utc).isoformat()
@@ -48,13 +48,13 @@ REQUEST_COUNT = 0
 @app.on_event("startup")
 async def startup():
     """Initialize service on startup"""
-    core.log_event("AGIEM_TELEMETRY", "Service starting on port 6666", "INFO")
+    core.log_event("AGIEM_TELEMETRY", "Service starting on port 6680", "INFO")
     # Register this node with Mesh HQ
     try:
         mesh_reporter.register({
-            "id": "agiem-telemetry-6666",
+            "id": "agiem-telemetry-6680",
             "type": "telemetry",
-            "port": 6666,
+            "port": 6680,
             "service": "AGIEM Telemetry Service",
             "timestamp": datetime.now(timezone.utc).isoformat()
         })
@@ -71,7 +71,7 @@ async def health():
     
     return {
         "status": "healthy",
-        "service": "agiem-telemetry-6666",
+        "service": "agiem-telemetry-6680",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "uptime_since": SERVICE_START,
         "requests_served": REQUEST_COUNT
@@ -252,7 +252,7 @@ async def info():
     """Get service information"""
     return {
         "service": "AGIEM Telemetry Service",
-        "port": 6666,
+        "port": 6680,
         "version": "1.0.0",
         "started_at": SERVICE_START,
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -272,7 +272,7 @@ async def info():
 
 
 if __name__ == "__main__":
-    port = int(os.getenv("AGIEM_PORT", "6666"))
+    port = int(os.getenv("AGIEM_PORT", "6680"))
     host = os.getenv("AGIEM_HOST", "0.0.0.0")
     
     print(f"\n{'='*60}")

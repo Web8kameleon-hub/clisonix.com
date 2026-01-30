@@ -3,6 +3,12 @@
  * Production-ready with API rewrites for backend proxy
  */
 
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // PRODUCTION: Docker internal communication via container names
 // DEVELOPMENT: Use localhost for local backend
 const isDev = process.env.NODE_ENV === "development";
@@ -19,8 +25,13 @@ const nextConfig = {
   transpilePackages: ["framer-motion"],
   staticPageGenerationTimeout: 600,
 
+  // Turbopack root - monorepo root where node_modules/next is located
+  turbopack: {
+    root: path.resolve(__dirname, "../.."),
+  },
+
   // Fix for monorepo lockfile detection
-  outputFileTracingRoot: __dirname,
+  outputFileTracingRoot: path.resolve(__dirname, "../.."),
 
   // ==========================================================================
   // IMAGE OPTIMIZATION (85% size reduction with WebP/AVIF)
@@ -238,14 +249,11 @@ const nextConfig = {
     ];
   },
 
-  webpack: (config, { isServer }) => {
+  webpack: (config) => {
     config.cache = false;
     return config;
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-    dirs: ["app", "pages", "components", "lib"],
-  },
+
   onDemandEntries: {
     maxInactiveAge: 60 * 1000,
     pagesBufferLength: 5,
@@ -253,4 +261,4 @@ const nextConfig = {
   allowedDevOrigins: ["localhost:3000", "127.0.0.1:3000", "clisonix.com"],
 };
 
-module.exports = nextConfig;
+export default nextConfig;

@@ -150,7 +150,7 @@ export default function EEGAnalysisPage() {
 
     const getBrainStateColor = (state: string) => {
         const colors: Record<string, string> = {
-            'relaxed': 'text-cyan-400',
+            'relaxed': 'text-violet-400',
             'focused': 'text-emerald-400',
             'alert': 'text-amber-400',
             'drowsy': 'text-purple-400',
@@ -163,7 +163,7 @@ export default function EEGAnalysisPage() {
         const colors: Record<string, string> = {
             'delta': 'bg-purple-500',
             'theta': 'bg-indigo-500',
-            'alpha': 'bg-cyan-500',
+            'alpha': 'bg-violet-500',
             'beta': 'bg-emerald-500',
             'gamma': 'bg-amber-500',
         };
@@ -336,12 +336,12 @@ export default function EEGAnalysisPage() {
                                                           {response.data.brain_state}
                                                       </p>
                                                   </div>
-                                                  <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20">
+                                                  <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-violet-500/10 border border-violet-500/20">
                                                       <div className="flex items-center gap-2 mb-2">
-                                                          <Waves className="w-5 h-5 text-cyan-400" />
+                                                          <Waves className="w-5 h-5 text-violet-400" />
                                                           <span className="text-sm text-slate-400">Dominant Freq</span>
                                                       </div>
-                                                      <p className="text-2xl font-bold text-cyan-400">
+                                                      <p className="text-2xl font-bold text-violet-400">
                                                           {response.data.dominant_frequency?.toFixed(1)} Hz
                                                       </p>
                                                   </div>
@@ -416,7 +416,7 @@ export default function EEGAnalysisPage() {
                                                                   </span>
                                                               </div>
                                                               <div className="text-xs text-slate-400">
-                                                                  <span className="text-cyan-400">{channel.frequency.toFixed(1)} Hz</span>
+                                                                  <span className="text-violet-400">{channel.frequency.toFixed(1)} Hz</span>
                                                                   <span className="mx-2">•</span>
                                                                   <span>{channel.amplitude.toFixed(1)} µV</span>
                                                               </div>

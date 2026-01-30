@@ -127,11 +127,11 @@ export default function ExcelDashboardPage() {
 
         {systemMetrics && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-gradient-to-br from-blue-600/30 to-blue-800/30 border-2 border-blue-500 rounded-xl p-6 text-center">
-              <div className="text-4xl font-bold text-blue-400">{systemMetrics.cpu_percent.toFixed(1)}%</div>
+            <div className="bg-gradient-to-br from-violet-600/30 to-slate-800/30 border-2 border-violet-500 rounded-xl p-6 text-center">
+              <div className="text-4xl font-bold text-violet-400">{systemMetrics.cpu_percent.toFixed(1)}%</div>
               <div className="text-gray-300 font-semibold">CPU Usage</div>
               <div className="mt-2 h-2 bg-slate-700 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-500 transition-all" style={{ width: `${systemMetrics.cpu_percent}%` }}></div>
+                <div className="h-full bg-violet-500 transition-all" style={{ width: `${systemMetrics.cpu_percent}%` }}></div>
               </div>
             </div>
             <div className="bg-gradient-to-br from-green-600/30 to-green-800/30 border-2 border-green-500 rounded-xl p-6 text-center">
@@ -190,7 +190,7 @@ export default function ExcelDashboardPage() {
                     </td>
                     <td className="px-4 py-3 text-white font-mono">{container.name}</td>
                     <td className="px-4 py-3 text-gray-400 text-sm">{container.image?.split(':')[0]}</td>
-                    <td className="px-4 py-3 text-blue-400 font-mono">{containerStat?.cpu_percent || '0%'}</td>
+                    <td className="px-4 py-3 text-violet-400 font-mono">{containerStat?.cpu_percent || '0%'}</td>
                     <td className="px-4 py-3 text-green-400 font-mono">{containerStat?.memory_percent || '0%'}</td>
                     <td className="px-4 py-3 text-purple-400 text-sm">{container.ports || '-'}</td>
                   </tr>
@@ -247,7 +247,7 @@ export default function ExcelDashboardPage() {
           <a 
             href={`${API_BASE}/api/reporting/dashboard`}
             target="_blank"
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold transition-all"
+            className="px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-lg font-semibold transition-all"
           >
             📊 API Dashboard
           </a>

@@ -154,11 +154,11 @@ export default function UserDataPage() {
 
   const getSourceColor = (type: DataSourceType) => {
     const colors: Record<DataSourceType, string> = {
-      iot: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+      iot: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
       api: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
       lora: 'bg-green-500/20 text-green-400 border-green-500/30',
       gsm: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-      cbor: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
+      cbor: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
       mqtt: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
       webhook: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
     }
@@ -193,7 +193,7 @@ export default function UserDataPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-400">Loading your data...</p>
         </div>
       </div>
@@ -211,7 +211,7 @@ export default function UserDataPage() {
                 ← Back
               </Link>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-violet-400 bg-clip-text text-transparent">
                   📊 My Data Dashboard
                 </h1>
                 <p className="text-sm text-gray-400">Manage your data sources and view metrics</p>
@@ -219,7 +219,7 @@ export default function UserDataPage() {
             </div>
             <button 
               onClick={() => setShowAddSource(true)}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors flex items-center gap-2"
+              className="px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg font-medium transition-colors flex items-center gap-2"
             >
               <span>+</span> Add Data Source
             </button>
@@ -237,13 +237,13 @@ export default function UserDataPage() {
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-3 font-medium capitalize transition-colors relative ${
                   activeTab === tab 
-                    ? 'text-blue-400' 
+                    ? 'text-violet-400' 
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
                 {tab}
                 {activeTab === tab && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-400"></div>
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-violet-400"></div>
                 )}
               </button>
             ))}
@@ -258,7 +258,7 @@ export default function UserDataPage() {
             {/* Quick Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                              <div className="text-3xl font-bold text-blue-400">{summary.total_sources || dataSources.length}</div>
+                              <div className="text-3xl font-bold text-violet-400">{summary.total_sources || dataSources.length}</div>
                 <div className="text-sm text-gray-400">Data Sources</div>
               </div>
               <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
@@ -268,7 +268,7 @@ export default function UserDataPage() {
                 <div className="text-sm text-gray-400">Active</div>
               </div>
               <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                <div className="text-3xl font-bold text-cyan-400">
+                <div className="text-3xl font-bold text-violet-400">
                                   {(summary.total_data_points || dataSources.reduce((sum, s) => sum + (s.data_points || 0), 0)).toLocaleString()}
                 </div>
                 <div className="text-sm text-gray-400">Total Data Points</div>
@@ -388,7 +388,7 @@ export default function UserDataPage() {
                           <td className="px-4 py-3 text-sm">{(source.data_points || 0).toLocaleString()}</td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
-                          <button className="px-2 py-1 text-xs bg-blue-500/20 text-blue-400 rounded hover:bg-blue-500/30 transition-colors">
+                          <button className="px-2 py-1 text-xs bg-violet-500/20 text-violet-400 rounded hover:bg-violet-500/30 transition-colors">
                             View
                           </button>
                           <button className="px-2 py-1 text-xs bg-white/5 text-gray-400 rounded hover:bg-white/10 transition-colors">
@@ -426,7 +426,7 @@ export default function UserDataPage() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">Your Metrics</h2>
-              <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors">
+              <button className="px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg font-medium transition-colors">
                 + Create Custom Metric
               </button>
             </div>
@@ -507,7 +507,7 @@ export default function UserDataPage() {
                 <p className="text-sm text-gray-400 mb-4">
                   Access your data programmatically via REST API
                 </p>
-                <button className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors">
+                <button className="w-full px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg font-medium transition-colors">
                   View API Docs
                 </button>
               </div>
@@ -545,7 +545,7 @@ export default function UserDataPage() {
                               <select
                                   value={newSource.type}
                                   onChange={(e) => setNewSource({ ...newSource, type: e.target.value as DataSourceType })}
-                                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                               >
                   <option value="iot">📡 IoT Device</option>
                   <option value="api">🔗 External API</option>
@@ -564,7 +564,7 @@ export default function UserDataPage() {
                                   value={newSource.name}
                                   onChange={(e) => setNewSource({ ...newSource, name: e.target.value })}
                   placeholder="e.g., Temperature Sensor #1"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                 />
               </div>
 
@@ -575,7 +575,7 @@ export default function UserDataPage() {
                                   value={newSource.endpoint}
                                   onChange={(e) => setNewSource({ ...newSource, endpoint: e.target.value })}
                   placeholder="e.g., mqtt://broker.example.com:1883"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                 />
               </div>
 
@@ -586,7 +586,7 @@ export default function UserDataPage() {
                                   value={newSource.api_key}
                                   onChange={(e) => setNewSource({ ...newSource, api_key: e.target.value })}
                   placeholder="Your API key or authentication token"
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-violet-500"
                 />
               </div>
             </div>
@@ -602,7 +602,7 @@ export default function UserDataPage() {
                           <button
                               onClick={handleAddSource}
                               disabled={isSubmitting || !newSource.name.trim()}
-                              className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
+                              className="flex-1 px-4 py-2 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
                           >
                               {isSubmitting ? 'Adding...' : 'Add Source'}
               </button>

@@ -28,7 +28,7 @@ Architecture:
 Integration Points:
 - HQ (8000)   → Main API gateway
 - ALBA (5555) → Data streaming
-- ALBI (6666) → Analytics engine
+- ALBI (6680) → Analytics engine
 - JONA (7777) → Supervision and orchestration
 """
 

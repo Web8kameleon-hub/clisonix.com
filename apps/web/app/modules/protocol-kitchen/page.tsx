@@ -248,7 +248,7 @@ export default function ProtocolKitchenPage() {
             <button
               onClick={runPipeline}
               disabled={processing}
-              className="w-full mt-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 disabled:opacity-50 text-white font-bold rounded-lg transition-all"
+              className="w-full mt-4 py-3 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 disabled:opacity-50 text-white font-bold rounded-lg transition-all"
             >
               {processing ? '⏳ Processing...' : '🚀 Run Pipeline'}
             </button>
@@ -271,7 +271,7 @@ export default function ProtocolKitchenPage() {
               <a 
                 href="/api/asi-status"
                 target="_blank"
-                className="block px-4 py-2 bg-blue-600/20 border border-blue-600 rounded-lg text-blue-400 hover:bg-blue-600/30"
+                className="block px-4 py-2 bg-violet-600/20 border border-violet-600 rounded-lg text-violet-400 hover:bg-violet-600/30"
               >
                 GET /api/asi-status
               </a>
@@ -324,7 +324,7 @@ export default function ProtocolKitchenPage() {
             <h3 className="text-lg font-bold text-white mb-4">Pipeline Progress</h3>
             <div className="w-full bg-slate-700 rounded-full h-4">
               <div 
-                className="bg-gradient-to-r from-purple-500 to-blue-500 h-4 rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-purple-500 to-violet-500 h-4 rounded-full transition-all duration-500"
                 style={{ 
                   width: `${processing ? ((currentStep + 1) / layers.length) * 100 : 
                     layers.every(l => l.status === 'complete') ? 100 : 0}%` 
@@ -367,8 +367,8 @@ export default function ProtocolKitchenPage() {
           {/* System Metrics */}
           {systemMetrics && (
             <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 border border-blue-500 rounded-xl p-4 text-center">
-                <div className="text-3xl font-bold text-blue-400">{systemMetrics.cpu_percent.toFixed(1)}%</div>
+              <div className="bg-gradient-to-br from-violet-600/20 to-slate-800/20 border border-violet-500 rounded-xl p-4 text-center">
+                <div className="text-3xl font-bold text-violet-400">{systemMetrics.cpu_percent.toFixed(1)}%</div>
                 <div className="text-gray-400">CPU Usage</div>
               </div>
               <div className="bg-gradient-to-br from-green-600/20 to-green-800/20 border border-green-500 rounded-xl p-4 text-center">
@@ -401,7 +401,7 @@ export default function ProtocolKitchenPage() {
                   <div className="text-gray-400 text-sm">
                     <div>Status: <span className={isRunning ? 'text-green-400' : 'text-red-400'}>{container.status}</span></div>
                     <div className="truncate">Image: {container.image}</div>
-                    {container.ports && <div className="text-blue-400 truncate">Ports: {container.ports}</div>}
+                    {container.ports && <div className="text-violet-400 truncate">Ports: {container.ports}</div>}
                   </div>
                 </div>
               )

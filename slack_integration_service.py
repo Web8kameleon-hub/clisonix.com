@@ -35,7 +35,7 @@ SLACK_ENABLED = os.getenv("SLACK_INTEGRATION_ENABLED", "true").lower() == "true"
 
 SERVICE_URLS = {
     "alba": "http://localhost:5555",
-    "albi": "http://localhost:6666",
+    "albi": "http://localhost:6680",
     "jona": "http://localhost:7777",
     "orchestrator": "http://localhost:9999",
     "api": "http://localhost:8000",

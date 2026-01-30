@@ -287,7 +287,7 @@ export default function NeuralMarketSentiment() {
             <div className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-cyan-400" />
+                  <BarChart3 className="w-5 h-5 text-violet-400" />
                   Real-Time Market Data
                 </h2>
                 {data && (
@@ -320,7 +320,7 @@ export default function NeuralMarketSentiment() {
                           <tr key={asset.symbol} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                             <td className="py-4 px-2">
                               <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-xs font-bold">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center text-xs font-bold">
                                   {asset.symbol.slice(0, 2)}
                                 </div>
                                 <div>

@@ -149,10 +149,10 @@ services:
       - PYTHONUNBUFFERED=1
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - ALBI_PORT=6666
+      - ALBI_PORT=6680
       - LOG_LEVEL=INFO
     ports:
-      - "6666:6666"
+      - "6680:6680"
     volumes:
       - ./apps/albi:/app
       - ./data/albi:/data/albi
@@ -160,7 +160,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6666/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:6680/health"]
       interval: 10s
       timeout: 5s
       retries: 3

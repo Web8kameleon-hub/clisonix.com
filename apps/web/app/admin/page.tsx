@@ -30,7 +30,7 @@ const ADMIN_MODULES = [
     name: 'Data Collection',
     description: 'Industrial IoT and sensor data collection',
     icon: '📡',
-    color: 'from-blue-500 to-cyan-600',
+    color: 'from-violet-500 to-violet-600',
     category: 'Infrastructure'
   },
   {
@@ -97,7 +97,7 @@ const ADMIN_MODULES = [
     name: 'Spectrum Analyzer',
     description: 'Multi-band EEG FFT Analysis • Postman-Style API Interface',
     icon: '📊',
-    color: 'from-cyan-500 to-blue-600',
+    color: 'from-violet-500 to-violet-600',
     category: 'Private Admin',
     private: true
   },
@@ -127,7 +127,7 @@ const ASI_TRINITY = [
     role: 'Analytical Intelligence',
     description: 'Data collection and pattern recognition engine',
     icon: '🔬',
-    color: 'from-blue-400 to-cyan-500',
+    color: 'from-violet-400 to-violet-500',
     endpoint: '/api/alba/info'
   },
   {
@@ -251,7 +251,7 @@ export default function AdminDashboard() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
                   placeholder="Enter admin password"
                   autoFocus
                 />
@@ -266,14 +266,14 @@ export default function AdminDashboard() {
               <button
                 type="submit"
                 disabled={loading || !password}
-                className="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold text-white transition-all shadow-lg shadow-cyan-500/30"
+                className="w-full py-3 bg-gradient-to-r from-violet-600 to-violet-600 hover:from-violet-500 hover:to-violet-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold text-white transition-all shadow-lg shadow-violet-500/30"
               >
                 {loading ? 'Authenticating...' : 'Access Dashboard'}
               </button>
             </form>
 
             <div className="mt-6 text-center">
-              <Link href="/" className="text-gray-400 hover:text-cyan-400 text-sm transition-colors">
+              <Link href="/" className="text-gray-400 hover:text-violet-400 text-sm transition-colors">
                 ← Back to Public Site
               </Link>
             </div>
@@ -321,10 +321,10 @@ export default function AdminDashboard() {
             <div className="grid md:grid-cols-4 gap-4">
               <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700/50">
                 <p className="text-gray-400 text-sm mb-1">CPU Load</p>
-                <p className="text-3xl font-bold text-cyan-400">{metrics.system.cpu_load}%</p>
+                <p className="text-3xl font-bold text-violet-400">{metrics.system.cpu_load}%</p>
                 <div className="mt-2 h-2 bg-slate-700 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
+                    className="h-full bg-gradient-to-r from-violet-500 to-violet-500"
                     style={{ width: `${metrics.system.cpu_load}%` }}
                   ></div>
                 </div>
@@ -362,7 +362,7 @@ export default function AdminDashboard() {
             {ASI_TRINITY.map((asi) => (
               <div 
                 key={asi.name}
-                className="p-6 rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/80 border border-slate-700/50 hover:border-cyan-500/30 transition-all"
+                className="p-6 rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/80 border border-slate-700/50 hover:border-violet-500/30 transition-all"
               >
                 <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${asi.color} flex items-center justify-center mb-4 shadow-lg`}>
                   <span className="text-3xl">{asi.icon}</span>
@@ -379,11 +379,11 @@ export default function AdminDashboard() {
                       <>
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-400">Connections:</span>
-                          <span className="text-cyan-400">{metrics.alba.connections}</span>
+                          <span className="text-violet-400">{metrics.alba.connections}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-400">Efficiency:</span>
-                          <span className="text-cyan-400">{metrics.alba.efficiency}%</span>
+                          <span className="text-violet-400">{metrics.alba.efficiency}%</span>
                         </div>
                       </>
                     )}
@@ -433,7 +433,7 @@ export default function AdminDashboard() {
               <Link 
                 key={module.id}
                 href={`/modules/${module.id}`}
-                className="p-6 rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/80 border border-slate-700/50 hover:border-cyan-500/50 transition-all group"
+                className="p-6 rounded-2xl bg-gradient-to-br from-slate-800/50 to-slate-900/80 border border-slate-700/50 hover:border-violet-500/50 transition-all group"
               >
                 <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${module.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
                   <span className="text-2xl">{module.icon}</span>
@@ -445,7 +445,7 @@ export default function AdminDashboard() {
                   </span>
                 </div>
                 <p className="text-gray-400 text-sm">{module.description}</p>
-                <div className="mt-4 flex items-center gap-2 text-cyan-400 group-hover:gap-3 transition-all">
+                <div className="mt-4 flex items-center gap-2 text-violet-400 group-hover:gap-3 transition-all">
                   <span className="text-sm font-medium">Open Module</span>
                   <span>→</span>
                 </div>
@@ -503,7 +503,7 @@ export default function AdminDashboard() {
             {TECH_STACK.map((tech) => (
               <div 
                 key={tech.name}
-                className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 text-center hover:border-cyan-500/30 transition-all"
+                className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 text-center hover:border-violet-500/30 transition-all"
               >
                 <span className="text-3xl mb-2 block">{tech.icon}</span>
                 <h4 className="font-semibold text-white">{tech.name}</h4>
@@ -521,7 +521,7 @@ export default function AdminDashboard() {
           <div className="grid md:grid-cols-3 gap-4">
             <Link 
               href="/modules"
-              className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/30 hover:bg-cyan-500/20 transition-all text-center"
+              className="p-4 rounded-xl bg-violet-500/10 border border-violet-500/30 hover:bg-violet-500/20 transition-all text-center"
             >
               <span className="text-2xl block mb-2">📊</span>
               <span className="font-medium">All Modules</span>

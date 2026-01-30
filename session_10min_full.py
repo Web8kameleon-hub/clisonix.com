@@ -151,7 +151,7 @@ DATA_SOURCES = {
 
 SAAS_SERVICES = [
     {"name": "ALBA Stream", "port": 5555, "type": "eeg_streaming"},
-    {"name": "ALBI Intelligence", "port": 6666, "type": "neural_processing"},
+    {"name": "ALBI Intelligence", "port": 6680, "type": "neural_processing"},
     {"name": "JONA Supervisor", "port": 7777, "type": "ethics_oversight"},
     {"name": "ASI Core", "port": 8888, "type": "asi_coordination"},
     {"name": "Cycle Engine", "port": 9095, "type": "cycle_management"},

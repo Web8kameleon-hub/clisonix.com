@@ -52,7 +52,7 @@ export default function PlatformPage() {
           <div className="flex items-center gap-6">
             <Link href="/why-clisonix" className="text-gray-400 hover:text-white transition-colors">Why Clisonix</Link>
             <Link href="/pricing" className="text-gray-400 hover:text-white transition-colors">Pricing</Link>
-            <Link href="/modules" className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors">
+            <Link href="/modules" className="px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg transition-colors">
               Open Dashboard
             </Link>
           </div>
@@ -62,7 +62,7 @@ export default function PlatformPage() {
       {/* Hero */}
       <section className="pt-32 pb-16 px-6">
         <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-block px-4 py-2 rounded-full bg-slate-800 text-cyan-400 text-sm font-medium mb-6">
+          <div className="inline-block px-4 py-2 rounded-full bg-slate-800 text-violet-400 text-sm font-medium mb-6">
             Platform Architecture
           </div>
           <h1 className="text-5xl font-bold mb-6">
@@ -80,7 +80,7 @@ export default function PlatformPage() {
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
           {apiStats.map((stat) => (
             <div key={stat.label} className="p-6 rounded-xl bg-slate-800/50 border border-slate-700 text-center">
-              <div className="text-3xl font-bold text-cyan-400">{stat.value}</div>
+              <div className="text-3xl font-bold text-violet-400">{stat.value}</div>
               <div className="font-medium mt-1">{stat.label}</div>
               <div className="text-sm text-gray-500">{stat.desc}</div>
             </div>
@@ -98,19 +98,19 @@ export default function PlatformPage() {
           </p>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="p-8 rounded-2xl bg-gradient-to-b from-blue-500/20 to-slate-800 border border-blue-500/30">
+            <div className="p-8 rounded-2xl bg-gradient-to-b from-violet-500/20 to-slate-800 border border-violet-500/30">
               <div className="text-4xl mb-4">📡</div>
-              <h3 className="text-2xl font-bold text-blue-400 mb-2">ALBA</h3>
+              <h3 className="text-2xl font-bold text-violet-400 mb-2">ALBA</h3>
               <p className="text-gray-400 mb-4">Advanced Learning & Behavioral Analysis</p>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
-                  <span className="text-blue-400">◆</span> Real-time network monitoring
+                  <span className="text-violet-400">◆</span> Real-time network monitoring
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-blue-400">◆</span> Anomaly detection
+                  <span className="text-violet-400">◆</span> Anomaly detection
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-blue-400">◆</span> Predictive intelligence
+                  <span className="text-violet-400">◆</span> Predictive intelligence
                 </li>
               </ul>
             </div>
@@ -164,7 +164,7 @@ export default function PlatformPage() {
             {modules.map((mod) => (
               <div
                 key={mod.name}
-                className="p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-cyan-500/50 transition-colors"
+                className="p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-violet-500/50 transition-colors"
               >
                 <div className="text-3xl mb-2">{mod.icon}</div>
                 <h3 className="font-semibold">{mod.name}</h3>
@@ -190,11 +190,11 @@ export default function PlatformPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {techStack.map((stack) => (
               <div key={stack.category} className="p-6 rounded-xl bg-slate-800/50 border border-slate-700">
-                <h3 className="font-semibold text-cyan-400 mb-4">{stack.category}</h3>
+                <h3 className="font-semibold text-violet-400 mb-4">{stack.category}</h3>
                 <ul className="space-y-2">
                   {stack.items.map((item) => (
                     <li key={item} className="text-gray-400 text-sm flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-violet-500"></span>
                       {item}
                     </li>
                   ))}
@@ -242,7 +242,7 @@ export default function PlatformPage() {
         <div className="flex flex-wrap justify-center gap-4">
           <Link
             href="/modules"
-            className="px-8 py-4 bg-cyan-600 hover:bg-cyan-500 rounded-xl font-semibold transition-colors"
+            className="px-8 py-4 bg-violet-600 hover:bg-violet-500 rounded-xl font-semibold transition-colors"
           >
             Explore Modules
           </Link>
@@ -259,9 +259,9 @@ export default function PlatformPage() {
       <footer className="py-12 px-6 border-t border-slate-800">
         <div className="max-w-6xl mx-auto text-center text-gray-500 text-sm">
           © 2026 Clisonix. All rights reserved. | 
-          <Link href="/security" className="hover:text-cyan-400 ml-2">Security</Link> | 
-          <Link href="/status" className="hover:text-cyan-400 ml-2">Status</Link> | 
-          <Link href="/company" className="hover:text-cyan-400 ml-2">Company</Link>
+          <Link href="/security" className="hover:text-violet-400 ml-2">Security</Link> | 
+          <Link href="/status" className="hover:text-violet-400 ml-2">Status</Link> | 
+          <Link href="/company" className="hover:text-violet-400 ml-2">Company</Link>
         </div>
       </footer>
     </div>

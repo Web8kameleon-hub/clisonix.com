@@ -204,7 +204,7 @@ export default function PhoneMonitorPage() {
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
           <Smartphone className="w-8 h-8 text-emerald-400" />
-          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-violet-400 bg-clip-text text-transparent">
             Phone Monitor API
           </h1>
           <span className="px-2 py-1 text-xs font-mono bg-emerald-500/20 text-emerald-400 rounded border border-emerald-500/30">
@@ -287,7 +287,7 @@ export default function PhoneMonitorPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           {response?.loading ? (
-                            <RefreshCw className="w-3 h-3 text-blue-400 animate-spin" />
+                            <RefreshCw className="w-3 h-3 text-violet-400 animate-spin" />
                           ) : response?.status ? (
                             <span className={`w-2 h-2 rounded-full ${getStatusColor(response.status)}`} />
                           ) : null}
@@ -326,7 +326,7 @@ export default function PhoneMonitorPage() {
                   className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                   disabled={selectedResponse?.loading}
                 >
-                  <RefreshCw className={`w-4 h-4 ${selectedResponse?.loading ? 'animate-spin text-blue-400' : 'text-gray-400'}`} />
+                  <RefreshCw className={`w-4 h-4 ${selectedResponse?.loading ? 'animate-spin text-violet-400' : 'text-gray-400'}`} />
                 </button>
               </div>
 

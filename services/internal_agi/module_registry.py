@@ -174,8 +174,8 @@ class ModuleRegistry:
             id="albi",
             name="ALBI Analytics Engine",
             module_type=ModuleType.CORE,
-            port=6666,
-            endpoint="http://localhost:6666",
+            port=6680,
+            endpoint="http://localhost:6680",
             capabilities=[
                 ModuleCapability.ANALYTICS,
                 ModuleCapability.DATA_TRANSFORM,

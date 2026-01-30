@@ -167,11 +167,11 @@ export default function SpectrumAnalyzerPage() {
       <div className="max-w-7xl mx-auto mb-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/20 to-violet-500/20 border border-emerald-500/30">
               <BarChart3 className="w-8 h-8 text-emerald-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-violet-400 bg-clip-text text-transparent">
                 Spectrum Analyzer
               </h1>
               <p className="text-slate-400 text-sm">Multi-band EEG FFT Analysis • Postman-Style API Interface</p>
@@ -267,7 +267,7 @@ export default function SpectrumAnalyzerPage() {
               <button
                 onClick={() => executeRequest(selectedEndpoint)}
                 disabled={isLoading}
-                className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all disabled:opacity-50 flex items-center gap-2"
+                className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-violet-500 text-white font-semibold rounded-lg hover:from-emerald-600 hover:to-violet-600 transition-all disabled:opacity-50 flex items-center gap-2"
               >
                 {isLoading ? (
                   <RefreshCw className="w-4 h-4 animate-spin" />
@@ -319,7 +319,7 @@ export default function SpectrumAnalyzerPage() {
                     {(response.data as SpectrumData).frequency_bands && (
                       <>
                         <div className="grid grid-cols-4 gap-4">
-                          <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 border border-emerald-500/20">
+                          <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-violet-500/10 border border-emerald-500/20">
                             <div className="flex items-center gap-2 mb-2">
                               <BarChart3 className="w-5 h-5 text-emerald-400" />
                               <span className="text-sm text-slate-400">Total Power</span>
@@ -328,12 +328,12 @@ export default function SpectrumAnalyzerPage() {
                               {(response.data as SpectrumData).total_power?.toFixed(1) || 0} dB
                             </p>
                           </div>
-                          <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20">
+                          <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-violet-500/10 border border-violet-500/20">
                             <div className="flex items-center gap-2 mb-2">
-                              <Waves className="w-5 h-5 text-cyan-400" />
+                              <Waves className="w-5 h-5 text-violet-400" />
                               <span className="text-sm text-slate-400">Dominant</span>
                             </div>
-                            <p className="text-2xl font-bold text-cyan-400 capitalize">
+                            <p className="text-2xl font-bold text-violet-400 capitalize">
                               {(response.data as SpectrumData).dominant_band || 'N/A'}
                             </p>
                           </div>
@@ -409,7 +409,7 @@ export default function SpectrumAnalyzerPage() {
                               </div>
                               <div className="flex items-center gap-4">
                                 <span className="text-sm text-emerald-400 font-mono">{session.average_power.toFixed(1)} dB</span>
-                                <span className="text-xs px-2 py-1 rounded bg-cyan-500/20 text-cyan-400 capitalize">
+                                <span className="text-xs px-2 py-1 rounded bg-violet-500/20 text-violet-400 capitalize">
                                   {session.dominant_frequency}
                                 </span>
                               </div>

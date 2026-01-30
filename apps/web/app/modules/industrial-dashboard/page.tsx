@@ -124,7 +124,7 @@ export default function IndustrialDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-900 flex items-center justify-center">
         <div className="text-center text-white">
           <div className="text-4xl mb-4">🏭</div>
           <h2 className="text-2xl font-bold mb-2">Loading Industrial Dashboard</h2>
@@ -157,11 +157,11 @@ export default function IndustrialDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-900 p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-block mb-4 text-cyan-400 hover:text-cyan-300 transition-colors">
+          <Link href="/" className="inline-block mb-4 text-violet-400 hover:text-violet-300 transition-colors">
             ← Back to Clisonix Cloud
           </Link>
           <h1 className="text-4xl font-bold text-white mb-4">
@@ -299,7 +299,7 @@ export default function IndustrialDashboard() {
             </div>
             <div>
               <h4 className="text-lg font-medium text-gray-300 mb-2">Backend Health</h4>
-              <pre className="bg-black/20 rounded-lg p-4 text-xs text-blue-400 overflow-auto max-h-60">
+              <pre className="bg-black/20 rounded-lg p-4 text-xs text-violet-400 overflow-auto max-h-60">
                 {backendHealth ? JSON.stringify(backendHealth, null, 2) : 'No data'}
               </pre>
             </div>
@@ -312,7 +312,7 @@ export default function IndustrialDashboard() {
             🔗 Quick Module Access
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Link href="/modules/eeg-analysis" className="bg-cyan-500/20 hover:bg-cyan-500/30 rounded-lg p-4 text-center transition-colors border border-cyan-500/30">
+            <Link href="/modules/eeg-analysis" className="bg-violet-500/20 hover:bg-violet-500/30 rounded-lg p-4 text-center transition-colors border border-violet-500/30">
               <div className="text-2xl mb-2">🧠</div>
               <div className="text-white font-medium">EEG Analysis</div>
             </Link>

@@ -95,12 +95,12 @@ const DEMO_METRICS: DataMetrics = {
 }
 
 const TYPE_CONFIG = {
-  iot: { icon: '🔌', label: 'IoT Device', color: 'bg-blue-500' },
+  iot: { icon: '🔌', label: 'IoT Device', color: 'bg-violet-500' },
   api: { icon: '🔗', label: 'REST API', color: 'bg-purple-500' },
   lora: { icon: '📡', label: 'LoRa Network', color: 'bg-green-500' },
   gsm: { icon: '📱', label: 'GSM/4G', color: 'bg-orange-500' },
   cbor: { icon: '📦', label: 'CBOR Data', color: 'bg-red-500' },
-  mqtt: { icon: '🌐', label: 'MQTT', color: 'bg-cyan-500' },
+  mqtt: { icon: '🌐', label: 'MQTT', color: 'bg-violet-500' },
   webhook: { icon: '🔔', label: 'Webhook', color: 'bg-pink-500' }
 }
 
@@ -165,7 +165,7 @@ export default function MyDataDashboard() {
           </div>
           <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
             <div className="text-2xl mb-1">📅</div>
-            <div className="text-2xl font-bold text-blue-400">{(metrics.todayDataPoints / 1000).toFixed(1)}K</div>
+            <div className="text-2xl font-bold text-violet-400">{(metrics.todayDataPoints / 1000).toFixed(1)}K</div>
             <div className="text-gray-400 text-sm">Today</div>
           </div>
           <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
@@ -263,7 +263,7 @@ export default function MyDataDashboard() {
         <div className="bg-gray-800/30 rounded-xl p-6 border border-gray-700">
           <h2 className="text-xl font-semibold mb-4">🚀 Quick Actions</h2>
           <div className="grid md:grid-cols-4 gap-4">
-            <button className="bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/50 rounded-lg p-4 text-left transition-all">
+            <button className="bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/50 rounded-lg p-4 text-left transition-all">
               <div className="text-2xl mb-2">🔌</div>
               <div className="font-semibold">Add IoT Device</div>
               <div className="text-gray-400 text-sm">Connect sensors & devices</div>

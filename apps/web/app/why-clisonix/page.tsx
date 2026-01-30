@@ -92,7 +92,7 @@ export default function WhyClisonixPage() {
           <div className="flex items-center gap-6">
             <Link href="/platform" className="text-gray-400 hover:text-white transition-colors">Platform</Link>
             <Link href="/pricing" className="text-gray-400 hover:text-white transition-colors">Pricing</Link>
-            <Link href="/modules" className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors">
+            <Link href="/modules" className="px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg transition-colors">
               Open Dashboard
             </Link>
           </div>
@@ -102,14 +102,14 @@ export default function WhyClisonixPage() {
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/30 mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/30 mb-8">
             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-            <span className="text-cyan-300 text-sm">ASI Trinity Online • 99.97% Uptime</span>
+            <span className="text-violet-300 text-sm">ASI Trinity Online • 99.97% Uptime</span>
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
             Why Leading Companies Choose{' '}
-            <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-violet-400 to-violet-400 bg-clip-text text-transparent">
               Clisonix
             </span>
           </h1>
@@ -123,7 +123,7 @@ export default function WhyClisonixPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
               href="/modules"
-              className="px-8 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 rounded-xl font-semibold text-lg transition-all shadow-lg shadow-cyan-500/25"
+              className="px-8 py-4 bg-gradient-to-r from-violet-600 to-violet-600 hover:from-violet-500 hover:to-violet-500 rounded-xl font-semibold text-lg transition-all shadow-lg shadow-violet-500/25"
             >
               Start Free Trial
             </Link>
@@ -158,7 +158,7 @@ export default function WhyClisonixPage() {
                 {competitors.map((comp, i) => (
                   <tr 
                     key={comp.name} 
-                    className={`border-b border-slate-800 ${i === 2 ? 'bg-cyan-500/10' : ''}`}
+                    className={`border-b border-slate-800 ${i === 2 ? 'bg-violet-500/10' : ''}`}
                   >
                     <td className="py-4 px-6 font-medium">
                       {i === 2 && <span className="mr-2">🏆</span>}
@@ -186,12 +186,12 @@ export default function WhyClisonixPage() {
             {benefits.map((benefit) => (
               <div 
                 key={benefit.title}
-                className="p-6 rounded-2xl bg-slate-800/50 border border-slate-700 hover:border-cyan-500/50 transition-colors"
+                className="p-6 rounded-2xl bg-slate-800/50 border border-slate-700 hover:border-violet-500/50 transition-colors"
               >
                 <div className="text-4xl mb-4">{benefit.icon}</div>
                 <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
                 <p className="text-gray-400 mb-4">{benefit.description}</p>
-                <div className="inline-flex px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-sm">
+                <div className="inline-flex px-3 py-1 rounded-full bg-violet-500/20 text-violet-300 text-sm">
                   {benefit.metric}
                 </div>
               </div>
@@ -237,7 +237,7 @@ export default function WhyClisonixPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
               href="/modules"
-              className="px-8 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 rounded-xl font-semibold text-lg transition-all"
+              className="px-8 py-4 bg-gradient-to-r from-violet-600 to-violet-600 hover:from-violet-500 hover:to-violet-500 rounded-xl font-semibold text-lg transition-all"
             >
               Start Building Today
             </Link>
@@ -255,9 +255,9 @@ export default function WhyClisonixPage() {
       <footer className="py-12 px-6 border-t border-slate-800">
         <div className="max-w-6xl mx-auto text-center text-gray-500 text-sm">
           © 2026 Clisonix. All rights reserved. | 
-          <Link href="/security" className="hover:text-cyan-400 ml-2">Security</Link> | 
-          <Link href="/status" className="hover:text-cyan-400 ml-2">Status</Link> | 
-          <Link href="/company" className="hover:text-cyan-400 ml-2">Company</Link>
+          <Link href="/security" className="hover:text-violet-400 ml-2">Security</Link> | 
+          <Link href="/status" className="hover:text-violet-400 ml-2">Status</Link> | 
+          <Link href="/company" className="hover:text-violet-400 ml-2">Company</Link>
         </div>
       </footer>
     </div>

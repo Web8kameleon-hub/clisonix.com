@@ -99,14 +99,14 @@ cycles.forEach(c => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-violet-400 to-violet-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">C</span>
               </div>
               <span className="text-white font-semibold text-lg">Clisonix</span>
             </Link>
             <nav className="flex items-center gap-6">
               <Link href="/" className="text-slate-400 hover:text-white transition-colors">Home</Link>
-              <Link href="/developers" className="text-cyan-400 font-medium">Developers</Link>
+              <Link href="/developers" className="text-violet-400 font-medium">Developers</Link>
               <Link href="/modules" className="text-slate-400 hover:text-white transition-colors">Dashboard</Link>
               <a 
                 href="https://github.com/LedjanAhmati/Clisonix-cloud" 
@@ -127,14 +127,14 @@ cycles.forEach(c => {
       {/* Hero Section */}
       <section className="py-16 px-4">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full text-cyan-400 text-sm mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-violet-500/10 border border-violet-500/30 rounded-full text-violet-400 text-sm mb-6">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
             </svg>
             Developer Documentation
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Build with <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Clisonix API</span>
+            Build with <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-violet-500">Clisonix API</span>
           </h1>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-8">
             Integrate powerful real-time analytics and intelligent automation into your applications with our RESTful API and SDKs.
@@ -142,7 +142,7 @@ cycles.forEach(c => {
           <div className="flex justify-center gap-4">
             <a 
               href="#quickstart" 
-              className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+              className="px-6 py-3 bg-gradient-to-r from-violet-500 to-violet-500 text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
             >
               Quick Start →
             </a>
@@ -167,15 +167,15 @@ cycles.forEach(c => {
           <div className="grid md:grid-cols-3 gap-6 mb-12">
             {/* Step 1 */}
             <div className="bg-slate-900 rounded-xl p-6 border border-slate-700">
-              <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center text-cyan-400 font-bold mb-4">1</div>
+              <div className="w-10 h-10 bg-violet-500/20 rounded-lg flex items-center justify-center text-violet-400 font-bold mb-4">1</div>
               <h3 className="text-lg font-semibold text-white mb-2">Get Your API Key</h3>
               <p className="text-slate-400 text-sm mb-4">Sign up for a free account and generate your API key from the dashboard.</p>
-              <Link href="/modules" className="text-cyan-400 text-sm hover:underline">Go to Dashboard →</Link>
+              <Link href="/modules" className="text-violet-400 text-sm hover:underline">Go to Dashboard →</Link>
             </div>
 
             {/* Step 2 */}
             <div className="bg-slate-900 rounded-xl p-6 border border-slate-700">
-              <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center text-cyan-400 font-bold mb-4">2</div>
+              <div className="w-10 h-10 bg-violet-500/20 rounded-lg flex items-center justify-center text-violet-400 font-bold mb-4">2</div>
               <h3 className="text-lg font-semibold text-white mb-2">Install the SDK</h3>
               <p className="text-slate-400 text-sm mb-4">Choose your preferred language and install our SDK.</p>
               <div className="space-y-2">
@@ -186,10 +186,10 @@ cycles.forEach(c => {
 
             {/* Step 3 */}
             <div className="bg-slate-900 rounded-xl p-6 border border-slate-700">
-              <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center text-cyan-400 font-bold mb-4">3</div>
+              <div className="w-10 h-10 bg-violet-500/20 rounded-lg flex items-center justify-center text-violet-400 font-bold mb-4">3</div>
               <h3 className="text-lg font-semibold text-white mb-2">Make Your First Call</h3>
               <p className="text-slate-400 text-sm mb-4">Start integrating with our API using the examples below.</p>
-              <a href="#examples" className="text-cyan-400 text-sm hover:underline">View Examples →</a>
+              <a href="#examples" className="text-violet-400 text-sm hover:underline">View Examples →</a>
             </div>
           </div>
         </div>
@@ -209,7 +209,7 @@ cycles.forEach(c => {
               onClick={() => setActiveTab('rest')}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 activeTab === 'rest' 
-                  ? 'bg-cyan-500 text-white' 
+                  ? 'bg-violet-500 text-white' 
                   : 'bg-slate-800 text-slate-400 hover:text-white'
               }`}
             >
@@ -219,7 +219,7 @@ cycles.forEach(c => {
               onClick={() => setActiveTab('python')}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 activeTab === 'python' 
-                  ? 'bg-cyan-500 text-white' 
+                  ? 'bg-violet-500 text-white' 
                   : 'bg-slate-800 text-slate-400 hover:text-white'
               }`}
             >
@@ -229,7 +229,7 @@ cycles.forEach(c => {
               onClick={() => setActiveTab('typescript')}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 activeTab === 'typescript' 
-                  ? 'bg-cyan-500 text-white' 
+                  ? 'bg-violet-500 text-white' 
                   : 'bg-slate-800 text-slate-400 hover:text-white'
               }`}
             >
@@ -262,7 +262,7 @@ cycles.forEach(c => {
             <pre className="bg-slate-900 border border-slate-700 rounded-xl p-6 overflow-x-auto">
               <code className={`text-sm ${
                 activeTab === 'rest' ? 'text-green-400' : 
-                activeTab === 'python' ? 'text-blue-400' : 'text-yellow-400'
+                activeTab === 'python' ? 'text-violet-400' : 'text-yellow-400'
               }`}>
                 {codeExamples[activeTab]}
               </code>
@@ -313,7 +313,7 @@ cycles.forEach(c => {
             {/* Create Cycle */}
             <div className="bg-slate-900 rounded-xl p-6 border border-slate-700">
               <div className="flex items-center gap-2 mb-3">
-                <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs font-mono rounded">POST</span>
+                <span className="px-2 py-1 bg-violet-500/20 text-violet-400 text-xs font-mono rounded">POST</span>
                 <code className="text-slate-300 text-sm">/cycles</code>
               </div>
               <h3 className="text-white font-semibold mb-2">Create Cycle</h3>
@@ -323,7 +323,7 @@ cycles.forEach(c => {
             {/* Excel Export */}
             <div className="bg-slate-900 rounded-xl p-6 border border-slate-700">
               <div className="flex items-center gap-2 mb-3">
-                <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs font-mono rounded">POST</span>
+                <span className="px-2 py-1 bg-violet-500/20 text-violet-400 text-xs font-mono rounded">POST</span>
                 <code className="text-slate-300 text-sm">/excel/export</code>
               </div>
               <h3 className="text-white font-semibold mb-2">Excel Export</h3>
@@ -344,7 +344,7 @@ cycles.forEach(c => {
           <div className="text-center mt-8">
             <a 
               href="/api-docs" 
-              className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+              className="inline-flex items-center gap-2 text-violet-400 hover:text-violet-300 transition-colors"
             >
               View Full API Documentation
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -365,10 +365,10 @@ cycles.forEach(c => {
 
           <div className="grid md:grid-cols-3 gap-6">
             {/* Python SDK */}
-            <div className="bg-gradient-to-br from-blue-500/10 to-yellow-500/10 rounded-xl p-6 border border-slate-700">
+            <div className="bg-gradient-to-br from-violet-500/10 to-yellow-500/10 rounded-xl p-6 border border-slate-700">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                <div className="w-12 h-12 bg-violet-500/20 rounded-lg flex items-center justify-center">
+                  <svg className="w-6 h-6 text-violet-400" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/>
                   </svg>
                 </div>
@@ -382,17 +382,17 @@ cycles.forEach(c => {
                 href="https://github.com/LedjanAhmati/Clisonix-cloud" 
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-cyan-400 text-sm hover:underline"
+                className="text-violet-400 text-sm hover:underline"
               >
                 View on GitHub →
               </a>
             </div>
 
             {/* TypeScript SDK */}
-            <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 rounded-xl p-6 border border-slate-700">
+            <div className="bg-gradient-to-br from-violet-500/10 to-violet-600/10 rounded-xl p-6 border border-slate-700">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                <div className="w-12 h-12 bg-violet-500/20 rounded-lg flex items-center justify-center">
+                  <svg className="w-6 h-6 text-violet-400" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z"/>
                   </svg>
                 </div>
@@ -406,7 +406,7 @@ cycles.forEach(c => {
                 href="https://github.com/LedjanAhmati/Clisonix-cloud" 
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-cyan-400 text-sm hover:underline"
+                className="text-violet-400 text-sm hover:underline"
               >
                 View on GitHub →
               </a>
@@ -425,10 +425,10 @@ cycles.forEach(c => {
                   <p className="text-slate-400 text-sm">Any language</p>
                 </div>
               </div>
-              <code className="block bg-slate-900 px-4 py-2 rounded text-cyan-400 text-sm mb-4">api.clisonix.com</code>
+              <code className="block bg-slate-900 px-4 py-2 rounded text-violet-400 text-sm mb-4">api.clisonix.com</code>
               <a 
                 href="#api-reference" 
-                className="text-cyan-400 text-sm hover:underline"
+                className="text-violet-400 text-sm hover:underline"
               >
                 View Documentation →
               </a>
@@ -438,7 +438,7 @@ cycles.forEach(c => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 px-4 bg-gradient-to-r from-cyan-500/20 to-blue-500/20">
+      <section className="py-16 px-4 bg-gradient-to-r from-violet-500/20 to-violet-500/20">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Ready to Build?</h2>
           <p className="text-slate-300 mb-8">Start building with Clisonix today. Free tier available.</p>
@@ -501,7 +501,7 @@ cycles.forEach(c => {
       <footer className="py-8 px-4 border-t border-slate-800">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-gradient-to-br from-cyan-400 to-blue-500 rounded flex items-center justify-center">
+            <div className="w-6 h-6 bg-gradient-to-br from-violet-400 to-violet-500 rounded flex items-center justify-center">
               <span className="text-white font-bold text-xs">C</span>
             </div>
             <span className="text-slate-400 text-sm">© 2026 Clisonix. All rights reserved.</span>

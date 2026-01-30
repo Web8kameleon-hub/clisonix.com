@@ -150,7 +150,7 @@ CACHED_FALLBACKS = {
     "services": {
         "hq": {"port": 8000, "status": "Primary API Gateway"},
         "alba": {"port": 5555, "status": "Data Streaming"},
-        "albi": {"port": 6666, "status": "Analytics Engine"},
+        "albi": {"port": 6680, "status": "Analytics Engine"},
         "jona": {"port": 7777, "status": "Supervision Layer"}
     }
 }

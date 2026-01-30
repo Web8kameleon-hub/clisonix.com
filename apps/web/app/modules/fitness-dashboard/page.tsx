@@ -161,7 +161,7 @@ export default function FitnessDashboardPage() {
   const getHeartRateZoneColor = (zone: string) => {
     const colors: Record<string, string> = {
       'rest': 'text-slate-400',
-      'fat_burn': 'text-cyan-400',
+      'fat_burn': 'text-violet-400',
       'cardio': 'text-emerald-400',
       'peak': 'text-red-400',
     };
@@ -169,16 +169,16 @@ export default function FitnessDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-950 to-slate-950 text-white p-6">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30">
-              <Activity className="w-8 h-8 text-blue-400" />
+            <div className="p-3 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-500/20 border border-violet-500/30">
+              <Activity className="w-8 h-8 text-violet-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-violet-400 bg-clip-text text-transparent">
                 Fitness Dashboard
               </h1>
               <p className="text-slate-400 text-sm">Neural-Powered Training • Postman-Style API Interface</p>
@@ -188,7 +188,7 @@ export default function FitnessDashboardPage() {
             <button
               onClick={() => setAutoRefresh(!autoRefresh)}
               className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${autoRefresh
-                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                  ? 'bg-violet-500/20 text-violet-400 border border-violet-500/30'
                   : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-700/50'
                 }`}
             >
@@ -204,7 +204,7 @@ export default function FitnessDashboardPage() {
         <div className="col-span-3 space-y-3">
           <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
             <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-              <Radio className="w-4 h-4 text-blue-400" />
+              <Radio className="w-4 h-4 text-violet-400" />
               API Endpoints
             </h3>
             <div className="space-y-2">
@@ -216,7 +216,7 @@ export default function FitnessDashboardPage() {
                     executeRequest(endpoint);
                   }}
                   className={`w-full text-left p-3 rounded-lg transition-all ${selectedEndpoint.path === endpoint.path
-                      ? 'bg-blue-500/20 border border-blue-500/30'
+                      ? 'bg-violet-500/20 border border-violet-500/30'
                       : 'bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/50'
                     }`}
                 >
@@ -235,7 +235,7 @@ export default function FitnessDashboardPage() {
           {/* Request History */}
           <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
             <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-blue-400" />
+              <Clock className="w-4 h-4 text-violet-400" />
               Request History
             </h3>
             <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -274,7 +274,7 @@ export default function FitnessDashboardPage() {
               <button
                 onClick={() => executeRequest(selectedEndpoint)}
                 disabled={isLoading}
-                className="px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all disabled:opacity-50 flex items-center gap-2"
+                className="px-6 py-2 bg-gradient-to-r from-violet-500 to-violet-500 text-white font-semibold rounded-lg hover:from-violet-600 hover:to-violet-600 transition-all disabled:opacity-50 flex items-center gap-2"
               >
                 {isLoading ? (
                   <RefreshCw className="w-4 h-4 animate-spin" />
@@ -374,9 +374,9 @@ export default function FitnessDashboardPage() {
 
                           {/* User Profile */}
                           {(response.data as FitnessMetrics).user_profile && (
-                            <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+                            <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-violet-500/10 border border-violet-500/20">
                               <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                                <Target className="w-4 h-4 text-blue-400" />
+                                <Target className="w-4 h-4 text-violet-400" />
                                 User Profile
                               </h4>
                               <div className="grid grid-cols-5 gap-4">
@@ -387,7 +387,7 @@ export default function FitnessDashboardPage() {
                                   <p className="text-xs text-slate-500">Name</p>
                                 </div>
                                 <div className="text-center">
-                                  <p className="text-xl font-bold text-cyan-400">
+                                  <p className="text-xl font-bold text-violet-400">
                                     {(response.data as FitnessMetrics).user_profile?.level || 'N/A'}
                                   </p>
                                   <p className="text-xs text-slate-500">Level</p>
@@ -418,7 +418,7 @@ export default function FitnessDashboardPage() {
                           {(response.data as FitnessMetrics).recent_workouts?.length > 0 && (
                             <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
                               <h4 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
-                                <Flame className="w-4 h-4 text-blue-400" />
+                                <Flame className="w-4 h-4 text-violet-400" />
                                 Recent Workouts
                               </h4>
                               <div className="space-y-2">
@@ -449,7 +449,7 @@ export default function FitnessDashboardPage() {
                     {/* Raw JSON Response */}
                     <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
                       <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-blue-400" />
+                        <Zap className="w-4 h-4 text-violet-400" />
                         Raw JSON Response
                       </h4>
                       <pre className="p-4 bg-slate-950/50 rounded-lg overflow-x-auto text-xs font-mono text-slate-300 max-h-96 overflow-y-auto">

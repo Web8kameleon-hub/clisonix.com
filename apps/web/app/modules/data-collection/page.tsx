@@ -324,7 +324,7 @@ export default function DataCollectionPage() {
                       <Badge className={`text-xs font-mono ${
                         endpoint.method === 'GET' ? 'bg-green-900 text-green-300' :
                         endpoint.method === 'POST' ? 'bg-yellow-900 text-yellow-300' :
-                        'bg-blue-900 text-blue-300'
+                        'bg-slate-900 text-violet-300'
                       }`}>
                         {endpoint.method}
                       </Badge>
@@ -428,7 +428,7 @@ export default function DataCollectionPage() {
               <Badge className={`font-mono ${
                 selected.method === 'GET' ? 'bg-green-900 text-green-300' :
                 selected.method === 'POST' ? 'bg-yellow-900 text-yellow-300' :
-                'bg-blue-900 text-blue-300'
+                'bg-slate-900 text-violet-300'
               }`}>
                 {selected.method}
               </Badge>
@@ -454,7 +454,7 @@ export default function DataCollectionPage() {
               <Button 
                 onClick={() => callEndpoint(selectedEndpoint)}
                 disabled={selected.isLoading}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-violet-600 hover:bg-violet-700"
               >
                 {selected.isLoading ? (
                   <RefreshCw className="h-4 w-4 animate-spin" />
@@ -540,7 +540,7 @@ export default function DataCollectionPage() {
               <p className="text-xs text-gray-500 uppercase">Total Endpoints</p>
               <p className="text-2xl font-bold text-white">{endpoints.length}</p>
             </div>
-            <Server className="h-8 w-8 text-blue-500 opacity-50" />
+            <Server className="h-8 w-8 text-violet-500 opacity-50" />
           </div>
         </Card>
         
