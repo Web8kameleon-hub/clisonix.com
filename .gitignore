@@ -37,8 +37,8 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
-yarn.lock
+# package-lock.json  # ENABLED for Dependency Review in CI
+# yarn.lock          # ENABLED for Dependency Review in CI
 
 # Python
 __pycache__/
