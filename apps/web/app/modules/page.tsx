@@ -146,44 +146,44 @@ const publicModules = [
 // Accent color mapping
 const accentColors = {
   slate: {
-    bg: 'bg-slate-200',
-    border: 'border-slate-400',
-    borderHover: 'hover:border-slate-500',
+    bg: 'bg-gray-100',
+    border: 'border-black',
+    borderHover: 'hover:border-gray-600',
     text: 'text-black',
     icon: 'text-black',
-    badge: 'bg-slate-200 text-black'
+    badge: 'bg-gray-100 text-black'
   },
   violet: {
-    bg: 'bg-slate-200',
-    border: 'border-slate-400',
-    borderHover: 'hover:border-slate-500',
+    bg: 'bg-gray-100',
+    border: 'border-black',
+    borderHover: 'hover:border-gray-600',
     text: 'text-black',
     icon: 'text-black',
-    badge: 'bg-slate-200 text-black'
+    badge: 'bg-gray-100 text-black'
   },
   orange: {
-    bg: 'bg-slate-200',
-    border: 'border-slate-400',
-    borderHover: 'hover:border-slate-500',
+    bg: 'bg-gray-100',
+    border: 'border-black',
+    borderHover: 'hover:border-gray-600',
     text: 'text-black',
     icon: 'text-black',
-    badge: 'bg-slate-200 text-black'
+    badge: 'bg-gray-100 text-black'
   },
   green: {
-    bg: 'bg-slate-200',
-    border: 'border-slate-400',
-    borderHover: 'hover:border-slate-500',
+    bg: 'bg-gray-100',
+    border: 'border-black',
+    borderHover: 'hover:border-gray-600',
     text: 'text-black',
     icon: 'text-black',
-    badge: 'bg-slate-200 text-black'
+    badge: 'bg-gray-100 text-black'
   },
   neutral: {
-    bg: 'bg-slate-200',
-    border: 'border-slate-400',
-    borderHover: 'hover:border-slate-500',
+    bg: 'bg-gray-100',
+    border: 'border-black',
+    borderHover: 'hover:border-gray-600',
     text: 'text-black',
     icon: 'text-black',
-    badge: 'bg-slate-200 text-black'
+    badge: 'bg-gray-100 text-black'
   }
 };
 
@@ -203,7 +203,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-white text-slate-900">
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-slate-100 border-r border-slate-200 z-50">
+      <aside className="fixed left-0 top-0 h-full w-64 bg-gray-50 border-r border-slate-200 z-50">
         {/* Logo */}
         <div className="h-16 flex items-center px-5 border-b border-slate-200">
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition">
@@ -225,8 +225,8 @@ export default function DashboardPage() {
               onClick={() => setActiveCategory(cat)}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                 activeCategory === cat
-                  ? 'bg-slate-200 text-black border border-slate-400'
-                  : 'text-black hover:text-black hover:bg-slate-200'
+                  ? 'bg-gray-100 text-black border-2 border-black'
+                  : 'text-black hover:text-black hover:bg-gray-100'
               }`}
             >
               {cat === 'all' ? 'All Modules' : cat}
@@ -238,7 +238,7 @@ export default function DashboardPage() {
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-200">
           <Link 
             href="/modules/account"
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-black hover:text-black hover:bg-slate-200 transition-all"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-black hover:text-black hover:bg-gray-100 transition-all"
           >
             <Settings className="w-4 h-4" />
             Settings
@@ -258,7 +258,7 @@ export default function DashboardPage() {
               placeholder="Search modules..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-lg text-sm text-black placeholder:text-black/50 focus:outline-none focus:border-slate-400 transition-colors"
+              className="w-full h-10 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-lg text-sm text-black placeholder:text-black/50 focus:outline-none focus:border-black transition-colors"
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-black">
               <Command className="w-3 h-3" />
@@ -334,7 +334,7 @@ export default function DashboardPage() {
                   href={module.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`group relative p-5 rounded-xl border-2 border-slate-300 bg-white shadow-sm ${colors.border} ${colors.borderHover} transition-all duration-200 hover:bg-slate-200`}
+                  className={`group relative p-5 rounded-lg border-2 border-black bg-white shadow-sm ${colors.border} ${colors.borderHover} transition-all duration-200 hover:bg-gray-100`}
                 >
                   {CardContent}
                 </a>
@@ -342,7 +342,7 @@ export default function DashboardPage() {
                 <Link
                   key={module.id}
                   href={module.href}
-                  className={`group relative p-5 rounded-xl border-2 border-slate-300 bg-white shadow-sm ${colors.border} ${colors.borderHover} transition-all duration-200 hover:bg-slate-200`}
+                  className={`group relative p-5 rounded-lg border-2 border-black bg-white shadow-sm ${colors.border} ${colors.borderHover} transition-all duration-200 hover:bg-gray-100`}
                 >
                   {CardContent}
                 </Link>
@@ -353,7 +353,7 @@ export default function DashboardPage() {
           {/* Empty State */}
           {filteredModules.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16">
-              <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center mb-4">
                 <Search className="w-6 h-6 text-black" />
               </div>
               <h3 className="text-lg font-medium mb-2">No modules found</h3>

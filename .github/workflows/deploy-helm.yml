@@ -1,0 +1,503 @@
+# =============================================================================
+# CLISONIX CLOUD - HELM DEPLOYMENT PIPELINE
+# =============================================================================
+# Deploys to Hetzner Kubernetes using Helm charts
+# Server: 46.224.203.89 (ubuntu-16gb-nbg1-1)
+# =============================================================================
+
+name: "⛵ Helm Deploy to Hetzner"
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - staging
+          - production
+      components:
+        description: 'Components to deploy'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - backend-only
+          - frontend-only
+          - ocean-only
+
+concurrency:
+  group: helm-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  HETZNER_IP: 46.224.203.89
+  NAMESPACE_PREFIX: clisonix
+
+jobs:
+  # =========================================================================
+  # BUILD DOCKER IMAGES
+  # =========================================================================
+  build:
+    name: "🐳 Build Images"
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+      short_sha: ${{ steps.vars.outputs.short_sha }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set output variables
+        id: vars
+        run: echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=helm-
+            type=raw,value=${{ inputs.environment }}-latest
+            latest
+
+      # Build Backend
+      - name: Build Backend Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:${{ steps.vars.outputs.short_sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Build Frontend
+      - name: Build Frontend Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/web
+          file: ./apps/web/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:${{ steps.vars.outputs.short_sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Build Ocean Core
+      - name: Build Ocean Core Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./ocean-core
+          file: ./ocean-core/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/ocean-core:${{ steps.vars.outputs.short_sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/ocean-core:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # =========================================================================
+  # DEPLOY WITH HELM
+  # =========================================================================
+  deploy-helm:
+    name: "⛵ Helm Deploy"
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 30
+    environment: ${{ inputs.environment }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'v3.14.0'
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.29.0'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.HETZNER_KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Verify cluster connection
+        run: |
+          echo "🔗 Connecting to Hetzner cluster..."
+          kubectl cluster-info
+          kubectl get nodes
+          echo "✅ Cluster connection verified"
+
+      - name: Add Helm repositories
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo update
+          echo "✅ Helm repos updated"
+
+      - name: Create namespace
+        run: |
+          NAMESPACE="${{ env.NAMESPACE_PREFIX }}-${{ inputs.environment }}"
+          kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+          echo "✅ Namespace $NAMESPACE ready"
+
+      # -----------------------------------------------------------------------
+      # INFRASTRUCTURE COMPONENTS
+      # -----------------------------------------------------------------------
+      - name: Deploy PostgreSQL
+        if: inputs.components == 'all' || inputs.components == 'backend-only'
+        run: |
+          NAMESPACE="${{ env.NAMESPACE_PREFIX }}-${{ inputs.environment }}"
+          helm upgrade --install postgres bitnami/postgresql \
+            --namespace $NAMESPACE \
+            --set auth.postgresPassword=${{ secrets.DB_PASSWORD }} \
+            --set auth.database=clisonix \
+            --set primary.persistence.size=10Gi \
+            --set metrics.enabled=true \
+            --wait --timeout 5m
+          echo "✅ PostgreSQL deployed"
+
+      - name: Deploy Redis
+        if: inputs.components == 'all' || inputs.components == 'backend-only'
+        run: |
+          NAMESPACE="${{ env.NAMESPACE_PREFIX }}-${{ inputs.environment }}"
+          helm upgrade --install redis bitnami/redis \
+            --namespace $NAMESPACE \
+            --set auth.enabled=false \
+            --set replica.replicaCount=1 \
+            --set master.persistence.size=2Gi \
+            --wait --timeout 5m
+          echo "✅ Redis deployed"
+
+      - name: Deploy NGINX Ingress
+        if: inputs.components == 'all'
+        run: |
+          NAMESPACE="${{ env.NAMESPACE_PREFIX }}-${{ inputs.environment }}"
+          helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+            --namespace $NAMESPACE \
+            --set controller.service.externalTrafficPolicy=Local \
+            --set controller.metrics.enabled=true \
+            --wait --timeout 5m
+          echo "✅ NGINX Ingress deployed"
+
+      # -----------------------------------------------------------------------
+      # CLISONIX APPLICATION
+      # -----------------------------------------------------------------------
+      - name: Deploy Clisonix Backend
+        if: inputs.components == 'all' || inputs.components == 'backend-only'
+        run: |
+          NAMESPACE="${{ env.NAMESPACE_PREFIX }}-${{ inputs.environment }}"
+          IMAGE_TAG="${{ needs.build.outputs.short_sha }}"
+          
+          cat <<EOF | kubectl apply -n $NAMESPACE -f -
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: clisonix-backend
+            labels:
+              app: clisonix
+              component: backend
+          spec:
+            replicas: 2
+            selector:
+              matchLabels:
+                app: clisonix
+                component: backend
+            template:
+              metadata:
+                labels:
+                  app: clisonix
+                  component: backend
+              spec:
+                containers:
+                - name: backend
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:${IMAGE_TAG}
+                  ports:
+                  - containerPort: 8000
+                  env:
+                  - name: DATABASE_URL
+                    valueFrom:
+                      secretKeyRef:
+                        name: clisonix-secrets
+                        key: database-url
+                  - name: REDIS_URL
+                    value: "redis://redis-master:6379"
+                  resources:
+                    requests:
+                      memory: "256Mi"
+                      cpu: "250m"
+                    limits:
+                      memory: "512Mi"
+                      cpu: "500m"
+                  livenessProbe:
+                    httpGet:
+                      path: /api/health
+                      port: 8000
+                    initialDelaySeconds: 30
+                    periodSeconds: 10
+                  readinessProbe:
+                    httpGet:
+                      path: /api/health
+                      port: 8000
+                    initialDelaySeconds: 5
+                    periodSeconds: 5
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: clisonix-backend
+          spec:
+            selector:
+              app: clisonix
+              component: backend
+            ports:
+            - port: 8000
+              targetPort: 8000
+          EOF
+          echo "✅ Backend deployed"
+
+      - name: Deploy Clisonix Ocean Core
+        if: inputs.components == 'all' || inputs.components == 'ocean-only'
+        run: |
+          NAMESPACE="${{ env.NAMESPACE_PREFIX }}-${{ inputs.environment }}"
+          IMAGE_TAG="${{ needs.build.outputs.short_sha }}"
+          
+          cat <<EOF | kubectl apply -n $NAMESPACE -f -
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: clisonix-ocean
+            labels:
+              app: clisonix
+              component: ocean
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: clisonix
+                component: ocean
+            template:
+              metadata:
+                labels:
+                  app: clisonix
+                  component: ocean
+              spec:
+                containers:
+                - name: ocean
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/ocean-core:${IMAGE_TAG}
+                  ports:
+                  - containerPort: 8030
+                  env:
+                  - name: OLLAMA_HOST
+                    value: "http://ollama:11434"
+                  resources:
+                    requests:
+                      memory: "512Mi"
+                      cpu: "500m"
+                    limits:
+                      memory: "2Gi"
+                      cpu: "2000m"
+                  livenessProbe:
+                    httpGet:
+                      path: /health
+                      port: 8030
+                    initialDelaySeconds: 60
+                    periodSeconds: 30
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: clisonix-ocean
+          spec:
+            selector:
+              app: clisonix
+              component: ocean
+            ports:
+            - port: 8030
+              targetPort: 8030
+          EOF
+          echo "✅ Ocean Core deployed"
+
+      - name: Deploy Clisonix Frontend
+        if: inputs.components == 'all' || inputs.components == 'frontend-only'
+        run: |
+          NAMESPACE="${{ env.NAMESPACE_PREFIX }}-${{ inputs.environment }}"
+          IMAGE_TAG="${{ needs.build.outputs.short_sha }}"
+          
+          cat <<EOF | kubectl apply -n $NAMESPACE -f -
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: clisonix-frontend
+            labels:
+              app: clisonix
+              component: frontend
+          spec:
+            replicas: 2
+            selector:
+              matchLabels:
+                app: clisonix
+                component: frontend
+            template:
+              metadata:
+                labels:
+                  app: clisonix
+                  component: frontend
+              spec:
+                containers:
+                - name: frontend
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:${IMAGE_TAG}
+                  ports:
+                  - containerPort: 3000
+                  env:
+                  - name: NEXT_PUBLIC_API_URL
+                    value: "http://clisonix-backend:8000"
+                  - name: NEXT_PUBLIC_OCEAN_URL
+                    value: "http://clisonix-ocean:8030"
+                  resources:
+                    requests:
+                      memory: "128Mi"
+                      cpu: "100m"
+                    limits:
+                      memory: "256Mi"
+                      cpu: "200m"
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: clisonix-frontend
+          spec:
+            selector:
+              app: clisonix
+              component: frontend
+            ports:
+            - port: 3000
+              targetPort: 3000
+          EOF
+          echo "✅ Frontend deployed"
+
+      - name: Configure Ingress
+        if: inputs.components == 'all'
+        run: |
+          NAMESPACE="${{ env.NAMESPACE_PREFIX }}-${{ inputs.environment }}"
+          DOMAIN="${{ inputs.environment == 'production' && 'clisonix.cloud' || 'staging.clisonix.cloud' }}"
+          
+          cat <<EOF | kubectl apply -n $NAMESPACE -f -
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: clisonix-ingress
+            annotations:
+              nginx.ingress.kubernetes.io/rewrite-target: /
+              nginx.ingress.kubernetes.io/ssl-redirect: "true"
+          spec:
+            ingressClassName: nginx
+            rules:
+            - host: ${DOMAIN}
+              http:
+                paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: clisonix-frontend
+                      port:
+                        number: 3000
+                - path: /api
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: clisonix-backend
+                      port:
+                        number: 8000
+                - path: /ocean
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: clisonix-ocean
+                      port:
+                        number: 8030
+          EOF
+          echo "✅ Ingress configured for ${DOMAIN}"
+
+      # -----------------------------------------------------------------------
+      # VERIFICATION
+      # -----------------------------------------------------------------------
+      - name: Verify deployments
+        run: |
+          NAMESPACE="${{ env.NAMESPACE_PREFIX }}-${{ inputs.environment }}"
+          echo "⏳ Waiting for deployments..."
+          
+          kubectl rollout status deployment/clisonix-backend -n $NAMESPACE --timeout=5m || true
+          kubectl rollout status deployment/clisonix-frontend -n $NAMESPACE --timeout=5m || true
+          kubectl rollout status deployment/clisonix-ocean -n $NAMESPACE --timeout=5m || true
+          
+          echo ""
+          echo "📊 Deployment Status:"
+          kubectl get pods -n $NAMESPACE
+          echo ""
+          kubectl get services -n $NAMESPACE
+          echo ""
+          kubectl get ingress -n $NAMESPACE
+
+  # =========================================================================
+  # DEPLOYMENT SUMMARY
+  # =========================================================================
+  summary:
+    name: "📋 Summary"
+    runs-on: ubuntu-latest
+    needs: [build, deploy-helm]
+    if: always()
+    
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## ⛵ Clisonix Helm Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 🐳 Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ⛵ Helm Deploy | ${{ needs.deploy-helm.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Server:** 46.224.203.89 (Hetzner Nürnberg)" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Components:** ${{ inputs.components }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Image Tag:** ${{ needs.build.outputs.short_sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 Access Points" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frontend:** https://clisonix.cloud" >> $GITHUB_STEP_SUMMARY
+          echo "- **API:** https://clisonix.cloud/api" >> $GITHUB_STEP_SUMMARY
+          echo "- **Ocean:** https://clisonix.cloud/ocean" >> $GITHUB_STEP_SUMMARY
