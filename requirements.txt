@@ -1,35 +1,61 @@
-fastapi>=0.115.0
-uvicorn>=0.30.0
-pydantic>=2.10.0
-pydantic-settings
-psutil
-numpy
-librosa
-soundfile
-mne
-asyncpg
-redis
-boto3
-deep-translator
-SpeechRecognition
-pydub
-edge-tts
-requests
-reportlab
-httpx
-cbor2
-opentelemetry-api
-opentelemetry-sdk
-opentelemetry-instrumentation-fastapi
-opentelemetry-instrumentation-httpx
-opentelemetry-instrumentation-requests
-opentelemetry-instrumentation-aiohttp-client
-opentelemetry-instrumentation-logging
-opentelemetry-exporter-otlp
-opentelemetry-exporter-otlp-proto-http
+# ═══════════════════════════════════════════════════════════════
+# Clisonix Main Requirements
+# ═══════════════════════════════════════════════════════════════
+# For isolated dependencies, use requirements/ folder
 
-# Payment Processing
-stripe
-paypalrestsdk
-pydantic-extra-types
+fastapi>=0.115.6
+uvicorn>=0.32.1
+pydantic>=2.10.4
+pydantic-settings>=2.7.0
+psutil>=6.1.0
+
+# Data (API services only)
+numpy>=2.0.0
+pandas>=2.2.0
+
+# Audio Processing
+librosa>=0.10.2
+soundfile>=0.13.0
+mne>=1.8.0
+
+# Database
+asyncpg>=0.30.0
+redis>=5.2.0
+sqlalchemy>=2.0.36
+
+# Cloud
+boto3>=1.36.0
+
+# HTTP
+requests>=2.32.3
+httpx>=0.28.1
+
+# Speech (remove deep-translator - has CVE)
+SpeechRecognition>=3.14.0
+pydub>=0.25.1
+edge-tts>=7.0.0
+
+# PDF
+reportlab>=4.2.0
+
+# Binary encoding
+cbor2>=5.6.5
+msgpack>=1.1.0
+orjson>=3.10.0
+
+# Observability
+opentelemetry-api>=1.29.0
+opentelemetry-sdk>=1.29.0
+opentelemetry-instrumentation-fastapi>=0.50b0
+opentelemetry-instrumentation-httpx>=0.50b0
+opentelemetry-instrumentation-requests>=0.50b0
+opentelemetry-instrumentation-aiohttp-client>=0.50b0
+opentelemetry-instrumentation-logging>=0.50b0
+opentelemetry-exporter-otlp>=1.29.0
+opentelemetry-exporter-otlp-proto-http>=1.29.0
+
+# Payments
+stripe>=12.0.0
+paypalrestsdk>=1.7.1
+pydantic-extra-types>=2.10.0
 
