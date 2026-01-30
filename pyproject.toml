@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=75.0.0", "wheel>=0.46.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,41 +8,98 @@ version = "0.1.0"
 description = "Cloud platform for Clisonix EEG-to-Audio and Brain Symphony"
 authors = [{name="Ledjan Ahmati"}]
 license = {text = "MIT"}
-requires-python = ">=3.9"
+requires-python = ">=3.11"
+
+# Core dependencies only - see requirements/ for isolated deps
 dependencies = [
-    "fastapi>=0.115.0",
-    "uvicorn[standard]>=0.30.0",
-    "sqlalchemy[asyncio]>=2.0.35",
+    "fastapi>=0.115.6",
+    "uvicorn[standard]>=0.32.1",
+    "pydantic>=2.10.4",
+    "pydantic-settings>=2.7.0",
+    "python-multipart>=0.0.22",
+    "python-dotenv>=1.0.1",
+    "httpx>=0.28.1",
+    "structlog>=24.4.0",
+]
+
+[project.optional-dependencies]
+# API services (backend, alba, albi, etc.)
+api = [
+    "sqlalchemy[asyncio]>=2.0.36",
     "asyncpg>=0.30.0",
     "alembic>=1.14.0",
     "redis[hiredis]>=5.2.0",
     "python-jose[cryptography]>=3.3.0",
     "passlib[bcrypt]>=1.7.4",
-    "python-multipart>=0.0.22",
-    "stripe>=11.0.0",
-    "pydantic[email]>=2.10.0",
-    "pydantic-settings>=2.6.0",
-    "boto3>=1.36.0",
-    "botocore>=1.36.0",
+    "psutil>=6.1.0",
+    "prometheus-client>=0.21.1",
+    "aiofiles>=24.1.0",
+    "tenacity>=9.0.0",
+]
+
+# Data processing (requires numpy/pandas)
+data = [
+    "pandas>=2.2.0",
     "numpy>=2.0.0",
+]
+
+# Ocean engine (lightweight - NO pandas/numpy)
+ocean = [
+    "duckdb>=1.1.0",
+    "duckdb-engine>=0.14.0",
+    "orjson>=3.10.0",
+    "msgpack>=1.1.0",
+    "cbor2>=5.6.5",
+]
+
+# Excel processing (ISOLATED - separate venv recommended)
+excel = [
+    "openpyxl>=3.1.5",
+    "XlsxWriter>=3.2.9",
+    "python-pptx>=1.0.2",
+    "Pillow>=11.1.0",
+    "lxml>=5.0.0",
+]
+
+# ML/AI (ISOLATED - separate venv/container)
+ml = [
     "scipy>=1.14.0",
+    "scikit-learn>=1.6.0",
     "librosa>=0.10.2",
     "mne>=1.8.0",
-    "psutil>=6.1.0",
+]
+
+# Payments
+payments = [
+    "stripe>=12.0.0",
+    "paypalrestsdk>=1.7.1",
+]
+
+# Observability
+observability = [
     "opentelemetry-api>=1.29.0",
     "opentelemetry-sdk>=1.29.0",
     "opentelemetry-exporter-otlp>=1.29.0",
     "opentelemetry-instrumentation-fastapi>=0.50b0",
     "opentelemetry-instrumentation-redis>=0.50b0",
     "opentelemetry-instrumentation-sqlalchemy>=0.50b0",
-    "celery[redis]>=5.4.0",
-    "fastapi-mail>=1.4.2",
-    "email-validator>=2.2.0",
-    "python-dateutil>=2.9.0",
-    "pytz>=2024.2",
-    "structlog>=24.4.0",
     "sentry-sdk[fastapi]>=2.19.0",
-    "python-dotenv>=1.0.1"
+]
+
+# Development
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.0",
+    "black>=24.10.0",
+    "mypy>=1.13.0",
+    "pip-audit>=2.7.0",
+]
+
+# Full installation (excluding ML for conflicts)
+full = [
+    "Clisonix-cloud[api,data,ocean,payments,observability]",
 ]
 
 [tool.black]
@@ -57,9 +114,12 @@ exclude = '''
   | \.mypy_cache
   | \.tox
   | \.venv
+  | \.venv-excel
+  | \.venv-ml
   | _build
   | buck-out
   | build
   | dist
+  | node_modules
 )/
 '''
