@@ -619,9 +619,9 @@ services:
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
-      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.address=:8880"
     ports:
-      - "80:80"
+      - "8880:8880"
       - "8090:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -673,8 +673,8 @@ services:
     container_name: clisonix-70-jaeger
     ports:
       - "16686:16686"
-      - "4317:4317"
-      - "4318:4318"
+      - "14317:4317"
+      - "14318:4318"
     environment:
       - COLLECTOR_OTLP_ENABLED=true
     restart: unless-stopped
