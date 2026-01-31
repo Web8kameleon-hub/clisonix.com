@@ -141,7 +141,7 @@ services:
   ocean-core:
     <<: *python-service
     container_name: clisonix-08-ocean-core
-    command: bash -c "pip install -q uvicorn fastapi pydantic aiohttp httpx langdetect && cd ocean-core && python ocean_api.py"
+    command: bash -c "pip install -q uvicorn fastapi pydantic aiohttp httpx langdetect cbor2 msgpack redis prometheus_client && cd ocean-core && python ocean_api.py"
     ports:
       - "8030:8030"
     environment:
