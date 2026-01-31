@@ -13,6 +13,7 @@ Features:
 
 import os
 import logging
+import time
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -607,6 +608,9 @@ async def query_ocean(request: Request):
     use_personas = body.get("use_personas", True)
     curiosity_level = body.get("curiosity_level", "curious")
     
+    # Start timing from 0.1ms precision
+    start_time = time.perf_counter()
+    
     if not question or len(question.strip()) == 0:
         raise HTTPException(status_code=400, detail="Question cannot be empty")
     
@@ -641,6 +645,8 @@ async def query_ocean(request: Request):
             is_real_answer = any(s.startswith(("ollama", "knowledge_seed")) for s in sources) if sources else False
             
             if is_real_answer or (response_content and len(response_content) > 50):
+                # Calculate elapsed time from 0.1ms to full response
+                elapsed_ms = (time.perf_counter() - start_time) * 1000.0
                 return {
                     "query": question,
                     "intent": str(orchestrator_result.query_category.value) if hasattr(orchestrator_result, 'query_category') else "general",
@@ -649,7 +655,7 @@ async def query_ocean(request: Request):
                     "key_findings": [{"finding": response_content[:500], "importance": 0.95, "source": response_source, "confidence": confidence}],
                     "sources": {"internal": sources, "external": []},
                     "confidence": confidence,
-                    "processing_time_ms": 0,
+                    "processing_time_ms": round(elapsed_ms, 2),
                     "curiosity_threads": generate_curiosity_threads(question, []),
                     "data_sources_used": ["orchestrator_v5"] + sources,
                     "ollama_used": any(s.startswith("ollama") for s in sources),
@@ -713,6 +719,9 @@ async def query_ocean(request: Request):
             if lab_data and lab_data.get('comprehensive_answer'):
                 ultra_response = lab_data['comprehensive_answer']
             
+            # Calculate elapsed time from 0.1ms to full response
+            elapsed_ms = (time.perf_counter() - start_time) * 1000.0
+            
             response_dict = {
                 "query": question,
                 "intent": processed.intent.value if processed else "unknown",
@@ -721,7 +730,7 @@ async def query_ocean(request: Request):
                 "key_findings": key_findings,
                 "sources": {"internal": ["persona_analysis", "real_laboratories"] if lab_data else ["persona_analysis"], "external": []},
                 "confidence": lab_data.get('average_confidence', 0.75) if lab_data else (0.75 if persona_response else 0.5),
-                "processing_time_ms": 0,
+                "processing_time_ms": round(elapsed_ms, 2),
                 "curiosity_threads": curiosity_threads,
                 "data_sources_used": ["internal_only", "real_labs"] if lab_data else ["internal_only"],
                 "labs_queried": lab_data.get('total_labs_queried', 0) if lab_data else 0,
