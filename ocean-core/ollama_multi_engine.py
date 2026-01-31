@@ -51,7 +51,7 @@ OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "clisonix-06-ollama" if IS_IN_DOCKER
 if OLLAMA_HOST.startswith("http://"):
     OLLAMA_HOST = OLLAMA_HOST.replace("http://", "").split(":")[0]
 OLLAMA_BASE_URL = os.environ.get("OLLAMA_URL", f"http://{OLLAMA_HOST}:11434")
-DEFAULT_TIMEOUT = 120.0
+DEFAULT_TIMEOUT = 30.0
 
 
 class ModelTier(Enum):

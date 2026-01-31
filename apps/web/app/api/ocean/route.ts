@@ -22,12 +22,18 @@ import { NextResponse } from "next/server";
 
 // Detect environment for correct API URL
 // OCEAN_CORE_URL env var takes priority, then check NODE_ENV
-const OCEAN_CORE_URL = process.env.OCEAN_CORE_URL || 
-  (process.env.NODE_ENV !== "production" ? "http://localhost:8030" : "http://ocean-core:8030");
+const OCEAN_CORE_URL =
+  process.env.OCEAN_CORE_URL ||
+  (process.env.NODE_ENV !== "production"
+    ? "http://localhost:8030"
+    : "http://ocean-core:8030");
 
 // Fallback URL for internal API (used when ocean-core not available)
-const BACKEND_API_URL = process.env.BACKEND_API_URL ||
-  (process.env.NODE_ENV !== "production" ? "http://localhost:8000" : "http://api:8000");
+const BACKEND_API_URL =
+  process.env.BACKEND_API_URL ||
+  (process.env.NODE_ENV !== "production"
+    ? "http://localhost:8000"
+    : "http://api:8000");
 
 interface OceanCoreResponse {
   query: string;
