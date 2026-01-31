@@ -92,66 +92,43 @@ class OllamaModel:
 # T gjitha modelet e instaluara
 AVAILABLE_MODELS: Dict[str, OllamaModel] = {
     # ═══════════════════════════════════════════════════════════════════════════
-    # TIER: BALANCED (4.9GB) - DEFAULT for ALL queries (Primary)
+    # TIER: FAST (1.3GB) - DEFAULT for ALL queries - SPEED IS PRIORITY
     # ═══════════════════════════════════════════════════════════════════════════
-    "clisonix-ocean:v2": OllamaModel(
-        name="clisonix-ocean:v2",
-        size_gb=4.9,
-        tier=ModelTier.BALANCED,
-        description="Clisonix Ocean v2 - Modeli kryesor (Llama 3.1 8B baz)",
-        context_length=8192,
-        priority=0  # HIGHEST PRIORITY
+    "llama3.2:1b": OllamaModel(
+        name="llama3.2:1b",
+        size_gb=1.3,
+        tier=ModelTier.FAST,
+        description="Llama 3.2 1B - FAST default (~5-10s on CPU)",
+        context_length=4096,
+        priority=0  # HIGHEST PRIORITY - USE THIS FIRST!
     ),
-    "llama3.1:8b": OllamaModel(
-        name="llama3.1:8b",
-        size_gb=4.9,
-        tier=ModelTier.BALANCED,
-        description="Meta Llama 3.1 8B - Backup i fort",
-        context_length=8192,
+    "phi3:mini": OllamaModel(
+        name="phi3:mini",
+        size_gb=2.2,
+        tier=ModelTier.FAST,
+        description="Microsoft Phi-3 Mini - Fast backup",
+        context_length=4096,
         priority=1
     ),
     
     # ═══════════════════════════════════════════════════════════════════════════
-    # TIER: FAST (2.2GB) - DISABLED FOR PRODUCTION CHAT
-    # phi3:mini causes hallucination loops - DO NOT USE
+    # TIER: BALANCED (4.9GB) - For complex queries only
     # ═══════════════════════════════════════════════════════════════════════════
-    # "phi3:mini": OllamaModel(  # DISABLED - causes hallucinations
-    #     name="phi3:mini",
-    #     size_gb=2.2,
-    #     tier=ModelTier.FAST,
-    #     description="DISABLED - Microsoft Phi-3 Mini",
-    #     context_length=4096,
-    #     priority=99
-    # ),
-    "clisonix-ocean:latest": OllamaModel(
-        name="clisonix-ocean:latest",
-        size_gb=2.2,
-        tier=ModelTier.FAST,
-        description="Clisonix Ocean Lightweight - Vetëm për test",
-        context_length=4096,
-        priority=10  # LOW PRIORITY
-    ),
-    
-    # ═══════════════════════════════════════════════════════════════════════════
-    # TIER: DEEP (65GB) - Pr analiza komplekse
-    # ═══════════════════════════════════════════════════════════════════════════
-    "gpt-oss:120b": OllamaModel(
-        name="gpt-oss:120b",
-        size_gb=65.0,
-        tier=ModelTier.DEEP,
-        description="GPT-OSS 120B - Analiza t thella, reasoning kompleks",
-        context_length=16384,
+    "llama3.1:8b": OllamaModel(
+        name="llama3.1:8b",
+        size_gb=4.9,
+        tier=ModelTier.BALANCED,
+        description="Meta Llama 3.1 8B - Complex queries only (~40-50s on CPU)",
+        context_length=8192,
         priority=0
     ),
 }
 
-# Fallback order - BALANCED models FIRST, phi3:mini REMOVED
+# Fallback order - FAST models FIRST!
 FALLBACK_ORDER = [
-    "clisonix-ocean:v2",      # 1st: Primary - ALWAYS USE THIS
-    "llama3.1:8b",            # 2nd: Backup balanced
-    # "phi3:mini",            # REMOVED - causes hallucination loops
-    "clisonix-ocean:latest",  # 3rd: Lightweight (only if others fail)
-    "gpt-oss:120b",           # 4th: Heavy (last resort)
+    "llama3.2:1b",            # 1st: FASTEST (1.3GB, ~5-10s)
+    "phi3:mini",              # 2nd: Fast backup (2.2GB)
+    "llama3.1:8b",            # 3rd: Complex only (4.9GB, ~40-50s)
 ]
 
 
@@ -368,7 +345,7 @@ class OllamaMultiEngine:
         self,
         base_url: str = OLLAMA_BASE_URL,
         timeout: float = DEFAULT_TIMEOUT,
-        default_strategy: Strategy = Strategy.AUTO
+        default_strategy: Strategy = Strategy.FAST  # CHANGED: Use FAST by default for speed
     ):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
