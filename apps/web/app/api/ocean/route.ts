@@ -56,17 +56,16 @@ async function queryOceanCore(
 ): Promise<OceanCoreResponse | null> {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout for complex Ocean-Core queries (10-15+ seconds processing)
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout for Ollama responses
 
-    const response = await fetch(`${OCEAN_CORE_URL}/api/query`, {
+    // Use the correct Ocean-Core chat endpoint
+    const response = await fetch(`${OCEAN_CORE_URL}/api/v1/chat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        query: question,
-        curiosity_level: curiosityLevel,
-        include_sources: true,
+        message: question,
       }),
       signal: controller.signal,
     });
@@ -74,7 +73,19 @@ async function queryOceanCore(
     clearTimeout(timeoutId);
 
     if (response.ok) {
-      return await response.json();
+      const data = await response.json();
+      // Map the response to expected format
+      return {
+        query: question,
+        intent: data.query_category || "general",
+        response: data.response,
+        persona_answer: data.response,
+        persona_used: data.sources?.[0] || "ocean-core",
+        key_findings: [],
+        curiosity_threads: [],
+        sources_consulted: data.sources || [],
+        confidence: data.confidence || 0.9,
+      };
     }
     console.error(`Ocean-Core returned ${response.status}`);
     return null;
