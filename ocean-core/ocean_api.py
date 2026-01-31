@@ -34,20 +34,19 @@ try:
 except ImportError:
     HAS_MSGPACK = False
 
-# Local imports
+# Local imports - NANOGRID: Minimal
 from data_sources import get_internal_data_sources as get_all_sources
-from query_processor import get_query_processor, QueryIntent
-from knowledge_engine import get_knowledge_engine, KnowledgeResponse
-from persona_router import PersonaRouter
-from laboratories import get_laboratory_network
-from real_data_engine import get_real_data_engine
-from specialized_chat_engine import get_specialized_chat, initialize_specialized_chat
-# ORCHESTRATOR V5 - Production Brain (minimal, fast, 100% lokal)
+# DISABLED: from query_processor import get_query_processor, QueryIntent
+# DISABLED: from knowledge_engine import get_knowledge_engine, KnowledgeResponse
+# DISABLED: from persona_router import PersonaRouter
+# DISABLED: from laboratories import get_laboratory_network
+# DISABLED: from real_data_engine import get_real_data_engine
+# DISABLED: from specialized_chat_engine import get_specialized_chat, initialize_specialized_chat
+# ORCHESTRATOR - Ollama only
 from response_orchestrator_v5 import get_orchestrator_v5, ResponseOrchestratorV5
-from autolearning_engine import get_autolearning_engine, AutolearningEngine
-
-# Curiosity Algebra System - Universal Signal Integration
-from curiosity_algebra.api import router as curiosity_router
+# DISABLED: from autolearning_engine import get_autolearning_engine, AutolearningEngine
+# DISABLED: Curiosity Algebra - creates loops
+# from curiosity_algebra.api import router as curiosity_router
 
 
 async def get_knowledge_engine_hybrid(data_sources):
@@ -108,11 +107,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include Curiosity Algebra Router - Universal Signal System
-app.include_router(curiosity_router)
-logger.info("✅ Curiosity Algebra System integrated - /api/curiosity endpoints active")
+# DISABLED: Curiosity Algebra - creates loops
+# app.include_router(curiosity_router)
+# logger.info("✅ Curiosity Algebra System integrated - /api/curiosity endpoints active")
 
-# Global instances
+# Global instances - NANOGRID: Minimal
 internal_data_sources = None
 persona_router = None
 query_processor = None
@@ -142,74 +141,22 @@ async def startup_event():
         
         logger.info(f"[OK] Data sources initialized")
         
-        logger.info("→ Initializing persona router...")
-        persona_router = PersonaRouter()
+        # NANOGRID: Minimal initialization - only what's needed
+        persona_router = None  # DISABLED
+        query_processor = None  # DISABLED - Ollama handles queries
+        laboratory_network = None  # DISABLED
+        real_data_engine = None  # DISABLED
+        specialized_chat = None  # DISABLED
+        knowledge_engine = None  # DISABLED
+        autolearning_engine = None  # DISABLED
         
-        if persona_router is None or not persona_router.mapping:
-            logger.error("❌ CRITICAL: Persona router failed to initialize!")
-            raise RuntimeError("Failed to initialize persona router")
-        
-        logger.info(f"[OK] Persona router initialized with {len(persona_router.mapping)} personas")
-        
-        logger.info("→ Initializing query processor...")
-        query_processor = await get_query_processor()
-        
-        if query_processor is None:
-            logger.error("❌ CRITICAL: get_query_processor() returned None!")
-            raise RuntimeError("Failed to initialize query processor")
-        
-        logger.info("[OK] Query processor initialized")
-        
-        # Initialize laboratory network and real data engine - FOR ULTRA RESPONSES
-        logger.info("→ Initializing laboratory network and real data engine...")
-        laboratory_network = get_laboratory_network()
-        
-        if laboratory_network is None:
-            logger.error("⚠️  Laboratory network not available!")
-        else:
-            lab_list = laboratory_network.get_all_labs()
-            logger.info(f"[OK] Laboratory network initialized with {len(lab_list)} labs")
-            real_data_engine = await get_real_data_engine(laboratory_network)
-            logger.info("[OK] Real Data Engine initialized - Will query labs for ULTRA responses!")
-        
-        # Initialize specialized chat engine - CLEAN EXPERT CHAT
-        logger.info("→ Initializing Specialized Chat Engine...")
-        specialized_chat = await initialize_specialized_chat()
-        logger.info("[OK] Specialized Chat Engine ready - clean, expert-focused interface!")
-        
-        # Initialize orchestrator v5 - THE NEW BRAIN (fast, minimal, 100% lokal)
-        logger.info("→ Initializing Response Orchestrator v5 (Production Brain)...")
+        # Initialize orchestrator v5 - ONLY OLLAMA
+        logger.info("→ Initializing Orchestrator (Ollama only)...")
         orchestrator = get_orchestrator_v5()
-        logger.info("🧠 [OK] Orchestrator v5 online - Fast path conversational ready!")
+        logger.info("🦙 [OK] Orchestrator ready - Ollama ONLY!")
         
-        # Initialize knowledge engine - CRITICAL COMPONENT
-        logger.info("→ Initializing knowledge engine with internal data sources...")
-        knowledge_engine = await get_knowledge_engine_hybrid(internal_data_sources)
-        
-        if knowledge_engine is None:
-            logger.error("❌ CRITICAL: Knowledge engine failed to initialize!")
-            logger.error("⚠️  Ocean Core will operate in degraded mode without knowledge engine!")
-            # Don't raise - allow the service to run in degraded mode
-            # raise RuntimeError("Failed to initialize knowledge engine")
-        else:
-            logger.info("✅ Knowledge engine initialized successfully!")
-        
-        # Initialize Autolearning Engine - CONTINUOUS LEARNING
-        logger.info("→ Initializing Autolearning Engine (Learning Loop)...")
-        autolearning_engine = get_autolearning_engine()
-        stats = autolearning_engine.get_learning_stats()
-        logger.info(f"🧠 [OK] Autolearning Engine online!")
-        logger.info(f"   - Knowledge entries: {stats['knowledge_base']['total_knowledge_entries']}")
-        logger.info(f"   - Custom patterns: {stats['patterns']['custom_patterns']}")
-        
-        logger.info(f"✅ Ocean Core 8030 initialized successfully!")
-        logger.info(f"   - Personas: {len(persona_router.mapping)}")
-        logger.info(f"   - Data Sources: {len(internal_data_sources.get_all_data().keys()) if internal_data_sources else 0}")
-        logger.info(f"   - Laboratories: {len(laboratory_network.get_all_labs()) if laboratory_network else 0}")
-        logger.info(f"   - Real Data Engine: {'✅ Ready' if real_data_engine else '⚠️  Not available'}")
-        logger.info(f"   - Knowledge Engine: {'✅ Ready' if knowledge_engine else '⚠️  Degraded'}")
-        logger.info(f"   - Autolearning Engine: ✅ Ready")
-        logger.info(f"   - Orchestrator (Brain): ✅ Ready")
+        logger.info(f"✅ Ocean Core 8030 initialized - NANOGRID mode")
+        logger.info(f"   - Ollama: ✅ Ready")
     except Exception as e:
         logger.error(f"❌ Ocean Core 8030 initialization failed: {type(e).__name__}: {str(e)}")
         import traceback
