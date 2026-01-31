@@ -51,7 +51,32 @@ OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "clisonix-06-ollama" if IS_IN_DOCKER
 if OLLAMA_HOST.startswith("http://"):
     OLLAMA_HOST = OLLAMA_HOST.replace("http://", "").split(":")[0]
 OLLAMA_BASE_URL = os.environ.get("OLLAMA_URL", f"http://{OLLAMA_HOST}:11434")
-DEFAULT_TIMEOUT = 30.0
+
+# ELASTIC TIMEOUT - Adapts based on query length
+# Short queries: 10s, Medium: 20s, Long: 40s, Complex: 60s
+DEFAULT_TIMEOUT = 20.0  # Base timeout
+MIN_TIMEOUT = 8.0       # Minimum for simple queries
+MAX_TIMEOUT = 60.0      # Maximum for complex queries
+
+def get_elastic_timeout(query: str) -> float:
+    """Calculate timeout based on query complexity"""
+    word_count = len(query.split())
+    char_count = len(query)
+    
+    # Simple greeting/short query: 8-12s
+    if word_count <= 5:
+        return MIN_TIMEOUT
+    
+    # Medium query: 15-25s
+    if word_count <= 20:
+        return DEFAULT_TIMEOUT
+    
+    # Longer query: 30-40s
+    if word_count <= 50:
+        return 35.0
+    
+    # Complex/long query: up to 60s
+    return min(MAX_TIMEOUT, 40.0 + (word_count - 50) * 0.5)
 
 
 class ModelTier(Enum):
@@ -590,27 +615,37 @@ Do not fabricate citations or generate random topics. Answer only what is asked.
         temperature: float,
         max_tokens: int
     ) -> Optional[Dict[str, Any]]:
-        """Thirr Ollama API"""
-        client = await self._get_client()
+        """Thirr Ollama API me elastic timeout"""
+        # Calculate elastic timeout based on prompt length
+        elastic_timeout = get_elastic_timeout(prompt)
         
-        payload = {
-            "model": model,
-            "prompt": prompt,
-            "system": system,
-            "stream": False,
-            "options": {
-                "temperature": temperature,
-                "num_predict": max_tokens,
+        # Create client with elastic timeout
+        async with httpx.AsyncClient(
+            base_url=self.base_url,
+            timeout=httpx.Timeout(elastic_timeout, connect=5.0)
+        ) as client:
+            payload = {
+                "model": model,
+                "prompt": prompt,
+                "system": system,
+                "stream": False,
+                "options": {
+                    "temperature": temperature,
+                    "num_predict": max_tokens,
+                }
             }
-        }
-        
-        response = await client.post("/api/generate", json=payload)
-        
-        if response.status_code == 200:
-            return response.json()
-        
-        logger.error(f"Ollama returned {response.status_code}: {response.text[:200]}")
-        return None
+            
+            try:
+                response = await client.post("/api/generate", json=payload)
+                
+                if response.status_code == 200:
+                    return response.json()
+                
+                logger.error(f"Ollama returned {response.status_code}: {response.text[:200]}")
+                return None
+            except httpx.TimeoutException:
+                logger.warning(f"Timeout after {elastic_timeout}s for model {model}")
+                return None
     
     async def chat(
         self,
