@@ -178,7 +178,7 @@ services:
   jona:
     <<: *python-service
     container_name: clisonix-11-jona
-    command: bash -c "pip install -q uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client && python jona_service_7777.py"
+    command: bash -c "pip install -q uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client opentelemetry-api opentelemetry-sdk && python jona_service_7777.py"
     ports:
       - "7777:7777"
     environment:
@@ -191,7 +191,7 @@ services:
   asi:
     <<: *python-service
     container_name: clisonix-12-asi
-    command: bash -c "pip install -q uvicorn fastapi pydantic aiohttp httpx redis && python asi_api_server.py"
+    command: bash -c "pip install -q uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client && python asi_api_server.py"
     ports:
       - "9094:9094"
     depends_on:
