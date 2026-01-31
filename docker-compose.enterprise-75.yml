@@ -605,14 +605,18 @@ services:
     working_dir: /app/apps/web
     volumes:
       - ./:/app
-    # PRODUCTION: build + start (jo dev mode që konsumon CPU)
-    command: sh -c "npm install && npm run build && npm run start"
+    # Dev mode (build ka TypeScript errors)
+    command: sh -c "npm install && npm run dev"
     ports:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://api:8000
       - OCEAN_CORE_URL=http://ocean-core:8030
       - BACKEND_API_URL=http://api:8000
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
     depends_on:
       - api
       - ocean-core
