@@ -28,17 +28,18 @@ from dataclasses import dataclass, field
 
 logger = logging.getLogger("smart_api_router")
 
-# API endpoints të brendshme
+# API endpoints të brendshme - përdor emra Docker container
+# Brenda Docker network, serviset lidhen me emër jo localhost
 INTERNAL_ENDPOINTS = {
-    "alba": {"port": 5555, "health": "/health", "name": "Alba Feeder"},
-    "albi": {"port": 6666, "health": "/health", "name": "Albi Core"},
-    "ocean": {"port": 8030, "health": "/health", "name": "Ocean Core"},
-    "jona": {"port": 8001, "health": "/api/v1/health", "name": "Jona Gateway"},
-    "asi": {"port": 8025, "health": "/health", "name": "ASI Realtime"},
-    "cycle": {"port": 8020, "health": "/health", "name": "Cycle Engine"},
-    "web": {"port": 3000, "health": "/", "name": "Web Frontend"},
-    "balancer": {"port": 3333, "health": "/health", "name": "Balancer"},
-    "ollama": {"port": 11434, "health": "/api/tags", "name": "Ollama LLM"},
+    "alba": {"host": "alba", "port": 5555, "health": "/health", "name": "Alba Feeder"},
+    "albi": {"host": "albi", "port": 6666, "health": "/health", "name": "Albi Core"},
+    "ocean": {"host": "localhost", "port": 8030, "health": "/health", "name": "Ocean Core"},
+    "jona": {"host": "jona", "port": 8001, "health": "/api/v1/health", "name": "Jona Gateway"},
+    "asi": {"host": "asi-realtime", "port": 8025, "health": "/health", "name": "ASI Realtime"},
+    "cycle": {"host": "cycle-engine", "port": 8020, "health": "/health", "name": "Cycle Engine"},
+    "web": {"host": "web", "port": 3000, "health": "/", "name": "Web Frontend"},
+    "balancer": {"host": "balancer-nodes", "port": 3333, "health": "/health", "name": "Balancer"},
+    "ollama": {"host": "ollama", "port": 11434, "health": "/api/tags", "name": "Ollama LLM"},
 }
 
 # Pattern-at për query matching
@@ -158,7 +159,8 @@ class SmartAPIRouter:
             return {"name": name, "status": "unknown", "error": "Service not configured"}
         
         config = INTERNAL_ENDPOINTS[name]
-        url = f"http://localhost:{config['port']}{config['health']}"
+        host = config.get('host', 'localhost')
+        url = f"http://{host}:{config['port']}{config['health']}"
         
         start = datetime.now()
         
