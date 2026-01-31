@@ -977,7 +977,22 @@ async def simple_chat(request: Request):
         raise HTTPException(status_code=503, detail="Orchestrator not initialized")
     
     try:
-        body = await request.json()
+        # Get raw body first for debugging
+        raw_body = await request.body()
+        logger.info(f"📥 Raw body received: {raw_body[:200] if raw_body else 'EMPTY'}")
+        
+        # Try to parse JSON
+        import json
+        try:
+            body = json.loads(raw_body.decode('utf-8'))
+        except json.JSONDecodeError as je:
+            logger.error(f"JSON decode error: {je}, raw: {raw_body[:100]}")
+            return {
+                "response": "Gabim në formatin e kërkesës. Ju lutem provoni përsëri.",
+                "sources": [],
+                "confidence": 0.0
+            }
+        
         message = body.get("message", body.get("query", "")).strip()
         
         if not message:
