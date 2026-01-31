@@ -60,23 +60,32 @@ SERVICE_PATTERNS = {
         r"(show|trego)\s+(all|të gjitha)\s+service",
         r"sistemi?\s+(status|aktiv)",
         r"(what|which)\s+services?\s+(are|is)\s+(running|active)",
+        r"servic\w*\s*(status|aktiv|punojn)",
+        r"(çfarë|cfare|what)\s+(po\s+)?punon",
+        r"api\s+(status|health)",
+        r"docker\s+(status|containers?)",
+        r"kontejner[ët]*\s*(aktiv|status)",
     ],
     "labs": [
         r"(sa|cilat)\s+laborator[eë]?\s+(ka|kemi)",
         r"list[ao]?\s+lab[s]?",
         r"(show|trego)\s+lab[s]?",
         r"laborator[eë]+",
+        r"labs?\s+(list|status)",
     ],
     "system_info": [
-        r"(cpu|memory|ram|disk)\s*(usage|përdorim)",
+        r"(cpu|memory|ram|disk)\s*(usage|përdorim)?",
         r"(sa|shumë|how much)\s+(cpu|memory|ram)",
         r"sistemi?\s+(info|informacion)",
         r"system\s+(info|status|health)",
+        r"server\s+(status|info|health)",
+        r"resurse[t]?\s+(server|sistem)",
     ],
     "models": [
         r"(sa|cilat)\s+model[e]?\s+(ka|kemi|janë)",
         r"(ollama|llm)\s+model[s]?",
         r"(list|trego)\s+model[s]?",
+        r"model[et]*\s+ai",
     ],
 }
 
