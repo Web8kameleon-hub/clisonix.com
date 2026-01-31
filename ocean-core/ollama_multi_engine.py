@@ -412,37 +412,21 @@ Do not fabricate citations or generate random topics. Answer only what is asked.
             return False
     
     def _select_model(self, query: str, strategy: Strategy) -> Tuple[str, ModelTier]:
-        """Zgjedh modelin e duhur sipas strategjis"""
+        """NANOGRID: Gjithmonë përdor llama3.2:1b për shpejtësi"""
         
-        if strategy == Strategy.FAST:
-            tier = ModelTier.FAST
-        elif strategy == Strategy.BALANCED:
-            tier = ModelTier.BALANCED
-        elif strategy == Strategy.DEEP:
-            tier = ModelTier.DEEP
-        elif strategy == Strategy.AUTO:
-            tier, _ = QueryComplexityAnalyzer.analyze(query)
-        else:  # FALLBACK
-            tier = ModelTier.BALANCED
+        # FORCE: llama3.2:1b (1.3GB, ~5-10s) - ALWAYS!
+        if "llama3.2:1b" in self._available_models:
+            return "llama3.2:1b", ModelTier.FAST
         
-        # Gjej modelin m t mir t disponueshm n tier
-        tier_models = [
-            (name, m) for name, m in self.models.items()
-            if m.tier == tier and m.is_available
-        ]
+        # Backup: phi3:mini
+        if "phi3:mini" in self._available_models:
+            return "phi3:mini", ModelTier.FAST
         
-        if tier_models:
-            # Sort by priority
-            tier_models.sort(key=lambda x: x[1].priority)
-            return tier_models[0][0], tier
+        # Last resort: first available
+        if self._available_models:
+            return self._available_models[0], ModelTier.FAST
         
-        # Fallback to any available model
-        for model_name in FALLBACK_ORDER:
-            if model_name in self.models and self.models[model_name].is_available:
-                return model_name, self.models[model_name].tier
-        
-        # Last resort: default
-        return "clisonix-ocean:v2", ModelTier.BALANCED
+        return "llama3.2:1b", ModelTier.FAST
     
     async def generate(
         self,
