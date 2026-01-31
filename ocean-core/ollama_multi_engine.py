@@ -53,30 +53,30 @@ if OLLAMA_HOST.startswith("http://"):
 OLLAMA_BASE_URL = os.environ.get("OLLAMA_URL", f"http://{OLLAMA_HOST}:11434")
 
 # ELASTIC TIMEOUT - Adapts based on query length
-# Short queries: 10s, Medium: 20s, Long: 40s, Complex: 60s
-DEFAULT_TIMEOUT = 20.0  # Base timeout
-MIN_TIMEOUT = 8.0       # Minimum for simple queries
-MAX_TIMEOUT = 60.0      # Maximum for complex queries
+# Short queries: 15s, Medium: 25s, Long: 45s, Complex: 90s
+DEFAULT_TIMEOUT = 25.0  # Base timeout
+MIN_TIMEOUT = 15.0      # Minimum for simple queries (llama3.1 needs time to load)
+MAX_TIMEOUT = 90.0      # Maximum for complex queries
 
 def get_elastic_timeout(query: str) -> float:
     """Calculate timeout based on query complexity"""
     word_count = len(query.split())
     char_count = len(query)
     
-    # Simple greeting/short query: 8-12s
+    # Simple greeting/short query: 15-20s
     if word_count <= 5:
         return MIN_TIMEOUT
     
-    # Medium query: 15-25s
+    # Medium query: 20-30s
     if word_count <= 20:
         return DEFAULT_TIMEOUT
     
-    # Longer query: 30-40s
+    # Longer query: 35-50s
     if word_count <= 50:
-        return 35.0
+        return 45.0
     
-    # Complex/long query: up to 60s
-    return min(MAX_TIMEOUT, 40.0 + (word_count - 50) * 0.5)
+    # Complex/long query: up to 90s
+    return min(MAX_TIMEOUT, 50.0 + (word_count - 50) * 0.5)
 
 
 class ModelTier(Enum):
