@@ -74,12 +74,15 @@ SERVICE_PATTERNS = {
         r"labs?\s+(list|status)",
     ],
     "system_info": [
-        r"(cpu|memory|ram|disk)\s*(usage|përdorim)?",
-        r"(sa|shumë|how much)\s+(cpu|memory|ram)",
-        r"sistemi?\s+(info|informacion)",
-        r"system\s+(info|status|health)",
-        r"server\s+(status|info|health)",
+        # Duhet të ketë fjalë specifike për sistem - jo pyetje të përgjithshme rreth "memory"
+        r"(cpu|ram|disk)\s+(usage|përdorim|percent|load)",
+        r"(sa|shumë|how much)\s+(cpu|ram)\s+(ka|po përdor|is used)",
+        r"sistemi?\s+(info|informacion|metrika)",
+        r"system\s+(info|status|health|metrics)",
+        r"server\s+(status|info|health|load|cpu|ram)",
         r"resurse[t]?\s+(server|sistem)",
+        r"(memory|ram)\s+(usage|load|percent|server|sistem)",
+        r"(show|trego|check)\s+(cpu|ram|disk|server)\s*(usage|status)?",
     ],
     "models": [
         r"(sa|cilat)\s+model[e]?\s+(ka|kemi|janë)",
