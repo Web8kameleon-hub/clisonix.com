@@ -100,5 +100,6 @@ def api_spec():
 
 
 if __name__ == "__main__":
-    uvicorn.run("economy_api_server:app", host="0.0.0.0", port=PORT, reload=True)
+    # PRODUCTION: reload=False për të mos konsumuar CPU me file watching
+    uvicorn.run("economy_api_server:app", host="0.0.0.0", port=PORT, reload=False)
 
