@@ -147,13 +147,13 @@ export default function FitnessDashboardPage() {
   }, [autoRefresh, selectedEndpoint, executeRequest]);
 
   const getStatusColor = (status: number) => {
-    if (status >= 200 && status < 300) return 'text-emerald-400';
+    if (status >= 200 && status < 300) return 'text-blue-700';
     if (status >= 400 && status < 500) return 'text-amber-400';
     return 'text-red-400';
   };
 
   const getStatusBadge = (status: number) => {
-    if (status >= 200 && status < 300) return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    if (status >= 200 && status < 300) return 'bg-blue-800/20 text-blue-700 border-blue-800/30';
     if (status >= 400 && status < 500) return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
     return 'bg-red-500/20 text-red-400 border-red-500/30';
   };
@@ -162,7 +162,7 @@ export default function FitnessDashboardPage() {
     const colors: Record<string, string> = {
       'rest': 'text-slate-400',
       'fat_burn': 'text-violet-400',
-      'cardio': 'text-emerald-400',
+      'cardio': 'text-blue-700',
       'peak': 'text-red-400',
     };
     return colors[zone?.toLowerCase()] || 'text-white';
@@ -221,7 +221,7 @@ export default function FitnessDashboardPage() {
                     }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="px-2 py-0.5 text-xs font-mono rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    <span className="px-2 py-0.5 text-xs font-mono rounded bg-blue-800/20 text-blue-700 border border-blue-800/30">
                       {endpoint.method}
                     </span>
                     <span className="text-sm font-medium text-white">{endpoint.name}</span>
@@ -265,7 +265,7 @@ export default function FitnessDashboardPage() {
           {/* Request Bar */}
           <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
             <div className="flex items-center gap-3">
-              <span className="px-3 py-1.5 text-sm font-mono rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <span className="px-3 py-1.5 text-sm font-mono rounded-lg bg-blue-800/20 text-blue-700 border border-blue-800/30">
                 {selectedEndpoint.method}
               </span>
               <div className="flex-1 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 font-mono text-sm text-slate-300">
@@ -300,7 +300,7 @@ export default function FitnessDashboardPage() {
                     {response.responseTime}ms
                   </span>
                   {response.success ? (
-                    <span className="text-emerald-400 flex items-center gap-1 text-sm">
+                    <span className="text-blue-700 flex items-center gap-1 text-sm">
                       <CheckCircle className="w-4 h-4" /> Success
                     </span>
                   ) : (
@@ -360,12 +360,12 @@ export default function FitnessDashboardPage() {
                                 {(response.data as FitnessMetrics).biometrics?.emotion_state || 'N/A'}
                               </p>
                             </div>
-                            <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20">
+                            <div className="p-4 rounded-xl bg-gradient-to-br from-blue-800/10 to-green-500/10 border border-blue-800/20">
                               <div className="flex items-center gap-2 mb-2">
-                                <Award className="w-5 h-5 text-emerald-400" />
+                                <Award className="w-5 h-5 text-blue-700" />
                                 <span className="text-sm text-slate-400">Achievements</span>
                               </div>
-                              <p className="text-2xl font-bold text-emerald-400">
+                              <p className="text-2xl font-bold text-blue-700">
                                 {(response.data as FitnessMetrics).achievements_count || 0}
                               </p>
                               <p className="text-xs text-slate-500">Unlocked</p>
@@ -393,7 +393,7 @@ export default function FitnessDashboardPage() {
                                   <p className="text-xs text-slate-500">Level</p>
                                 </div>
                                 <div className="text-center">
-                                  <p className="text-xl font-bold text-emerald-400">
+                                  <p className="text-xl font-bold text-blue-700">
                                     {(response.data as FitnessMetrics).user_profile?.total_workouts || 0}
                                   </p>
                                   <p className="text-xs text-slate-500">Workouts</p>
@@ -433,7 +433,7 @@ export default function FitnessDashboardPage() {
                                   <div className="flex items-center gap-4">
                                     <span className="text-sm text-orange-400 font-mono">{workout.calories} kcal</span>
                                     {workout.completed ? (
-                                      <CheckCircle className="w-4 h-4 text-emerald-400" />
+                                      <CheckCircle className="w-4 h-4 text-blue-700" />
                                     ) : (
                                       <Clock className="w-4 h-4 text-amber-400" />
                                     )}
@@ -475,3 +475,10 @@ export default function FitnessDashboardPage() {
     </div>
   );
 }
+
+
+
+
+
+
+

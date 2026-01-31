@@ -67,12 +67,18 @@ $Script:ServicePorts = @{
     "Loki"             = 3100
     "Victoria-Metrics" = 8428
     "ocean-core"       = 8030
+    "Ollama"           = 11434
+    "Ollama-Multi-API" = 4444
 }
 
 $Script:Services = @{
     Core = @(
         @{ Name = "API Server"; Script = "python -m uvicorn apps.api.main:app --host 0.0.0.0 --port 8000 --reload"; Port = 8000; Priority = 1 }
         @{ Name = "Frontend"; Script = "cd apps\web; npm run dev"; Port = 3000; Priority = 2 }
+    )
+    AI = @(
+        @{ Name = "Ollama Server"; Script = "ollama serve"; Port = 11434; Priority = 0; External = $true }
+        @{ Name = "Ollama Multi API"; Script = "cd ocean-core; python ollama_multi_api.py"; Port = 4444; Priority = 1; File = "ocean-core\ollama_multi_api.py" }
     )
     Microservices = @(
         @{ Name = "ALBA"; Script = "python alba_core.py"; Port = 5555; Priority = 3; File = "alba_core.py" }

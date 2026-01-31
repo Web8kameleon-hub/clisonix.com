@@ -125,7 +125,147 @@ class QueryPattern:
 # =============================================================================
 
 class PatternDetector:
-    """Detekton patterns në pyetje të përdoruesve"""
+    """Detekton patterns në pyetje të përdoruesve - MULTILINGUAL"""
+    
+    # ═══════════════════════════════════════════════════════════════════════════
+    # MULTILINGUAL LANGUAGE DETECTION (Latin Script Support)
+    # ═══════════════════════════════════════════════════════════════════════════
+    
+    # Languages with Latin script (romanized versions included)
+    LANGUAGE_MARKERS = {
+        # Greek (Latin/Romanized - "Greeklish")
+        "el": {
+            "greetings": ["kalimera", "kalispera", "yassou", "yassas", "geia", "geia sou", "geia sas", "herete"],
+            "words": ["efharisto", "parakalo", "nai", "ohi", "ti", "pos", "pou", "pote", "giati", "poso", 
+                     "thelo", "echo", "ime", "ise", "einai", "den", "tora", "simera", "avrio", "hthes",
+                     "kala", "poli", "ligo", "megalo", "mikro", "neo", "palio", "omorfo", "kalo", "kako"],
+            "phrases": ["ti kaneis", "ti kanis", "ola kala", "den katalaveno", "milate", "ellenika",
+                       "signomi", "me lene", "pos se lene", "apo pou eisai"],
+            "response": "Γεια σας! Πώς μπορώ να σας βοηθήσω;"  # Greek script response
+        },
+        # Finnish
+        "fi": {
+            "greetings": ["moi", "hei", "terve", "huomenta", "paivaa", "iltaa", "moikka", "morjens"],
+            "words": ["kiitos", "ole hyva", "kylla", "ei", "mita", "miten", "miksi", "koska", "missa",
+                     "haluan", "olen", "olet", "on", "olemme", "hyva", "huono", "iso", "pieni",
+                     "telia", "etsi", "olla", "kala", "vesi", "talo", "auto", "koira", "kissa"],
+            "phrases": ["mita kuuluu", "kaikki hyvin", "en ymmarra", "puhutko", "suomea", "nimeni on"],
+            "response": "Hei! Miten voin auttaa sinua?"
+        },
+        # German (already in system, but add more Latin markers)
+        "de": {
+            "greetings": ["hallo", "guten morgen", "guten tag", "guten abend", "gruss gott", "servus", "moin"],
+            "words": ["danke", "bitte", "ja", "nein", "was", "wie", "warum", "wann", "wo", "wer",
+                     "ich", "du", "er", "sie", "wir", "ihr", "haben", "sein", "werden", "konnen",
+                     "gut", "schlecht", "gross", "klein", "neu", "alt", "schon", "schnell"],
+            "phrases": ["wie geht", "alles klar", "verstehe nicht", "sprechen sie", "deutsch"],
+            "response": "Hallo! Wie kann ich Ihnen helfen?"
+        },
+        # Italian
+        "it": {
+            "greetings": ["ciao", "buongiorno", "buonasera", "buonanotte", "salve", "salute"],
+            "words": ["grazie", "prego", "si", "no", "cosa", "come", "perche", "quando", "dove", "chi",
+                     "io", "tu", "lui", "lei", "noi", "voi", "loro", "avere", "essere", "fare",
+                     "bene", "male", "grande", "piccolo", "nuovo", "vecchio", "bello", "brutto"],
+            "phrases": ["come stai", "tutto bene", "non capisco", "parli", "italiano"],
+            "response": "Ciao! Come posso aiutarti?"
+        },
+        # Spanish
+        "es": {
+            "greetings": ["hola", "buenos dias", "buenas tardes", "buenas noches", "saludos"],
+            "words": ["gracias", "por favor", "si", "no", "que", "como", "porque", "cuando", "donde", "quien",
+                     "yo", "tu", "el", "ella", "nosotros", "ustedes", "ellos", "tener", "ser", "estar",
+                     "bien", "mal", "grande", "pequeno", "nuevo", "viejo", "bonito", "feo"],
+            "phrases": ["como estas", "todo bien", "no entiendo", "hablas", "espanol"],
+            "response": "¡Hola! ¿Cómo puedo ayudarte?"
+        },
+        # French
+        "fr": {
+            "greetings": ["bonjour", "bonsoir", "bonne nuit", "salut", "coucou"],
+            "words": ["merci", "sil vous plait", "oui", "non", "quoi", "comment", "pourquoi", "quand", "ou", "qui",
+                     "je", "tu", "il", "elle", "nous", "vous", "ils", "avoir", "etre", "faire",
+                     "bien", "mal", "grand", "petit", "nouveau", "vieux", "beau", "laid"],
+            "phrases": ["comment allez", "ca va", "tout va bien", "je ne comprends pas", "parlez", "francais"],
+            "response": "Bonjour! Comment puis-je vous aider?"
+        },
+        # Portuguese
+        "pt": {
+            "greetings": ["ola", "bom dia", "boa tarde", "boa noite", "oi", "tchau"],
+            "words": ["obrigado", "obrigada", "por favor", "sim", "nao", "que", "como", "porque", "quando", "onde",
+                     "eu", "tu", "ele", "ela", "nos", "voces", "eles", "ter", "ser", "estar",
+                     "bem", "mal", "grande", "pequeno", "novo", "velho", "bonito", "feio"],
+            "phrases": ["como vai", "tudo bem", "nao entendo", "fala", "portugues"],
+            "response": "Olá! Como posso ajudar?"
+        },
+        # Turkish
+        "tr": {
+            "greetings": ["merhaba", "selam", "gunaydin", "iyi aksamlar", "iyi geceler"],
+            "words": ["tesekkurler", "lutfen", "evet", "hayir", "ne", "nasil", "neden", "ne zaman", "nerede", "kim",
+                     "ben", "sen", "o", "biz", "siz", "onlar", "var", "yok", "iyi", "kotu",
+                     "buyuk", "kucuk", "yeni", "eski", "guzel", "cirkin"],
+            "phrases": ["nasilsin", "iyiyim", "anlamiyorum", "turkce", "konusur musun"],
+            "response": "Merhaba! Size nasıl yardımcı olabilirim?"
+        },
+        # Russian (Romanized/Translit)
+        "ru": {
+            "greetings": ["privet", "zdravstvuyte", "dobroe utro", "dobriy den", "dobriy vecher"],
+            "words": ["spasibo", "pozhaluysta", "da", "net", "chto", "kak", "pochemu", "kogda", "gde", "kto",
+                     "ya", "ty", "on", "ona", "my", "vy", "oni", "est", "horosho", "ploho",
+                     "bolshoy", "malenkiy", "noviy", "stariy", "krasiviy"],
+            "phrases": ["kak dela", "vse horosho", "ya ne ponimayu", "govorite", "po russki"],
+            "response": "Привет! Как я могу вам помочь?"
+        },
+        # Arabic (Romanized/Arabizi)
+        "ar": {
+            "greetings": ["marhaba", "ahlan", "salam", "sabah el kheir", "masa el kheir"],
+            "words": ["shukran", "afwan", "aiwa", "la", "shu", "kif", "lesh", "wein", "meen", "mata",
+                     "ana", "enta", "hiya", "huwa", "nahnu", "antum", "hum", "fi", "mafi"],
+            "phrases": ["kifak", "keefak", "kif halak", "ma fahimt", "btahki", "arabi"],
+            "response": "مرحبا! كيف يمكنني مساعدتك؟"
+        },
+        # Japanese (Romanized/Romaji)
+        "ja": {
+            "greetings": ["konnichiwa", "ohayo", "konbanwa", "oyasumi", "moshi moshi"],
+            "words": ["arigato", "sumimasen", "hai", "iie", "nani", "dou", "naze", "itsu", "doko", "dare",
+                     "watashi", "anata", "kare", "kanojo", "ii", "warui", "ookii", "chiisai"],
+            "phrases": ["genki desu ka", "daijoubu", "wakarimasen", "nihongo", "hanasemasu ka"],
+            "response": "こんにちは！何かお手伝いできますか？"
+        },
+        # Chinese (Romanized/Pinyin)
+        "zh": {
+            "greetings": ["nihao", "ni hao", "zaoshang hao", "wanshang hao", "zaijian"],
+            "words": ["xiexie", "bu keqi", "shi", "bu shi", "shenme", "zenme", "weishenme", "nali", "shui",
+                     "wo", "ni", "ta", "women", "nimen", "tamen", "hao", "bu hao", "da", "xiao"],
+            "phrases": ["ni hao ma", "hen hao", "bu dong", "zhongwen", "hui shuo ma"],
+            "response": "你好！我能帮你什么？"
+        },
+        # Korean (Romanized)
+        "ko": {
+            "greetings": ["annyeonghaseyo", "annyeong", "anyong", "jal ga"],
+            "words": ["gamsahamnida", "ne", "aniyo", "mwo", "eotteoke", "wae", "eonje", "eodi", "nugu",
+                     "na", "neo", "geu", "geunyeo", "uri", "joah", "silheo", "keun", "jageun"],
+            "phrases": ["jal jinaeyo", "gwenchanayo", "moreugesseyo", "hangugeo", "hal jul arayo"],
+            "response": "안녕하세요! 어떻게 도와드릴까요?"
+        },
+        # Albanian (already primary, but ensure completeness)
+        "sq": {
+            "greetings": ["përshëndetje", "tungjatjeta", "mirëdita", "mirëmbrëma", "mirëmëngjes", "ckemi", "cpo ben"],
+            "words": ["faleminderit", "ju lutem", "po", "jo", "çfarë", "si", "pse", "kur", "ku", "kush",
+                     "unë", "ti", "ai", "ajo", "ne", "ju", "ata", "kam", "jam", "bëj",
+                     "mirë", "keq", "i madh", "i vogël", "i ri", "i vjetër", "bukur"],
+            "phrases": ["si jeni", "çkemi", "çpo bën", "nuk kuptoj", "shqip", "flas", "shqiptar"],
+            "response": "Përshëndetje! Si mund t'ju ndihmoj?"
+        },
+        # English (default)
+        "en": {
+            "greetings": ["hello", "hi", "hey", "good morning", "good afternoon", "good evening"],
+            "words": ["thanks", "please", "yes", "no", "what", "how", "why", "when", "where", "who",
+                     "i", "you", "he", "she", "we", "they", "have", "be", "do",
+                     "good", "bad", "big", "small", "new", "old", "beautiful", "ugly"],
+            "phrases": ["how are you", "all good", "i dont understand", "do you speak", "english"],
+            "response": "Hello! How can I help you?"
+        }
+    }
     
     # Base patterns - Albanian + English
     BASE_PATTERNS = {
@@ -185,6 +325,51 @@ class PatternDetector:
         self.custom_patterns: Dict[str, QueryPattern] = {}
         self._load_patterns()
     
+    def detect_language(self, text: str) -> Tuple[str, float]:
+        """
+        Detect language from text - supports Latin script variants.
+        Returns: (language_code, confidence_score)
+        """
+        text_lower = text.lower().strip()
+        words = text_lower.split()
+        
+        scores = {}
+        
+        for lang_code, config in self.LANGUAGE_MARKERS.items():
+            score = 0
+            
+            # Check greetings (highest weight)
+            for greeting in config.get("greetings", []):
+                if greeting in text_lower:
+                    score += 3
+            
+            # Check words
+            for word in config.get("words", []):
+                if word in words or word in text_lower:
+                    score += 1
+            
+            # Check phrases (high weight)
+            for phrase in config.get("phrases", []):
+                if phrase in text_lower:
+                    score += 2
+            
+            if score > 0:
+                scores[lang_code] = score
+        
+        if scores:
+            best_lang = max(scores, key=scores.get)
+            max_score = scores[best_lang]
+            confidence = min(max_score / 5.0, 1.0)  # Normalize to 0-1
+            return (best_lang, confidence)
+        
+        return ("en", 0.3)  # Default to English with low confidence
+    
+    def get_language_greeting(self, lang_code: str) -> str:
+        """Get native greeting for detected language."""
+        if lang_code in self.LANGUAGE_MARKERS:
+            return self.LANGUAGE_MARKERS[lang_code].get("response", "Hello!")
+        return "Hello! How can I help you?"
+    
     def _load_patterns(self):
         """Ngarko patterns e mësuara - CBOR binary"""
         try:
@@ -212,28 +397,57 @@ class PatternDetector:
     
     def detect(self, query: str) -> Tuple[Optional[str], Optional[str], Dict]:
         """
-        Detekto pattern në pyetje
+        Detekto pattern në pyetje - MULTILINGUAL
         Returns: (pattern_type, response_template, metadata)
         """
         q_lower = query.lower().strip()
         
-        # Check base patterns first
+        # ═══════════════════════════════════════════════════════════════════════
+        # STEP 1: Detect language first (supports Latin script variants)
+        # ═══════════════════════════════════════════════════════════════════════
+        detected_lang, confidence = self.detect_language(query)
+        
+        # If it's a simple greeting in any language, respond in that language
+        if len(q_lower.split()) <= 3:  # Short message, likely greeting
+            for lang_code, config in self.LANGUAGE_MARKERS.items():
+                for greeting in config.get("greetings", []):
+                    if greeting in q_lower or q_lower.startswith(greeting):
+                        logger.info(f"🌍 Detected {lang_code} greeting: {greeting}")
+                        return ("multilingual_greeting", config["response"], {
+                            "language": lang_code,
+                            "confidence": confidence,
+                            "detected_greeting": greeting
+                        })
+        
+        # ═══════════════════════════════════════════════════════════════════════
+        # STEP 2: Check base patterns (Albanian + English)
+        # ═══════════════════════════════════════════════════════════════════════
         for pattern_type, config in self.BASE_PATTERNS.items():
             # Check keywords
             if any(kw in q_lower for kw in config["keywords"]):
                 # Try regex match
                 match = re.search(config["regex"], q_lower, re.IGNORECASE)
                 if match:
-                    return (pattern_type, config["response"], {"match": match.groups()})
+                    return (pattern_type, config["response"], {
+                        "match": match.groups(),
+                        "language": detected_lang,
+                        "confidence": confidence
+                    })
         
-        # Check custom patterns
+        # ═══════════════════════════════════════════════════════════════════════
+        # STEP 3: Check custom patterns
+        # ═══════════════════════════════════════════════════════════════════════
         for pattern in self.custom_patterns.values():
             if any(kw in q_lower for kw in pattern.keywords):
                 pattern.times_matched += 1
                 self._save_patterns()
-                return (pattern.pattern_type, pattern.response_template, {})
+                return (pattern.pattern_type, pattern.response_template, {
+                    "language": detected_lang,
+                    "confidence": confidence
+                })
         
-        return (None, None, {})
+        # Return detected language even if no pattern matched
+        return (None, None, {"language": detected_lang, "confidence": confidence})
     
     def learn_pattern(self, query: str, response: str, pattern_type: str) -> QueryPattern:
         """Mëso pattern të ri"""

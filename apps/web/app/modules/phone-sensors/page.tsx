@@ -202,9 +202,10 @@ export default function ClisonixPhoneSensorsMax() {
     const startMotionSensors = async (): Promise<boolean> => {
         if (!window.DeviceMotionEvent) return false;
 
-    if (typeof (DeviceMotionEvent as { requestPermission?: () => Promise<PermissionState> }).requestPermission === 'function') {
+    const DME = DeviceMotionEvent as unknown as { requestPermission?: () => Promise<PermissionState> };
+    if (typeof DME.requestPermission === 'function') {
       try {
-        const permission = await (DeviceMotionEvent as { requestPermission: () => Promise<PermissionState> }).requestPermission();
+        const permission = await DME.requestPermission();
           if (permission !== 'granted') return false;
       } catch (e) {
           return false;
@@ -264,11 +265,16 @@ export default function ClisonixPhoneSensorsMax() {
     const startOrientationSensors = async (): Promise<boolean> => {
         if (!window.DeviceOrientationEvent) return false;
 
-    if (typeof (DeviceOrientationEvent as { requestPermission?: () => Promise<PermissionState> }).requestPermission === 'function') {
+    // Check if requestPermission exists (iOS 13+)
+    const DeviceOrientationEventWithPermission = DeviceOrientationEvent as unknown as {
+      requestPermission?: () => Promise<string>;
+    };
+    
+    if (typeof DeviceOrientationEventWithPermission.requestPermission === 'function') {
       try {
-        const permission = await (DeviceOrientationEvent as { requestPermission: () => Promise<PermissionState> }).requestPermission();
+        const permission = await DeviceOrientationEventWithPermission.requestPermission();
           if (permission !== 'granted') return false;
-      } catch (e) {
+      } catch {
           return false;
       }
     }
@@ -706,11 +712,11 @@ export default function ClisonixPhoneSensorsMax() {
                       <div className="text-center max-w-sm">
                           <div className="text-6xl mb-4">💙</div>
                           <h1 className="text-2xl font-bold mb-3">Kontrolli i Mirëqenies</h1>
-                          <p className="text-lg text-blue-200 mb-6">Sensori detektoi lëvizje të pazakontë. Si ndiheni?</p>
+                          <p className="text-lg text-blue-400 mb-6">Sensori detektoi lëvizje të pazakontë. Si ndiheni?</p>
                           <div className="space-y-3">
                               <button
                                   onClick={() => setFallDetected(false)}
-                                  className="w-full px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl font-bold text-lg shadow-lg"
+                                  className="w-full px-6 py-4 bg-gradient-to-r from-green-500 to-blue-800 rounded-xl font-bold text-lg shadow-lg"
                               >
                                   😊 Jam mirë, faleminderit!
                               </button>
@@ -721,20 +727,20 @@ export default function ClisonixPhoneSensorsMax() {
                                   Mbyll këtë mesazh
                               </button>
                           </div>
-                          <p className="text-xs text-blue-300/60 mt-4">Ky kontroll është vetëm informativ</p>
+                          <p className="text-xs text-blue-600/60 mt-4">Ky kontroll është vetëm informativ</p>
                       </div>
                   </motion.div>
               )}
           </AnimatePresence>
 
       {/* Header */}
-          <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-cyan-500/30">
+          <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-blue-700/30">
               <div className="max-w-6xl mx-auto px-4 py-4">
                   <div className="flex items-center justify-between">
                       <Link href="/" className="text-cyan-300 hover:text-cyan-100 transition-colors">
                           ← Dashboard
                       </Link>
-                      <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+                      <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-500 bg-clip-text text-transparent">
                           🧠 Clisonix Sensors MAX
                       </h1>
                       <div className="flex items-center gap-2 text-sm">
@@ -757,8 +763,8 @@ export default function ClisonixPhoneSensorsMax() {
                                   ? mode === 'ultra'
                                       ? 'bg-gradient-to-r from-purple-600 to-pink-600 border-purple-400 shadow-lg shadow-purple-500/50'
                                       : mode === 'balanced'
-                                          ? 'bg-gradient-to-r from-cyan-600 to-blue-600 border-cyan-400 shadow-lg shadow-cyan-500/50'
-                                          : 'bg-gradient-to-r from-green-600 to-emerald-600 border-green-400 shadow-lg shadow-green-500/50'
+                                          ? 'bg-gradient-to-r from-blue-800 to-blue-900 border-blue-600 shadow-lg shadow-blue-700/50'
+                                          : 'bg-gradient-to-r from-green-600 to-blue-900 border-green-400 shadow-lg shadow-green-500/50'
                                   : 'bg-gray-800/50 border-gray-700 hover:border-gray-500'
                           )}
                       >
@@ -781,7 +787,7 @@ export default function ClisonixPhoneSensorsMax() {
                   {/* Left: Motion & Health */}
                   <div className="lg:col-span-2 space-y-6">
                       {/* Motion Data */}
-                      <div className="bg-gray-900/50 backdrop-blur-lg rounded-3xl border border-cyan-500/20 p-6">
+                      <div className="bg-gray-900/50 backdrop-blur-lg rounded-3xl border border-blue-700/20 p-6">
                           <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                               📱 Real-Time Motion
                               {motionData && <span className="text-xs text-green-400 opacity-80">● LIVE</span>}
@@ -797,7 +803,7 @@ export default function ClisonixPhoneSensorsMax() {
                                           </div>
                                           <div className="h-1.5 bg-gray-700 rounded-full mt-2 overflow-hidden">
                                               <div
-                                                  className="h-full bg-cyan-500 transition-all duration-700 ease-out"
+                                                  className="h-full bg-blue-700 transition-all duration-700 ease-out"
                                                   style={{ width: Math.min(Math.abs((motionData.acceleration as Record<string, number>)[axis]) * 15, 100) + '%' }}
                                               />
                                           </div>
@@ -863,7 +869,7 @@ export default function ClisonixPhoneSensorsMax() {
                                                   health.activityType === 'cycling' ? '🚴' :
                                                       health.activityType === 'driving' ? '🚗' : '🧘'}
                                   </div>
-                                  <div className="text-lg font-bold text-blue-400 capitalize">{health.activityType}</div>
+                                  <div className="text-lg font-bold text-blue-700 capitalize">{health.activityType}</div>
                                   <div className="text-xs text-gray-400">{health.activityConfidence}% sure</div>
                               </div>
                           </div>
@@ -909,7 +915,7 @@ export default function ClisonixPhoneSensorsMax() {
 
                       {/* Network */}
                       {network && (
-                          <div className="bg-gray-900/50 backdrop-blur-lg rounded-3xl border border-blue-500/20 p-6">
+                          <div className="bg-gray-900/50 backdrop-blur-lg rounded-3xl border border-blue-800/20 p-6">
                               <h2 className="text-lg font-bold mb-4">🌐 Network (Real)</h2>
                               <div className="space-y-2 text-sm">
                                   <div className="flex justify-between">
@@ -954,7 +960,7 @@ export default function ClisonixPhoneSensorsMax() {
 
                       {/* Location */}
                       {location && (
-                          <div className="bg-gray-900/50 backdrop-blur-lg rounded-3xl border border-emerald-500/20 p-6">
+                          <div className="bg-gray-900/50 backdrop-blur-lg rounded-3xl border border-blue-800/20 p-6">
                               <h2 className="text-lg font-bold mb-4">📍 GPS (Real)</h2>
                               <div className="space-y-2 text-sm font-mono">
                                   <div className="flex justify-between">
@@ -987,12 +993,12 @@ export default function ClisonixPhoneSensorsMax() {
                       <motion.div
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="bg-gray-900/50 backdrop-blur-lg rounded-3xl border border-cyan-500/20 p-6"
+                          className="bg-gray-900/50 backdrop-blur-lg rounded-3xl border border-blue-700/20 p-6"
                       >
                           <h2 className="text-lg font-bold mb-4">🧠 AI Insights (Real Data)</h2>
                           <div className="space-y-2">
                               {insights.map((insight, i) => (
-                                  <div key={i} className="p-3 bg-gray-800/50 rounded-lg border-l-4 border-cyan-500 text-sm">
+                                  <div key={i} className="p-3 bg-gray-800/50 rounded-lg border-l-4 border-blue-700 text-sm">
                                       {insight}
                                   </div>
                               ))}
@@ -1003,14 +1009,14 @@ export default function ClisonixPhoneSensorsMax() {
           </main>
 
           {/* Bottom Control Bar */}
-          <div className="fixed bottom-0 left-0 right-0 bg-gray-900/90 backdrop-blur-xl border-t border-cyan-500/30 p-4 z-50">
+          <div className="fixed bottom-0 left-0 right-0 bg-gray-900/90 backdrop-blur-xl border-t border-blue-700/30 p-4 z-50">
               <div className="max-w-6xl mx-auto flex items-center justify-center gap-4">
                   <button
                       onClick={toggleRecording}
                       className={'px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 ' + (
                           isRecording
                               ? 'bg-gradient-to-r from-red-600 to-pink-600 shadow-lg shadow-red-500/30'
-                              : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:shadow-lg hover:shadow-green-500/30'
+                              : 'bg-gradient-to-r from-green-600 to-blue-900 hover:shadow-lg hover:shadow-green-500/30'
                       )}
                   >
                       {isRecording ? '⏹️ Stop (' + recordingTime + 's)' : '⏺️ Record'}
@@ -1018,7 +1024,7 @@ export default function ClisonixPhoneSensorsMax() {
 
                   <button
                       onClick={() => setShowMatrix(!showMatrix)}
-                      className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 font-bold"
+                      className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-900 font-bold"
                   >
                       {showMatrix ? '📊 Hide' : '🔮 Matrix'}
                   </button>
@@ -1045,13 +1051,13 @@ export default function ClisonixPhoneSensorsMax() {
                       className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4"
                       onClick={() => setShowMatrix(false)}
                   >
-                      <div className="bg-gray-900 rounded-3xl border border-cyan-500/30 p-8 max-w-lg w-full" onClick={e => e.stopPropagation()}>
+                      <div className="bg-gray-900 rounded-3xl border border-blue-700/30 p-8 max-w-lg w-full" onClick={e => e.stopPropagation()}>
                           <h2 className="text-2xl font-bold mb-6 text-center">🔮 Neural Matrix</h2>
                           <div className="grid grid-cols-4 gap-3">
                               {activeSensors.map((sensor, i) => (
                                   <div
                                       key={i}
-                                      className="aspect-square bg-gradient-to-br from-cyan-900/50 to-purple-900/50 rounded-xl border border-cyan-500/30 flex items-center justify-center text-2xl transition-all duration-500 hover:scale-105"
+                                      className="aspect-square bg-gradient-to-br from-cyan-900/50 to-purple-900/50 rounded-xl border border-blue-700/30 flex items-center justify-center text-2xl transition-all duration-500 hover:scale-105"
                                   >
                                       {sensor.split(' ')[0]}
                                   </div>
@@ -1079,3 +1085,10 @@ export default function ClisonixPhoneSensorsMax() {
     </div>
   );
 }
+
+
+
+
+
+
+

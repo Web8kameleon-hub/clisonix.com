@@ -153,7 +153,7 @@ export default function MarketplacePage() {
       <header className="border-b border-slate-700 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-violet-500 rounded-lg flex items-center justify-center text-white font-bold text-xl">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-800 to-violet-500 rounded-lg flex items-center justify-center text-white font-bold text-xl">
               C
             </div>
             <div>
@@ -171,7 +171,7 @@ export default function MarketplacePage() {
             <a href="#pricing" className="text-slate-300 hover:text-white transition">
               Pricing
             </a>
-            <button className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg transition">
+            <button className="bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition">
               Get API Key
             </button>
           </nav>
@@ -181,12 +181,12 @@ export default function MarketplacePage() {
       {/* Hero Section */}
       <section className="py-20 px-6">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="inline-block bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-4 py-1 rounded-full text-sm mb-6">
+          <div className="inline-block bg-blue-800/10 border border-blue-800/30 text-blue-700 px-4 py-1 rounded-full text-sm mb-6">
             🚀 70+ Production-Ready Endpoints
           </div>
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
             Neural-Audio APIs for
-            <span className="bg-gradient-to-r from-emerald-400 to-violet-400 bg-clip-text text-transparent"> Brain Technology</span>
+            <span className="bg-gradient-to-r from-blue-700 to-violet-400 bg-clip-text text-transparent"> Brain Technology</span>
           </h1>
           <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-10">
             Enterprise-grade APIs for EEG processing, brain-sync audio generation, 
@@ -199,7 +199,7 @@ export default function MarketplacePage() {
               <span className="text-slate-400 text-sm">Try it now - Demo API Key</span>
               <button 
                 onClick={copyApiKey}
-                className="text-emerald-400 hover:text-emerald-300 text-sm flex items-center gap-2"
+                className="text-blue-700 hover:text-blue-600 text-sm flex items-center gap-2"
               >
                 {copiedKey ? '✓ Copied!' : '📋 Copy Key'}
               </button>
@@ -207,7 +207,7 @@ export default function MarketplacePage() {
             <code className="block bg-slate-900 rounded-lg p-4 text-left overflow-x-auto">
               <span className="text-violet-400">curl</span>
               <span className="text-slate-300"> -X GET </span>
-              <span className="text-emerald-400">&quot;https://api.clisonix.com/status&quot;</span>
+              <span className="text-blue-700">&quot;https://api.clisonix.com/status&quot;</span>
               <span className="text-slate-300"> \</span>
               <br />
               <span className="text-slate-300">  -H </span>
@@ -216,7 +216,7 @@ export default function MarketplacePage() {
           </div>
 
           <div className="flex justify-center gap-4">
-            <button className="bg-gradient-to-r from-emerald-600 to-violet-600 hover:from-emerald-500 hover:to-violet-500 text-white px-8 py-4 rounded-lg font-semibold text-lg transition shadow-lg shadow-emerald-500/25">
+            <button className="bg-gradient-to-r from-blue-900 to-violet-600 hover:from-blue-800 hover:to-violet-500 text-white px-8 py-4 rounded-lg font-semibold text-lg transition shadow-lg shadow-blue-800/25">
               Get Free API Key
             </button>
             <Link 
@@ -233,7 +233,7 @@ export default function MarketplacePage() {
       <section className="py-12 border-y border-slate-700 bg-slate-800/30">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div>
-            <div className="text-4xl font-bold text-emerald-400">70+</div>
+            <div className="text-4xl font-bold text-blue-700">70+</div>
             <div className="text-slate-400">API Endpoints</div>
           </div>
           <div>
@@ -263,16 +263,16 @@ export default function MarketplacePage() {
             {apiCategories.map((cat) => (
               <div 
                 key={cat.name}
-                className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 hover:border-emerald-500/50 transition cursor-pointer group"
+                className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 hover:border-blue-800/50 transition cursor-pointer group"
               >
                 <div className="text-4xl mb-4">{cat.icon}</div>
-                <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-emerald-400 transition">
+                <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-blue-700 transition">
                   {cat.name}
                 </h3>
                 <p className="text-slate-400 text-sm mb-4">{cat.description}</p>
                 <div className="flex justify-between items-center">
-                  <span className="text-emerald-400 text-sm">{cat.endpoints} endpoints</span>
-                  <span className="text-slate-500 group-hover:text-emerald-400 transition">→</span>
+                  <span className="text-blue-700 text-sm">{cat.endpoints} endpoints</span>
+                  <span className="text-slate-500 group-hover:text-blue-700 transition">→</span>
                 </div>
               </div>
             ))}
@@ -294,12 +294,12 @@ export default function MarketplacePage() {
                 key={plan.name}
                 className={`relative bg-slate-800 border rounded-2xl p-8 ${
                   plan.popular 
-                    ? 'border-emerald-500 shadow-lg shadow-emerald-500/20' 
+                    ? 'border-blue-800 shadow-lg shadow-blue-800/20' 
                     : 'border-slate-700'
                 }`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-500 to-violet-500 text-white text-sm px-4 py-1 rounded-full">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-800 to-violet-500 text-white text-sm px-4 py-1 rounded-full">
                     Most Popular
                   </div>
                 )}
@@ -328,7 +328,7 @@ export default function MarketplacePage() {
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-center gap-2 text-slate-300">
-                      <span className="text-emerald-400">✓</span>
+                      <span className="text-blue-700">✓</span>
                       {feature}
                     </li>
                   ))}
@@ -337,7 +337,7 @@ export default function MarketplacePage() {
                 <button 
                   className={`w-full py-3 rounded-lg font-semibold transition ${
                     plan.popular
-                      ? 'bg-gradient-to-r from-emerald-600 to-violet-600 hover:from-emerald-500 hover:to-violet-500 text-white'
+                      ? 'bg-gradient-to-r from-blue-900 to-violet-600 hover:from-blue-800 hover:to-violet-500 text-white'
                       : 'bg-slate-700 hover:bg-slate-600 text-white border border-slate-600'
                   }`}
                 >
@@ -427,7 +427,7 @@ console.log('Alpha Power:', eeg.bands.alpha);`}
       <footer className="py-12 px-6 border-t border-slate-700">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-violet-500 rounded-lg flex items-center justify-center text-white font-bold">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-800 to-violet-500 rounded-lg flex items-center justify-center text-white font-bold">
               C
             </div>
             <span className="text-slate-400">© 2026 Clisonix Cloud. Part of Webultrathinking Euroweb.</span>
@@ -443,3 +443,10 @@ console.log('Alpha Power:', eeg.bands.alpha);`}
     </div>
   )
 }
+
+
+
+
+
+
+

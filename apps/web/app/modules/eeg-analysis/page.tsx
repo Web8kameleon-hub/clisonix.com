@@ -137,13 +137,13 @@ export default function EEGAnalysisPage() {
     }, [autoRefresh, selectedEndpoint, executeRequest]);
 
     const getStatusColor = (status: number) => {
-        if (status >= 200 && status < 300) return 'text-emerald-400';
+        if (status >= 200 && status < 300) return 'text-gray-600';
         if (status >= 400 && status < 500) return 'text-amber-400';
         return 'text-red-400';
     };
 
     const getStatusBadge = (status: number) => {
-        if (status >= 200 && status < 300) return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+        if (status >= 200 && status < 300) return 'bg-gray-700/20 text-gray-600 border-gray-700/30';
         if (status >= 400 && status < 500) return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
         return 'bg-red-500/20 text-red-400 border-red-500/30';
     };
@@ -151,10 +151,10 @@ export default function EEGAnalysisPage() {
     const getBrainStateColor = (state: string) => {
         const colors: Record<string, string> = {
             'relaxed': 'text-violet-400',
-            'focused': 'text-emerald-400',
+            'focused': 'text-gray-600',
             'alert': 'text-amber-400',
             'drowsy': 'text-purple-400',
-            'meditative': 'text-indigo-400',
+            'meditative': 'text-gray-500',
         };
         return colors[state?.toLowerCase()] || 'text-gray-400';
     };
@@ -162,9 +162,9 @@ export default function EEGAnalysisPage() {
     const getWaveColor = (type: string) => {
         const colors: Record<string, string> = {
             'delta': 'bg-purple-500',
-            'theta': 'bg-indigo-500',
+            'theta': 'bg-gray-600',
             'alpha': 'bg-violet-500',
-            'beta': 'bg-emerald-500',
+            'beta': 'bg-gray-700',
             'gamma': 'bg-amber-500',
         };
         return colors[type?.toLowerCase()] || 'bg-gray-500';
@@ -176,11 +176,11 @@ export default function EEGAnalysisPage() {
           <div className="max-w-7xl mx-auto mb-8">
               <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30">
-                          <Brain className="w-8 h-8 text-indigo-400" />
+                      <div className="p-3 rounded-xl bg-gradient-to-br from-gray-600/20 to-purple-500/20 border border-gray-600/30">
+                          <Brain className="w-8 h-8 text-gray-500" />
                       </div>
                       <div>
-                          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-500 to-purple-400 bg-clip-text text-transparent">
                               ALBI EEG Analysis
                           </h1>
                           <p className="text-slate-400 text-sm">Real-time brain wave analysis • Postman-Style API Interface</p>
@@ -190,7 +190,7 @@ export default function EEGAnalysisPage() {
                       <button
                           onClick={() => setAutoRefresh(!autoRefresh)}
                           className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${autoRefresh
-                                  ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
+                                  ? 'bg-gray-600/20 text-gray-500 border border-gray-600/30'
                                   : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-700/50'
                               }`}
                       >
@@ -206,7 +206,7 @@ export default function EEGAnalysisPage() {
               <div className="col-span-3 space-y-3">
                   <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
                       <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                          <Radio className="w-4 h-4 text-indigo-400" />
+                          <Radio className="w-4 h-4 text-gray-500" />
                           API Endpoints
                       </h3>
                       <div className="space-y-2">
@@ -218,12 +218,12 @@ export default function EEGAnalysisPage() {
                                       executeRequest(endpoint);
                                   }}
                                   className={`w-full text-left p-3 rounded-lg transition-all ${selectedEndpoint.path === endpoint.path
-                                          ? 'bg-indigo-500/20 border border-indigo-500/30'
+                                          ? 'bg-gray-600/20 border border-gray-600/30'
                                           : 'bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/50'
                                       }`}
                               >
                                   <div className="flex items-center gap-2 mb-1">
-                                      <span className="px-2 py-0.5 text-xs font-mono rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                      <span className="px-2 py-0.5 text-xs font-mono rounded bg-gray-700/20 text-gray-600 border border-gray-700/30">
                                           {endpoint.method}
                                       </span>
                                       <span className="text-sm font-medium text-white">{endpoint.name}</span>
@@ -237,7 +237,7 @@ export default function EEGAnalysisPage() {
                   {/* Request History */}
                   <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
                       <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-indigo-400" />
+                          <Clock className="w-4 h-4 text-gray-500" />
                           Request History
                       </h3>
                       <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -267,7 +267,7 @@ export default function EEGAnalysisPage() {
                   {/* Request Bar */}
                   <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
                       <div className="flex items-center gap-3">
-                          <span className="px-3 py-1.5 text-sm font-mono rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                          <span className="px-3 py-1.5 text-sm font-mono rounded-lg bg-gray-700/20 text-gray-600 border border-gray-700/30">
                               {selectedEndpoint.method}
                           </span>
                           <div className="flex-1 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 font-mono text-sm text-slate-300">
@@ -276,7 +276,7 @@ export default function EEGAnalysisPage() {
                           <button
                               onClick={() => executeRequest(selectedEndpoint)}
                               disabled={isLoading}
-                              className="px-6 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all disabled:opacity-50 flex items-center gap-2"
+                              className="px-6 py-2 bg-gradient-to-r from-gray-600 to-purple-500 text-white font-semibold rounded-lg hover:from-gray-700 hover:to-purple-600 transition-all disabled:opacity-50 flex items-center gap-2"
                           >
                               {isLoading ? (
                                   <RefreshCw className="w-4 h-4 animate-spin" />
@@ -302,7 +302,7 @@ export default function EEGAnalysisPage() {
                                       {response.responseTime}ms
                                   </span>
                                   {response.success ? (
-                                      <span className="text-emerald-400 flex items-center gap-1 text-sm">
+                                      <span className="text-gray-600 flex items-center gap-1 text-sm">
                                           <CheckCircle className="w-4 h-4" /> Success
                                       </span>
                                   ) : (
@@ -327,9 +327,9 @@ export default function EEGAnalysisPage() {
                                       {/* EEG Visualization Cards */}
                                       {response.data.brain_state && (
                                           <div className="grid grid-cols-4 gap-4">
-                                              <div className="p-4 rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
+                                              <div className="p-4 rounded-xl bg-gradient-to-br from-gray-600/10 to-purple-500/10 border border-gray-600/20">
                                                   <div className="flex items-center gap-2 mb-2">
-                                                      <Brain className="w-5 h-5 text-indigo-400" />
+                                                      <Brain className="w-5 h-5 text-gray-500" />
                                                       <span className="text-sm text-slate-400">Brain State</span>
                                                       </div>
                                                       <p className={`text-2xl font-bold capitalize ${getBrainStateColor(response.data.brain_state)}`}>
@@ -345,12 +345,12 @@ export default function EEGAnalysisPage() {
                                                           {response.data.dominant_frequency?.toFixed(1)} Hz
                                                       </p>
                                                   </div>
-                                                  <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20">
+                                                  <div className="p-4 rounded-xl bg-gradient-to-br from-gray-700/10 to-green-500/10 border border-gray-700/20">
                                                       <div className="flex items-center gap-2 mb-2">
-                                                          <Activity className="w-5 h-5 text-emerald-400" />
+                                                          <Activity className="w-5 h-5 text-gray-600" />
                                                           <span className="text-sm text-slate-400">Signal Quality</span>
                                                       </div>
-                                                      <p className="text-2xl font-bold text-emerald-400">
+                                                      <p className="text-2xl font-bold text-gray-600">
                                                           {response.data.signal_quality}%
                                                       </p>
                                                   </div>
@@ -370,7 +370,7 @@ export default function EEGAnalysisPage() {
                                           {response.data.brain_waves && response.data.brain_waves.length > 0 && (
                                               <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
                                                   <h4 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
-                                                      <Waves className="w-4 h-4 text-indigo-400" />
+                                                      <Waves className="w-4 h-4 text-gray-500" />
                                                       Brain Wave Analysis
                                                   </h4>
                                                   <div className="space-y-3">
@@ -400,7 +400,7 @@ export default function EEGAnalysisPage() {
                                           {response.data.channels && response.data.channels.length > 0 && (
                                               <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
                                                   <h4 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
-                                                      <Radio className="w-4 h-4 text-indigo-400" />
+                                                      <Radio className="w-4 h-4 text-gray-500" />
                                                       EEG Channels ({response.data.channels.length})
                                                   </h4>
                                                   <div className="grid grid-cols-4 gap-3">
@@ -408,7 +408,7 @@ export default function EEGAnalysisPage() {
                                                           <div key={idx} className="p-3 rounded-lg bg-slate-900/50 border border-slate-700/30">
                                                               <div className="flex items-center justify-between mb-2">
                                                                   <span className="font-mono text-sm text-white">{channel.name}</span>
-                                                                  <span className={`text-xs px-2 py-0.5 rounded ${channel.quality === 'good' ? 'bg-emerald-500/20 text-emerald-400' :
+                                                                  <span className={`text-xs px-2 py-0.5 rounded ${channel.quality === 'good' ? 'bg-gray-700/20 text-gray-600' :
                                                                           channel.quality === 'fair' ? 'bg-amber-500/20 text-amber-400' :
                                                                               'bg-red-500/20 text-red-400'
                                                                       }`}>
@@ -429,7 +429,7 @@ export default function EEGAnalysisPage() {
                                           {/* Raw JSON Response */}
                                           <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
                                               <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                                                  <Eye className="w-4 h-4 text-indigo-400" />
+                                                  <Eye className="w-4 h-4 text-gray-500" />
                                                   Raw JSON Response
                                               </h4>
                                               <pre className="p-4 bg-slate-950/50 rounded-lg overflow-x-auto text-xs font-mono text-slate-300 max-h-96 overflow-y-auto">
@@ -455,3 +455,11 @@ export default function EEGAnalysisPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+

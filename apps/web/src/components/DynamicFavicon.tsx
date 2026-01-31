@@ -3,6 +3,11 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 
+// Type definition for window with favicon state setter
+interface WindowWithFavicon extends Window {
+  setFaviconState?: (state: FaviconState, duration?: number) => void;
+}
+
 /**
  * DYNAMIC FAVICON - Narrative Icon Based on User Navigation & Behavior
  * 

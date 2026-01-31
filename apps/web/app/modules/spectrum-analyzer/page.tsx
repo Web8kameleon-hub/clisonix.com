@@ -62,7 +62,7 @@ const BAND_COLORS: Record<string, string> = {
   'delta': 'bg-red-500',
   'theta': 'bg-orange-500',
   'alpha': 'bg-yellow-500',
-  'beta': 'bg-emerald-500',
+  'beta': 'bg-blue-800',
   'gamma': 'bg-purple-500',
 };
 
@@ -146,13 +146,13 @@ export default function SpectrumAnalyzerPage() {
   }, [autoRefresh, selectedEndpoint, executeRequest]);
 
   const getStatusColor = (status: number) => {
-    if (status >= 200 && status < 300) return 'text-emerald-400';
+    if (status >= 200 && status < 300) return 'text-blue-700';
     if (status >= 400 && status < 500) return 'text-amber-400';
     return 'text-red-400';
   };
 
   const getStatusBadge = (status: number) => {
-    if (status >= 200 && status < 300) return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    if (status >= 200 && status < 300) return 'bg-blue-800/20 text-blue-700 border-blue-800/30';
     if (status >= 400 && status < 500) return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
     return 'bg-red-500/20 text-red-400 border-red-500/30';
   };
@@ -167,11 +167,11 @@ export default function SpectrumAnalyzerPage() {
       <div className="max-w-7xl mx-auto mb-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/20 to-violet-500/20 border border-emerald-500/30">
-              <BarChart3 className="w-8 h-8 text-emerald-400" />
+            <div className="p-3 rounded-xl bg-gradient-to-br from-blue-800/20 to-violet-500/20 border border-blue-800/30">
+              <BarChart3 className="w-8 h-8 text-blue-700" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-violet-400 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-violet-400 bg-clip-text text-transparent">
                 Spectrum Analyzer
               </h1>
               <p className="text-slate-400 text-sm">Multi-band EEG FFT Analysis • Postman-Style API Interface</p>
@@ -181,7 +181,7 @@ export default function SpectrumAnalyzerPage() {
             <button
               onClick={() => setAutoRefresh(!autoRefresh)}
               className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${autoRefresh
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                  ? 'bg-blue-800/20 text-blue-700 border border-blue-800/30'
                   : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-700/50'
                 }`}
             >
@@ -197,7 +197,7 @@ export default function SpectrumAnalyzerPage() {
         <div className="col-span-3 space-y-3">
           <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
             <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-              <Radio className="w-4 h-4 text-emerald-400" />
+              <Radio className="w-4 h-4 text-blue-700" />
               API Endpoints
             </h3>
             <div className="space-y-2">
@@ -209,12 +209,12 @@ export default function SpectrumAnalyzerPage() {
                     executeRequest(endpoint);
                   }}
                   className={`w-full text-left p-3 rounded-lg transition-all ${selectedEndpoint.path === endpoint.path
-                      ? 'bg-emerald-500/20 border border-emerald-500/30'
+                      ? 'bg-blue-800/20 border border-blue-800/30'
                       : 'bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/50'
                     }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="px-2 py-0.5 text-xs font-mono rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    <span className="px-2 py-0.5 text-xs font-mono rounded bg-blue-800/20 text-blue-700 border border-blue-800/30">
                       {endpoint.method}
                     </span>
                     <span className="text-sm font-medium text-white">{endpoint.name}</span>
@@ -228,7 +228,7 @@ export default function SpectrumAnalyzerPage() {
           {/* Request History */}
           <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
             <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-emerald-400" />
+              <Clock className="w-4 h-4 text-blue-700" />
               Request History
             </h3>
             <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -258,7 +258,7 @@ export default function SpectrumAnalyzerPage() {
           {/* Request Bar */}
           <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
             <div className="flex items-center gap-3">
-              <span className="px-3 py-1.5 text-sm font-mono rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <span className="px-3 py-1.5 text-sm font-mono rounded-lg bg-blue-800/20 text-blue-700 border border-blue-800/30">
                 {selectedEndpoint.method}
               </span>
               <div className="flex-1 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 font-mono text-sm text-slate-300">
@@ -267,7 +267,7 @@ export default function SpectrumAnalyzerPage() {
               <button
                 onClick={() => executeRequest(selectedEndpoint)}
                 disabled={isLoading}
-                className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-violet-500 text-white font-semibold rounded-lg hover:from-emerald-600 hover:to-violet-600 transition-all disabled:opacity-50 flex items-center gap-2"
+                className="px-6 py-2 bg-gradient-to-r from-blue-800 to-violet-500 text-white font-semibold rounded-lg hover:from-blue-900 hover:to-violet-600 transition-all disabled:opacity-50 flex items-center gap-2"
               >
                 {isLoading ? (
                   <RefreshCw className="w-4 h-4 animate-spin" />
@@ -293,7 +293,7 @@ export default function SpectrumAnalyzerPage() {
                     {response.responseTime}ms
                   </span>
                   {response.success ? (
-                    <span className="text-emerald-400 flex items-center gap-1 text-sm">
+                    <span className="text-blue-700 flex items-center gap-1 text-sm">
                       <CheckCircle className="w-4 h-4" /> Success
                     </span>
                   ) : (
@@ -319,12 +319,12 @@ export default function SpectrumAnalyzerPage() {
                     {(response.data as SpectrumData).frequency_bands && (
                       <>
                         <div className="grid grid-cols-4 gap-4">
-                          <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-violet-500/10 border border-emerald-500/20">
+                          <div className="p-4 rounded-xl bg-gradient-to-br from-blue-800/10 to-violet-500/10 border border-blue-800/20">
                             <div className="flex items-center gap-2 mb-2">
-                              <BarChart3 className="w-5 h-5 text-emerald-400" />
+                              <BarChart3 className="w-5 h-5 text-blue-700" />
                               <span className="text-sm text-slate-400">Total Power</span>
                             </div>
-                            <p className="text-2xl font-bold text-emerald-400">
+                            <p className="text-2xl font-bold text-blue-700">
                               {(response.data as SpectrumData).total_power?.toFixed(1) || 0} dB
                             </p>
                           </div>
@@ -360,7 +360,7 @@ export default function SpectrumAnalyzerPage() {
                           {/* Frequency Bands Visualization */}
                           <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
                             <h4 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
-                              <BarChart3 className="w-4 h-4 text-emerald-400" />
+                              <BarChart3 className="w-4 h-4 text-blue-700" />
                               Frequency Bands Analysis
                             </h4>
                             <div className="space-y-4">
@@ -395,7 +395,7 @@ export default function SpectrumAnalyzerPage() {
                       {Array.isArray(response.data) && response.data.length > 0 && (
                         <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
                           <h4 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-emerald-400" />
+                            <Clock className="w-4 h-4 text-blue-700" />
                             Historical Sessions ({response.data.length})
                           </h4>
                           <div className="space-y-2">
@@ -408,7 +408,7 @@ export default function SpectrumAnalyzerPage() {
                                 </p>
                               </div>
                               <div className="flex items-center gap-4">
-                                <span className="text-sm text-emerald-400 font-mono">{session.average_power.toFixed(1)} dB</span>
+                                <span className="text-sm text-blue-700 font-mono">{session.average_power.toFixed(1)} dB</span>
                                 <span className="text-xs px-2 py-1 rounded bg-violet-500/20 text-violet-400 capitalize">
                                   {session.dominant_frequency}
                                 </span>
@@ -422,7 +422,7 @@ export default function SpectrumAnalyzerPage() {
                       {/* Raw JSON Response */}
                       <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
                         <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                          <Zap className="w-4 h-4 text-emerald-400" />
+                          <Zap className="w-4 h-4 text-blue-700" />
                           Raw JSON Response
                         </h4>
                         <pre className="p-4 bg-slate-950/50 rounded-lg overflow-x-auto text-xs font-mono text-slate-300 max-h-96 overflow-y-auto">
@@ -448,4 +448,11 @@ export default function SpectrumAnalyzerPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
 

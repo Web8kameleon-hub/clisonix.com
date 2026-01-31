@@ -67,7 +67,7 @@ export default function CompanyPage() {
           <div className="flex items-center gap-6">
             <Link href="/platform" className="text-gray-400 hover:text-white transition-colors">Platform</Link>
             <Link href="/pricing" className="text-gray-400 hover:text-white transition-colors">Pricing</Link>
-            <Link href="/modules" className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors">
+            <Link href="/modules" className="px-4 py-2 bg-blue-800 hover:bg-blue-700 rounded-lg transition-colors">
               Dashboard
             </Link>
           </div>
@@ -88,11 +88,11 @@ export default function CompanyPage() {
       {/* Mission */}
       <section className="py-16 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="p-12 rounded-3xl bg-gradient-to-b from-cyan-500/10 to-slate-800/50 border border-cyan-500/20">
+          <div className="p-12 rounded-3xl bg-gradient-to-b from-blue-700/10 to-slate-800/50 border border-blue-700/20">
             <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
             <p className="text-xl text-gray-300 leading-relaxed">
               To democratize artificial superintelligence by providing 
-              <span className="text-cyan-400"> enterprise-grade AI infrastructure</span> that&apos;s 
+              <span className="text-blue-600"> enterprise-grade AI infrastructure</span> that&apos;s 
               accessible to every developer, from solo hackers to Fortune 500 enterprises.
             </p>
           </div>
@@ -104,7 +104,7 @@ export default function CompanyPage() {
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat) => (
             <div key={stat.label} className="text-center">
-              <div className="text-4xl font-bold text-cyan-400 mb-2">{stat.value}</div>
+              <div className="text-4xl font-bold text-blue-600 mb-2">{stat.value}</div>
               <div className="text-gray-400">{stat.label}</div>
             </div>
           ))}
@@ -152,10 +152,10 @@ export default function CompanyPage() {
                 key={idx}
                 className="flex items-start gap-6 relative"
               >
-                <div className="flex-shrink-0 w-20 text-cyan-400 font-bold text-lg">
+                <div className="flex-shrink-0 w-20 text-blue-600 font-bold text-lg">
                   {milestone.year}
                 </div>
-                <div className="flex-shrink-0 w-4 h-4 mt-1 rounded-full bg-cyan-500"></div>
+                <div className="flex-shrink-0 w-4 h-4 mt-1 rounded-full bg-blue-700"></div>
                 <div className="pb-8 border-l border-slate-700 pl-6 -ml-2">
                   <h3 className="font-semibold text-lg">{milestone.title}</h3>
                   <p className="text-gray-400">{milestone.desc}</p>
@@ -198,21 +198,21 @@ export default function CompanyPage() {
             <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700 text-center">
               <div className="text-3xl mb-3">📧</div>
               <h3 className="font-semibold mb-2">General</h3>
-              <a href="mailto:support@clisonix.com" className="text-cyan-400 hover:underline">
+              <a href="mailto:support@clisonix.com" className="text-blue-600 hover:underline">
                 support@clisonix.com
               </a>
             </div>
             <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700 text-center">
               <div className="text-3xl mb-3">💼</div>
               <h3 className="font-semibold mb-2">Enterprise Sales</h3>
-              <a href="mailto:investors@clisonix.com" className="text-cyan-400 hover:underline">
+              <a href="mailto:investors@clisonix.com" className="text-blue-600 hover:underline">
                 investors@clisonix.com
               </a>
             </div>
             <div className="p-6 rounded-xl bg-slate-800/50 border border-slate-700 text-center">
               <div className="text-3xl mb-3">🔒</div>
               <h3 className="font-semibold mb-2">Security</h3>
-              <a href="mailto:support@clisonix.com?subject=Security" className="text-cyan-400 hover:underline">
+              <a href="mailto:support@clisonix.com?subject=Security" className="text-blue-600 hover:underline">
                 support@clisonix.com
               </a>
             </div>
@@ -229,7 +229,7 @@ export default function CompanyPage() {
         <div className="flex flex-wrap justify-center gap-4">
           <Link
             href="/modules"
-            className="px-8 py-4 bg-cyan-600 hover:bg-cyan-500 rounded-xl font-semibold transition-colors"
+            className="px-8 py-4 bg-blue-800 hover:bg-blue-700 rounded-xl font-semibold transition-colors"
           >
             Start Building
           </Link>
@@ -246,11 +246,18 @@ export default function CompanyPage() {
       <footer className="py-12 px-6 border-t border-slate-800">
         <div className="max-w-6xl mx-auto text-center text-gray-500 text-sm">
           © 2026 Clisonix. All rights reserved. | 
-          <Link href="/security" className="hover:text-cyan-400 ml-2">Security</Link> | 
-          <Link href="/status" className="hover:text-cyan-400 ml-2">Status</Link> | 
-          <Link href="/platform" className="hover:text-cyan-400 ml-2">Platform</Link>
+          <Link href="/security" className="hover:text-blue-600 ml-2">Security</Link> | 
+          <Link href="/status" className="hover:text-blue-600 ml-2">Status</Link> | 
+          <Link href="/platform" className="hover:text-blue-600 ml-2">Platform</Link>
         </div>
       </footer>
     </div>
   );
 }
+
+
+
+
+
+
+

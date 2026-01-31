@@ -413,7 +413,7 @@ cycles.forEach(c => {
             </div>
 
             {/* REST API */}
-            <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl p-6 border border-slate-700">
+            <div className="bg-gradient-to-br from-green-500/10 to-blue-800/10 rounded-xl p-6 border border-slate-700">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
                   <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -520,3 +520,10 @@ cycles.forEach(c => {
     </div>
   )
 }
+
+
+
+
+
+
+

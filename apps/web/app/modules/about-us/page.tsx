@@ -13,7 +13,7 @@ export default function AboutUsPage() {
           </Link>
           <nav className="flex items-center gap-6">
             <Link href="/modules" className="text-gray-300 hover:text-white transition-colors">Modules</Link>
-            <Link href="/modules/about-us" className="text-cyan-400">About Us</Link>
+            <Link href="/modules/about-us" className="text-blue-600">About Us</Link>
             <Link href="/" className="text-gray-300 hover:text-white transition-colors">Dashboard</Link>
           </nav>
         </div>
@@ -23,7 +23,7 @@ export default function AboutUsPage() {
         {/* Hero Section */}
         <section className="text-center mb-20">
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            About <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Clisonix</span>
+            About <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800">Clisonix</span>
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
             A modular SaaS and API platform built for businesses that require clarity, stability, 
@@ -50,7 +50,7 @@ export default function AboutUsPage() {
 
         {/* Our Mission */}
         <section className="mb-16">
-          <div className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 rounded-2xl p-8 border border-cyan-500/20">
+          <div className="bg-gradient-to-br from-blue-700/10 to-blue-800/10 rounded-2xl p-8 border border-blue-700/20">
             <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
               <span className="text-2xl">🚀</span> Our Mission
             </h2>
@@ -68,32 +68,32 @@ export default function AboutUsPage() {
         <section className="mb-16">
           <h2 className="text-3xl font-bold text-white mb-8 text-center">Why Clisonix?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-cyan-500/30 transition-all">
+            <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-blue-700/30 transition-all">
               <div className="text-3xl mb-4">🧩</div>
               <h3 className="text-xl font-semibold text-white mb-2">Modular</h3>
               <p className="text-gray-400">Every component works independently. Add or remove without disruption.</p>
             </div>
-            <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-cyan-500/30 transition-all">
+            <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-blue-700/30 transition-all">
               <div className="text-3xl mb-4">✨</div>
               <h3 className="text-xl font-semibold text-white mb-2">Minimalist</h3>
               <p className="text-gray-400">Only what is essential. No bloat, no unnecessary complexity.</p>
             </div>
-            <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-cyan-500/30 transition-all">
+            <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-blue-700/30 transition-all">
               <div className="text-3xl mb-4">📈</div>
               <h3 className="text-xl font-semibold text-white mb-2">Scalable</h3>
               <p className="text-gray-400">From a single LoRa sensor to a full industrial operation.</p>
             </div>
-            <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-cyan-500/30 transition-all">
+            <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-blue-700/30 transition-all">
               <div className="text-3xl mb-4">🔓</div>
               <h3 className="text-xl font-semibold text-white mb-2">Open</h3>
               <p className="text-gray-400">No hidden dependencies, no lock-in. Your data, your control.</p>
             </div>
-            <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-cyan-500/30 transition-all">
+            <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-blue-700/30 transition-all">
               <div className="text-3xl mb-4">🔒</div>
               <h3 className="text-xl font-semibold text-white mb-2">Secure</h3>
               <p className="text-gray-400">End-to-end encryption, zero-trust principles, hardened APIs.</p>
             </div>
-            <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-cyan-500/30 transition-all">
+            <div className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-blue-700/30 transition-all">
               <div className="text-3xl mb-4">👔</div>
               <h3 className="text-xl font-semibold text-white mb-2">Professional</h3>
               <p className="text-gray-400">Built for professionals, not mass-market users.</p>
@@ -103,7 +103,7 @@ export default function AboutUsPage() {
 
         {/* IoT & LoRa Layer */}
         <section className="mb-16">
-          <div className="bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-2xl p-8 border border-emerald-500/20">
+          <div className="bg-gradient-to-br from-blue-800/10 to-green-500/10 rounded-2xl p-8 border border-blue-800/20">
             <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
               <span className="text-2xl">📡</span> IoT & LoRa Layer
             </h2>
@@ -112,21 +112,21 @@ export default function AboutUsPage() {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <ul className="space-y-3 text-gray-300">
-                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span> LoRaWAN telemetry with ultra-light payloads</li>
-                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span> CBOR, MsgPack, and binary-compact formats</li>
-                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span> Standardized IoT APIs for ingest & routing</li>
+                <li className="flex items-center gap-2"><span className="text-blue-700">✓</span> LoRaWAN telemetry with ultra-light payloads</li>
+                <li className="flex items-center gap-2"><span className="text-blue-700">✓</span> CBOR, MsgPack, and binary-compact formats</li>
+                <li className="flex items-center gap-2"><span className="text-blue-700">✓</span> Standardized IoT APIs for ingest & routing</li>
               </ul>
               <ul className="space-y-3 text-gray-300">
-                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span> Edge processing to reduce network load</li>
-                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span> Secure OTA updates</li>
-                <li className="flex items-center gap-2"><span className="text-emerald-400">✓</span> Low-power device orchestration</li>
+                <li className="flex items-center gap-2"><span className="text-blue-700">✓</span> Edge processing to reduce network load</li>
+                <li className="flex items-center gap-2"><span className="text-blue-700">✓</span> Secure OTA updates</li>
+                <li className="flex items-center gap-2"><span className="text-blue-700">✓</span> Low-power device orchestration</li>
               </ul>
             </div>
-            <div className="mt-6 pt-6 border-t border-emerald-500/20">
-              <p className="text-sm text-emerald-300 font-medium mb-3">Ideal for:</p>
+            <div className="mt-6 pt-6 border-t border-blue-800/20">
+              <p className="text-sm text-blue-600 font-medium mb-3">Ideal for:</p>
               <div className="flex flex-wrap gap-2">
                 {['Industrial Sensors', 'Smart Agriculture', 'Logistics & Transport', 'Smart City', 'Critical Infrastructure'].map((item) => (
-                  <span key={item} className="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-sm">{item}</span>
+                  <span key={item} className="px-3 py-1 bg-blue-800/20 text-blue-600 rounded-full text-sm">{item}</span>
                 ))}
               </div>
             </div>
@@ -273,11 +273,11 @@ export default function AboutUsPage() {
 
         {/* Investor & Partner Invitation */}
         <section className="mb-16">
-          <div className="bg-gradient-to-br from-blue-600/20 to-cyan-600/20 rounded-2xl p-8 md:p-12 border border-blue-500/30 text-center">
+          <div className="bg-gradient-to-br from-blue-900/20 to-blue-800/20 rounded-2xl p-8 md:p-12 border border-blue-800/30 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
               🤝 Invitation for Investors & Strategic Partners
             </h2>
-            <p className="text-xl text-blue-100 leading-relaxed mb-8 max-w-3xl mx-auto">
+            <p className="text-xl text-blue-400 leading-relaxed mb-8 max-w-3xl mx-auto">
               Clisonix is opening its doors to a select group of investors and strategic partners 
               who share our vision for clarity, ethical technology, and modular intelligence.
             </p>
@@ -287,19 +287,19 @@ export default function AboutUsPage() {
                 <h3 className="text-lg font-semibold text-cyan-300 mb-4">What We Are Looking For</h3>
                 <ul className="space-y-3 text-gray-300">
                   <li className="flex items-start gap-2">
-                    <span className="text-cyan-400">•</span>
+                    <span className="text-blue-600">•</span>
                     <span>Investment to accelerate development and global deployment</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-cyan-400">•</span>
+                    <span className="text-blue-600">•</span>
                     <span>Industry expertise (IoT, telecom, logistics, energy)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-cyan-400">•</span>
+                    <span className="text-blue-600">•</span>
                     <span>Technical collaboration for modules and integrations</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-cyan-400">•</span>
+                    <span className="text-blue-600">•</span>
                     <span>Strategic reach into new markets</span>
                   </li>
                 </ul>
@@ -308,19 +308,19 @@ export default function AboutUsPage() {
                 <h3 className="text-lg font-semibold text-cyan-300 mb-4">Our Commitment</h3>
                 <ul className="space-y-3 text-gray-300">
                   <li className="flex items-start gap-2">
-                    <span className="text-cyan-400">✓</span>
+                    <span className="text-blue-600">✓</span>
                     <span>Full transparency in architecture, roadmap, and operations</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-cyan-400">✓</span>
+                    <span className="text-blue-600">✓</span>
                     <span>Stable, predictable growth strategy</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-cyan-400">✓</span>
+                    <span className="text-blue-600">✓</span>
                     <span>Ethical, minimal, and future-proof engineering</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-cyan-400">✓</span>
+                    <span className="text-blue-600">✓</span>
                     <span>Direct collaboration with the core team</span>
                   </li>
                 </ul>
@@ -335,7 +335,7 @@ export default function AboutUsPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a 
                   href="mailto:investors@clisonix.com" 
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-cyan-500/25"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 text-white font-semibold px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-blue-700/25"
                 >
                   <span className="text-xl">📧</span>
                   investors@clisonix.com
@@ -348,8 +348,8 @@ export default function AboutUsPage() {
         {/* Clisonix in One Sentence */}
         <section className="text-center py-12 border-t border-white/10">
           <blockquote className="text-2xl md:text-3xl text-white font-light italic max-w-4xl mx-auto">
-            &quot;A modular platform that gives businesses <span className="text-cyan-400">clarity</span>, 
-            <span className="text-emerald-400"> control</span>, and 
+            &quot;A modular platform that gives businesses <span className="text-blue-600">clarity</span>, 
+            <span className="text-blue-700"> control</span>, and 
             <span className="text-purple-400"> intelligence</span> — from the cloud down to LoRa sensors.&quot;
           </blockquote>
         </section>
@@ -364,7 +364,7 @@ export default function AboutUsPage() {
           </Link>
           <Link 
             href="/modules" 
-            className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 rounded-xl text-white font-medium transition-all"
+            className="px-6 py-3 bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 rounded-xl text-white font-medium transition-all"
           >
             Explore Modules →
           </Link>
@@ -382,3 +382,10 @@ export default function AboutUsPage() {
     </div>
   );
 }
+
+
+
+
+
+
+

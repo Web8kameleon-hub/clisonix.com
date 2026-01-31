@@ -16,9 +16,9 @@ import { useASIStore } from '@/lib/stores/asi-store';
 
 // Tailwind classes instead of CSS module imports
 const asiContainer = 'min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 text-white';
-const gradientText = 'bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent';
-const agentCardAlba = 'bg-slate-800/50 backdrop-blur-sm border border-sky-500/30 rounded-xl p-6 hover:border-sky-400/50 transition-all';
-const agentCardAlbi = 'bg-slate-800/50 backdrop-blur-sm border border-emerald-500/30 rounded-xl p-6 hover:border-emerald-400/50 transition-all';
+const gradientText = 'bg-gradient-to-r from-blue-600 via-purple-400 to-pink-400 bg-clip-text text-transparent';
+const agentCardAlba = 'bg-slate-800/50 backdrop-blur-sm border border-blue-800/30 rounded-xl p-6 hover:border-blue-700/50 transition-all';
+const agentCardAlbi = 'bg-slate-800/50 backdrop-blur-sm border border-blue-800/30 rounded-xl p-6 hover:border-blue-700/50 transition-all';
 const agentCardJona = 'bg-slate-800/50 backdrop-blur-sm border border-purple-500/30 rounded-xl p-6 hover:border-purple-400/50 transition-all';
 const healthBar = 'h-2 bg-gray-700 rounded-full overflow-hidden';
 const healthBarFill = 'h-full rounded-full transition-all';
@@ -130,8 +130,8 @@ export default function ASIDemoPage() {
             transition={{ delay: 0.5 }}
             className="text-xl text-slate-300 max-w-3xl mx-auto mb-6"
           >
-            The world&apos;s first <span className="text-cyan-400">Artificial General Intelligence</span> system 
-            built on foundations of <span className="text-purple-400">love</span>, <span className="text-green-400">protection</span> and <span className="text-sky-400">cooperation</span>
+            The world&apos;s first <span className="text-blue-600">Artificial General Intelligence</span> system 
+            built on foundations of <span className="text-purple-400">love</span>, <span className="text-green-400">protection</span> and <span className="text-blue-700">cooperation</span>
           </motion.p>
 
           <motion.div
@@ -270,14 +270,14 @@ export default function ASIDemoPage() {
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div>
-              <div className="text-2xl font-bold text-sky-400">
+              <div className="text-2xl font-bold text-blue-700">
                 {100 - (alba.workload ?? 0)}%
               </div>
               <div className="text-sm text-gray-400">Core-A Health</div>
             </div>
             
             <div>
-              <div className="text-2xl font-bold text-emerald-400">
+              <div className="text-2xl font-bold text-blue-700">
                 {albi.creativity ?? 0}%
               </div>
               <div className="text-sm text-gray-400">Core-B Creativity</div>
@@ -307,11 +307,11 @@ export default function ASIDemoPage() {
           className="text-center text-gray-500 text-sm space-y-2"
         >
           <p className="text-lg font-medium">
-            🚀 <span className="text-cyan-400">Powered by Trinity Architecture</span>
+            🚀 <span className="text-blue-600">Powered by Trinity Architecture</span>
           </p>
           <p>
-            <span className="text-sky-400">Core-A</span> (Body) • 
-            <span className="text-emerald-400"> Core-B</span> (Spirit) • 
+            <span className="text-blue-700">Core-A</span> (Body) • 
+            <span className="text-blue-700"> Core-B</span> (Spirit) • 
             <span className="text-purple-400"> Core-C</span> (Heart)
           </p>
           <p className="pt-2">
@@ -325,4 +325,11 @@ export default function ASIDemoPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
 

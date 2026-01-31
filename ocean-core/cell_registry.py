@@ -211,8 +211,8 @@ class CellRegistry:
                 name="ALBI - Brain Interface",
                 role=CellRole.AI,
                 capabilities=["eeg", "biometrics", "neural"],
-                endpoint="http://localhost:6680",
-                port=6680,
+                endpoint="http://localhost:6666",
+                port=6666,
                 health_url="/health",
                 tags=["asi", "ai", "trinity", "albi"]
             ),

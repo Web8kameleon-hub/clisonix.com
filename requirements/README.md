@@ -4,7 +4,7 @@
 
 Dependencies are **strictly isolated** to prevent conflicts:
 
-```
+...
 requirements/
 ├── base.txt           # Core Python (no heavy deps)
 ├── api.txt            # FastAPI + web services
@@ -12,7 +12,7 @@ requirements/
 ├── excel.txt          # Excel/Office processing (ISOLATED)
 ├── ml.txt             # Machine Learning (ISOLATED)
 └── dev.txt            # Development only
-```
+...
 
 ## ⚠️ CRITICAL RULES
 

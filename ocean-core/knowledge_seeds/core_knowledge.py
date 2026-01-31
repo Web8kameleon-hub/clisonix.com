@@ -1068,9 +1068,9 @@ def find_matching_seed(query: str) -> KnowledgeSeed | None:
             best_score = score
             best_match = seed
     
-    # Higher threshold - need at least one good keyword match or pattern match
-    # Score >= 8 means: at least 2 meaningful word matches OR 1 keyword match + 1 word
-    if best_score >= 8:
+    # Higher threshold - STRICT matching to avoid false positives
+    # Score >= 15 means: strong pattern match required, not just keyword overlap
+    if best_score >= 15:
         return best_match
     return None
 

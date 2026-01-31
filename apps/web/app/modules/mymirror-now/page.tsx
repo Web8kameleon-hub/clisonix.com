@@ -371,7 +371,7 @@ export default function MyMirrorNowPage() {
                     </div>
                     <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-500"
+                        className="h-full bg-gradient-to-r from-green-500 to-blue-800 transition-all duration-500"
                         style={{ width: `${Math.min(liveMetrics.memory, 100)}%` }}
                       ></div>
                     </div>
@@ -750,3 +750,10 @@ export default function MyMirrorNowPage() {
     </div>
   )
 }
+
+
+
+
+
+
+

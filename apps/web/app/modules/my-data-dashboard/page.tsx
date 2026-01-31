@@ -133,14 +133,14 @@ export default function MyDataDashboard() {
             <Link href="/" className="text-gray-400 hover:text-white text-sm mb-2 inline-block">
               ← Kthehu në Dashboard
             </Link>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-400 to-teal-400 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-400 to-blue-700 bg-clip-text text-transparent">
               📊 My Data Dashboard
             </h1>
             <p className="text-gray-400 mt-1">Menaxho të gjitha burimet e të dhënave në një vend</p>
           </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 px-6 py-3 rounded-lg font-semibold transition-all flex items-center gap-2"
+            className="bg-gradient-to-r from-green-500 to-blue-800 hover:from-green-600 hover:to-blue-900 px-6 py-3 rounded-lg font-semibold transition-all flex items-center gap-2"
           >
             <span>➕</span> Shto Burim
           </button>
@@ -287,7 +287,7 @@ export default function MyDataDashboard() {
         </div>
 
         {/* Integration Guide */}
-        <div className="mt-8 bg-gradient-to-r from-green-500/10 to-teal-500/10 rounded-xl p-6 border border-green-500/30">
+        <div className="mt-8 bg-gradient-to-r from-green-500/10 to-blue-800/10 rounded-xl p-6 border border-green-500/30">
           <h2 className="text-xl font-semibold mb-4">📚 Integration Guide</h2>
           <div className="grid md:grid-cols-3 gap-6">
             <div>
@@ -358,3 +358,10 @@ export default function MyDataDashboard() {
     </div>
   )
 }
+
+
+
+
+
+
+

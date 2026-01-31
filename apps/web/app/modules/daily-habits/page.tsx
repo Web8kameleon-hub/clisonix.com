@@ -43,11 +43,11 @@ interface HabitStats {
 
 const DEFAULT_HABITS: Habit[] = [
   { id: 'water', name: 'Pi ujë', emoji: '💧', frequency: 'daily', targetPerDay: 8, color: 'from-violet-400 to-violet-500', createdAt: '' },
-  { id: 'sleep', name: '8 orë gjumë', emoji: '😴', frequency: 'daily', targetPerDay: 1, color: 'from-indigo-400 to-purple-500', createdAt: '' },
-  { id: 'exercise', name: 'Stërvitje', emoji: '🏃', frequency: 'daily', targetPerDay: 1, color: 'from-green-400 to-emerald-500', createdAt: '' },
+  { id: 'sleep', name: '8 orë gjumë', emoji: '😴', frequency: 'daily', targetPerDay: 1, color: 'from-blue-600 to-purple-500', createdAt: '' },
+  { id: 'exercise', name: 'Stërvitje', emoji: '🏃', frequency: 'daily', targetPerDay: 1, color: 'from-green-400 to-blue-800', createdAt: '' },
   { id: 'meditate', name: 'Meditim', emoji: '🧘', frequency: 'daily', targetPerDay: 1, color: 'from-purple-400 to-pink-500', createdAt: '' },
   { id: 'read', name: 'Lexim', emoji: '📚', frequency: 'daily', targetPerDay: 1, color: 'from-amber-400 to-orange-500', createdAt: '' },
-  { id: 'walk', name: '10k hapa', emoji: '👟', frequency: 'daily', targetPerDay: 1, color: 'from-teal-400 to-green-500', createdAt: '' },
+  { id: 'walk', name: '10k hapa', emoji: '👟', frequency: 'daily', targetPerDay: 1, color: 'from-blue-700 to-green-500', createdAt: '' },
 ];
 
 export default function DailyHabitsPage() {
@@ -264,7 +264,7 @@ export default function DailyHabitsPage() {
           <h1 className="text-xl font-bold text-white">🎯 Daily Habits</h1>
           <button 
             onClick={() => setShowAddHabit(true)}
-            className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold"
+            className="w-8 h-8 bg-blue-800 rounded-full flex items-center justify-center text-white font-bold"
           >
             +
           </button>
@@ -309,7 +309,7 @@ export default function DailyHabitsPage() {
                       <button
                         key={e}
                         onClick={() => setNewHabitEmoji(e)}
-                        className={`p-2 rounded-xl text-2xl ${newHabitEmoji === e ? 'bg-emerald-500' : 'bg-white/10'}`}
+                        className={`p-2 rounded-xl text-2xl ${newHabitEmoji === e ? 'bg-blue-800' : 'bg-white/10'}`}
                       >
                         {e}
                       </button>
@@ -324,7 +324,7 @@ export default function DailyHabitsPage() {
                     value={newHabitName}
                     onChange={(e) => setNewHabitName(e.target.value)}
                     placeholder="p.sh. Vitamina"
-                    className="w-full mt-2 bg-white/10 border border-white/20 rounded-xl p-3 text-white placeholder-white/40 focus:outline-none focus:border-emerald-500"
+                    className="w-full mt-2 bg-white/10 border border-white/20 rounded-xl p-3 text-white placeholder-white/40 focus:outline-none focus:border-blue-800"
                   />
                 </div>
 
@@ -337,7 +337,7 @@ export default function DailyHabitsPage() {
                   </button>
                   <button
                     onClick={addCustomHabit}
-                    className="flex-1 py-3 bg-emerald-500 rounded-xl text-white font-bold"
+                    className="flex-1 py-3 bg-blue-800 rounded-xl text-white font-bold"
                   >
                     Shto
                   </button>
@@ -450,7 +450,7 @@ export default function DailyHabitsPage() {
               <div className="grid grid-cols-8 gap-1 text-center text-xs text-white/60 mb-2">
                 <div></div>
                 {getLast7Days().map(d => (
-                  <div key={d.date} className={d.isToday ? 'text-emerald-400 font-bold' : ''}>
+                  <div key={d.date} className={d.isToday ? 'text-blue-700 font-bold' : ''}>
                     {d.day}
                   </div>
                 ))}
@@ -467,7 +467,7 @@ export default function DailyHabitsPage() {
                         key={d.date}
                         className={`w-6 h-6 mx-auto rounded-full ${
                           isComplete 
-                            ? 'bg-emerald-500' 
+                            ? 'bg-blue-800' 
                             : log?.completed 
                             ? 'bg-yellow-500/50'
                             : 'bg-white/10'
@@ -523,7 +523,7 @@ export default function DailyHabitsPage() {
                 </p>
                 <p className="text-xs text-white/60">best streak</p>
               </div>
-              <div className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 border border-emerald-500/30 rounded-2xl p-4 text-center">
+              <div className="bg-gradient-to-br from-blue-800/20 to-green-500/20 border border-blue-800/30 rounded-2xl p-4 text-center">
                 <p className="text-3xl">✅</p>
                 <p className="text-2xl font-bold text-white">
                   {Array.from(stats.values()).reduce((sum, s) => sum + s.totalCompletions, 0)}
@@ -600,3 +600,10 @@ export default function DailyHabitsPage() {
     </div>
   );
 }
+
+
+
+
+
+
+

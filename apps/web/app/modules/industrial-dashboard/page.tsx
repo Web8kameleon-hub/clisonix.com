@@ -336,3 +336,10 @@ export default function IndustrialDashboard() {
   );
 }
 
+
+
+
+
+
+
+

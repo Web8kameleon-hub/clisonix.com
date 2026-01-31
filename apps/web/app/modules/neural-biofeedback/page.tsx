@@ -142,19 +142,19 @@ export default function NeuralBiofeedbackPage() {
   }, [autoRefresh, selectedEndpoint, executeRequest]);
 
   const getStatusColor = (status: number) => {
-    if (status >= 200 && status < 300) return 'text-emerald-400';
+    if (status >= 200 && status < 300) return 'text-blue-700';
     if (status >= 400 && status < 500) return 'text-amber-400';
     return 'text-red-400';
   };
 
   const getStatusBadge = (status: number) => {
-    if (status >= 200 && status < 300) return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    if (status >= 200 && status < 300) return 'bg-blue-800/20 text-blue-700 border-blue-800/30';
     if (status >= 400 && status < 500) return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
     return 'bg-red-500/20 text-red-400 border-red-500/30';
   };
 
   const getCoherenceColor = (coherence: number) => {
-    if (coherence >= 80) return 'text-emerald-400';
+    if (coherence >= 80) return 'text-blue-700';
     if (coherence >= 60) return 'text-violet-400';
     if (coherence >= 40) return 'text-amber-400';
     return 'text-red-400';
@@ -213,7 +213,7 @@ export default function NeuralBiofeedbackPage() {
                     }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="px-2 py-0.5 text-xs font-mono rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    <span className="px-2 py-0.5 text-xs font-mono rounded bg-blue-800/20 text-blue-700 border border-blue-800/30">
                       {endpoint.method}
                     </span>
                     <span className="text-sm font-medium text-white">{endpoint.name}</span>
@@ -257,7 +257,7 @@ export default function NeuralBiofeedbackPage() {
           {/* Request Bar */}
           <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
             <div className="flex items-center gap-3">
-              <span className="px-3 py-1.5 text-sm font-mono rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <span className="px-3 py-1.5 text-sm font-mono rounded-lg bg-blue-800/20 text-blue-700 border border-blue-800/30">
                 {selectedEndpoint.method}
               </span>
               <div className="flex-1 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 font-mono text-sm text-slate-300">
@@ -292,7 +292,7 @@ export default function NeuralBiofeedbackPage() {
                     {response.responseTime}ms
                   </span>
                   {response.success ? (
-                    <span className="text-emerald-400 flex items-center gap-1 text-sm">
+                    <span className="text-blue-700 flex items-center gap-1 text-sm">
                       <CheckCircle className="w-4 h-4" /> Success
                     </span>
                   ) : (
@@ -323,7 +323,7 @@ export default function NeuralBiofeedbackPage() {
                                 <Heart className="w-5 h-5 text-rose-400" />
                                 <span className="text-sm text-slate-400">Status</span>
                               </div>
-                              <p className={`text-xl font-bold capitalize ${(response.data as BiofeedbackMetrics).status === 'online' ? 'text-emerald-400' : 'text-slate-400'
+                              <p className={`text-xl font-bold capitalize ${(response.data as BiofeedbackMetrics).status === 'online' ? 'text-blue-700' : 'text-slate-400'
                                 }`}>
                                 {(response.data as BiofeedbackMetrics).status || 'Unknown'}
                               </p>
@@ -337,12 +337,12 @@ export default function NeuralBiofeedbackPage() {
                                 {(response.data as BiofeedbackMetrics).total_sessions_completed || 0}
                               </p>
                             </div>
-                            <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20">
+                            <div className="p-4 rounded-xl bg-gradient-to-br from-blue-800/10 to-green-500/10 border border-blue-800/20">
                               <div className="flex items-center gap-2 mb-2">
-                                <Waves className="w-5 h-5 text-emerald-400" />
+                                <Waves className="w-5 h-5 text-blue-700" />
                                 <span className="text-sm text-slate-400">Alpha Sessions</span>
                               </div>
-                              <p className="text-xl font-bold text-emerald-400">
+                              <p className="text-xl font-bold text-blue-700">
                                 {(response.data as BiofeedbackMetrics).alpha_training?.total_sessions || 0}
                               </p>
                             </div>
@@ -373,7 +373,7 @@ export default function NeuralBiofeedbackPage() {
                                 </div>
                                 <div className="flex justify-between text-sm">
                                   <span className="text-slate-400">Best</span>
-                                  <span className="text-emerald-400">
+                                  <span className="text-blue-700">
                                     {(response.data as BiofeedbackMetrics).alpha_training?.best_coherence?.toFixed(1) || 0}%
                                   </span>
                                 </div>
@@ -400,7 +400,7 @@ export default function NeuralBiofeedbackPage() {
                                 </div>
                                 <div className="flex justify-between text-sm">
                                   <span className="text-slate-400">Best</span>
-                                  <span className="text-emerald-400">
+                                  <span className="text-blue-700">
                                     {(response.data as BiofeedbackMetrics).theta_training?.best_coherence?.toFixed(1) || 0}%
                                   </span>
                                 </div>
@@ -414,8 +414,8 @@ export default function NeuralBiofeedbackPage() {
                             </div>
 
                             {/* Beta */}
-                            <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20">
-                              <h4 className="text-sm font-semibold text-emerald-400 mb-3 flex items-center gap-2">
+                            <div className="p-4 rounded-xl bg-gradient-to-br from-blue-800/10 to-green-500/10 border border-blue-800/20">
+                              <h4 className="text-sm font-semibold text-blue-700 mb-3 flex items-center gap-2">
                                 ⚡ Beta Training
                               </h4>
                               <div className="space-y-2">
@@ -427,7 +427,7 @@ export default function NeuralBiofeedbackPage() {
                                 </div>
                                 <div className="flex justify-between text-sm">
                                   <span className="text-slate-400">Best</span>
-                                  <span className="text-emerald-400">
+                                  <span className="text-blue-700">
                                     {(response.data as BiofeedbackMetrics).beta_training?.best_coherence?.toFixed(1) || 0}%
                                   </span>
                                 </div>
@@ -472,3 +472,10 @@ export default function NeuralBiofeedbackPage() {
     </div>
   );
 }
+
+
+
+
+
+
+

@@ -38,7 +38,7 @@ const ADMIN_MODULES = [
     name: 'Reporting Dashboard',
     description: 'Generate reports and analytics',
     icon: '📈',
-    color: 'from-emerald-500 to-teal-600',
+    color: 'from-blue-800 to-blue-900',
     category: 'Infrastructure'
   },
   {
@@ -46,7 +46,7 @@ const ADMIN_MODULES = [
     name: 'Spectrum Analyzer',
     description: 'Frequency spectrum visualization',
     icon: '📊',
-    color: 'from-green-500 to-emerald-600',
+    color: 'from-green-500 to-blue-900',
     category: 'Analysis'
   },
   {
@@ -79,7 +79,7 @@ const ADMIN_MODULES = [
     name: 'Neuroacoustic Converter',
     description: 'EEG to Audio Conversion • Advanced Neural Processing',
     icon: '🔄',
-    color: 'from-green-500 to-emerald-600',
+    color: 'from-green-500 to-blue-900',
     category: 'Private Admin',
     private: true
   },
@@ -88,7 +88,7 @@ const ADMIN_MODULES = [
     name: 'Neural Biofeedback',
     description: 'Brain Wave Training System • Postman-Style API Interface',
     icon: '💫',
-    color: 'from-indigo-500 to-purple-600',
+    color: 'from-blue-700 to-purple-600',
     category: 'Private Admin',
     private: true
   },
@@ -554,3 +554,10 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+
+
+
+
+
+

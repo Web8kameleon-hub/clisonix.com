@@ -25,6 +25,21 @@ interface DashboardData {
   cache_hit_rate: number;
 }
 
+interface ErrorItem {
+  error_id: string;
+  timestamp: string;
+  line_number: number;
+  function_name: string;
+  error_type: string;
+  error_message: string;
+}
+
+interface ErrorSummary {
+  total_errors: number;
+  error_types: Record<string, number>;
+  most_common_function: string;
+}
+
 // Use relative paths for security - proxied through Next.js API routes
 const API_BASE = '';
 
@@ -36,8 +51,8 @@ export default function UltraReportingDashboard() {
   const [activeTab, setActiveTab] = useState<'overview' | 'services' | 'metrics' | 'exports'>('overview');
   const [exporting, setExporting] = useState(false);
   const [showErrorTracker, setShowErrorTracker] = useState(false);
-  const [errors, setErrors] = useState<unknown[]>([]);
-  const [errorSummary, setErrorSummary] = useState<Record<string, unknown> | null>(null);
+  const [errors, setErrors] = useState<ErrorItem[]>([]);
+  const [errorSummary, setErrorSummary] = useState<ErrorSummary | null>(null);
   const [loadingErrors, setLoadingErrors] = useState(false);
 
   const fetchData = useCallback(async () => {
@@ -386,17 +401,17 @@ export default function UltraReportingDashboard() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Analytical Intelligence */}
-                <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                <div className="p-4 rounded-lg bg-blue-800/10 border border-blue-800/30">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-emerald-400 font-medium">📊 Analytical Intelligence</span>
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <span className="text-blue-700 font-medium">📊 Analytical Intelligence</span>
+                    <span className="w-2 h-2 bg-blue-800 rounded-full animate-pulse"></span>
                   </div>
                   <p className="text-xs text-gray-400 mb-3">CPU usage, memory, network latency from actual system monitoring</p>
                   <a 
                     href="/api/asi/alba/metrics" 
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
+                    className="text-xs text-blue-700 hover:text-blue-600 flex items-center gap-1"
                   >
                     → Real metrics endpoint
                   </a>
@@ -827,3 +842,10 @@ export default function UltraReportingDashboard() {
     </div>
   );
 }
+
+
+
+
+
+
+

@@ -17,7 +17,6 @@ interface ServiceStatus {
 
 export default function StatusPage() {
   const [lastUpdated, setLastUpdated] = useState<string>('');
-  const [overallStatus, setOverallStatus] = useState<string>('All Systems Operational');
 
   const services: ServiceStatus[] = [
     { name: 'API Gateway', status: 'operational', latency: 45, uptime: '99.98%' },
@@ -31,6 +30,12 @@ export default function StatusPage() {
     { name: 'CDN (Cloudflare)', status: 'operational', latency: 18, uptime: '99.99%' },
     { name: 'Authentication', status: 'operational', latency: 35, uptime: '99.98%' },
   ];
+
+  const overallStatus = services.every(s => s.status === 'operational')
+    ? 'All Systems Operational'
+    : services.some(s => s.status === 'outage')
+    ? 'System Outage'
+    : 'Degraded Performance';
 
   const incidents: { date: string; title: string; status: string; description: string; duration: string }[] = [];
 
@@ -229,3 +234,10 @@ export default function StatusPage() {
     </div>
   );
 }
+
+
+
+
+
+
+

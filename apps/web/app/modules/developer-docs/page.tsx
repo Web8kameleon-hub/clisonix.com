@@ -276,7 +276,7 @@ export default function DeveloperDocs() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {/* Python SDK */}
-            <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl p-6 border border-green-500/30">
+            <div className="bg-gradient-to-br from-green-500/10 to-blue-800/10 rounded-xl p-6 border border-green-500/30">
               <div className="text-4xl mb-4">🐍</div>
               <h3 className="text-xl font-semibold mb-2">Python SDK</h3>
               <code className="text-green-400 text-sm">clisonix</code>
@@ -289,7 +289,7 @@ export default function DeveloperDocs() {
             </div>
 
             {/* TypeScript SDK */}
-            <div className="bg-gradient-to-br from-violet-500/10 to-indigo-500/10 rounded-xl p-6 border border-violet-500/30">
+            <div className="bg-gradient-to-br from-violet-500/10 to-blue-700/10 rounded-xl p-6 border border-violet-500/30">
               <div className="text-4xl mb-4">📘</div>
               <h3 className="text-xl font-semibold mb-2">TypeScript SDK</h3>
               <code className="text-violet-400 text-sm">@clisonix/sdk</code>
@@ -338,3 +338,10 @@ export default function DeveloperDocs() {
     </div>
   )
 }
+
+
+
+
+
+
+

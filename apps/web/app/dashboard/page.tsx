@@ -139,7 +139,7 @@ export default function DataDashboard() {
                 onClick={() => setActiveTab(tab as 'overview' | 'sources' | 'metrics' | 'export')}
                 className={`px-4 py-2 rounded-lg transition-all font-medium text-sm ${
                   activeTab === tab
-                    ? 'bg-cyan-600 text-white'
+                    ? 'bg-blue-800 text-white'
                     : 'bg-slate-800/50 text-gray-400 hover:bg-slate-700/50'
                 }`}
               >
@@ -181,12 +181,12 @@ export default function DataDashboard() {
             <p className="text-xs text-gray-500 mt-2">Active metrics</p>
           </div>
 
-          <div className="p-6 rounded-xl bg-gradient-to-br from-cyan-900/30 to-cyan-950/30 border border-cyan-700/50">
+          <div className="p-6 rounded-xl bg-gradient-to-br from-cyan-900/30 to-cyan-950/30 border border-blue-900/50">
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-400 text-sm">Action</span>
               <span className="text-2xl">➕</span>
             </div>
-            <button className="w-full mt-4 py-2 px-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2">
+            <button className="w-full mt-4 py-2 px-3 bg-blue-800 hover:bg-blue-900 text-white rounded-lg font-medium text-sm transition-colors flex items-center justify-center gap-2">
               <Plus className="w-4 h-4" />
               Add Source
             </button>
@@ -230,7 +230,7 @@ export default function DataDashboard() {
               </h2>
               <div className="space-y-3">
                 {dataSources.map((source) => (
-                  <div key={source.id} className="p-4 rounded-xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 hover:border-cyan-500/30 transition-all">
+                  <div key={source.id} className="p-4 rounded-xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 hover:border-blue-700/30 transition-all">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{getTypeIcon(source.type)}</span>
@@ -258,14 +258,14 @@ export default function DataDashboard() {
           <section>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">All Data Sources</h2>
-              <button className="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium flex items-center gap-2 transition-colors">
+              <button className="px-4 py-2 bg-blue-800 hover:bg-blue-900 text-white rounded-lg font-medium flex items-center gap-2 transition-colors">
                 <Plus className="w-4 h-4" />
                 Add Data Source
               </button>
             </div>
             <div className="space-y-3">
               {dataSources.map((source) => (
-                <div key={source.id} className="p-6 rounded-xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 hover:border-cyan-500/30 transition-all">
+                <div key={source.id} className="p-6 rounded-xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 hover:border-blue-700/30 transition-all">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <span className="text-4xl">{getTypeIcon(source.type)}</span>
@@ -316,7 +316,7 @@ export default function DataDashboard() {
               <h3 className="text-lg font-semibold mb-2">Export Options</h3>
               <p className="text-gray-400 mb-6">Choose your preferred format</p>
               <div className="flex gap-4 justify-center flex-wrap">
-                <button className="px-6 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium transition-colors">
+                <button className="px-6 py-2 bg-blue-800 hover:bg-blue-900 text-white rounded-lg font-medium transition-colors">
                   CSV
                 </button>
                 <button className="px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-medium transition-colors">
@@ -333,3 +333,10 @@ export default function DataDashboard() {
     </div>
   );
 }
+
+
+
+
+
+
+

@@ -38,14 +38,14 @@ except ImportError:
     seed_stats = None
     KnowledgeSeed = None
 
-# Import Ollama Engine (Local AI)
+# Import Ollama Multi-Model Engine (5 models: phi3, clisonix-ocean:v2, llama3.1, etc.)
 try:
-    from ollama_engine import get_ollama_engine, OllamaEngine
+    from ollama_multi_engine import OllamaMultiEngine, Strategy as OllamaStrategy
     OLLAMA_AVAILABLE = True
 except ImportError:
     OLLAMA_AVAILABLE = False
-    get_ollama_engine = None
-    OllamaEngine = None
+    OllamaMultiEngine = None
+    OllamaStrategy = None
 
 # Import Albanian Dictionary
 try:
@@ -209,6 +209,9 @@ class LocalLanguageLayer:
             "fr": "Bonjour! Je suis Curiosity Ocean. Comment puis-je vous aider?",
             "es": "¡Hola! Soy Curiosity Ocean. ¿Cómo puedo ayudarte?",
             "it": "Ciao! Sono Curiosity Ocean. Come posso aiutarti?",
+            "el": "Γεια σας! Είμαι το Curiosity Ocean. Πώς μπορώ να σας βοηθήσω;",
+            "tr": "Merhaba! Ben Curiosity Ocean. Size nasıl yardımcı olabilirim?",
+            "ru": "Привет! Я Curiosity Ocean. Чем могу помочь?",
         }
         return greetings.get(lang, greetings["en"])
     
@@ -221,8 +224,78 @@ class LocalLanguageLayer:
             "fr": f"Merci pour votre question! J'analyse: \"{query}\"",
             "es": f"¡Gracias por tu pregunta! Estoy analizando: \"{query}\"",
             "it": f"Grazie per la tua domanda! Sto analizzando: \"{query}\"",
+            "el": f"Ευχαριστώ για την ερώτηση! Αναλύω: \"{query}\"",
+            "tr": f"Soru için teşekkürler! Analiz ediyorum: \"{query}\"",
+            "ru": f"Спасибо за вопрос! Анализирую: \"{query}\"",
         }
         return fallbacks.get(lang, fallbacks["en"])
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  LANGUAGE REQUEST DETECTOR - Detects explicit language commands
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Language request patterns - maps phrases to ISO language codes
+LANGUAGE_REQUEST_PATTERNS = {
+    # Albanian requests
+    "në gjermanisht": "de",
+    "në anglisht": "en", 
+    "në italisht": "it",
+    "në frëngjisht": "fr",
+    "në spanjisht": "es",
+    "në greqisht": "el",
+    "në turqisht": "tr",
+    "në rusisht": "ru",
+    "në shqip": "sq",
+    "përgjigju në gjermanisht": "de",
+    "përgjigju në anglisht": "en",
+    "përgjigju në italisht": "it",
+    "përgjigju në frëngjisht": "fr",
+    "përgjigju në greqisht": "el",
+    "përgjigju në shqip": "sq",
+    
+    # English requests
+    "in german": "de",
+    "in english": "en",
+    "in italian": "it",
+    "in french": "fr",
+    "in spanish": "es",
+    "in greek": "el",
+    "in turkish": "tr",
+    "in russian": "ru",
+    "in albanian": "sq",
+    "respond in german": "de",
+    "respond in english": "en",
+    "reply in german": "de",
+    "answer in german": "de",
+    
+    # German requests
+    "auf deutsch": "de",
+    "auf englisch": "en",
+    "auf italienisch": "it",
+    "auf französisch": "fr",
+    "auf spanisch": "es",
+    "antworte auf deutsch": "de",
+    "antworte auf englisch": "en",
+    
+    # Italian requests  
+    "in italiano": "it",
+    "in inglese": "en",
+    "in tedesco": "de",
+    "rispondi in italiano": "it",
+    "rispondi in inglese": "en",
+    
+    # French requests
+    "en français": "fr",
+    "en anglais": "en",
+    "en allemand": "de",
+    "réponds en français": "fr",
+    "réponds en anglais": "en",
+    
+    # Greek requests (romanized)
+    "sta ellinika": "el",
+    "sta agglika": "en",
+}
 
 
 # ─────────────────────────────────────────────────────────
@@ -442,14 +515,14 @@ class ResponseOrchestratorV5:
             except Exception as e:
                 logger.warning(f"⚠️ MegaLayerEngine not available: {e}")
         
-        # Initialize Ollama Engine (Local AI)
+        # Initialize Ollama Multi-Model Engine (5 models with AUTO strategy)
         self.ollama_engine: Optional[Any] = None
         if OLLAMA_AVAILABLE:
             try:
-                self.ollama_engine = get_ollama_engine("clisonix-ocean:v2")
-                logger.info("🦙 OllamaEngine initialized (clisonix-ocean:v2)")
+                self.ollama_engine = OllamaMultiEngine(default_strategy=OllamaStrategy.AUTO)
+                logger.info("🦙 OllamaMultiEngine initialized (5 models, AUTO strategy)")
             except Exception as e:
-                logger.warning(f"⚠️ OllamaEngine not available: {e}")
+                logger.warning(f"⚠️ OllamaMultiEngine not available: {e}")
         
         # Lazy load RealAnswerEngine nëse nuk u dha
         if self.real_answer_engine is None:
@@ -467,6 +540,31 @@ class ResponseOrchestratorV5:
             logger.warning(f"⚠️ RealAnswerEngine not available: {e}")
             self.real_answer_engine = None
 
+    def _detect_language_request(self, query: str) -> Optional[str]:
+        """
+        Detect explicit language request in query.
+        
+        Examples:
+          - "Përgjigju në gjermanisht: ..." → returns "de"
+          - "Respond in French: ..." → returns "fr"
+          - "Antworte auf Englisch: ..." → returns "en"
+          
+        Returns:
+            ISO language code if explicit request found, None otherwise.
+        """
+        q_lower = query.lower()
+        
+        # Check all patterns (longest match first for accuracy)
+        sorted_patterns = sorted(LANGUAGE_REQUEST_PATTERNS.keys(), key=len, reverse=True)
+        
+        for pattern in sorted_patterns:
+            if pattern in q_lower:
+                lang_code = LANGUAGE_REQUEST_PATTERNS[pattern]
+                logger.info(f"🌍 Language request detected: '{pattern}' → {lang_code}")
+                return lang_code
+        
+        return None
+
     async def orchestrate(
         self,
         query: str,
@@ -482,8 +580,17 @@ class ResponseOrchestratorV5:
         """
         conversation_context = conversation_context or []
         
+        # ═══════════════════════════════════════════════════════════════════════
+        # 0) LANGUAGE REQUEST DETECTION - HIGHEST PRIORITY
+        # Detect if user explicitly requests a specific response language
+        # ═══════════════════════════════════════════════════════════════════════
+        requested_language = self._detect_language_request(query)
+        
         # 1) Language detection (100% lokal)
-        lang = self.language_layer.detect_language(query)
+        detected_lang = self.language_layer.detect_language(query)
+        
+        # Use requested language if specified, otherwise use detected
+        lang = requested_language if requested_language else detected_lang
         
         # 2) Query understanding
         understanding = QueryUnderstandingV5.understand(query, conversation_context)
@@ -495,48 +602,45 @@ class ResponseOrchestratorV5:
         base_confidence = 0.9
         used_knowledge_seed = False
         used_ollama = False
+        used_albanian_dict = False
         
-        # 3.1) OLLAMA FIRST - Local AI gets priority for real answers!
+        # ═══════════════════════════════════════════════════════════════════════
+        # LANGUAGE OVERRIDE for Ollama - inject language instruction
+        # ═══════════════════════════════════════════════════════════════════════
+        language_override_prompt = None
+        if requested_language:
+            lang_names = {
+                "de": "German (Deutsch)", "en": "English", "it": "Italian (Italiano)",
+                "fr": "French (Français)", "es": "Spanish (Español)", "el": "Greek (Ελληνικά)",
+                "tr": "Turkish (Türkçe)", "ru": "Russian (Русский)", "sq": "Albanian (Shqip)",
+                "pt": "Portuguese", "nl": "Dutch", "pl": "Polish", "ja": "Japanese", "zh": "Chinese"
+            }
+            lang_name = lang_names.get(requested_language, requested_language.upper())
+            language_override_prompt = f"CRITICAL: Respond ONLY in {lang_name}. Do not use any other language."
+            logger.info(f"🌍 Language override active: {lang_name}")
+        
+        # OLLAMA ONLY - No templates, pure AI responses
         if self.ollama_engine:
             try:
-                ollama_available = await self.ollama_engine.is_available()
-                if ollama_available:
-                    ollama_response = await self.ollama_engine.generate(query)
-                    if ollama_response.content and not ollama_response.content.startswith("⚠️"):
-                        base_text = ollama_response.content
-                        sources = ["ollama:clisonix-ocean:v2"]
-                        base_confidence = 0.92
-                        used_ollama = True
-                        logger.info(f"🦙 Ollama generated response ({ollama_response.total_duration_ms:.0f}ms)")
+                await self.ollama_engine.initialize()
+                
+                # Build enhanced query with language instruction
+                enhanced_query = query
+                if language_override_prompt:
+                    enhanced_query = f"[{language_override_prompt}]\n\n{query}"
+                
+                ollama_response = await self.ollama_engine.generate(enhanced_query)
+                if ollama_response.content and not ollama_response.content.startswith("⚠️") and not ollama_response.content.startswith("[WARN]"):
+                    base_text = ollama_response.content
+                    sources = [f"ollama:{ollama_response.model_used}"]
+                    base_confidence = 0.90 if ollama_response.tier.value == "balanced" else 0.85
+                    used_ollama = True
+                    logger.info(f"🦙 Ollama [{ollama_response.model_used}] response ({ollama_response.total_duration_ms:.0f}ms)")
             except Exception as e:
                 logger.warning(f"Ollama error: {e}")
         
-        # 3.2) Knowledge Seeds FALLBACK (if Ollama fails or unavailable)
-        if not used_ollama and KNOWLEDGE_SEEDS_AVAILABLE and find_matching_seed:
-            seed = find_matching_seed(query)
-            if seed:
-                base_text = seed.answer_template.strip()
-                sources = [f"knowledge_seed:{seed.category}"]
-                base_confidence = seed.confidence
-                used_knowledge_seed = True
-                logger.info(f"📚 Knowledge Seed matched: {seed.category}")
-        
-        # 3.3) Albanian Dictionary për pyetje shqip (if nothing else matched)
-        used_albanian_dict = False
-        if not used_ollama and not used_knowledge_seed and ALBANIAN_DICT_AVAILABLE and lang == "sq":
-            try:
-                albanian_response = get_albanian_response(query)
-                if albanian_response:
-                    base_text = albanian_response
-                    sources = ["albanian_dictionary"]
-                    base_confidence = 0.92
-                    used_albanian_dict = True
-                    logger.info("🇦🇱 Albanian Dictionary matched")
-            except Exception as e:
-                logger.warning(f"Albanian Dictionary error: {e}")
-        
-        # 3.4) Fallback to RealAnswerEngine if nothing else worked
-        if not used_ollama and not used_knowledge_seed and not used_albanian_dict and self.real_answer_engine:
+        # 3.3) Fallback to RealAnswerEngine if no Ollama
+        if not used_knowledge_seed and not used_albanian_dict and not used_ollama and self.real_answer_engine:
             try:
                 base_result = await self.real_answer_engine.answer(query)
                 base_text = base_result.answer
@@ -560,21 +664,31 @@ class ResponseOrchestratorV5:
         # 5) Fusion (vetëm nëse kemi rezultate nga ekspertë)
         fused_answer, quality = self.fusion.fuse(base_text, consulted)
         
-        # 5.5) MEGA LAYER PROCESSING - DISABLED by default (too complex for users)
-        # Mega layers add "science theater" complexity without practical value
-        # Enable only for specific deep analysis requests
+        # 5.5) MEGA LAYER PROCESSING - Miliarda kombinime
+        # DISABLED for clean chat - layer analysis stored but NOT shown to user
         mega_layer_results = None
         layer_summary = ""
-        # DISABLED: This adds confusion, not value
-        # if self.mega_layer_engine:
-        #     try:
-        #         activation, mega_results = self.mega_layer_engine.process_query(query)
-        #         mega_layer_results = mega_results
-        #         layer_summary = self.mega_layer_engine.get_layer_summary(activation, mega_results)
-        #         fused_answer = fused_answer + layer_summary
-        #         sources.append("mega_layers_engine")
-        #     except Exception as e:
-        #         logger.warning(f"MegaLayerEngine processing error: {e}")
+        if self.mega_layer_engine:
+            try:
+                activation, mega_results = self.mega_layer_engine.process_query(query)
+                mega_layer_results = mega_results
+                layer_summary = self.mega_layer_engine.get_layer_summary(activation, mega_results)
+                
+                # DO NOT add layer summary to chat response - keep it clean!
+                # fused_answer = fused_answer + layer_summary  # DISABLED
+                sources.append("mega_layers_engine")
+                
+                # Update understanding with layer info
+                understanding["mega_layers"] = {
+                    "combinations_used": mega_results["combinations_used"],
+                    "total_layers_engaged": mega_results["total_layers_engaged"],
+                    "unique_signature": mega_results["unique_signature"],
+                    "meta_consciousness": mega_results["meta_consciousness"],
+                    "quantum_amplitude": mega_results["quantum_amplitude"],
+                    "fractal_depth": mega_results["fractal_depth_used"],
+                }
+            except Exception as e:
+                logger.warning(f"MegaLayerEngine processing error: {e}")
         
         # 6) Ndërto përgjigjen finale
         response = OrchestratedResponse(
@@ -714,6 +828,17 @@ class ResponseOrchestratorV5:
             "expert_timeout_ms": self.expert_timeout_ms,
             "version": "v5_production",
         }
+    
+    # ═══════════════════════════════════════════════════════════════════════════
+    # ALIAS for backwards compatibility with ocean_api.py
+    # ═══════════════════════════════════════════════════════════════════════════
+    async def process_query_async(
+        self, 
+        query: str, 
+        conversation_context: Optional[List[str]] = None
+    ) -> OrchestratedResponse:
+        """Alias for orchestrate() - backwards compatibility."""
+        return await self.orchestrate(query, conversation_context, mode="conversational")
 
 
 # ─────────────────────────────────────────────────────────

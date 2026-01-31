@@ -203,11 +203,11 @@ export default function PhoneMonitorPage() {
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
-          <Smartphone className="w-8 h-8 text-emerald-400" />
-          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-violet-400 bg-clip-text text-transparent">
+          <Smartphone className="w-8 h-8 text-blue-700" />
+          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-700 to-violet-400 bg-clip-text text-transparent">
             Phone Monitor API
           </h1>
-          <span className="px-2 py-1 text-xs font-mono bg-emerald-500/20 text-emerald-400 rounded border border-emerald-500/30">
+          <span className="px-2 py-1 text-xs font-mono bg-blue-800/20 text-blue-700 rounded border border-blue-800/30">
             REAL DATA
           </span>
         </div>
@@ -221,7 +221,7 @@ export default function PhoneMonitorPage() {
         <div className="flex flex-wrap items-center gap-4">
           <button
             onClick={fetchAllEndpoints}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-900 hover:bg-emerald-700 rounded-lg transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh All
@@ -233,7 +233,7 @@ export default function PhoneMonitorPage() {
               id="autoRefresh"
               checked={autoRefresh}
               onChange={(e) => setAutoRefresh(e.target.checked)}
-              className="w-4 h-4 accent-emerald-500"
+              className="w-4 h-4 accent-blue-800"
             />
             <label htmlFor="autoRefresh" className="text-sm text-gray-300">Auto Refresh</label>
           </div>
@@ -277,12 +277,12 @@ export default function PhoneMonitorPage() {
                     <button
                       key={endpoint.url}
                       onClick={() => setSelectedEndpoint(endpoint.url)}
-                      className={`w-full p-3 text-left transition-colors ${isSelected ? 'bg-emerald-600/20 border-l-2 border-emerald-500' : 'hover:bg-white/5'
+                      className={`w-full p-3 text-left transition-colors ${isSelected ? 'bg-blue-900/20 border-l-2 border-blue-800' : 'hover:bg-white/5'
                         }`}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
-                          <Icon className={`w-4 h-4 ${isSelected ? 'text-emerald-400' : 'text-gray-500'}`} />
+                          <Icon className={`w-4 h-4 ${isSelected ? 'text-blue-700' : 'text-gray-500'}`} />
                           <span className="font-medium text-sm">{endpoint.name}</span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -291,7 +291,7 @@ export default function PhoneMonitorPage() {
                           ) : response?.status ? (
                             <span className={`w-2 h-2 rounded-full ${getStatusColor(response.status)}`} />
                           ) : null}
-                          <span className="px-1.5 py-0.5 text-xs font-mono bg-emerald-500/20 text-emerald-400 rounded">
+                          <span className="px-1.5 py-0.5 text-xs font-mono bg-blue-800/20 text-blue-700 rounded">
                             {endpoint.method}
                           </span>
                         </div>
@@ -318,7 +318,7 @@ export default function PhoneMonitorPage() {
             <div className="p-4 bg-white/5 border-b border-white/10">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  {selectedConfig && <selectedConfig.icon className="w-5 h-5 text-emerald-400" />}
+                  {selectedConfig && <selectedConfig.icon className="w-5 h-5 text-blue-700" />}
                   <h2 className="text-lg font-semibold">{selectedConfig?.name}</h2>
                 </div>
                 <button
@@ -331,8 +331,8 @@ export default function PhoneMonitorPage() {
               </div>
 
               <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-2 font-mono text-emerald-400">
-                  <span className="px-2 py-0.5 bg-emerald-500/20 rounded text-xs">
+                <div className="flex items-center gap-2 font-mono text-blue-700">
+                  <span className="px-2 py-0.5 bg-blue-800/20 rounded text-xs">
                     {selectedConfig?.method}
                   </span>
                   {selectedConfig?.url}
@@ -370,7 +370,7 @@ export default function PhoneMonitorPage() {
 
               {selectedResponse?.loading ? (
                 <div className="flex items-center justify-center py-12">
-                  <RefreshCw className="w-6 h-6 text-emerald-400 animate-spin" />
+                  <RefreshCw className="w-6 h-6 text-blue-700 animate-spin" />
                   <span className="ml-2 text-gray-400">Loading...</span>
                 </div>
               ) : selectedResponse?.error ? (
@@ -402,7 +402,7 @@ export default function PhoneMonitorPage() {
               return (
                 <div key={url} className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <config.icon className="w-4 h-4 text-emerald-400" />
+                    <config.icon className="w-4 h-4 text-blue-700" />
                     <span className="text-xs text-gray-400 truncate">{config.name}</span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -427,4 +427,11 @@ export default function PhoneMonitorPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
 

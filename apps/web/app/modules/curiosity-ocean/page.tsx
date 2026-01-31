@@ -16,7 +16,19 @@ interface Message {
   timestamp: Date;
   rabbitHoles?: string[];
   nextQuestions?: string[];
+  isTyping?: boolean;  // For typing animation
 }
+
+// Typing delay based on complexity (ms per character)
+const getTypingDelay = (complexity: string): number => {
+  switch (complexity) {
+    case 'simple': return 5;      // Fast: ~0.1s for 20 chars
+    case 'moderate': return 15;   // Medium: ~0.3s for 20 chars
+    case 'complex': return 25;    // Slower: ~0.5s for 20 chars
+    case 'expert': return 40;     // Expert: ~0.8s for 20 chars
+    default: return 10;
+  }
+};
 
 const SUGGESTED_QUESTIONS = [
   "What is consciousness?",
@@ -31,9 +43,33 @@ export default function CuriosityOceanChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
+  const [displayedContent, setDisplayedContent] = useState('');
   const [curiosityLevel, setCuriosityLevel] = useState<'curious' | 'wild' | 'chaos' | 'genius'>('curious');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Typing effect animation
+  const typeMessage = async (fullContent: string, messageId: string, complexity: string) => {
+    const delay = getTypingDelay(complexity);
+    setTypingMessageId(messageId);
+    
+    // Type word by word for faster display
+    const words = fullContent.split(' ');
+    let currentText = '';
+    
+    for (let i = 0; i < words.length; i++) {
+      currentText += (i > 0 ? ' ' : '') + words[i];
+      setDisplayedContent(currentText);
+      
+      // Variable delay: shorter for simple words, longer for complex
+      const wordDelay = Math.min(delay * Math.min(words[i].length, 8), 100);
+      await new Promise(resolve => setTimeout(resolve, wordDelay));
+    }
+    
+    setTypingMessageId(null);
+    setDisplayedContent('');
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -74,12 +110,12 @@ export default function CuriosityOceanChat() {
         .map(m => m.content)
         .slice(-5); // Last 5 user messages for context
 
-      // Query ORCHESTRATED endpoint (The Brain!)
-      const res = await fetch('http://localhost:8030/api/chat/orchestrated', {
+      // Query v1 chat endpoint (supports German, Albanian, English, etc.)
+      const res = await fetch('http://localhost:8030/api/v1/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query: messageText,
+          message: messageText,
           conversation_context: conversationContext,
         }),
       });
@@ -87,34 +123,31 @@ export default function CuriosityOceanChat() {
       if (res.ok) {
         const data = await res.json();
         
-        // Build a rich, narrative response from orchestrator
-        let responseContent = `🧠 **The Brain is Thinking...**\n\n`;
-        responseContent += `**Query Category:** ${data.query_category}\n`;
-        responseContent += `**Intent:** ${data.understanding.intent}\n`;
-        responseContent += `**Complexity:** ${data.understanding.complexity_level}\n\n`;
-
-        responseContent += `**Consulted Experts:**\n`;
-        data.consulted_experts.forEach((expert: { name: string; type: string; confidence: number }) => {
-          responseContent += `• ${expert.name} (${expert.type}) - Confidence: ${Math.round(expert.confidence * 100)}%\n`;
-        });
-
-        responseContent += `\n**The Answer:**\n${data.fused_answer}\n\n`;
-        responseContent += `**Sources:** ${data.sources_cited.join(', ')}\n`;
-        responseContent += `**Confidence:** ${Math.round(data.confidence * 100)}% | **Quality:** ${Math.round(data.narrative_quality * 100)}%`;
+        // Build a clean response from the chat API (no references/sources shown)
+        const responseContent = data.response || data.answer || 'No response received';
 
         const aiMessage: Message = {
           id: `ai-${Date.now()}`,
           type: 'ai',
           content: responseContent,
           timestamp: new Date(),
+          isTyping: true,
           nextQuestions: [
-            `Tell me more about ${data.query_category}`,
-            `How does this relate to what we discussed?`,
-            `What's the opposite perspective?`,
+            `Tell me more about this topic`,
+            `Can you explain in simpler terms?`,
+            `What are related topics?`,
           ],
         };
 
         setMessages(prev => [...prev, aiMessage]);
+        
+        // Start typing effect
+        await typeMessage(responseContent, aiMessage.id, 'moderate');
+        
+        // Mark typing as complete
+        setMessages(prev => prev.map(m => 
+          m.id === aiMessage.id ? { ...m, isTyping: false } : m
+        ));
       } else {
         const errorMessage: Message = {
           id: `error-${Date.now()}`,
@@ -161,11 +194,11 @@ export default function CuriosityOceanChat() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Link href="/modules" className="text-emerald-600 hover:text-emerald-500 text-sm">
+              <Link href="/modules" className="text-blue-900 hover:text-blue-800 text-sm">
                 ← Modules
               </Link>
               <div className="w-px h-6 bg-gray-300" />
-              <Compass className="w-8 h-8 text-emerald-600" />
+              <Compass className="w-8 h-8 text-blue-900" />
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Curiosity Ocean</h1>
                 <p className="text-xs text-gray-500">Infinite Knowledge Engine</p>
@@ -207,23 +240,31 @@ export default function CuriosityOceanChat() {
               <div
                 className={`max-w-[85%] rounded-2xl p-4 ${
                   message.type === 'user'
-                    ? 'bg-emerald-600 text-white rounded-br-md'
+                    ? 'bg-blue-900 text-white rounded-br-md'
                     : 'bg-white shadow-md text-black rounded-bl-md border border-gray-200'
                 }`}
               >
                 {message.type === 'ai' && (
-                  <div className="flex items-center gap-2 mb-2 text-emerald-600">
+                  <div className="flex items-center gap-2 mb-2 text-blue-900">
                     <Sparkles className="w-4 h-4" />
                     <span className="text-xs font-medium">Curiosity Ocean</span>
+                    {message.isTyping && typingMessageId === message.id && (
+                      <span className="text-xs text-gray-400 animate-pulse">typing...</span>
+                    )}
                   </div>
                 )}
                 
-                <div className="whitespace-pre-wrap">{message.content}</div>
+                <div className="whitespace-pre-wrap">
+                  {typingMessageId === message.id ? displayedContent : message.content}
+                  {typingMessageId === message.id && (
+                    <span className="inline-block w-2 h-4 bg-blue-800 animate-pulse ml-1" />
+                  )}
+                </div>
 
                 {/* Explore Further */}
                 {message.rabbitHoles && message.rabbitHoles.length > 0 && (
                   <div className="mt-4 pt-3 border-t border-gray-200">
-                    <p className="text-xs text-emerald-600 mb-2 flex items-center gap-1">
+                    <p className="text-xs text-blue-900 mb-2 flex items-center gap-1">
                       <Lightbulb className="w-3 h-3" />
                       Explore further:
                     </p>
@@ -271,7 +312,7 @@ export default function CuriosityOceanChat() {
           {isLoading && (
             <div className="flex justify-start">
               <div className="bg-white shadow-md rounded-2xl rounded-bl-md p-4 border border-gray-200">
-                <div className="flex items-center gap-2 text-emerald-600">
+                <div className="flex items-center gap-2 text-blue-900">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span className="text-sm">Thinking...</span>
                 </div>
@@ -313,13 +354,13 @@ export default function CuriosityOceanChat() {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask anything... 🌊"
-                className="w-full bg-gray-100 border border-gray-300 rounded-xl px-4 py-3 pr-12 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+                className="w-full bg-gray-100 border border-gray-300 rounded-xl px-4 py-3 pr-12 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-800/50 focus:border-blue-800"
                 disabled={isLoading}
               />
               <button
                 onClick={() => sendMessage()}
                 disabled={isLoading || !inputValue.trim()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg transition-colors"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-blue-900 hover:bg-blue-800 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg transition-colors"
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 text-white animate-spin" />
@@ -334,3 +375,10 @@ export default function CuriosityOceanChat() {
     </div>
   );
 }
+
+
+
+
+
+
+

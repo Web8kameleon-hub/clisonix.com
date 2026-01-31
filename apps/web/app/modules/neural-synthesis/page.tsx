@@ -270,19 +270,19 @@ export default function NeuralSynthesisPage() {
   }, [autoRefresh, selectedEndpoint, executeRequest]);
 
   const getStatusColor = (status: number) => {
-    if (status >= 200 && status < 300) return 'text-emerald-400';
+    if (status >= 200 && status < 300) return 'text-blue-700';
     if (status >= 400 && status < 500) return 'text-amber-400';
     return 'text-red-400';
   };
 
   const getStatusBadge = (status: number) => {
-    if (status >= 200 && status < 300) return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    if (status >= 200 && status < 300) return 'bg-blue-800/20 text-blue-700 border-blue-800/30';
     if (status >= 400 && status < 500) return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
     return 'bg-red-500/20 text-red-400 border-red-500/30';
   };
 
   const getMethodBadge = (method: string) => {
-    if (method === 'GET') return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    if (method === 'GET') return 'bg-blue-800/20 text-blue-700 border-blue-800/30';
     if (method === 'POST') return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
     if (method === 'DELETE') return 'bg-red-500/20 text-red-400 border-red-500/30';
     return 'bg-violet-500/20 text-violet-400 border-violet-500/30';
@@ -433,7 +433,7 @@ export default function NeuralSynthesisPage() {
                     {response.responseTime}ms
                   </span>
                   {response.success ? (
-                    <span className="text-emerald-400 flex items-center gap-1 text-sm">
+                    <span className="text-blue-700 flex items-center gap-1 text-sm">
                       <CheckCircle className="w-4 h-4" /> Success
                     </span>
                   ) : (
@@ -463,7 +463,7 @@ export default function NeuralSynthesisPage() {
                             <Music className="w-5 h-5 text-purple-400" />
                             <span className="text-sm text-slate-400">Status</span>
                           </div>
-                            <p className={`text-xl font-bold capitalize ${(response.data as JonaMetrics).status === 'online' ? 'text-emerald-400' :
+                            <p className={`text-xl font-bold capitalize ${(response.data as JonaMetrics).status === 'online' ? 'text-blue-700' :
                                 (response.data as JonaMetrics).status === 'synthesizing' ? 'text-purple-400' :
                                   'text-slate-400'
                               }`}>
@@ -479,12 +479,12 @@ export default function NeuralSynthesisPage() {
                               {(response.data as JonaMetrics).neural_frequency?.toFixed(1) || 0} Hz
                             </p>
                           </div>
-                          <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20">
+                          <div className="p-4 rounded-xl bg-gradient-to-br from-blue-800/10 to-green-500/10 border border-blue-800/20">
                             <div className="flex items-center gap-2 mb-2">
-                              <Waves className="w-5 h-5 text-emerald-400" />
+                              <Waves className="w-5 h-5 text-blue-700" />
                               <span className="text-sm text-slate-400">EEG Processed</span>
                             </div>
-                            <p className="text-xl font-bold text-emerald-400">
+                            <p className="text-xl font-bold text-blue-700">
                               {((response.data as JonaMetrics).eeg_signals_processed || 0).toLocaleString()}
                             </p>
                           </div>
@@ -624,4 +624,11 @@ export default function NeuralSynthesisPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
 

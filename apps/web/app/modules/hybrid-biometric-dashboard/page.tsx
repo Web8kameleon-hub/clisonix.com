@@ -372,3 +372,10 @@ export default function HybridBiometricDashboard() {
     </div>
   );
 }
+
+
+
+
+
+
+

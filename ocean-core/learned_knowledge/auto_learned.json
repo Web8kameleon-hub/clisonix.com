@@ -16,7 +16,7 @@
       "avg_relevance": 0.61,
       "total_data_points": 315,
       "learned_at": "2026-01-24T18:42:38.127395",
-      "times_used": 5
+      "times_used": 6
     },
     {
       "id": "know_18ed02b1",
@@ -421,7 +421,7 @@
       "avg_relevance": 0.69,
       "total_data_points": 341,
       "learned_at": "2026-01-24T18:43:37.921610",
-      "times_used": 6
+      "times_used": 7
     },
     {
       "id": "know_0482a095",
@@ -754,7 +754,7 @@
       "avg_relevance": 0.7,
       "total_data_points": 350,
       "learned_at": "2026-01-24T18:44:26.544596",
-      "times_used": 4
+      "times_used": 5
     },
     {
       "id": "know_10bf888c",
@@ -1213,7 +1213,7 @@
       "avg_relevance": 0.71,
       "total_data_points": 309,
       "learned_at": "2026-01-24T18:45:44.741883",
-      "times_used": 8
+      "times_used": 9
     },
     {
       "id": "know_02eab307",
@@ -1456,7 +1456,7 @@
       "avg_relevance": 0.7,
       "total_data_points": 271,
       "learned_at": "2026-01-24T18:46:27.814246",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_b0a335af",
@@ -1564,7 +1564,7 @@
       "avg_relevance": 0.6,
       "total_data_points": 332,
       "learned_at": "2026-01-24T18:46:47.424254",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_cf7e186b",
@@ -2851,7 +2851,7 @@
       "avg_relevance": 0.64,
       "total_data_points": 268,
       "learned_at": "2026-01-24T18:51:09.882451",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_6e26bb26",
@@ -3463,7 +3463,7 @@
       "avg_relevance": 0.61,
       "total_data_points": 389,
       "learned_at": "2026-01-24T18:53:13.389068",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_b05fc053",
@@ -3643,7 +3643,7 @@
       "avg_relevance": 0.68,
       "total_data_points": 307,
       "learned_at": "2026-01-24T18:53:56.899582",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_f7e3463f",
@@ -3652,7 +3652,7 @@
       "avg_relevance": 0.66,
       "total_data_points": 320,
       "learned_at": "2026-01-24T18:53:59.553777",
-      "times_used": 2
+      "times_used": 3
     },
     {
       "id": "know_8b4ddb88",
@@ -3715,7 +3715,7 @@
       "avg_relevance": 0.7,
       "total_data_points": 254,
       "learned_at": "2026-01-24T18:54:16.840195",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_a756b36b",
@@ -4777,7 +4777,7 @@
       "avg_relevance": 0.65,
       "total_data_points": 263,
       "learned_at": "2026-01-24T18:58:49.636694",
-      "times_used": 1
+      "times_used": 2
     },
     {
       "id": "know_fda28225",
@@ -5129,9 +5129,99 @@
       "total_data_points": 430,
       "learned_at": "2026-01-24T19:00:17.398992",
       "times_used": 1
+    },
+    {
+      "id": "know_87d9bd02",
+      "question": "Define neural networks",
+      "sources_consulted": 13,
+      "avg_relevance": 0.72,
+      "total_data_points": 392,
+      "learned_at": "2026-01-31T10:16:34.767162",
+      "times_used": 1
+    },
+    {
+      "id": "know_2a1f152f",
+      "question": "Explain probability",
+      "sources_consulted": 13,
+      "avg_relevance": 0.58,
+      "total_data_points": 357,
+      "learned_at": "2026-01-31T10:16:42.768524",
+      "times_used": 1
+    },
+    {
+      "id": "know_a6ef8b48",
+      "question": "Why is calculus important?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.68,
+      "total_data_points": 340,
+      "learned_at": "2026-01-31T10:17:06.772155",
+      "times_used": 1
+    },
+    {
+      "id": "know_0ad66f69",
+      "question": "Is neural networks real?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.72,
+      "total_data_points": 295,
+      "learned_at": "2026-01-31T10:17:14.773726",
+      "times_used": 1
+    },
+    {
+      "id": "know_d7ffb17a",
+      "question": "Can space exploration exist?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.73,
+      "total_data_points": 355,
+      "learned_at": "2026-01-31T10:17:22.775478",
+      "times_used": 1
+    },
+    {
+      "id": "know_88da68b2",
+      "question": "Explain Bitcoin",
+      "sources_consulted": 13,
+      "avg_relevance": 0.64,
+      "total_data_points": 278,
+      "learned_at": "2026-01-31T10:17:46.780461",
+      "times_used": 1
+    },
+    {
+      "id": "know_cc9d123b",
+      "question": "Current fractals status",
+      "sources_consulted": 13,
+      "avg_relevance": 0.67,
+      "total_data_points": 436,
+      "learned_at": "2026-01-31T10:18:18.786232",
+      "times_used": 1
+    },
+    {
+      "id": "know_e07432e6",
+      "question": "Current statistics status",
+      "sources_consulted": 13,
+      "avg_relevance": 0.63,
+      "total_data_points": 262,
+      "learned_at": "2026-01-31T10:18:42.791404",
+      "times_used": 1
+    },
+    {
+      "id": "know_d60a4e6b",
+      "question": "Explain forex",
+      "sources_consulted": 13,
+      "avg_relevance": 0.58,
+      "total_data_points": 314,
+      "learned_at": "2026-01-31T10:19:14.797208",
+      "times_used": 1
+    },
+    {
+      "id": "know_bcf9db5c",
+      "question": "Can calculus exist?",
+      "sources_consulted": 13,
+      "avg_relevance": 0.68,
+      "total_data_points": 279,
+      "learned_at": "2026-01-31T10:19:22.798404",
+      "times_used": 1
     }
   ],
   "stats": {
-    "total_learned": 570
+    "total_learned": 580
   }
 }

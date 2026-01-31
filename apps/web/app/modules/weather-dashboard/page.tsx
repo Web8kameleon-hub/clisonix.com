@@ -808,3 +808,10 @@ export default function BiometricEnvironmentMonitor() {
     </div>
   );
 }
+
+
+
+
+
+
+

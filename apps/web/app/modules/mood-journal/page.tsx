@@ -40,7 +40,7 @@ const MOODS = [
   { value: 2, emoji: '😔', label: 'Keq', color: 'from-orange-500 to-orange-600' },
   { value: 3, emoji: '😐', label: 'Normale', color: 'from-yellow-500 to-yellow-600' },
   { value: 4, emoji: '😊', label: 'Mirë', color: 'from-green-500 to-green-600' },
-  { value: 5, emoji: '🤩', label: 'Shkëlqyeshëm', color: 'from-emerald-500 to-violet-500' },
+  { value: 5, emoji: '🤩', label: 'Shkëlqyeshëm', color: 'from-blue-800 to-violet-500' },
 ];
 
 const FACTORS = [
@@ -293,7 +293,7 @@ export default function MoodJournalPage() {
         {/* Success Animation */}
         {showSuccess && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl p-8 text-center animate-bounce">
+            <div className="bg-gradient-to-br from-green-500 to-blue-900 rounded-3xl p-8 text-center animate-bounce">
               <div className="text-6xl mb-4">✅</div>
               <p className="text-xl font-bold text-white">U ruajt!</p>
             </div>
@@ -474,7 +474,7 @@ export default function MoodJournalPage() {
               <div className="space-y-4">
                 {/* Trend Card */}
                 <div className={`p-6 rounded-2xl ${
-                  stats.trend === 'improving' ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30' :
+                  stats.trend === 'improving' ? 'bg-gradient-to-br from-green-500/20 to-blue-800/20 border border-green-500/30' :
                   stats.trend === 'declining' ? 'bg-gradient-to-br from-red-500/20 to-orange-500/20 border border-red-500/30' :
                   'bg-gradient-to-br from-violet-500/20 to-violet-500/20 border border-violet-500/30'
                 }`}>
@@ -550,3 +550,10 @@ export default function MoodJournalPage() {
     </div>
   );
 }
+
+
+
+
+
+
+

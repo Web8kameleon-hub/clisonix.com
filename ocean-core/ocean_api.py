@@ -40,7 +40,7 @@ from knowledge_engine import get_knowledge_engine, KnowledgeResponse
 from persona_router import PersonaRouter
 from laboratories import get_laboratory_network
 from real_data_engine import get_real_data_engine
-from specialized_chat_engine import get_specialized_chat, initialize_specialized_chat, get_hybrid_chat, initialize_hybrid_chat
+from specialized_chat_engine import get_specialized_chat, initialize_specialized_chat
 # ORCHESTRATOR V5 - Production Brain (minimal, fast, 100% lokal)
 from response_orchestrator_v5 import get_orchestrator_v5, ResponseOrchestratorV5
 from autolearning_engine import get_autolearning_engine, AutolearningEngine
@@ -909,83 +909,6 @@ async def spontaneous_conversation(request: Request):
     except Exception as e:
         logger.error(f"Spontaneous chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-
-# =============================================================================
-# HYBRID CHAT - FULL SYSTEM INTEGRATION
-# =============================================================================
-hybrid_chat = None
-
-@app.on_event("startup")
-async def init_hybrid_chat():
-    """Initialize hybrid chat engine on startup"""
-    global hybrid_chat
-    try:
-        hybrid_chat = get_hybrid_chat()
-        logger.info("🔗 Hybrid Chat Engine ready - Full System Integration")
-    except Exception as e:
-        logger.warning(f"Hybrid Chat init warning: {e}")
-
-
-@app.post(f"{API_PREFIX}/chat/hybrid")
-async def hybrid_chat_endpoint(request: Request):
-    """
-    HYBRID CHAT - FULL SYSTEM INTEGRATION
-    =====================================
-    
-    Lidhet me TË GJITHË sistemin Clisonix:
-    - Central API (8000) - 103+ endpoints
-    - Ocean Core (8030) - 14 personas + 23 labs
-    - Protocol Kitchen - 7 layers pipeline
-    - Excel/PowerPoint Reporting
-    - Postman Collections
-    - ASI Trinity (Alba, Albi, Jona)
-    - Alphabet 61 + Alphabet 7
-    - Cycle Alignments
-    
-    Detekton automatikisht se çfarë të dhënash nevojiten bazuar në pyetje.
-    """
-    global hybrid_chat
-    
-    if not hybrid_chat:
-        hybrid_chat = get_hybrid_chat()
-    
-    try:
-        body = await request.json()
-        query = body.get("query", body.get("message", "")).strip()
-        use_all_sources = body.get("use_all_sources", True)
-        
-        if not query:
-            raise ValueError("Query cannot be empty")
-        
-        # Generate hybrid response with all sources
-        response = await hybrid_chat.generate_hybrid_response(query, use_all_sources=use_all_sources)
-        
-        return response
-    
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.error(f"Hybrid chat error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get(f"{API_PREFIX}/chat/hybrid/status")
-async def hybrid_chat_status():
-    """Get Hybrid Chat Engine status and connections"""
-    global hybrid_chat
-    
-    if not hybrid_chat:
-        hybrid_chat = get_hybrid_chat()
-    
-    try:
-        status = await hybrid_chat.get_full_system_status()
-        return status
-    except Exception as e:
-        return {
-            "hybrid_engine": "error",
-            "error": str(e)
-        }
 
 
 @app.get(f"{API_PREFIX}/chat")
