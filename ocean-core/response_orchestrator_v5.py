@@ -501,48 +501,24 @@ class ResponseOrchestratorV5:
         fusion_engine: FusionEngineV5 = None,
         expert_timeout_ms: int = 500,
     ):
-        self.real_answer_engine = real_answer_engine
+        self.real_answer_engine = None  # DISABLED - Ollama only
         self.language_layer = language_layer or LocalLanguageLayer()
-        self.registry = expert_registry or ExpertRegistryV5()
-        self.fusion = fusion_engine or FusionEngineV5()
+        self.registry = None  # DISABLED - no experts
+        self.fusion = None  # DISABLED - no fusion
         self.expert_timeout_ms = expert_timeout_ms
         self.learning_history: List[Dict[str, Any]] = []
         
-        # Initialize Mega Layer Engine
-        self.mega_layer_engine: Optional[Any] = None
-        if MEGA_LAYERS_AVAILABLE:
-            try:
-                self.mega_layer_engine = get_mega_layer_engine()
-                logger.info(f"✅ MegaLayerEngine initialized - {self.mega_layer_engine.total_combinations:,} kombinime")
-            except Exception as e:
-                logger.warning(f"⚠️ MegaLayerEngine not available: {e}")
+        # DISABLED - Mega Layer Engine creates chaos
+        self.mega_layer_engine = None
         
-        # Initialize Ollama Multi-Model Engine (5 models with AUTO strategy)
+        # Initialize Ollama Multi-Model Engine - THE ONLY ENGINE!
         self.ollama_engine: Optional[Any] = None
         if OLLAMA_AVAILABLE:
             try:
                 self.ollama_engine = OllamaMultiEngine(default_strategy=OllamaStrategy.AUTO)
-                logger.info("🦙 OllamaMultiEngine initialized (5 models, AUTO strategy)")
+                logger.info("🦙 OllamaMultiEngine initialized - ONLY ENGINE ACTIVE")
             except Exception as e:
-                logger.warning(f"⚠️ OllamaMultiEngine not available: {e}")
-        
-
-        
-        # Lazy load RealAnswerEngine nëse nuk u dha
-        if self.real_answer_engine is None:
-            self._lazy_load_engine()
-    
-    def _lazy_load_engine(self):
-        """Ngarko RealAnswerEngine lazy."""
-        try:
-            from real_answer_engine import get_real_answer_engine
-            self.real_answer_engine = get_real_answer_engine()
-            # Sigurohu që është në mode conversational
-            self.real_answer_engine.RESPONSE_MODE = "conversational"
-            logger.info("✅ RealAnswerEngine loaded (conversational mode)")
-        except ImportError as e:
-            logger.warning(f"⚠️ RealAnswerEngine not available: {e}")
-            self.real_answer_engine = None
+                logger.error(f"❌ OllamaMultiEngine FAILED: {e}")
 
     def _detect_language_request(self, query: str) -> Optional[str]:
         """
@@ -643,60 +619,29 @@ class ResponseOrchestratorV5:
                 base_text = f"Ollama nuk u përgjigj: {e}"
                 sources = ["ollama:error"]
         
-        # 4) Ekspertë - VETËM kur ka sens dhe mode == "deep"
+        # DISABLED - Ekspertë, Fusion, MegaLayers - vetëm Ollama!
         consulted: List[ExpertConsultation] = []
-        
-        if mode == "deep" and QueryUnderstandingV5.needs_experts(category):
-            experts = self.registry.pick_minimal_experts(category)
-            consulted = await self._consult_experts_parallel(query, experts)
-        
-        # 5) Fusion (vetëm nëse kemi rezultate nga ekspertë)
-        fused_answer, quality = self.fusion.fuse(base_text, consulted)
-        
-        # 5.5) MEGA LAYER PROCESSING - Miliarda kombinime
-        # DISABLED for clean chat - layer analysis stored but NOT shown to user
-        mega_layer_results = None
-        layer_summary = ""
-        if self.mega_layer_engine:
-            try:
-                activation, mega_results = self.mega_layer_engine.process_query(query)
-                mega_layer_results = mega_results
-                layer_summary = self.mega_layer_engine.get_layer_summary(activation, mega_results)
-                
-                # DO NOT add layer summary to chat response - keep it clean!
-                # fused_answer = fused_answer + layer_summary  # DISABLED
-                sources.append("mega_layers_engine")
-                
-                # Update understanding with layer info
-                understanding["mega_layers"] = {
-                    "combinations_used": mega_results["combinations_used"],
-                    "total_layers_engaged": mega_results["total_layers_engaged"],
-                    "unique_signature": mega_results["unique_signature"],
-                    "meta_consciousness": mega_results["meta_consciousness"],
-                    "quantum_amplitude": mega_results["quantum_amplitude"],
-                    "fractal_depth": mega_results["fractal_depth_used"],
-                }
-            except Exception as e:
-                logger.warning(f"MegaLayerEngine processing error: {e}")
+        fused_answer = base_text  # Direct from Ollama
+        quality = 0.9
         
         # 6) Ndërto përgjigjen finale
         response = OrchestratedResponse(
             query=query,
             query_category=category,
             understanding=understanding,
-            consulted_experts=consulted,
+            consulted_experts=[],
             fused_answer=fused_answer,
             sources_cited=sources,
             confidence=base_confidence,
             narrative_quality=quality,
             language=lang,
-            mega_layers=mega_layer_results,
+            mega_layers=None,
             learning_record={
                 "mode": mode, 
                 "lang": lang,
-                "experts_used": len(consulted),
-                "mega_layers_active": mega_layer_results is not None,
-                "combinations_used": mega_layer_results.get("combinations_used", 0) if mega_layer_results else 0,
+                "experts_used": 0,
+                "mega_layers_active": False,
+                "combinations_used": 0,
             },
         )
         
