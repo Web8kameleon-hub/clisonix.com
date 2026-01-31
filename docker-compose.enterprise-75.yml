@@ -158,7 +158,7 @@ services:
   alba:
     <<: *python-service
     container_name: clisonix-09-alba
-    command: bash -c "pip install -q uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client && python alba_service_5555.py"
+    command: bash -c "pip install -q uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http && python alba_service_5555.py"
     ports:
       - "5555:5555"
     depends_on:
@@ -168,7 +168,7 @@ services:
   albi:
     <<: *python-service
     container_name: clisonix-10-albi
-    command: bash -c "pip install -q uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client && python albi_service_6680.py"
+    command: bash -c "pip install -q uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http && python albi_service_6680.py"
     ports:
       - "6680:6680"
     depends_on:
@@ -178,7 +178,7 @@ services:
   jona:
     <<: *python-service
     container_name: clisonix-11-jona
-    command: bash -c "pip install -q uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client opentelemetry-api opentelemetry-sdk && python jona_service_7777.py"
+    command: bash -c "pip install -q uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http && python jona_service_7777.py"
     ports:
       - "7777:7777"
     environment:
@@ -211,14 +211,14 @@ services:
   liam:
     <<: *python-service
     container_name: clisonix-14-liam
-    command: bash -c "pip install -q uvicorn fastapi pydantic numpy && python liam_server.py"
+    command: bash -c "pip install -q uvicorn fastapi pydantic numpy cbor2 msgpack && python liam_server.py"
     ports:
       - "8062:8062"
 
   alda:
     <<: *python-service
     container_name: clisonix-15-alda
-    command: bash -c "pip install -q uvicorn fastapi pydantic && python alda_server.py"
+    command: bash -c "pip install -q uvicorn fastapi pydantic numpy && python alda_server.py"
     ports:
       - "8063:8063"
 
@@ -232,7 +232,7 @@ services:
   blerina:
     <<: *python-service
     container_name: clisonix-17-blerina
-    command: bash -c "pip install -q uvicorn fastapi pydantic httpx && python blerina_reformatter.py"
+    command: bash -c "pip install -q uvicorn fastapi pydantic httpx numpy && python blerina_reformatter.py"
     ports:
       - "8035:8035"
 
