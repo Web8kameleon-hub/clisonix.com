@@ -63,14 +63,7 @@ except ImportError:
     detect_albanian = None
     ALL_ALBANIAN_WORDS = {}
 
-# Import Smart API Router - DIREKT API thirrje pa Ollama (1% CPU!)
-try:
-    from smart_api_router import get_smart_router, SmartAPIRouter
-    SMART_ROUTER_AVAILABLE = True
-except ImportError:
-    SMART_ROUTER_AVAILABLE = False
-    get_smart_router = None
-    SmartAPIRouter = None
+# SmartAPIRouter removed - Orchestrator handles all routing
 
 logger = logging.getLogger("orchestrator_v5")
 
@@ -533,14 +526,7 @@ class ResponseOrchestratorV5:
             except Exception as e:
                 logger.warning(f"⚠️ OllamaMultiEngine not available: {e}")
         
-        # Initialize Smart API Router - DIREKT API thirrje (1% CPU vs 800%!)
-        self.smart_router: Optional[Any] = None
-        if SMART_ROUTER_AVAILABLE:
-            try:
-                self.smart_router = get_smart_router()
-                logger.info("🚀 SmartAPIRouter initialized - direkt API thirrje aktive!")
-            except Exception as e:
-                logger.warning(f"⚠️ SmartAPIRouter not available: {e}")
+
         
         # Lazy load RealAnswerEngine nëse nuk u dha
         if self.real_answer_engine is None:
@@ -614,30 +600,11 @@ class ResponseOrchestratorV5:
         understanding = QueryUnderstandingV5.understand(query, conversation_context)
         category: QueryCategory = understanding["category"]
         
-        # 3) FAST PATH - RealAnswerEngine direkt
+        # 3) Ollama përgjigjet - kaq
         base_text = ""
         sources = []
         base_confidence = 0.9
-        used_knowledge_seed = False
         used_ollama = False
-        used_albanian_dict = False
-        used_smart_router = False
-        
-        # ═══════════════════════════════════════════════════════════════════════
-        # SMART API ROUTER - PRIORITETI MË I LARTË! (1% CPU, <100ms)
-        # Thërras API-të e brendshme direkt PA Ollama kur është e mundur
-        # ═══════════════════════════════════════════════════════════════════════
-        if self.smart_router:
-            try:
-                smart_result = await self.smart_router.route(query, lang)
-                if smart_result.answered:
-                    base_text = smart_result.response
-                    sources = [smart_result.source]
-                    base_confidence = 0.95  # High confidence for direct API
-                    used_smart_router = True
-                    logger.info(f"🚀 SmartRouter answered ({smart_result.processing_time_ms:.0f}ms) - SKIPPING OLLAMA!")
-            except Exception as e:
-                logger.warning(f"SmartRouter error: {e}")
         
         # ═══════════════════════════════════════════════════════════════════════
         # LANGUAGE OVERRIDE for Ollama - inject language instruction
@@ -654,8 +621,8 @@ class ResponseOrchestratorV5:
             language_override_prompt = f"CRITICAL: Respond ONLY in {lang_name}. Do not use any other language."
             logger.info(f"🌍 Language override active: {lang_name}")
         
-        # OLLAMA - VETËM nëse SmartRouter nuk u përgjigj!
-        if not used_smart_router and self.ollama_engine:
+        # OLLAMA - Primary AI Engine (nëse duhen të dhëna, API backend/Excel)
+        if self.ollama_engine:
             try:
                 await self.ollama_engine.initialize()
                 
@@ -665,29 +632,16 @@ class ResponseOrchestratorV5:
                     enhanced_query = f"[{language_override_prompt}]\n\n{query}"
                 
                 ollama_response = await self.ollama_engine.generate(enhanced_query)
-                if ollama_response.content and not ollama_response.content.startswith("⚠️") and not ollama_response.content.startswith("[WARN]"):
+                if ollama_response.content:
                     base_text = ollama_response.content
                     sources = [f"ollama:{ollama_response.model_used}"]
-                    base_confidence = 0.90 if ollama_response.tier.value == "balanced" else 0.85
+                    base_confidence = 0.90
                     used_ollama = True
-                    logger.info(f"🦙 Ollama [{ollama_response.model_used}] response ({ollama_response.total_duration_ms:.0f}ms)")
+                    logger.info(f"🦙 Ollama [{ollama_response.model_used}] ({ollama_response.total_duration_ms:.0f}ms)")
             except Exception as e:
-                logger.warning(f"Ollama error: {e}")
-        
-        # 3.3) Fallback to RealAnswerEngine if nothing else answered
-        if not used_smart_router and not used_knowledge_seed and not used_albanian_dict and not used_ollama and self.real_answer_engine:
-            try:
-                base_result = await self.real_answer_engine.answer(query)
-                base_text = base_result.answer
-                sources = [base_result.source]
-                base_confidence = base_result.confidence
-            except Exception as e:
-                logger.error(f"RealAnswerEngine error: {e}")
-                base_text = self.language_layer.get_fallback(lang, query)
-                sources = ["fallback"]
-        elif not used_smart_router and not used_knowledge_seed and not used_albanian_dict and not used_ollama:
-            base_text = self.language_layer.get_fallback(lang, query)
-            sources = ["no_engine"]
+                logger.error(f"Ollama error: {e}")
+                base_text = f"Ollama nuk u përgjigj: {e}"
+                sources = ["ollama:error"]
         
         # 4) Ekspertë - VETËM kur ka sens dhe mode == "deep"
         consulted: List[ExpertConsultation] = []
