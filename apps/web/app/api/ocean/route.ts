@@ -22,9 +22,10 @@ import { NextResponse } from "next/server";
 
 // Detect environment for correct API URL
 // OCEAN_CORE_URL env var takes priority, then check NODE_ENV
+const isDev = process.env.NODE_ENV !== "production";
 const OCEAN_CORE_URL =
   process.env.OCEAN_CORE_URL ||
-  (process.env.NODE_ENV !== "production"
+  (isDev
     ? "http://localhost:8030"
     : "http://ocean-core:8030");
 
