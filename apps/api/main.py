@@ -4953,6 +4953,16 @@ async def postman_kitchen_sync():
 app.include_router(postman_router)
 logger.info("[OK] Postman Integration routes loaded (/api/postman/*)")
 
+# ============================================================================
+# JONA NEURAL SYNTHESIS ROUTES
+# ============================================================================
+try:
+    from routes.jona_routes import router as jona_router
+    app.include_router(jona_router)
+    logger.info("[OK] JONA Neural Synthesis routes loaded (/api/jona/*)")
+except ImportError as e:
+    logger.warning(f"[WARN] JONA routes not loaded: {e}")
+
 # ------------- Root -------------
 @app.get("/")
 def root():

@@ -1,17 +1,39 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Music, Brain, Waves, Radio, RefreshCw, Clock, CheckCircle, AlertCircle, Zap, Play, Square, Volume2, Pause } from 'lucide-react';
+import { 
+  Play, 
+  Square, 
+  Upload, 
+  Settings, 
+  Wifi,
+  WifiOff,
+  Volume2,
+  Music,
+  Brain,
+  Waves,
+  Zap,
+  Clock,
+  FileAudio,
+  Trash2,
+  Download,
+  RefreshCw,
+  Activity,
+  Sliders
+} from 'lucide-react';
 
-// API Response Types
-interface SynthesisSession {
-  session_id: string;
-  status: 'idle' | 'recording' | 'synthesizing' | 'complete';
-  duration_seconds: number;
-  samples_processed: number;
+// ============================================================================
+// TYPES
+// ============================================================================
+interface FrequencyBand {
+  name: string;
+  range: string;
+  power: number;
+  color: string;
+  description: string;
 }
 
-interface AudioOutput {
+interface AudioFile {
   file_id: string;
   filename: string;
   format: string;
@@ -20,606 +42,685 @@ interface AudioOutput {
   channels: number;
   size_bytes: number;
   created_at: string;
-}
-
-interface JonaMetrics {
-  service: string;
-  status: string;
-  eeg_signals_processed: number;
-  audio_files_created: number;
-  current_symphony: string | null;
   neural_frequency: number;
-  excitement_level: number;
-  uptime_seconds: number;
+  waveform_type: string;
 }
 
-interface APIResponse {
-  success: boolean;
-  data: JonaMetrics | SynthesisSession | AudioOutput[] | null;
-  error: string | null;
-  status: number;
-  responseTime: number;
-  timestamp: string;
-}
-
-interface EndpointConfig {
-  name: string;
-  method: string;
-  path: string;
-  description: string;
-}
-
-const ENDPOINTS: EndpointConfig[] = [
-  { name: 'JONA Status', method: 'GET', path: '/api/jona/status', description: 'Neural synthesis service status' },
-  { name: 'JONA Health', method: 'GET', path: '/api/jona/health', description: 'Service health check' },
-  { name: 'Audio Files', method: 'GET', path: '/api/jona/audio/list', description: 'List generated audio files' },
-  { name: 'Current Session', method: 'GET', path: '/api/jona/session', description: 'Active synthesis session' },
-  { name: 'Start Synthesis', method: 'POST', path: '/api/jona/synthesis/start', description: 'Start new synthesis' },
-  { name: 'Stop Synthesis', method: 'POST', path: '/api/jona/synthesis/stop', description: 'Stop current synthesis' },
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+const WAVEFORM_TYPES = [
+  { id: 'sine', name: 'Sine Wave', icon: '∿', description: 'Smooth, pure tone' },
+  { id: 'binaural', name: 'Binaural Beats', icon: '◐◑', description: 'Stereo frequency difference' },
+  { id: 'isochronic', name: 'Isochronic Tones', icon: '▮▯▮', description: 'Pulsing single tone' },
+  { id: 'pink', name: 'Pink Noise', icon: '▒▓▒', description: 'Natural ambient sound' }
 ];
 
-// Use relative paths for security - proxied through Next.js API routes
-const API_BASE = '';
+const PRESET_FREQUENCIES = [
+  { hz: 2.5, name: 'Deep Sleep', band: 'Delta', color: '#8B5CF6' },
+  { hz: 6.0, name: 'Meditation', band: 'Theta', color: '#F59E0B' },
+  { hz: 10.0, name: 'Relaxation', band: 'Alpha', color: '#3B82F6' },
+  { hz: 14.0, name: 'Focus', band: 'Low Beta', color: '#10B981' },
+  { hz: 20.0, name: 'Alertness', band: 'Beta', color: '#06B6D4' },
+  { hz: 40.0, name: 'Cognition', band: 'Gamma', color: '#EC4899' }
+];
 
-export default function NeuralSynthesisPage() {
-  const [selectedEndpoint, setSelectedEndpoint] = useState<EndpointConfig>(ENDPOINTS[0]);
-  const [response, setResponse] = useState<APIResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [autoRefresh, setAutoRefresh] = useState(false);
-  const [requestHistory, setRequestHistory] = useState<APIResponse[]>([]);
+// ============================================================================
+// API Functions
+// ============================================================================
+const API_BASE = '/api/jona';
 
-  // Audio playback state
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isSynthesizing, setIsSynthesizing] = useState(false);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const oscillatorRef = useRef<OscillatorNode | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
-
-  // Neural synthesis audio generation using Web Audio API
-  const startNeuralAudio = useCallback((frequency: number = 14.0) => {
-    try {
-      // Create audio context if not exists
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+async function fetchAPI(endpoint: string, options?: RequestInit) {
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
       }
+    });
+    return await res.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    return { success: false, error: 'Connection failed' };
+  }
+}
 
-      const audioContext = audioContextRef.current;
+// ============================================================================
+// COMPONENTS
+// ============================================================================
 
-      // Stop any existing oscillator
-      if (oscillatorRef.current) {
-        oscillatorRef.current.stop();
-        oscillatorRef.current.disconnect();
-      }
+// Header Component
+const Header = ({ 
+  isConnected, 
+  isSynthesizing, 
+  onStartStop, 
+  onExport,
+  sessionName,
+  elapsedTime
+}: {
+  isConnected: boolean;
+  isSynthesizing: boolean;
+  onStartStop: () => void;
+  onExport: () => void;
+  sessionName: string;
+  elapsedTime: number;
+}) => (
+  <div className="bg-white border-b border-slate-200 px-6 py-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg">
+            <Zap className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold text-slate-800">JONA</h1>
+            <p className="text-xs text-slate-500">Neural Synthesis</p>
+          </div>
+        </div>
+        
+        {isSynthesizing && (
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-orange-100 rounded-lg">
+            <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+            <span className="text-sm font-medium text-orange-700">{sessionName}</span>
+            <span className="text-sm text-orange-600">{formatTime(elapsedTime)}</span>
+          </div>
+        )}
+        
+        {/* Connection Status */}
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${isConnected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+          {isConnected ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
+          <span className="text-sm font-medium">{isConnected ? 'Connected' : 'Offline'}</span>
+        </div>
+      </div>
+      
+      {/* Action Buttons */}
+      <div className="flex items-center gap-3">
+        <button 
+          onClick={onStartStop}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all ${
+            isSynthesizing 
+              ? 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30' 
+              : 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-white shadow-lg shadow-orange-500/30'
+          }`}
+        >
+          {isSynthesizing ? <Square className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+          {isSynthesizing ? 'Stop Synthesis' : 'Start Synthesis'}
+        </button>
+        
+        <button 
+          onClick={onExport}
+          className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 font-medium transition-colors"
+        >
+          <Upload className="w-4 h-4" />
+          Export
+        </button>
+        
+        <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
+          <Settings className="w-5 h-5" />
+        </button>
+      </div>
+    </div>
+  </div>
+);
 
-      // Create oscillator for neural frequency
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
+// Format time helper
+const formatTime = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
 
-      // Neural frequency modulation - create binaural-like effect
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(frequency * 10, audioContext.currentTime); // Base frequency
+// Format bytes helper
+const formatBytes = (bytes: number): string => {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+};
 
-      // Add gentle modulation for "neural" effect
-      const lfo = audioContext.createOscillator();
-      const lfoGain = audioContext.createGain();
-      lfo.frequency.setValueAtTime(frequency / 2, audioContext.currentTime);
-      lfoGain.gain.setValueAtTime(5, audioContext.currentTime);
-      lfo.connect(lfoGain);
-      lfoGain.connect(oscillator.frequency);
-      lfo.start();
-
-      // Set volume (low for ambient effect)
-      gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
-
-      // Connect nodes
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-
-      // Start oscillator
-      oscillator.start();
-
-      oscillatorRef.current = oscillator;
-      gainNodeRef.current = gainNode;
-      setIsPlaying(true);
-
-    } catch (err) {
-      console.error('Failed to start neural audio:', err);
-    }
-  }, []);
-
-  const stopNeuralAudio = useCallback(() => {
-    try {
-      if (oscillatorRef.current) {
-        // Fade out gracefully
-        if (gainNodeRef.current && audioContextRef.current) {
-          gainNodeRef.current.gain.linearRampToValueAtTime(0, audioContextRef.current.currentTime + 0.5);
-          setTimeout(() => {
-            if (oscillatorRef.current) {
-              oscillatorRef.current.stop();
-              oscillatorRef.current.disconnect();
-              oscillatorRef.current = null;
-            }
-          }, 500);
-        } else {
-          oscillatorRef.current.stop();
-          oscillatorRef.current.disconnect();
-          oscillatorRef.current = null;
-        }
-      }
-      setIsPlaying(false);
-    } catch (err) {
-      console.error('Failed to stop neural audio:', err);
-    }
-  }, []);
-
-  // Start/Stop synthesis via API
-  const startSynthesis = useCallback(async () => {
-    setIsSynthesizing(true);
-    try {
-      const res = await fetch(`${API_BASE}/api/jona/synthesis/start`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (res.ok) {
-        // Also start audio playback
-        const data = response?.data as JonaMetrics | null;
-        startNeuralAudio(data?.neural_frequency || 14.0);
-      }
-    } catch (err) {
-      console.error('Failed to start synthesis:', err);
-    }
-  }, [response, startNeuralAudio]);
-
-  const stopSynthesis = useCallback(async () => {
-    try {
-      await fetch(`${API_BASE}/api/jona/synthesis/stop`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      stopNeuralAudio();
-    } catch (err) {
-      console.error('Failed to stop synthesis:', err);
-    } finally {
-      setIsSynthesizing(false);
-    }
-  }, [stopNeuralAudio]);
-
-  // Cleanup on unmount
+// Waveform Visualizer Component
+const WaveformVisualizer = ({ isActive, frequency }: { isActive: boolean; frequency: number }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number>(0);
+  const phaseRef = useRef(0);
+  
   useEffect(() => {
-    return () => {
-      if (oscillatorRef.current) {
-        oscillatorRef.current.stop();
-        oscillatorRef.current.disconnect();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    const draw = () => {
+      const width = canvas.width;
+      const height = canvas.height;
+      const centerY = height / 2;
+      
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(0, 0, width, height);
+      
+      // Draw grid lines
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = (height / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
       }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
+      
+      if (isActive) {
+        // Draw main waveform
+        const gradient = ctx.createLinearGradient(0, 0, width, 0);
+        gradient.addColorStop(0, '#f59e0b');
+        gradient.addColorStop(0.5, '#f97316');
+        gradient.addColorStop(1, '#ea580c');
+        
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        for (let x = 0; x < width; x++) {
+          const normalizedX = x / width;
+          const baseWave = Math.sin((normalizedX * frequency * 2 + phaseRef.current) * Math.PI);
+          const modulation = Math.sin((normalizedX * 3 + phaseRef.current * 0.5) * Math.PI) * 0.3;
+          const noise = (Math.random() - 0.5) * 0.1;
+          const y = centerY + (baseWave + modulation + noise) * (height * 0.35);
+          
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        
+        // Draw secondary harmonics
+        ctx.strokeStyle = 'rgba(249, 115, 22, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        
+        for (let x = 0; x < width; x++) {
+          const normalizedX = x / width;
+          const wave = Math.sin((normalizedX * frequency * 4 + phaseRef.current * 1.5) * Math.PI);
+          const y = centerY + wave * (height * 0.2);
+          
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        
+        phaseRef.current += 0.05;
+      } else {
+        // Draw flat line when inactive
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, centerY);
+        ctx.lineTo(width, centerY);
+        ctx.stroke();
+      }
+      
+      animationRef.current = requestAnimationFrame(draw);
+    };
+    
+    draw();
+    
+    return () => cancelAnimationFrame(animationRef.current);
+  }, [isActive, frequency]);
+  
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+          <Waves className="w-5 h-5 text-orange-500" />
+          Neural Waveform
+        </h2>
+        {isActive && (
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-xs text-slate-500">Synthesizing at {frequency} Hz</span>
+          </div>
+        )}
+      </div>
+      <canvas 
+        ref={canvasRef} 
+        width={600} 
+        height={150}
+        className="w-full rounded-lg"
+      />
+    </div>
+  );
+};
+
+// Frequency Control Panel
+const FrequencyControl = ({ 
+  frequency, 
+  setFrequency, 
+  waveform, 
+  setWaveform,
+  isActive 
+}: {
+  frequency: number;
+  setFrequency: (f: number) => void;
+  waveform: string;
+  setWaveform: (w: string) => void;
+  isActive: boolean;
+}) => (
+  <div className="bg-white rounded-xl border border-slate-200 p-5">
+    <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2 mb-4">
+      <Sliders className="w-5 h-5 text-purple-500" />
+      Frequency Control
+    </h2>
+    
+    {/* Main Frequency Slider */}
+    <div className="mb-6">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm font-medium text-slate-600">Target Frequency</span>
+        <span className="text-2xl font-bold text-orange-600">{frequency.toFixed(1)} Hz</span>
+      </div>
+      <input 
+        type="range"
+        min="0.5"
+        max="50"
+        step="0.5"
+        value={frequency}
+        onChange={(e) => setFrequency(parseFloat(e.target.value))}
+        disabled={isActive}
+        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-500 disabled:opacity-50"
+      />
+      <div className="flex justify-between text-xs text-slate-400 mt-1">
+        <span>0.5 Hz (Delta)</span>
+        <span>50 Hz (Gamma)</span>
+      </div>
+    </div>
+    
+    {/* Preset Frequencies */}
+    <div className="mb-6">
+      <span className="text-sm font-medium text-slate-600 block mb-2">Presets</span>
+      <div className="grid grid-cols-3 gap-2">
+        {PRESET_FREQUENCIES.map(preset => (
+          <button
+            key={preset.hz}
+            onClick={() => !isActive && setFrequency(preset.hz)}
+            disabled={isActive}
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
+              Math.abs(frequency - preset.hz) < 0.5 
+                ? 'border-orange-400 bg-orange-50 text-orange-700' 
+                : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
+            } disabled:opacity-50`}
+          >
+            <div className="font-semibold">{preset.name}</div>
+            <div className="text-xs opacity-70">{preset.hz} Hz</div>
+          </button>
+        ))}
+      </div>
+    </div>
+    
+    {/* Waveform Type */}
+    <div>
+      <span className="text-sm font-medium text-slate-600 block mb-2">Waveform Type</span>
+      <div className="grid grid-cols-2 gap-2">
+        {WAVEFORM_TYPES.map(type => (
+          <button
+            key={type.id}
+            onClick={() => !isActive && setWaveform(type.id)}
+            disabled={isActive}
+            className={`p-3 rounded-lg text-left transition-all border ${
+              waveform === type.id 
+                ? 'border-orange-400 bg-orange-50' 
+                : 'border-slate-200 bg-slate-50 hover:bg-slate-100'
+            } disabled:opacity-50`}
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-lg">{type.icon}</span>
+              <span className="font-medium text-slate-700">{type.name}</span>
+            </div>
+            <p className="text-xs text-slate-500">{type.description}</p>
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+// Frequency Bands Display
+const FrequencyBands = ({ bands }: { bands: FrequencyBand[] }) => (
+  <div className="bg-white rounded-xl border border-slate-200 p-5">
+    <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2 mb-4">
+      <Brain className="w-5 h-5 text-blue-500" />
+      Brainwave Bands
+    </h2>
+    
+    <div className="space-y-3">
+      {bands.map(band => (
+        <div key={band.name} className="space-y-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: band.color }} />
+              <span className="text-sm font-medium text-slate-700">{band.name}</span>
+              <span className="text-xs text-slate-400">({band.range})</span>
+            </div>
+            <span className="text-sm font-semibold text-slate-800">{band.power.toFixed(0)}%</span>
+          </div>
+          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div 
+              className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${band.power}%`, backgroundColor: band.color }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+    
+    {/* Current State */}
+    <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
+      <div className="text-sm text-slate-600">Dominant Band</div>
+      <div className="text-lg font-bold text-blue-700">Alpha</div>
+      <div className="text-sm text-slate-500">Relaxed, calm state</div>
+    </div>
+  </div>
+);
+
+// Audio Library Panel
+const AudioLibrary = ({ 
+  files, 
+  onRefresh, 
+  onDelete, 
+  onPlay,
+  playingId 
+}: { 
+  files: AudioFile[];
+  onRefresh: () => void;
+  onDelete: (id: string) => void;
+  onPlay: (id: string) => void;
+  playingId: string | null;
+}) => (
+  <div className="bg-white rounded-xl border border-slate-200 p-5">
+    <div className="flex items-center justify-between mb-4">
+      <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+        <Music className="w-5 h-5 text-green-500" />
+        Audio Library
+      </h2>
+      <button 
+        onClick={onRefresh}
+        className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
+      >
+        <RefreshCw className="w-4 h-4" />
+      </button>
+    </div>
+    
+    {files.length === 0 ? (
+      <div className="text-center py-8 text-slate-400">
+        <FileAudio className="w-12 h-12 mx-auto mb-2 opacity-50" />
+        <p>No audio files yet</p>
+        <p className="text-sm">Start synthesizing to create audio</p>
+      </div>
+    ) : (
+      <div className="space-y-2 max-h-[300px] overflow-y-auto">
+        {files.map(file => (
+          <div 
+            key={file.file_id}
+            className={`p-3 rounded-lg border transition-all ${
+              playingId === file.file_id 
+                ? 'border-green-400 bg-green-50' 
+                : 'border-slate-100 bg-slate-50 hover:bg-slate-100'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => onPlay(file.file_id)}
+                className={`p-2 rounded-full transition-colors ${
+                  playingId === file.file_id 
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                }`}
+              >
+                {playingId === file.file_id ? <Volume2 className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              </button>
+              
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-slate-700 truncate">{file.filename}</div>
+                <div className="flex items-center gap-3 text-xs text-slate-500">
+                  <span>{formatTime(file.duration_ms / 1000)}</span>
+                  <span>{file.neural_frequency.toFixed(1)} Hz</span>
+                  <span>{file.waveform_type}</span>
+                  <span>{formatBytes(file.size_bytes)}</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-1">
+                <button className="p-1.5 hover:bg-slate-200 rounded text-slate-400 hover:text-slate-600">
+                  <Download className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => onDelete(file.file_id)}
+                  className="p-1.5 hover:bg-red-100 rounded text-slate-400 hover:text-red-500"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+    
+    {files.length > 0 && (
+      <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500">
+        <span>{files.length} files</span>
+        <span>Total: {formatBytes(files.reduce((sum, f) => sum + f.size_bytes, 0))}</span>
+      </div>
+    )}
+  </div>
+);
+
+// Synthesis Stats
+const SynthesisStats = ({ stats }: { stats: { signals: number; files: number; uptime: number } }) => (
+  <div className="grid grid-cols-3 gap-4">
+    <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
+      <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-blue-100 flex items-center justify-center">
+        <Activity className="w-5 h-5 text-blue-600" />
+      </div>
+      <div className="text-2xl font-bold text-slate-800">{stats.signals.toLocaleString()}</div>
+      <div className="text-sm text-slate-500">Signals Processed</div>
+    </div>
+    <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
+      <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-green-100 flex items-center justify-center">
+        <Music className="w-5 h-5 text-green-600" />
+      </div>
+      <div className="text-2xl font-bold text-slate-800">{stats.files}</div>
+      <div className="text-sm text-slate-500">Audio Files</div>
+    </div>
+    <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
+      <div className="w-10 h-10 mx-auto mb-2 rounded-lg bg-purple-100 flex items-center justify-center">
+        <Clock className="w-5 h-5 text-purple-600" />
+      </div>
+      <div className="text-2xl font-bold text-slate-800">{formatTime(stats.uptime)}</div>
+      <div className="text-sm text-slate-500">Uptime</div>
+    </div>
+  </div>
+);
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
+export default function NeuralSynthesisPage() {
+  const [isConnected, setIsConnected] = useState(true);
+  const [isSynthesizing, setIsSynthesizing] = useState(false);
+  const [frequency, setFrequency] = useState(14.0);
+  const [waveform, setWaveform] = useState('sine');
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [sessionName, setSessionName] = useState('');
+  const [audioFiles, setAudioFiles] = useState<AudioFile[]>([]);
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [stats, setStats] = useState({ signals: 0, files: 0, uptime: 0 });
+  
+  const [bands, setBands] = useState<FrequencyBand[]>([]);
+  const [isClient, setIsClient] = useState(false);
+  
+  // Initialize on client
+  useEffect(() => {
+    setIsClient(true);
+    setBands([
+      { name: 'Delta', range: '0.5-4 Hz', power: 25, color: '#8B5CF6', description: 'Deep sleep' },
+      { name: 'Theta', range: '4-8 Hz', power: 35, color: '#F59E0B', description: 'Meditation' },
+      { name: 'Alpha', range: '8-12 Hz', power: 65, color: '#3B82F6', description: 'Relaxation' },
+      { name: 'Beta', range: '12-30 Hz', power: 45, color: '#10B981', description: 'Focus' },
+      { name: 'Gamma', range: '30-100 Hz', power: 15, color: '#EC4899', description: 'Cognition' }
+    ]);
+  }, []);
+  
+  // Fetch initial data
+  useEffect(() => {
+    if (!isClient) return;
+    
+    const fetchData = async () => {
+      // Fetch status
+      const statusRes = await fetchAPI('/status');
+      if (statusRes.success && statusRes.metrics) {
+        setStats({
+          signals: statusRes.metrics.eeg_signals_processed || 0,
+          files: statusRes.metrics.audio_files_created || 0,
+          uptime: statusRes.metrics.uptime_seconds || 0
+        });
+        setIsConnected(true);
+      }
+      
+      // Fetch audio files
+      const audioRes = await fetchAPI('/audio/list');
+      if (audioRes.success && audioRes.files) {
+        setAudioFiles(audioRes.files);
+      }
+      
+      // Fetch frequency bands
+      const bandsRes = await fetchAPI('/frequencies');
+      if (bandsRes.success && bandsRes.bands) {
+        const bandData = bandsRes.bands;
+        setBands([
+          { name: 'Delta', range: bandData.delta.range, power: bandData.delta.power, color: '#8B5CF6', description: bandData.delta.description },
+          { name: 'Theta', range: bandData.theta.range, power: bandData.theta.power, color: '#F59E0B', description: bandData.theta.description },
+          { name: 'Alpha', range: bandData.alpha.range, power: bandData.alpha.power, color: '#3B82F6', description: bandData.alpha.description },
+          { name: 'Beta', range: bandData.beta.range, power: bandData.beta.power, color: '#10B981', description: bandData.beta.description },
+          { name: 'Gamma', range: bandData.gamma.range, power: bandData.gamma.power, color: '#EC4899', description: bandData.gamma.description }
+        ]);
       }
     };
-  }, []);
-
-  const executeRequest = useCallback(async (endpoint: EndpointConfig) => {
-    setIsLoading(true);
-    const startTime = performance.now();
-
-    try {
-      const res = await fetch(`${API_BASE}${endpoint.path}`, {
-        method: endpoint.method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        cache: 'no-store',
-      });
-
-      const endTime = performance.now();
-      const responseTime = Math.round(endTime - startTime);
-
-      let data = null;
-      let error = null;
-
-      try {
-        const jsonData = await res.json();
-        if (res.ok) {
-          data = jsonData;
-        } else {
-          error = jsonData.detail || jsonData.message || `HTTP ${res.status}`;
+    
+    fetchData();
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval(interval);
+  }, [isClient]);
+  
+  // Timer for synthesis
+  useEffect(() => {
+    if (!isSynthesizing) return;
+    
+    const timer = setInterval(() => {
+      setElapsedTime(prev => prev + 1);
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [isSynthesizing]);
+  
+  // Start/Stop synthesis
+  const handleStartStop = useCallback(async () => {
+    if (isSynthesizing) {
+      // Stop
+      const res = await fetchAPI('/synthesis/stop', { method: 'POST' });
+      if (res.success) {
+        setIsSynthesizing(false);
+        setElapsedTime(0);
+        // Refresh audio files
+        const audioRes = await fetchAPI('/audio/list');
+        if (audioRes.success && audioRes.files) {
+          setAudioFiles(audioRes.files);
         }
-      } catch {
-        error = 'Invalid JSON response';
       }
-
-      const apiResponse: APIResponse = {
-        success: res.ok,
-        data,
-        error,
-        status: res.status,
-        responseTime,
-        timestamp: new Date().toISOString(),
-      };
-
-      setResponse(apiResponse);
-      setRequestHistory(prev => [apiResponse, ...prev].slice(0, 10));
-
-    } catch (err) {
-      const endTime = performance.now();
-      const apiResponse: APIResponse = {
-        success: false,
-        data: null,
-        error: err instanceof Error ? err.message : 'Network error',
-        status: 0,
-        responseTime: Math.round(endTime - startTime),
-        timestamp: new Date().toISOString(),
-      };
-      setResponse(apiResponse);
-      setRequestHistory(prev => [apiResponse, ...prev].slice(0, 10));
-    } finally {
-      setIsLoading(false);
+    } else {
+      // Start
+      const res = await fetchAPI('/synthesis/start', {
+        method: 'POST',
+        body: JSON.stringify({
+          frequency,
+          waveform,
+          duration: 300, // 5 minutes max
+          modulation: true,
+          binaural: waveform === 'binaural'
+        })
+      });
+      if (res.success && res.session) {
+        setIsSynthesizing(true);
+        setSessionName(res.session.symphony_name);
+        setElapsedTime(0);
+      }
+    }
+  }, [isSynthesizing, frequency, waveform]);
+  
+  const handleExport = useCallback(() => {
+    alert('Exporting synthesis data...');
+  }, []);
+  
+  const handleRefreshAudio = useCallback(async () => {
+    const res = await fetchAPI('/audio/list');
+    if (res.success && res.files) {
+      setAudioFiles(res.files);
     }
   }, []);
-
-  useEffect(() => {
-    executeRequest(selectedEndpoint);
+  
+  const handleDeleteAudio = useCallback(async (fileId: string) => {
+    const res = await fetchAPI(`/audio/${fileId}`, { method: 'DELETE' });
+    if (res.success) {
+      setAudioFiles(prev => prev.filter(f => f.file_id !== fileId));
+    }
   }, []);
-
-  useEffect(() => {
-    if (!autoRefresh) return;
-    const interval = setInterval(() => {
-      executeRequest(selectedEndpoint);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [autoRefresh, selectedEndpoint, executeRequest]);
-
-  const getStatusColor = (status: number) => {
-    if (status >= 200 && status < 300) return 'text-blue-700';
-    if (status >= 400 && status < 500) return 'text-amber-400';
-    return 'text-red-400';
-  };
-
-  const getStatusBadge = (status: number) => {
-    if (status >= 200 && status < 300) return 'bg-blue-800/20 text-blue-700 border-blue-800/30';
-    if (status >= 400 && status < 500) return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
-    return 'bg-red-500/20 text-red-400 border-red-500/30';
-  };
-
-  const getMethodBadge = (method: string) => {
-    if (method === 'GET') return 'bg-blue-800/20 text-blue-700 border-blue-800/30';
-    if (method === 'POST') return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
-    if (method === 'DELETE') return 'bg-red-500/20 text-red-400 border-red-500/30';
-    return 'bg-violet-500/20 text-violet-400 border-violet-500/30';
-  };
-
-  const formatBytes = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
-  const formatDuration = (ms: number) => {
-    const seconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
+  
+  const handlePlayAudio = useCallback((fileId: string) => {
+    setPlayingId(prev => prev === fileId ? null : fileId);
+  }, []);
+  
+  if (!isClient) {
+    return <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent"></div>
+    </div>;
+  }
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 text-white p-6">
-      {/* Header */}
-      <div className="max-w-7xl mx-auto mb-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30">
-              <Music className="w-8 h-8 text-purple-400" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                JONA Neural Synthesis
-              </h1>
-              <p className="text-slate-400 text-sm">Joyful Overseer of Neural Alignment • Postman-Style API Interface</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setAutoRefresh(!autoRefresh)}
-              className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${autoRefresh
-                  ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                  : 'bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:bg-slate-700/50'
-                }`}
-            >
-              <RefreshCw className={`w-4 h-4 ${autoRefresh ? 'animate-spin' : ''}`} />
-              {autoRefresh ? 'Live' : 'Auto'}
-            </button>
-          </div>
+    <div className="min-h-screen bg-slate-100">
+      <Header 
+        isConnected={isConnected}
+        isSynthesizing={isSynthesizing}
+        onStartStop={handleStartStop}
+        onExport={handleExport}
+        sessionName={sessionName}
+        elapsedTime={elapsedTime}
+      />
+      
+      <div className="p-6 space-y-6">
+        {/* Stats Row */}
+        <SynthesisStats stats={stats} />
+        
+        {/* Main Waveform */}
+        <WaveformVisualizer isActive={isSynthesizing} frequency={frequency} />
+        
+        {/* Control Panels */}
+        <div className="grid grid-cols-2 gap-6">
+          <FrequencyControl 
+            frequency={frequency}
+            setFrequency={setFrequency}
+            waveform={waveform}
+            setWaveform={setWaveform}
+            isActive={isSynthesizing}
+          />
+          <FrequencyBands bands={bands} />
         </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6">
-        {/* Sidebar - Endpoints */}
-        <div className="col-span-3 space-y-3">
-          <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
-            <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-              <Radio className="w-4 h-4 text-purple-400" />
-              API Endpoints
-            </h3>
-            <div className="space-y-2">
-              {ENDPOINTS.map((endpoint) => (
-                <button
-                  key={endpoint.path}
-                  onClick={() => {
-                    setSelectedEndpoint(endpoint);
-                    executeRequest(endpoint);
-                  }}
-                  className={`w-full text-left p-3 rounded-lg transition-all ${selectedEndpoint.path === endpoint.path
-                      ? 'bg-purple-500/20 border border-purple-500/30'
-                      : 'bg-slate-800/30 border border-slate-700/30 hover:bg-slate-800/50'
-                    }`}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`px-2 py-0.5 text-xs font-mono rounded border ${getMethodBadge(endpoint.method)}`}>
-                      {endpoint.method}
-                    </span>
-                    <span className="text-sm font-medium text-white">{endpoint.name}</span>
-                  </div>
-                  <p className="text-xs text-slate-500 font-mono truncate">{endpoint.path}</p>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Request History */}
-          <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
-            <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-purple-400" />
-              Request History
-            </h3>
-            <div className="space-y-2 max-h-64 overflow-y-auto">
-              {requestHistory.length === 0 ? (
-                <p className="text-xs text-slate-500 text-center py-4">No requests yet</p>
-              ) : (
-                requestHistory.map((req, idx) => (
-                  <div key={idx} className="p-2 rounded-lg bg-slate-800/30 border border-slate-700/30">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className={`text-xs font-mono ${getStatusColor(req.status)}`}>
-                        {req.status || 'ERR'}
-                      </span>
-                      <span className="text-xs text-slate-500">{req.responseTime}ms</span>
-                    </div>
-                    <p className="text-xs text-slate-400">
-                      {new Date(req.timestamp).toLocaleTimeString()}
-                    </p>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="col-span-9 space-y-6">
-          {/* Request Bar */}
-          <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 p-4">
-            <div className="flex items-center gap-3">
-              <span className={`px-3 py-1.5 text-sm font-mono rounded-lg border ${getMethodBadge(selectedEndpoint.method)}`}>
-                {selectedEndpoint.method}
-              </span>
-              <div className="flex-1 px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700/50 font-mono text-sm text-slate-300">
-                {selectedEndpoint.path}
-              </div>
-              <button
-                onClick={() => executeRequest(selectedEndpoint)}
-                disabled={isLoading}
-                className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 flex items-center gap-2"
-              >
-                {isLoading ? (
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Zap className="w-4 h-4" />
-                )}
-                Send
-              </button>
-            </div>
-          </div>
-
-          {/* Response Section */}
-          {response && (
-            <div className="bg-slate-900/50 backdrop-blur-xl rounded-xl border border-slate-800/50 overflow-hidden">
-              {/* Response Header */}
-              <div className="px-4 py-3 border-b border-slate-800/50 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <span className={`px-3 py-1 text-sm font-mono rounded-lg border ${getStatusBadge(response.status)}`}>
-                    {response.status || 'Error'}
-                  </span>
-                  <span className="text-sm text-slate-400">
-                    <Clock className="w-4 h-4 inline mr-1" />
-                    {response.responseTime}ms
-                  </span>
-                  {response.success ? (
-                    <span className="text-blue-700 flex items-center gap-1 text-sm">
-                      <CheckCircle className="w-4 h-4" /> Success
-                    </span>
-                  ) : (
-                    <span className="text-red-400 flex items-center gap-1 text-sm">
-                      <AlertCircle className="w-4 h-4" /> Failed
-                    </span>
-                  )}
-                </div>
-                <span className="text-xs text-slate-500">
-                  {new Date(response.timestamp).toLocaleString()}
-                </span>
-              </div>
-
-              {/* Response Body */}
-              <div className="p-4">
-                {response.error ? (
-                  <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400">
-                    <p className="font-mono text-sm">{response.error}</p>
-                  </div>
-                ) : response.data ? (
-                  <div className="space-y-6">
-                    {/* JONA Metrics Cards */}
-                    {(response.data as JonaMetrics).service && (
-                      <div className="grid grid-cols-4 gap-4">
-                        <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Music className="w-5 h-5 text-purple-400" />
-                            <span className="text-sm text-slate-400">Status</span>
-                          </div>
-                            <p className={`text-xl font-bold capitalize ${(response.data as JonaMetrics).status === 'online' ? 'text-blue-700' :
-                                (response.data as JonaMetrics).status === 'synthesizing' ? 'text-purple-400' :
-                                  'text-slate-400'
-                              }`}>
-                              {(response.data as JonaMetrics).status || 'Unknown'}
-                            </p>
-                          </div>
-                          <div className="p-4 rounded-xl bg-gradient-to-br from-violet-500/10 to-violet-500/10 border border-violet-500/20">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Brain className="w-5 h-5 text-violet-400" />
-                              <span className="text-sm text-slate-400">Neural Freq</span>
-                            </div>
-                            <p className="text-xl font-bold text-violet-400">
-                              {(response.data as JonaMetrics).neural_frequency?.toFixed(1) || 0} Hz
-                            </p>
-                          </div>
-                          <div className="p-4 rounded-xl bg-gradient-to-br from-blue-800/10 to-green-500/10 border border-blue-800/20">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Waves className="w-5 h-5 text-blue-700" />
-                              <span className="text-sm text-slate-400">EEG Processed</span>
-                            </div>
-                            <p className="text-xl font-bold text-blue-700">
-                              {((response.data as JonaMetrics).eeg_signals_processed || 0).toLocaleString()}
-                            </p>
-                          </div>
-                          <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Volume2 className="w-5 h-5 text-amber-400" />
-                              <span className="text-sm text-slate-400">Audio Files</span>
-                            </div>
-                            <p className="text-xl font-bold text-amber-400">
-                              {(response.data as JonaMetrics).audio_files_created || 0}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Current Symphony */}
-                      {(response.data as JonaMetrics).current_symphony && (
-                        <div className="p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20">
-                          <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                            <Music className="w-4 h-4 text-purple-400" />
-                            Current Neural Symphony
-                          </h4>
-                          <div className="text-center py-4">
-                            <p className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                              &quot;{(response.data as JonaMetrics).current_symphony}&quot;
-                            </p>
-                            <div className="flex items-center justify-center gap-4 mt-4">
-                              {!isPlaying ? (
-                                <button
-                                  onClick={() => {
-                                    const data = response?.data as JonaMetrics;
-                                    startNeuralAudio(data?.neural_frequency || 14.0);
-                                    startSynthesis();
-                                  }}
-                                  disabled={isSynthesizing}
-                                  className="px-4 py-2 rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center gap-2 hover:bg-purple-500/30 transition-all duration-300 disabled:opacity-50"
-                                >
-                                  <Play className="w-4 h-4" /> Play
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={() => {
-                                    stopNeuralAudio();
-                                  }}
-                                  className="px-4 py-2 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-2 hover:bg-amber-500/30 transition-all duration-300 animate-pulse"
-                                >
-                                  <Pause className="w-4 h-4" /> Pause
-                                </button>
-                              )}
-                              <button
-                                onClick={() => {
-                                  stopSynthesis();
-                                }}
-                                disabled={!isPlaying && !isSynthesizing}
-                                className="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-2 hover:bg-red-500/30 transition-all duration-300 disabled:opacity-50"
-                              >
-                                <Square className="w-4 h-4" /> Stop
-                              </button>
-                            </div>
-                            {isPlaying && (
-                              <div className="mt-3 flex items-center justify-center gap-2 text-sm text-purple-400">
-                                <Volume2 className="w-4 h-4 animate-pulse" />
-                                <span>Playing Neural Symphony at {(response?.data as JonaMetrics)?.neural_frequency?.toFixed(1) || 14.0} Hz</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Audio Files List */}
-                      {Array.isArray(response.data) && response.data.length > 0 && (
-                        <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
-                          <h4 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
-                            <Volume2 className="w-4 h-4 text-purple-400" />
-                            Generated Audio Files ({response.data.length})
-                          </h4>
-                          <div className="space-y-2">
-                            {(response.data as AudioOutput[]).map((audio, idx) => (
-                              <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-slate-900/50 border border-slate-700/30">
-                                <div className="flex items-center gap-3">
-                                  <div className="p-2 rounded-lg bg-purple-500/20">
-                                    <Music className="w-4 h-4 text-purple-400" />
-                                  </div>
-                                  <div>
-                                  <p className="text-sm font-medium text-white">{audio.filename}</p>
-                                  <p className="text-xs text-slate-500">
-                                    {audio.format} • {audio.sample_rate} Hz • {audio.channels}ch
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <span className="text-sm text-slate-400">{formatDuration(audio.duration_ms)}</span>
-                                <span className="text-xs text-slate-500">{formatBytes(audio.size_bytes)}</span>
-                                  <button
-                                    onClick={() => {
-                                      // Generate audio based on the file's sample rate
-                                      startNeuralAudio(audio.sample_rate / 100);
-                                    }}
-                                    className="p-2 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-all duration-300"
-                                    title={`Play ${audio.filename}`}
-                                  >
-                                  <Play className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                          </div>
-                        </div>
-                      )}
-
-                    {/* Raw JSON Response */}
-                    <div className="p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
-                      <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-purple-400" />
-                        Raw JSON Response
-                      </h4>
-                      <pre className="p-4 bg-slate-950/50 rounded-lg overflow-x-auto text-xs font-mono text-slate-300 max-h-96 overflow-y-auto">
-                        {JSON.stringify(response.data, null, 2)}
-                      </pre>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-slate-500 text-center py-8">No data received</p>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="max-w-7xl mx-auto mt-8 text-center">
-        <p className="text-xs text-slate-600">
-          JONA Neural Synthesis Module • Real API Data • No Mock Values
-        </p>
+        
+        {/* Audio Library */}
+        <AudioLibrary 
+          files={audioFiles}
+          onRefresh={handleRefreshAudio}
+          onDelete={handleDeleteAudio}
+          onPlay={handlePlayAudio}
+          playingId={playingId}
+        />
       </div>
     </div>
   );

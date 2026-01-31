@@ -110,8 +110,8 @@ export default function CuriosityOceanChat() {
         .map(m => m.content)
         .slice(-5); // Last 5 user messages for context
 
-      // Query v1 chat endpoint (supports German, Albanian, English, etc.)
-      const res = await fetch('http://localhost:8030/api/v1/chat', {
+      // Query via proxy (works in production and localhost)
+      const res = await fetch('/api/ocean', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -123,8 +123,8 @@ export default function CuriosityOceanChat() {
       if (res.ok) {
         const data = await res.json();
         
-        // Build a clean response from the chat API (no references/sources shown)
-        const responseContent = data.response || data.answer || 'No response received';
+        // Build a clean response from the API (supports multiple response formats)
+        const responseContent = data.ocean_response || data.response || data.answer || 'No response received';
 
         const aiMessage: Message = {
           id: `ai-${Date.now()}`,

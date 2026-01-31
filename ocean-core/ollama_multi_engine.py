@@ -45,7 +45,11 @@ logger = logging.getLogger("ollama_multi")
 # 
 
 IS_IN_DOCKER = os.path.exists("/.dockerenv") or os.environ.get("DOCKER_ENV") == "1"
-OLLAMA_HOST = "host.docker.internal" if IS_IN_DOCKER else "localhost"
+# Use environment variable first, then container name for Docker, localhost for dev
+OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "clisonix-06-ollama" if IS_IN_DOCKER else "localhost")
+# Clean up OLLAMA_HOST if it contains http://
+if OLLAMA_HOST.startswith("http://"):
+    OLLAMA_HOST = OLLAMA_HOST.replace("http://", "").split(":")[0]
 OLLAMA_BASE_URL = os.environ.get("OLLAMA_URL", f"http://{OLLAMA_HOST}:11434")
 DEFAULT_TIMEOUT = 120.0
 
