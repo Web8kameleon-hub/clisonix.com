@@ -21,15 +21,13 @@ import { NextResponse } from "next/server";
  */
 
 // Detect environment for correct API URL
-const isDev = process.env.NODE_ENV !== "production";
-const OCEAN_CORE_URL = isDev
-  ? "http://localhost:8030"
-  : process.env.OCEAN_CORE_URL || "http://clisonix-08-ocean-core:8030";
+// OCEAN_CORE_URL env var takes priority, then check NODE_ENV
+const OCEAN_CORE_URL = process.env.OCEAN_CORE_URL || 
+  (process.env.NODE_ENV !== "production" ? "http://localhost:8030" : "http://ocean-core:8030");
 
 // Fallback URL for internal API (used when ocean-core not available)
-const BACKEND_API_URL = isDev
-  ? "http://localhost:8000"
-  : process.env.BACKEND_API_URL || "http://clisonix-01-api:8000";
+const BACKEND_API_URL = process.env.BACKEND_API_URL ||
+  (process.env.NODE_ENV !== "production" ? "http://localhost:8000" : "http://api:8000");
 
 interface OceanCoreResponse {
   query: string;
