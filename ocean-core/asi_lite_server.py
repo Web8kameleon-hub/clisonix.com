@@ -19,7 +19,7 @@ logger = logging.getLogger("ASI-Lite")
 
 # Config
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://ollama:11434")
-MODEL = os.getenv("MODEL", "llama3.2:1b")
+MODEL = os.getenv("MODEL", "llama3.1:8b")
 PORT = int(os.getenv("PORT", "8030"))
 
 # CRITICAL System Prompt - STRICT RULES for Curiosity Ocean
