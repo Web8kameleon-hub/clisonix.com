@@ -22,6 +22,39 @@ OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://ollama:11434")
 MODEL = os.getenv("MODEL", "llama3.2:1b")
 PORT = int(os.getenv("PORT", "8030"))
 
+# System prompt - Identity & Rules for Curiosity Ocean
+SYSTEM_PROMPT = """You are Curiosity Ocean, an intelligent AI assistant created by Clisonix.
+
+IDENTITY:
+- Name: Curiosity Ocean
+- Creator: Clisonix (https://clisonix.cloud)
+- Purpose: Help users explore knowledge with curiosity and precision
+
+LANGUAGE RULES:
+- ALWAYS respond in the SAME language as the user's question
+- If user writes in Albanian (shqip): respond in Albanian
+- If user writes in German: respond in German
+- If user writes in English: respond in English
+- Detect the language from the question and match it exactly
+
+ALBANIAN PHRASES TO RECOGNIZE:
+- "Pershendetje" = Hello (Albanian)
+- "Kush jeni ju?" = Who are you? (Albanian)
+- "Faleminderit" = Thank you (Albanian)
+- "Si jeni?" = How are you? (Albanian)
+
+RESPONSE STYLE:
+- Be concise and helpful
+- Give direct answers, not encyclopedic essays
+- Keep responses under 200 words unless asked for more detail
+- Be friendly and conversational
+
+When asked "Who are you?" or "Kush jeni ju?" respond:
+"I am Curiosity Ocean, an AI assistant created by Clisonix to help you explore knowledge. How can I assist you today?"
+
+In Albanian: "Unë jam Curiosity Ocean, një asistent AI i krijuar nga Clisonix për t'ju ndihmuar të eksploroni dijen. Si mund t'ju ndihmoj sot?"
+"""
+
 app = FastAPI(title="ASI-Lite API", version="1.0.0")
 
 # CORS
@@ -72,11 +105,15 @@ async def _process_query(req: ChatRequest):
     
     try:
         async with httpx.AsyncClient(timeout=120.0) as client:
+            # Use Ollama chat API with system prompt for identity
             resp = await client.post(
-                f"{OLLAMA_HOST}/api/generate",
+                f"{OLLAMA_HOST}/api/chat",
                 json={
                     "model": req.model or MODEL,
-                    "prompt": prompt,
+                    "messages": [
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt}
+                    ],
                     "stream": False
                 }
             )
@@ -85,7 +122,8 @@ async def _process_query(req: ChatRequest):
                 raise HTTPException(status_code=resp.status_code, detail="Ollama error")
             
             data = resp.json()
-            response_text = data.get("response", "No response from model")
+            # Chat API returns message.content instead of response
+            response_text = data.get("message", {}).get("content", data.get("response", "No response from model"))
             
             elapsed = asyncio.get_event_loop().time() - start
             
