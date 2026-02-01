@@ -94,9 +94,6 @@ services:
       REDIS_URL: "redis://redis:6379/0"
     ports:
       - "8030:8030"
-    networks:
-      - default
-      - clisonix-net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8030/health"]
       interval: 30s
