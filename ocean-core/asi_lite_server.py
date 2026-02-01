@@ -34,7 +34,8 @@ app.add_middleware(
 )
 
 class ChatRequest(BaseModel):
-    message: str
+    message: str = None
+    query: str = None  # Alternative field name
     model: str = MODEL
 
 class ChatResponse(BaseModel):
@@ -53,7 +54,21 @@ async def health():
 @app.post("/api/v1/chat")
 async def chat(req: ChatRequest):
     """Main chat endpoint - compatible with Ocean-Core API"""
+    return await _process_query(req)
+
+@app.post("/api/v1/query")
+async def query(req: ChatRequest):
+    """ASI-Lite minimal endpoint - FAST 1-3 second responses"""
+    return await _process_query(req)
+
+async def _process_query(req: ChatRequest):
+    """Internal processing - shared by /chat and /query"""
     start = asyncio.get_event_loop().time()
+    
+    # Support both 'message' and 'query' field names
+    prompt = req.message or req.query
+    if not prompt:
+        raise HTTPException(status_code=400, detail="message or query required")
     
     try:
         async with httpx.AsyncClient(timeout=120.0) as client:
@@ -61,7 +76,7 @@ async def chat(req: ChatRequest):
                 f"{OLLAMA_HOST}/api/generate",
                 json={
                     "model": req.model or MODEL,
-                    "prompt": req.message,
+                    "prompt": prompt,
                     "stream": False
                 }
             )

@@ -59,14 +59,14 @@ async function queryOceanCore(
 ): Promise<OceanCoreResponse | null> {
   try {
     // No timeout - let Ollama take as long as it needs
-    // Use the correct Ocean-Core chat endpoint
-    const response = await fetch(`${OCEAN_CORE_URL}/api/v1/chat`, {
+    // ASI-Lite minimal endpoint - fast 1-3 second responses
+    const response = await fetch(`${OCEAN_CORE_URL}/api/v1/query`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        message: question,
+        query: question,
       }),
     });
 
