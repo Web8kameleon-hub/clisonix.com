@@ -25,9 +25,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      
-    });
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {});
 
     let event;
 
@@ -105,10 +103,5 @@ export async function POST(request: Request) {
   }
 }
 
-// Disable body parsing for webhooks (Stripe needs raw body)
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
+// Next.js 13+ App Router: body parsing is disabled by default for route handlers
+// No config needed - raw body is available via request.text() or request.arrayBuffer()
