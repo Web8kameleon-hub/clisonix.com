@@ -68,50 +68,28 @@ export default function CuriosityOceanChat() {
     setIsLoading(true);
 
     try {
-      // Build conversation context from previous messages
-      const conversationContext = messages
-        .filter(m => m.type === 'user')
-        .map(m => m.content)
-        .slice(-5); // Last 5 user messages for context
-
-      // Query ORCHESTRATED endpoint (The Brain!)
-      const res = await fetch('http://localhost:8030/api/chat/orchestrated', {
+      // Query Ocean-Core ASI-Lite API (no timeout - let it take as long as needed)
+      const res = await fetch('/api/ocean', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query: messageText,
-          conversation_context: conversationContext,
+          question: messageText,
+          curiosityLevel: curiosityLevel,
         }),
       });
 
       if (res.ok) {
         const data = await res.json();
         
-        // Build a rich, narrative response from orchestrator
-        let responseContent = `🧠 **The Brain is Thinking...**\n\n`;
-        responseContent += `**Query Category:** ${data.query_category}\n`;
-        responseContent += `**Intent:** ${data.understanding.intent}\n`;
-        responseContent += `**Complexity:** ${data.understanding.complexity_level}\n\n`;
-
-        responseContent += `**Consulted Experts:**\n`;
-        data.consulted_experts.forEach((expert: { name: string; type: string; confidence: number }) => {
-          responseContent += `• ${expert.name} (${expert.type}) - Confidence: ${Math.round(expert.confidence * 100)}%\n`;
-        });
-
-        responseContent += `\n**The Answer:**\n${data.fused_answer}\n\n`;
-        responseContent += `**Sources:** ${data.sources_cited.join(', ')}\n`;
-        responseContent += `**Confidence:** ${Math.round(data.confidence * 100)}% | **Quality:** ${Math.round(data.narrative_quality * 100)}%`;
+        // Simple response from ASI-Lite
+        const responseContent = data.response || data.persona_answer || 'No response received';
 
         const aiMessage: Message = {
           id: `ai-${Date.now()}`,
           type: 'ai',
           content: responseContent,
           timestamp: new Date(),
-          nextQuestions: [
-            `Tell me more about ${data.query_category}`,
-            `How does this relate to what we discussed?`,
-            `What's the opposite perspective?`,
-          ],
+          nextQuestions: data.curiosity_threads || [],
         };
 
         setMessages(prev => [...prev, aiMessage]);
@@ -267,13 +245,21 @@ export default function CuriosityOceanChat() {
             </div>
           ))}
 
-          {/* Loading indicator */}
+          {/* Loading indicator with animated dots */}
           {isLoading && (
             <div className="flex justify-start">
               <div className="bg-white shadow-md rounded-2xl rounded-bl-md p-4 border border-gray-200">
                 <div className="flex items-center gap-2 text-emerald-600">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-sm">Thinking...</span>
+                  <Sparkles className="w-4 h-4" />
+                  <span className="text-sm">Curiosity Ocean</span>
+                </div>
+                <div className="flex items-center gap-1 mt-2 text-gray-600">
+                  <span className="text-sm">Thinking</span>
+                  <span className="inline-flex">
+                    <span className="animate-bounce" style={{ animationDelay: '0ms' }}>.</span>
+                    <span className="animate-bounce" style={{ animationDelay: '150ms' }}>.</span>
+                    <span className="animate-bounce" style={{ animationDelay: '300ms' }}>.</span>
+                  </span>
                 </div>
               </div>
             </div>

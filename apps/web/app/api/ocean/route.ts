@@ -58,9 +58,7 @@ async function queryOceanCore(
   curiosityLevel: string,
 ): Promise<OceanCoreResponse | null> {
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout for Ollama responses
-
+    // No timeout - let Ollama take as long as it needs
     // Use the correct Ocean-Core chat endpoint
     const response = await fetch(`${OCEAN_CORE_URL}/api/v1/chat`, {
       method: "POST",
@@ -70,10 +68,7 @@ async function queryOceanCore(
       body: JSON.stringify({
         message: question,
       }),
-      signal: controller.signal,
     });
-
-    clearTimeout(timeoutId);
 
     if (response.ok) {
       const data = await response.json();
