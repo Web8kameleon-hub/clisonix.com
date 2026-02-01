@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * CLISONIX HOME PAGE
@@ -15,7 +15,7 @@ const MODULES = [
     name: 'Curiosity Ocean',
     description: 'AI-powered chat interface for exploring knowledge',
     icon: '🌊',
-    color: 'from-blue-800 to-blue-900',
+    color: 'from-emerald-500 to-teal-600',
     category: 'AI Chat'
   },
   // 🧠 NEUROSCIENCE
@@ -41,7 +41,7 @@ const MODULES = [
   //   name: 'Neural Biofeedback',
   //   description: 'Real-time cognitive state monitoring',
   //   icon: '💫',
-  //   color: 'from-blue-700 to-purple-600',
+  //   color: 'from-indigo-500 to-purple-600',
   //   category: 'Neuroscience'
   // },
   // {
@@ -66,7 +66,7 @@ const MODULES = [
     name: 'Weather & Cognitive',
     description: 'How weather impacts cognitive performance',
     icon: '🌤️',
-    color: 'from-blue-800 to-blue-800',
+    color: 'from-sky-500 to-teal-600',
     category: 'Environment'
   },
   // 👤 ACCOUNT & DATA
@@ -75,7 +75,7 @@ const MODULES = [
     name: 'Account & Billing',
     description: 'Manage your profile, subscriptions, payment methods and settings',
     icon: '👤',
-    color: 'from-blue-800 to-blue-900',
+    color: 'from-emerald-500 to-teal-600',
     category: 'Account'
   },
   {
@@ -83,7 +83,7 @@ const MODULES = [
     name: 'My Data Dashboard',
     description: 'IoT devices, API integrations, LoRa/GSM networks',
     icon: '📊',
-    color: 'from-green-500 to-blue-700',
+    color: 'from-green-500 to-teal-600',
     category: 'Data'
   },
   // 👨‍💻 DEVELOPER
@@ -112,11 +112,11 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center shadow-lg shadow-blue-800/30">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
                 <span className="text-2xl">🧠</span>
               </div>
               <div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-800 to-blue-800 bg-clip-text text-transparent">
+                <span className="text-xl font-bold bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">
                   Clisonix
                 </span>
                 <span className="text-xs text-gray-600 block -mt-1">Neural Intelligence</span>
@@ -124,16 +124,16 @@ export default function HomePage() {
             </div>
             
             <div className="hidden md:flex items-center gap-8">
-              <a href="#asi-trinity" className="text-gray-600 hover:text-blue-900 transition-colors">ASI Trinity</a>
-              <a href="#modules" className="text-gray-600 hover:text-blue-900 transition-colors">Tools</a>
-              <a href="#tech-stack" className="text-gray-600 hover:text-blue-900 transition-colors">Why Us</a>
-              <Link href="/modules" className="text-gray-600 hover:text-blue-900 transition-colors">Dashboard</Link>
+              <a href="#asi-trinity" className="text-gray-600 hover:text-emerald-600 transition-colors">ASI Trinity</a>
+              <a href="#modules" className="text-gray-600 hover:text-emerald-600 transition-colors">Tools</a>
+              <a href="#tech-stack" className="text-gray-600 hover:text-emerald-600 transition-colors">Why Us</a>
+              <Link href="/modules" className="text-gray-600 hover:text-emerald-600 transition-colors">Dashboard</Link>
             </div>
             
             <div className="flex items-center gap-4">
               <Link 
                 href="/modules"
-                className="px-5 py-2 bg-white hover:bg-gray-50 border border-black rounded-lg font-medium text-black transition-all shadow-lg shadow-black/10"
+                className="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded-lg font-medium transition-all shadow-lg shadow-emerald-500/25"
               >
                 Open Dashboard
               </Link>
@@ -146,22 +146,22 @@ export default function HomePage() {
       <section className="pt-28 pb-16 px-4 relative overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-800/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
         
         <div className="max-w-7xl mx-auto text-center relative z-10">
           {/* Live Status Badge */}
-          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-gray-100/50 border border-blue-800/30 mb-8">
+          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-gray-100/50 border border-emerald-500/30 mb-8">
             <span className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse"></span>
-            <span className="text-sm text-blue-900 font-medium">
+            <span className="text-sm text-emerald-600 font-medium">
               Platform Online • 99.97% Uptime
             </span>
           </div>
 
           {/* Main Headline */}
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-blue-800 via-blue-800 to-blue-800 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
               Clisonix
             </span>
             <br />
@@ -172,7 +172,7 @@ export default function HomePage() {
 
           {/* Subheadline */}
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed">
-            Powered by <span className="text-blue-900 font-semibold">ASI Trinity</span> — 
+            Powered by <span className="text-emerald-600 font-semibold">ASI Trinity</span> — 
             Three artificial superintelligences working in harmony for 
             neuroscience research, cognitive analysis, and AI-driven insights.
           </p>
@@ -181,14 +181,14 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
             <Link 
               href="/modules/curiosity-ocean"
-              className="w-full sm:w-auto px-8 py-4 bg-white hover:bg-gray-50 border border-black rounded-xl font-semibold text-lg text-black transition-all shadow-lg shadow-black/10 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded-xl font-semibold text-lg text-black transition-all shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2"
             >
               <span>🌊</span>
               Start Exploring
             </Link>
             <Link 
               href="/modules"
-              className="w-full sm:w-auto px-8 py-4 bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-blue-800 rounded-xl font-semibold text-lg text-gray-700 transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-4 bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-emerald-500 rounded-xl font-semibold text-lg text-gray-700 transition-all flex items-center justify-center gap-2"
             >
               <span>📊</span>
               View All Modules
@@ -196,7 +196,7 @@ export default function HomePage() {
           </div>
 
           {/* Status Badge */}
-          <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-400 border border-blue-600">
+          <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-emerald-100 border border-emerald-300">
             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
             <span className="text-green-400 font-medium">All Systems Online</span>
           </div>
@@ -207,7 +207,7 @@ export default function HomePage() {
       <section id="asi-trinity" className="py-20 px-4 bg-gradient-to-b from-transparent to-gray-100/50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-800 to-blue-700 bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-emerald-500 to-teal-400 bg-clip-text text-transparent">
               Powered by AI
             </h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
@@ -216,15 +216,15 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="p-8 rounded-2xl bg-gray-100/50 border border-gray-300 hover:border-blue-800 hover:shadow-xl hover:shadow-blue-800/10 transition-all text-center">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-blue-700 to-blue-800 flex items-center justify-center mb-6 shadow-lg">
+            <div className="p-8 rounded-2xl bg-gray-100/50 border border-gray-300 hover:border-emerald-500 hover:shadow-xl hover:shadow-emerald-500/10 transition-all text-center">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center mb-6 shadow-lg">
                 <span className="text-3xl">🔬</span>
               </div>
               <h3 className="text-xl font-bold text-black mb-2">Smart Analysis</h3>
               <p className="text-gray-600">Pattern recognition and data insights</p>
             </div>
-            <div className="p-8 rounded-2xl bg-gray-100/50 border border-gray-300 hover:border-blue-800 hover:shadow-xl hover:shadow-blue-800/10 transition-all text-center">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-blue-700 to-blue-800 flex items-center justify-center mb-6 shadow-lg">
+            <div className="p-8 rounded-2xl bg-gray-100/50 border border-gray-300 hover:border-teal-500 hover:shadow-xl hover:shadow-teal-500/10 transition-all text-center">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center mb-6 shadow-lg">
                 <span className="text-3xl">🎨</span>
               </div>
               <h3 className="text-xl font-bold text-black mb-2">Creative Tools</h3>
@@ -245,7 +245,7 @@ export default function HomePage() {
       <section id="modules" className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-800 to-blue-800 bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">
               Platform Modules
             </h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto mb-8">
@@ -260,8 +260,8 @@ export default function HomePage() {
                   onClick={() => setSelectedCategory(category)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                     selectedCategory === category
-                      ? 'bg-white text-black border border-black shadow-lg shadow-black/10'
-                      : 'bg-white text-black border border-gray-300 hover:border-black'
+                      ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/25'
+                      : 'bg-gray-100 text-gray-600 hover:text-black hover:bg-gray-200'
                   }`}
                 >
                   {category === 'all' ? 'All Modules' : category}
@@ -275,14 +275,14 @@ export default function HomePage() {
               <Link 
                 key={module.id}
                 href={`/modules/${module.id}`}
-                className={`p-6 rounded-2xl bg-gray-100/50 border hover:shadow-xl hover:shadow-blue-800/10 transition-all group relative ${
+                className={`p-6 rounded-2xl bg-gray-100/50 border hover:shadow-xl hover:shadow-emerald-500/10 transition-all group relative ${
                   (module as { isNew?: boolean }).isNew 
                     ? 'border-green-500/50 hover:border-green-400 ring-1 ring-green-500/20' 
-                    : 'border-gray-300 hover:border-blue-800'
+                    : 'border-gray-300 hover:border-emerald-500'
                 }`}
               >
                 {(module as { isNew?: boolean }).isNew && (
-                  <div className="absolute -top-2 -right-2 px-3 py-1 bg-gradient-to-r from-green-500 to-blue-800 rounded-full text-xs font-bold text-black shadow-lg animate-pulse">
+                  <div className="absolute -top-2 -right-2 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-xs font-bold text-black shadow-lg animate-pulse">
                     NEW ✨
                   </div>
                 )}
@@ -291,12 +291,12 @@ export default function HomePage() {
                 </div>
                 <div className="flex items-center gap-2 mb-2">
                   <h3 className="text-xl font-semibold text-black">{module.name}</h3>
-                  <span className="px-2 py-0.5 text-xs rounded-full bg-blue-800/20 text-blue-900">
+                  <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-500/20 text-emerald-600">
                     {module.category}
                   </span>
                 </div>
                 <p className="text-gray-600">{module.description}</p>
-                <div className="mt-4 flex items-center gap-2 text-blue-900 group-hover:gap-3 transition-all">
+                <div className="mt-4 flex items-center gap-2 text-emerald-600 group-hover:gap-3 transition-all">
                   <span className="text-sm font-medium">Open Module</span>
                   <span>→</span>
                 </div>
@@ -310,7 +310,7 @@ export default function HomePage() {
       <section id="tech-stack" className="py-20 px-4 bg-gradient-to-b from-transparent to-gray-100/50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-800 to-blue-700 bg-clip-text text-transparent">
+            <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-emerald-500 to-teal-400 bg-clip-text text-transparent">
               Why Clisonix?
             </h2>
             <p className="text-gray-600 text-lg">
@@ -327,7 +327,7 @@ export default function HomePage() {
             ].map((item) => (
               <div 
                 key={item.name}
-                className="p-6 rounded-xl bg-gray-100/50 border border-gray-300 text-center hover:border-blue-800 hover:shadow-lg hover:shadow-blue-800/10 transition-all"
+                className="p-6 rounded-xl bg-gray-100/50 border border-gray-300 text-center hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10 transition-all"
               >
                 <span className="text-4xl mb-3 block">{item.icon}</span>
                 <h4 className="font-semibold text-black text-lg">{item.name}</h4>
@@ -341,7 +341,7 @@ export default function HomePage() {
       {/* Get Started Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="p-8 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-50 border border-blue-800/30 shadow-lg shadow-blue-800/10">
+          <div className="p-8 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-50 border border-emerald-500/30 shadow-lg shadow-emerald-500/10">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-black mb-2">🚀 Ready to Start?</h2>
               <p className="text-gray-600">Explore our tools and start your journey</p>
@@ -368,7 +368,7 @@ export default function HomePage() {
             <div className="mt-8 text-center">
               <Link 
                 href="/modules/account"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-900 to-blue-900 hover:from-blue-800 hover:to-blue-800 rounded-xl font-semibold text-lg transition-all shadow-lg shadow-blue-800/30"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded-xl font-semibold text-lg transition-all shadow-lg shadow-emerald-500/30"
               >
                 Get Started
                 <span>→</span>
@@ -395,16 +395,16 @@ export default function HomePage() {
             <div>
               <h4 className="font-semibold mb-4 text-black">Platform</h4>
               <ul className="space-y-2 text-gray-600 text-sm">
-                <li><Link href="/modules" className="hover:text-blue-900 transition-colors">Dashboard</Link></li>
-                <li><Link href="/modules/curiosity-ocean" className="hover:text-blue-900 transition-colors">Curiosity Ocean</Link></li>
-                <li><Link href="/modules/eeg-analysis" className="hover:text-blue-900 transition-colors">EEG Analysis</Link></li>
+                <li><Link href="/modules" className="hover:text-emerald-600 transition-colors">Dashboard</Link></li>
+                <li><Link href="/modules/curiosity-ocean" className="hover:text-emerald-600 transition-colors">Curiosity Ocean</Link></li>
+                <li><Link href="/modules/eeg-analysis" className="hover:text-emerald-600 transition-colors">EEG Analysis</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4 text-black">Resources</h4>
               <ul className="space-y-2 text-gray-600 text-sm">
-                <li><Link href="/developers" className="hover:text-blue-900 transition-colors">Documentation</Link></li>
-                <li><Link href="/marketplace" className="hover:text-blue-900 transition-colors">Marketplace</Link></li>
+                <li><Link href="/developers" className="hover:text-emerald-600 transition-colors">Documentation</Link></li>
+                <li><Link href="/marketplace" className="hover:text-emerald-600 transition-colors">Marketplace</Link></li>
               </ul>
             </div>
             <div>
@@ -412,7 +412,7 @@ export default function HomePage() {
               <ul className="space-y-2 text-gray-600 text-sm">
                 <li><span className="text-gray-700">Ledjan Ahmati</span></li>
                 <li><span className="text-gray-700">WEB8euroweb GmbH</span></li>
-                <li><a href="mailto:support@clisonix.com" className="hover:text-blue-900 transition-colors">Contact</a></li>
+                <li><a href="mailto:support@clisonix.com" className="hover:text-emerald-600 transition-colors">Contact</a></li>
               </ul>
             </div>
           </div>
@@ -424,10 +424,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-
-
-
-
-
-
