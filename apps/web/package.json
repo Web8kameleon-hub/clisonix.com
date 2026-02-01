@@ -1,5 +1,5 @@
 {
-  "name": "@Clisonix/frontend",
+  "name": "@clisonix/frontend",
   "version": "1.0.0",
   "description": "Clisonix Industrial Frontend - Next.js Dashboard",
   "private": true,
@@ -12,6 +12,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@radix-ui/react-avatar": "^1.1.2",
     "@radix-ui/react-slot": "^1.2.3",
     "@stripe/stripe-js": "^8.6.4",
     "@swc/helpers": "^0.5.15",
