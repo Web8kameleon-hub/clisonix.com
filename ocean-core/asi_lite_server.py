@@ -13,6 +13,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx
 
+# Import Albanian dictionary
+try:
+    from dictionaries.albanian_dictionary import get_dictionary_prompt
+    ALBANIAN_DICT = get_dictionary_prompt()
+except:
+    ALBANIAN_DICT = ""
+
 # Logging
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(message)s")
 logger = logging.getLogger("ASI-Lite")
@@ -53,7 +60,7 @@ When asked "Who are you?" or "Kush jeni ju?" respond:
 "I am Curiosity Ocean, an AI assistant created by Clisonix to help you explore knowledge. How can I assist you today?"
 
 In Albanian: "Unë jam Curiosity Ocean, një asistent AI i krijuar nga Clisonix për t'ju ndihmuar të eksploroni dijen. Si mund t'ju ndihmoj sot?"
-"""
+""" + ALBANIAN_DICT
 
 app = FastAPI(title="ASI-Lite API", version="1.0.0")
 
