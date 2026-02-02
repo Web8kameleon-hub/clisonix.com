@@ -248,9 +248,9 @@ def initialize_engines():
 # ═══════════════════════════════════════════════════════════════════
 
 async def detect_language(text: str) -> tuple:
-    """Detect language using Translation Node (72 languages)"""
+    """Detect language using Translation Node (72 languages) - Fast timeout"""
     try:
-        async with httpx.AsyncClient(timeout=5.0) as client:
+        async with httpx.AsyncClient(timeout=2.0) as client:  # Fast 2s timeout
             resp = await client.post(
                 f"{TRANSLATION_NODE}/api/v1/detect",
                 json={"text": text}
@@ -263,7 +263,7 @@ async def detect_language(text: str) -> tuple:
                     data.get("confidence", 0.5)
                 )
     except Exception as e:
-        logger.warning(f"Language detection failed: {e}")
+        logger.debug(f"Language detection skipped: {e}")  # Debug not warning
     return ("en", "English", 0.5)
 
 # ═══════════════════════════════════════════════════════════════════
@@ -271,23 +271,24 @@ async def detect_language(text: str) -> tuple:
 # ═══════════════════════════════════════════════════════════════════
 
 def process_with_mega_layers(query: str) -> Dict[str, Any]:
-    """Process query through MegaLayerEngine"""
+    """Process query through MegaLayerEngine - uses process_query method"""
     if not MEGA_LAYERS_AVAILABLE or not mega_engine:
         return {"active": False}
     
     try:
-        # Get layer activations for this query
-        activations = mega_engine.compute_layer_activation(query)
+        # Correct method: process_query returns (LayerActivation, results_dict)
+        activation, results = mega_engine.process_query(query)
         return {
             "active": True,
-            "meta_level": activations.meta_level if hasattr(activations, 'meta_level') else 0,
-            "alpha_layer": activations.alpha_layer if hasattr(activations, 'alpha_layer') else 0,
-            "consciousness_depth": activations.consciousness_depth if hasattr(activations, 'consciousness_depth') else 0,
-            "emotional_resonance": activations.emotional_resonance if hasattr(activations, 'emotional_resonance') else 0,
+            "meta_level": activation.meta_level.value if hasattr(activation.meta_level, 'value') else 0,
+            "consciousness_depth": activation.consciousness_depth if hasattr(activation, 'consciousness_depth') else 0,
+            "emotional_resonance": len(activation.emotional_dimensions) if hasattr(activation, 'emotional_dimensions') else 0,
+            "fractal_depth": activation.fractal_depth if hasattr(activation, 'fractal_depth') else 0,
+            "signature": activation.unique_signature[:16] if hasattr(activation, 'unique_signature') else ""
         }
     except Exception as e:
-        logger.error(f"MegaLayer processing error: {e}")
-        return {"active": False, "error": str(e)}
+        logger.debug(f"MegaLayer skipped: {e}")  # Debug not error
+        return {"active": False}
 
 # ═══════════════════════════════════════════════════════════════════
 # KNOWLEDGE SEEDS LOOKUP
@@ -360,9 +361,9 @@ async def process_query_full(req: ChatRequest) -> ChatResponse:
     # 5. Build enhanced system prompt
     enhanced_prompt = SYSTEM_PROMPT + lang_instruction + seed_context + mega_context
     
-    # 6. Call Ollama
+    # 6. Call Ollama - 60s timeout, optimized for speed
     try:
-        async with httpx.AsyncClient(timeout=120.0) as client:
+        async with httpx.AsyncClient(timeout=60.0) as client:
             resp = await client.post(
                 f"{OLLAMA_HOST}/api/chat",
                 json={
@@ -374,10 +375,10 @@ async def process_query_full(req: ChatRequest) -> ChatResponse:
                     "stream": False,
                     "options": {
                         "temperature": 0.7,
-                        "num_ctx": 4096,  # Larger context for full mode
+                        "num_ctx": 2048,   # Reduced for speed
                         "repeat_penalty": 1.2,
                         "top_p": 0.9,
-                        "num_predict": 1024  # Longer responses allowed
+                        "num_predict": 512  # Shorter responses = faster
                     }
                 }
             )
