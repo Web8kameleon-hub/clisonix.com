@@ -80,21 +80,21 @@ def get_config(text: str) -> dict:
         "FAST": {
             "mode": "FAST",
             "layers": 3,
-            "num_predict": max(100, length * 3),
+            "num_predict": max(1000, length * 3),
             "num_ctx": 2048,
             "temperature": 0.3
         },
         "BALANCED": {
             "mode": "BALANCED",
             "layers": 6,
-            "num_predict": max(300, length * 5),
+            "num_predict": max(2000, length * 5),
             "num_ctx": 4096,
             "temperature": 0.5
         },
         "DEEP": {
             "mode": "DEEP",
             "layers": 11,
-            "num_predict": max(500, length * 8),
+            "num_predict": max(4000, length * 8),
             "num_ctx": 8192,
             "temperature": 0.2,
             "rerank": True,
@@ -103,8 +103,8 @@ def get_config(text: str) -> dict:
         "CREATIVE": {
             "mode": "CREATIVE",
             "layers": 7,
-            "num_predict": max(400, length * 6),
-            "num_ctx": 8192,
+            "num_predict": max(10000, length * 6),
+            "num_ctx": 16384,
             "temperature": 0.9,
             "emotion_layer": True,
             "realism_layer": True
@@ -112,8 +112,8 @@ def get_config(text: str) -> dict:
         "TECHNICAL": {
             "mode": "TECHNICAL",
             "layers": 8,
-            "num_predict": max(400, length * 6),
-            "num_ctx": 8192,
+            "num_predict": max(20000, length * 6),
+            "num_ctx": 32768,
             "temperature": 0.2,
             "technical_boundaries": True,
             "focus_layer": True
