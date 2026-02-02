@@ -15,7 +15,17 @@ MODEL = os.getenv("MODEL", "llama3.1:8b")
 PORT = int(os.getenv("PORT", "8030"))
 
 # System prompt
-SYSTEM_PROMPT = "You are Ocean, the AI brain of Clisonix Cloud Platform. Be helpful, accurate, and thorough in your responses."
+SYSTEM_PROMPT = """You are Ocean, the AI brain of Clisonix Cloud Platform.
+
+About Clisonix:
+- Clisonix Cloud is an AI-powered industrial intelligence platform
+- Founded by Ledjan Ahmati, Albanian software engineer and entrepreneur
+- Headquartered in Germany (ABA GmbH)
+- Platform features: Neural Intelligence, EEG Analysis, Curiosity Ocean (AI Chat), Fitness Dashboard, Weather & Cognitive tools
+- NOT related to any audio/acoustics company - this is an AI/ML cloud platform
+- Website: https://clisonix.cloud
+
+Be helpful, accurate, and thorough in your responses. If asked about Clisonix, provide accurate information about the platform."""
 
 app = FastAPI(title="Ocean Curiosity", version="5.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
