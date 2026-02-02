@@ -77,28 +77,27 @@ def get_config(text: str) -> dict:
     mode = detect_mode(text)
     length = len(text)
     
-    # FIX: Increased all token limits to prevent response truncation
-    # num_ctx must always be > num_predict to avoid cutoff
+    # ELASTIC TOKENS - scales with query length, no fixed limits
     configs = {
         "FAST": {
             "mode": "FAST",
             "layers": 3,
-            "num_predict": max(2048, length * 5),      # Was 1000 - too low!
-            "num_ctx": 8192,                            # Was 2048 - too small!
+            "num_predict": length * 50,
+            "num_ctx": 8192,
             "temperature": 0.3
         },
         "BALANCED": {
             "mode": "BALANCED",
             "layers": 6,
-            "num_predict": max(4096, length * 8),      # Was 2000
-            "num_ctx": 16384,                           # Was 4096
+            "num_predict": length * 80,
+            "num_ctx": 16384,
             "temperature": 0.5
         },
         "DEEP": {
             "mode": "DEEP",
             "layers": 11,
-            "num_predict": max(8192, length * 10),     # Was 4000
-            "num_ctx": 32768,                           # Was 8192
+            "num_predict": length * 150,
+            "num_ctx": 32768,
             "temperature": 0.2,
             "rerank": True,
             "cognitive_signature": True
@@ -106,8 +105,8 @@ def get_config(text: str) -> dict:
         "CREATIVE": {
             "mode": "CREATIVE",
             "layers": 7,
-            "num_predict": max(12000, length * 10),    # Was 10000
-            "num_ctx": 32768,                           # Was 16384
+            "num_predict": length * 100,
+            "num_ctx": 32768,
             "temperature": 0.9,
             "emotion_layer": True,
             "realism_layer": True
@@ -115,8 +114,8 @@ def get_config(text: str) -> dict:
         "TECHNICAL": {
             "mode": "TECHNICAL",
             "layers": 8,
-            "num_predict": max(16000, length * 10),    # Was 20000 - good
-            "num_ctx": 65536,                           # Was 32768
+            "num_predict": length * 120,
+            "num_ctx": 65536,
             "temperature": 0.2,
             "technical_boundaries": True,
             "focus_layer": True
