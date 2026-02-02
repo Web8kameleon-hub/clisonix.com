@@ -4963,6 +4963,27 @@ try:
 except ImportError as e:
     logger.warning(f"[WARN] JONA routes not loaded: {e}")
 
+# ------------- Documentation Index -------------
+@app.get("/api/docs-index")
+async def docs_index():
+    """Serve DOCS_INDEX.md as JSON with raw content"""
+    try:
+        docs_path = Path(__file__).parent.parent.parent / "DOCS_INDEX.md"
+        if docs_path.exists():
+            content = docs_path.read_text(encoding="utf-8")
+            return {
+                "title": "Clisonix Documentation Index",
+                "total_docs": 173,
+                "categories": 18,
+                "content": content,
+                "github_url": "https://github.com/LedjanAhmati/Clisonix-cloud/blob/main/DOCS_INDEX.md",
+                "raw_url": "https://raw.githubusercontent.com/LedjanAhmati/Clisonix-cloud/main/DOCS_INDEX.md"
+            }
+        return {"error": "DOCS_INDEX.md not found"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 # ------------- Root -------------
 @app.get("/")
 def root():
