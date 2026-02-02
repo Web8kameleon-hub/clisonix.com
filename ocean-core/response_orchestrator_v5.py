@@ -182,6 +182,22 @@ class LocalLanguageLayer:
         if any(m in text_lower for m in it_markers):
             return "it"
         
+        # Greek / Greeklish (Greek written in Latin script)
+        el_markers = ['kalimera', 'kalispera', 'yassou', 'yassas', 'geia', 'geia sou', 'geia sas',
+                      'efharisto', 'parakalo', 'nai', 'ohi', 'pos', 'pou', 'pote', 'giati', 'poso',
+                      'thelo', 'echo', 'ime', 'ise', 'einai', 'den', 'tora', 'simera', 'avrio',
+                      'ti kaneis', 'ti kanis', 'ola kala', 'signomi', 'milate', 'ellenika',
+                      'mporo', 'mazi', 'matho', 'mou', 'sou', 'mas', 'sas', 'kalo', 'kala',
+                      'ti', 'na', 'me', 'kai', 'sto', 'sta', 'tous', 'tis', 'tha', 'oxi']
+        if any(m in text_lower for m in el_markers):
+            return "el"
+        
+        # Turkish
+        tr_markers = ['merhaba', 'selam', 'teşekkürler', 'evet', 'hayır', 'nasıl',
+                      'neden', 'nerede', 'günaydın', 'iyi akşamlar', 'lutfen']
+        if any(m in text_lower for m in tr_markers):
+            return "tr"
+        
         # Default: Anglisht
         return "en"
     
@@ -297,6 +313,11 @@ LANGUAGE_REQUEST_PATTERNS = {
     # Greek requests (romanized)
     "sta ellinika": "el",
     "sta agglika": "en",
+    "sta germanika": "de",
+    "apantise sta ellinika": "el",
+    "apantise sta agglika": "en",
+    "in greek please": "el",
+    "se ellinika": "el",
 }
 
 
@@ -586,16 +607,23 @@ class ResponseOrchestratorV5:
         # LANGUAGE OVERRIDE for Ollama - inject language instruction
         # ═══════════════════════════════════════════════════════════════════════
         language_override_prompt = None
+        lang_names = {
+            "de": "German (Deutsch)", "en": "English", "it": "Italian (Italiano)",
+            "fr": "French (Français)", "es": "Spanish (Español)", "el": "Greek (Ελληνικά)",
+            "tr": "Turkish (Türkçe)", "ru": "Russian (Русский)", "sq": "Albanian (Shqip)",
+            "pt": "Portuguese", "nl": "Dutch", "pl": "Polish", "ja": "Japanese", "zh": "Chinese"
+        }
+        
+        # Apply language instruction for both explicit requests AND auto-detected non-English
         if requested_language:
-            lang_names = {
-                "de": "German (Deutsch)", "en": "English", "it": "Italian (Italiano)",
-                "fr": "French (Français)", "es": "Spanish (Español)", "el": "Greek (Ελληνικά)",
-                "tr": "Turkish (Türkçe)", "ru": "Russian (Русский)", "sq": "Albanian (Shqip)",
-                "pt": "Portuguese", "nl": "Dutch", "pl": "Polish", "ja": "Japanese", "zh": "Chinese"
-            }
             lang_name = lang_names.get(requested_language, requested_language.upper())
             language_override_prompt = f"CRITICAL: Respond ONLY in {lang_name}. Do not use any other language."
             logger.info(f"🌍 Language override active: {lang_name}")
+        elif lang != "en":
+            # Auto-detected non-English language - guide Ollama to respond in detected language
+            lang_name = lang_names.get(lang, lang.upper())
+            language_override_prompt = f"The user is writing in {lang_name}. Respond naturally in {lang_name}. If you cannot respond in that language, respond in English."
+            logger.info(f"🌍 Auto-detected language: {lang_name}")
         
         # OLLAMA FAST - Linja Optike (zero overhead)
         if self.ollama_engine:

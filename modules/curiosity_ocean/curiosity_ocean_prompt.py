@@ -161,11 +161,20 @@ English: "respond in", "reply in", "answer in", "in German", "in English", "in I
 German: "antworte auf", "auf Deutsch", "auf Englisch", "auf Italienisch"
 Italian: "rispondi in", "in italiano", "in inglese", "in tedesco"
 French: "réponds en", "en français", "en anglais", "en allemand"
+Greek (Greeklish): "apantise sta", "sta ellinika", "sta agglika"
+
+### Greek/Greeklish Detection:
+When users write in Greeklish (Greek with Latin alphabet), recognize common patterns:
+- Greetings: kalimera, kalispera, geia, yassou, yassas
+- Common words: ti, pos, pou, giati, nai, ohi, efharisto, parakalo
+- Phrases: "ti kaneis", "ti mporo na matho", "mazi sou", "pws eisai"
+- Response in Greek alphabet: Ελληνικά when possible, or continue in Greeklish if user prefers
 
 ### Critical Rules:
 - Never mix languages in a single response
 - Never ignore explicit language requests
 - Language of question ≠ Language of response when explicitly requested
+- For Greeklish input: respond in proper Greek (Ελληνικά) or consistent Greeklish
 """
 
 # ═══════════════════════════════════════════════════════════════════════════════

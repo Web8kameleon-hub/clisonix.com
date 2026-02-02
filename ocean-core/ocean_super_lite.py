@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-Ocean Chameleon v4.0 - Full APSE + MegaLayerEngine
+Ocean Chameleon v4.1 - Full APSE + MegaLayerEngine (NO TRUNCATION)
 5 Modes: FAST, BALANCED, DEEP, CREATIVE, TECHNICAL
 Features: Adaptive scaling, Multi-layer prompts, Dynamic config
-Max tokens: 2048 | Layers: 3-11 based on complexity
+Max tokens: 8192 | Layers: 3-11 based on complexity
+Fix: Increased token limits to prevent response cutoff
 """
 import os, time
 from fastapi import FastAPI, HTTPException
@@ -76,26 +77,28 @@ def get_config(text: str) -> dict:
     mode = detect_mode(text)
     length = len(text)
     
+    # FIX: Increased all token limits to prevent response truncation
+    # num_ctx must always be > num_predict to avoid cutoff
     configs = {
         "FAST": {
             "mode": "FAST",
             "layers": 3,
-            "num_predict": max(1000, length * 3),
-            "num_ctx": 2048,
+            "num_predict": max(2048, length * 5),      # Was 1000 - too low!
+            "num_ctx": 8192,                            # Was 2048 - too small!
             "temperature": 0.3
         },
         "BALANCED": {
             "mode": "BALANCED",
             "layers": 6,
-            "num_predict": max(2000, length * 5),
-            "num_ctx": 4096,
+            "num_predict": max(4096, length * 8),      # Was 2000
+            "num_ctx": 16384,                           # Was 4096
             "temperature": 0.5
         },
         "DEEP": {
             "mode": "DEEP",
             "layers": 11,
-            "num_predict": max(4000, length * 8),
-            "num_ctx": 8192,
+            "num_predict": max(8192, length * 10),     # Was 4000
+            "num_ctx": 32768,                           # Was 8192
             "temperature": 0.2,
             "rerank": True,
             "cognitive_signature": True
@@ -103,8 +106,8 @@ def get_config(text: str) -> dict:
         "CREATIVE": {
             "mode": "CREATIVE",
             "layers": 7,
-            "num_predict": max(10000, length * 6),
-            "num_ctx": 16384,
+            "num_predict": max(12000, length * 10),    # Was 10000
+            "num_ctx": 32768,                           # Was 16384
             "temperature": 0.9,
             "emotion_layer": True,
             "realism_layer": True
@@ -112,8 +115,8 @@ def get_config(text: str) -> dict:
         "TECHNICAL": {
             "mode": "TECHNICAL",
             "layers": 8,
-            "num_predict": max(20000, length * 6),
-            "num_ctx": 32768,
+            "num_predict": max(16000, length * 10),    # Was 20000 - good
+            "num_ctx": 65536,                           # Was 32768
             "temperature": 0.2,
             "technical_boundaries": True,
             "focus_layer": True
@@ -203,7 +206,7 @@ layer_engine = MegaLayerEngine()
 # FASTAPI SERVER
 # ═══════════════════════════════════════════════════════════════
 
-app = FastAPI(title="Ocean Chameleon APSE", version="4.0")
+app = FastAPI(title="Ocean Chameleon APSE", version="4.1-NoTruncation")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -258,7 +261,7 @@ async def root():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "4.0"}
+    return {"status": "ok", "version": "4.1", "fix": "no-truncation"}
 
 
 @app.post("/api/v1/chat", response_model=Res)
@@ -292,21 +295,22 @@ async def status():
     return {
         "status": "ok",
         "model": MODEL,
-        "version": "4.0-APSE",
-        "features": ["AdaptivePredictScaler", "MegaLayerEngine"],
-        "modes": ["FAST", "BALANCED", "DEEP", "CREATIVE", "TECHNICAL"]
+        "version": "4.1-APSE-NoTruncation",
+        "features": ["AdaptivePredictScaler", "MegaLayerEngine", "ExtendedTokenLimits"],
+        "modes": ["FAST", "BALANCED", "DEEP", "CREATIVE", "TECHNICAL"],
+        "min_tokens": {"FAST": 2048, "BALANCED": 4096, "DEEP": 8192, "CREATIVE": 12000, "TECHNICAL": 16000}
     }
 
 
 @app.get("/api/v1/modes")
 async def modes():
-    """Show all modes and their configs"""
+    """Show all modes and their configs (v4.1 - NO TRUNCATION)"""
     return {
-        "FAST": {"tokens": "50-256", "layers": 3, "temp": 0.3, "use": "Simple queries, greetings"},
-        "BALANCED": {"tokens": "200-1024", "layers": 6, "temp": 0.5, "use": "General questions"},
-        "DEEP": {"tokens": "500-2048", "layers": 11, "temp": 0.2, "use": "Analysis, research, comparison"},
-        "CREATIVE": {"tokens": "400-2048", "layers": 7, "temp": 0.9, "use": "Stories, poems, brainstorming"},
-        "TECHNICAL": {"tokens": "300-2048", "layers": 8, "temp": 0.2, "use": "Code, debugging, system design"}
+        "FAST": {"tokens": "2048+", "ctx": 8192, "layers": 3, "temp": 0.3, "use": "Simple queries, greetings"},
+        "BALANCED": {"tokens": "4096+", "ctx": 16384, "layers": 6, "temp": 0.5, "use": "General questions"},
+        "DEEP": {"tokens": "8192+", "ctx": 32768, "layers": 11, "temp": 0.2, "use": "Analysis, research, comparison"},
+        "CREATIVE": {"tokens": "12000+", "ctx": 32768, "layers": 7, "temp": 0.9, "use": "Stories, poems, brainstorming"},
+        "TECHNICAL": {"tokens": "16000+", "ctx": 65536, "layers": 8, "temp": 0.2, "use": "Code, debugging, system design"}
     }
 
 
