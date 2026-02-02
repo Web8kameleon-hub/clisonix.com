@@ -19,7 +19,7 @@ logger = logging.getLogger("ASI-Lite")
 
 # Config
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-MODEL = os.getenv("MODEL", "llama3.1:8b")
+MODEL = os.getenv("MODEL", "clisonix-ocean:v2")  # Our trained model, NOT llama3.1 or latest
 PORT = int(os.getenv("PORT", "8030"))
 
 # CRITICAL System Prompt - STRICT RULES for Curiosity Ocean
