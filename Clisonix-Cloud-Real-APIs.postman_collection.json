@@ -335,6 +335,95 @@
             "description": "Check Kitchen health"
           },
           "response": []
+        },
+        {
+          "name": "Kitchen Excel Integration",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/kitchen/excel-integration",
+              "host": ["{{base_url}}"],
+              "path": ["api", "kitchen", "excel-integration"]
+            },
+            "description": "Kitchen-Excel integration status and data flow"
+          },
+          "response": []
+        },
+        {
+          "name": "Kitchen Layers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/kitchen/layers",
+              "host": ["{{base_url}}"],
+              "path": ["api", "kitchen", "layers"]
+            },
+            "description": "Get all 7 Protocol Kitchen layers"
+          },
+          "response": []
+        },
+        {
+          "name": "Kitchen Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/kitchen/metrics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "kitchen", "metrics"]
+            },
+            "description": "Kitchen processing metrics"
+          },
+          "response": []
+        },
+        {
+          "name": "Kitchen to Excel",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/kitchen/kitchen-to-excel",
+              "host": ["{{base_url}}"],
+              "path": ["api", "kitchen", "kitchen-to-excel"]
+            },
+            "description": "Export Kitchen data to Excel format"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Excel Dashboard API",
+      "item": [
+        {
+          "name": "Excel Dashboards List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/excel/dashboards",
+              "host": ["{{base_url}}"],
+              "path": ["api", "excel", "dashboards"]
+            },
+            "description": "List all Excel dashboards"
+          },
+          "response": []
+        },
+        {
+          "name": "Excel Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/excel/summary",
+              "host": ["{{base_url}}"],
+              "path": ["api", "excel", "summary"]
+            },
+            "description": "Summary of all Excel dashboards"
+          },
+          "response": []
         }
       ]
     },
