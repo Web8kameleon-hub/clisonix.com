@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Ocean Chameleon v4.1 - Full APSE + MegaLayerEngine (NO TRUNCATION)
+Ocean  couriosity v4.1 - Full APSE + MegaLayerEngine (NO TRUNCATION)
 5 Modes: FAST, BALANCED, DEEP, CREATIVE, TECHNICAL
 Features: Adaptive scaling, Multi-layer prompts, Dynamic config
 Max tokens: 8192 | Layers: 3-11 based on complexity
@@ -52,21 +52,21 @@ def detect_mode(text: str) -> str:
     words = set(t.split())
     length = len(t)
     
-    # FAST: Short simple queries
-    if (words & FAST_KEYWORDS or length < 30) and length < 120:
-        return "FAST"
-    
-    # DEEP: Complex analytical queries
+    # DEEP: Complex analytical queries (check FIRST - "what is X" are deep questions)
     if words & DEEP_KEYWORDS or length > 300:
         return "DEEP"
+    
+    # TECHNICAL: Code, debugging, system design
+    if words & TECHNICAL_KEYWORDS:
+        return "TECHNICAL"
     
     # CREATIVE: Storytelling, brainstorming
     if words & CREATIVE_KEYWORDS:
         return "CREATIVE"
     
-    # TECHNICAL: Code, debugging, system design
-    if words & TECHNICAL_KEYWORDS:
-        return "TECHNICAL"
+    # FAST: Only simple greetings and very short queries
+    if words & FAST_KEYWORDS and length < 50:
+        return "FAST"
     
     # BALANCED: Default for medium queries
     return "BALANCED"
