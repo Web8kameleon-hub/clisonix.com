@@ -31,6 +31,7 @@ logger = logging.getLogger("ASI-Lite")
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 MODEL = os.getenv("MODEL", "llama3.2:3b")  # Default model for production
 PORT = int(os.getenv("PORT", "8030"))
+TRANSLATION_NODE = os.getenv("TRANSLATION_NODE", "http://localhost:8036")  # 72 languages
 
 app = FastAPI(title="ASI-Lite API", version="1.0.0")
 
@@ -92,16 +93,38 @@ async def _process_query(req: ChatRequest):
     if not prompt:
         raise HTTPException(status_code=400, detail="message or query required")
     
+    # Detect language using Translation Node (72 languages)
+    detected_lang = "en"
+    lang_instruction = ""
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as lang_client:
+            lang_resp = await lang_client.post(
+                f"{TRANSLATION_NODE}/api/v1/detect",
+                json={"text": prompt}
+            )
+            if lang_resp.status_code == 200:
+                lang_data = lang_resp.json()
+                detected_lang = lang_data.get("detected_language", "en")
+                lang_name = lang_data.get("language_name", "English")
+                if detected_lang != "en":
+                    lang_instruction = f"\n\nIMPORTANT: The user is writing in {lang_name}. You MUST respond in {lang_name}."
+                    logger.info(f"🌍 Detected language: {lang_name} ({detected_lang})")
+    except Exception as e:
+        logger.warning(f"Language detection failed: {e}")
+    
     try:
         async with httpx.AsyncClient(timeout=120.0) as client:
             # Use Ollama chat API with system prompt for identity
+            # Add language instruction if not English
+            system_with_lang = SYSTEM_PROMPT + lang_instruction
+            
             # Optimized options to prevent repetition and improve speed
             resp = await client.post(
                 f"{OLLAMA_HOST}/api/chat",
                 json={
                     "model": req.model or MODEL,
                     "messages": [
-                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "system", "content": system_with_lang},
                         {"role": "user", "content": prompt}
                     ],
                     "stream": False,
