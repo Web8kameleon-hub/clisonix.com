@@ -95,6 +95,7 @@ async def _process_query(req: ChatRequest):
     try:
         async with httpx.AsyncClient(timeout=120.0) as client:
             # Use Ollama chat API with system prompt for identity
+            # Optimized options to prevent repetition and improve speed
             resp = await client.post(
                 f"{OLLAMA_HOST}/api/chat",
                 json={
@@ -103,7 +104,14 @@ async def _process_query(req: ChatRequest):
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": prompt}
                     ],
-                    "stream": False
+                    "stream": False,
+                    "options": {
+                        "temperature": 0.7,        # Less randomness
+                        "num_ctx": 2048,           # Smaller context = faster
+                        "repeat_penalty": 1.2,     # Prevent repetition
+                        "top_p": 0.9,              # Focus on likely tokens
+                        "num_predict": 512         # Max response length
+                    }
                 }
             )
             
