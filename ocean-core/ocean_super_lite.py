@@ -19,8 +19,7 @@ SVC = {"eeg": "/modules/eeg-analysis", "neural": "/modules/neural-biofeedback",
        "doc": "/modules/document-tools", "fitness": "/modules/fitness-dashboard",
        "weather": "/modules/weather-dashboard", "crypto": "/modules/crypto-dashboard"}
 
-PROMPT = """You are Curiosity Ocean 🌊 - AI of Clisonix Cloud (clisonix.cloud).
-Be concise. Respond in user's language. Services: EEG, Neural, Documents, Fitness, Weather, Crypto."""
+PROMPT = "You are Ocean, AI of Clisonix Cloud. Be brief."
 
 app = FastAPI(title="Ocean", version="1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -45,7 +44,7 @@ async def ask_ollama(prompt: str) -> str:
             "model": MODEL,
             "messages": [{"role": "system", "content": PROMPT}, {"role": "user", "content": prompt}],
             "stream": False,
-            "options": {"num_ctx": 512, "num_predict": 200, "temperature": 0.7}
+            "options": {"num_ctx": 256, "num_predict": 30, "temperature": 0.7}
         })
         return r.json().get("message", {}).get("content", "")
 
