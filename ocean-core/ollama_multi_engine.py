@@ -10,19 +10,18 @@ MODELET E DISPONUESHME:
 
  Model                    Size      Prdorimi                               
 
- phi3:mini                2.2 GB    [FAST] FAST - Pyetje t shpejta, chat      
- clisonix-ocean:latest    2.2 GB     LIGHT - Biseda normale               
  clisonix-ocean:v2        4.9 GB    [TARGET] DEFAULT - Pyetje t prgjithshme    
  llama3.1:8b              4.9 GB    [SYNC] BACKUP - Fallback i sigurt          
- gpt-oss:120b             65 GB     [BRAIN] DEEP - Analiza komplekse, reasoning 
+ gpt-oss:120b             65 GB     [BRAIN] DEEP - Analiza komplekse (microservice 8031) 
 
 
 STRATEGJIT:
 1. AUTO - Zgjedh modelin sipas kompleksitetit t pyetjes
-2. FAST - Prdor gjithmon modele t lehta (phi3, latest)
-3. BALANCED - Prdor modele mesatare (v2, llama3.1)
-4. DEEP - Prdor modelin e madh (gpt-oss:120b)
-5. FALLBACK - Provo modele n rradh nse njri dshton
+2. BALANCED - Prdor modele mesatare (v2, llama3.1) - DEFAULT
+3. DEEP - Prdor modelin e madh (gpt-oss:120b) - via microservice 8031
+4. FALLBACK - Provo modele n rradh nse njri dshton
+
+HEQUR: phi3:mini, clisonix-ocean:latest - nuk flasin shqip
 
 Author: Clisonix Team
 Version: 2.0.1 Enterprise
@@ -56,9 +55,9 @@ DEFAULT_TIMEOUT = 90.0  # Hetzner server needs more time for LLM
 
 class ModelTier(Enum):
     """Niveli i modelit sipas madhsis dhe fuqis"""
-    FAST = "fast"          # 2.2GB - phi3:mini, clisonix-ocean:latest
-    BALANCED = "balanced"  # 4.9GB - clisonix-ocean:v2, llama3.1:8b
-    DEEP = "deep"          # 65GB - gpt-oss:120b
+    FAST = "fast"          # DISABLED - modelet e hequra
+    BALANCED = "balanced"  # 4.9GB - clisonix-ocean:v2, llama3.1:8b (DEFAULT)
+    DEEP = "deep"          # 65GB - gpt-oss:120b (microservice 8031)
 
 
 class Strategy(Enum):
@@ -90,45 +89,34 @@ class OllamaModel:
 
 
 # T gjitha modelet e instaluara
+# HEQUR: phi3:mini, clisonix-ocean:latest, llama3.2:1b - nuk flasin shqip
 AVAILABLE_MODELS: Dict[str, OllamaModel] = {
     # ═══════════════════════════════════════════════════════════════════════════
-    # TIER: FAST (1.3GB) - DEFAULT for ALL queries - SPEED IS PRIORITY
-    # ═══════════════════════════════════════════════════════════════════════════
-    "llama3.2:1b": OllamaModel(
-        name="llama3.2:1b",
-        size_gb=1.3,
-        tier=ModelTier.FAST,
-        description="Llama 3.2 1B - FAST default (~5-10s on CPU)",
-        context_length=4096,
-        priority=0  # HIGHEST PRIORITY - USE THIS FIRST!
-    ),
-    "phi3:mini": OllamaModel(
-        name="phi3:mini",
-        size_gb=2.2,
-        tier=ModelTier.FAST,
-        description="Microsoft Phi-3 Mini - Fast backup",
-        context_length=4096,
-        priority=1
-    ),
-    
-    # ═══════════════════════════════════════════════════════════════════════════
-    # TIER: BALANCED (4.9GB) - For complex queries only
+    # TIER: BALANCED (4.9GB) - DEFAULT - Modelet e vetme që flasin mirë
     # ═══════════════════════════════════════════════════════════════════════════
     "llama3.1:8b": OllamaModel(
         name="llama3.1:8b",
         size_gb=4.9,
         tier=ModelTier.BALANCED,
-        description="Meta Llama 3.1 8B - Complex queries only (~40-50s on CPU)",
+        description="Meta Llama 3.1 8B - Default model (~3-5s)",
         context_length=8192,
-        priority=0
+        priority=0  # PRIMARY MODEL
+    ),
+    "clisonix-ocean:v2": OllamaModel(
+        name="clisonix-ocean:v2",
+        size_gb=4.9,
+        tier=ModelTier.BALANCED,
+        description="Clisonix Ocean v2 - Backup model (~3-5s)",
+        context_length=8192,
+        priority=1
     ),
 }
 
-# Fallback order - FAST models FIRST!
+# Fallback order - VETËM MODELE QË FLASIN MIRË
+# HEQUR: llama3.2:1b, phi3:mini, clisonix-ocean:latest - flasin përçart
 FALLBACK_ORDER = [
-    "llama3.2:1b",            # 1st: FASTEST (1.3GB, ~5-10s)
-    "phi3:mini",              # 2nd: Fast backup (2.2GB)
-    "llama3.1:8b",            # 3rd: Complex only (4.9GB, ~40-50s)
+    "llama3.1:8b",            # 1st: I VETMI I BESUESHËM (4.9GB)
+    "clisonix-ocean:v2",      # 2nd: Backup (4.9GB)
 ]
 
 
@@ -366,17 +354,17 @@ class OllamaMultiEngine:
             "requests_by_model": {},
         }
         
-        # System prompt - imported from centralized module
+        # System prompt - imported from centralized Master Prompt
         try:
             import sys
             sys.path.insert(0, 'c:/Users/Admin/Desktop/Clisonix-cloud/modules')
-            from curiosity_ocean.curiosity_ocean_prompt import CURIOSITY_OCEAN_SYSTEM_PROMPT
+            from curiosity_ocean.master_prompt import CURIOSITY_OCEAN_SYSTEM_PROMPT
             self.system_prompt = CURIOSITY_OCEAN_SYSTEM_PROMPT
         except ImportError:
             # Fallback if import fails
-            self.system_prompt = """You are Curiosity Ocean, the core conversational intelligence of Clisonix Platform.
-Respond in the same language as the user. Be clear, concise, and intelligent.
-Do not fabricate citations or generate random topics. Answer only what is asked."""
+            self.system_prompt = """You are Curiosity Ocean, the AI of Clisonix Platform (clisonix.cloud).
+Created by Ledjan Ahmati. Respond in the user's language. Be concise, accurate, helpful.
+Never invent facts. Admit if unsure: "Nuk e di" / "I don't know"."""
     
     async def _get_client(self) -> httpx.AsyncClient:
         """Lazy-load HTTP client"""
@@ -412,21 +400,21 @@ Do not fabricate citations or generate random topics. Answer only what is asked.
             return False
     
     def _select_model(self, query: str, strategy: Strategy) -> Tuple[str, ModelTier]:
-        """NANOGRID: Gjithmonë përdor llama3.2:1b për shpejtësi"""
+        """Zgjedh modelin - VETËM llama3.1:8b (modelet e vogla flasin përçart)"""
         
-        # FORCE: llama3.2:1b (1.3GB, ~5-10s) - ALWAYS!
-        if "llama3.2:1b" in self._available_models:
-            return "llama3.2:1b", ModelTier.FAST
+        # FORCE: llama3.1:8b - I VETMI QË FLET MIRË!
+        if "llama3.1:8b" in self._available_models:
+            return "llama3.1:8b", ModelTier.BALANCED
         
-        # Backup: phi3:mini
-        if "phi3:mini" in self._available_models:
-            return "phi3:mini", ModelTier.FAST
+        # Backup: clisonix-ocean:v2 (4.9GB)
+        if "clisonix-ocean:v2" in self._available_models:
+            return "clisonix-ocean:v2", ModelTier.BALANCED
         
         # Last resort: first available
         if self._available_models:
-            return self._available_models[0], ModelTier.FAST
+            return self._available_models[0], ModelTier.BALANCED
         
-        return "llama3.2:1b", ModelTier.FAST
+        return "llama3.1:8b", ModelTier.BALANCED
     
     async def generate(
         self,

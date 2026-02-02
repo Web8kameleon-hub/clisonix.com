@@ -125,14 +125,14 @@ SERVICES: Dict[str, MicroService] = {
     ),
     "ollama-multi": MicroService(
         name="Ollama Multi-Model Engine", port=4444,
-        description="5 Ollama Models Enterprise - phi3, clisonix-ocean:latest, v2, llama3.1, gpt-oss:120b",
+        description="3 Ollama Models Enterprise - clisonix-ocean:v2, llama3.1:8b, gpt-oss:120b (microservice 8031)",
         category="core", is_core=True,
         file="ollama_multi_api.py",
         health_endpoint="/health",
         api_docs="/docs",
         capabilities=[
-            "local_ai", "multi_model", "auto_selection", "fast_mode", "balanced_mode", 
-            "deep_analysis", "chat", "generate", "phi3", "llama3", "gpt_oss_120b"
+            "local_ai", "multi_model", "auto_selection", "balanced_mode", 
+            "deep_analysis", "chat", "generate", "llama3", "gpt_oss_120b"
         ]
     ),
     "alphabet-layers": MicroService(

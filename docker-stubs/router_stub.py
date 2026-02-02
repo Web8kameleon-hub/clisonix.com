@@ -81,12 +81,12 @@ PERSONAS = {
     )
 }
 
-# Model preferences
+# Model preferences - UPDATED: phi3:mini removed (doesn't speak Albanian)
 MODEL_PREFERENCES = {
-    CognitiveLevel.KIDS: "phi3:mini",
+    CognitiveLevel.KIDS: "llama3.1:8b",
     CognitiveLevel.STUDENT: "clisonix-ocean:v2",
     CognitiveLevel.RESEARCH: "llama3.1:8b",
-    CognitiveLevel.GENIUS: "gpt-oss:120b"
+    CognitiveLevel.GENIUS: "gpt-oss:120b"  # via microservice 8031
 }
 
 # Pipeline mappings

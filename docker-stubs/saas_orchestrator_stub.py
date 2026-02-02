@@ -26,8 +26,8 @@ TENANTS = {
 }
 
 PLANS = {
-    "free": {"price": 0, "api_calls": 1000, "models": ["phi3:mini"]},
-    "pro": {"price": 29, "api_calls": 50000, "models": ["phi3:mini", "clisonix-ocean:v2"]},
+    "free": {"price": 0, "api_calls": 1000, "models": ["llama3.1:8b"]},
+    "pro": {"price": 29, "api_calls": 50000, "models": ["llama3.1:8b", "clisonix-ocean:v2"]},
     "enterprise": {"price": 299, "api_calls": 500000, "models": ["all"]},
     "academic": {"price": 0, "api_calls": 100000, "models": ["all"]},
     "education": {"price": 0, "api_calls": 200000, "models": ["all"]}

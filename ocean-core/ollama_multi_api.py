@@ -7,15 +7,13 @@
 Port: 7777
 Endpoint: /api/v1/generate, /api/v1/chat, /health, /models
 
-5 Modele:
-  * phi3:mini (2.2GB) - FAST
-  * clisonix-ocean:latest (2.2GB) - FAST  
-  * clisonix-ocean:v2 (4.9GB) - BALANCED
-  * llama3.1:8b (4.9GB) - BALANCED
-  * gpt-oss:120b (65GB) - DEEP
+3 Modele (UPDATED - phi3:mini dhe clisonix-ocean:latest hequr):
+  * clisonix-ocean:v2 (4.9GB) - BALANCED - DEFAULT
+  * llama3.1:8b (4.9GB) - BALANCED - BACKUP
+  * gpt-oss:120b (65GB) - DEEP - via microservice 8031
 
 Author: Clisonix Team
-Version: 2.0.1
+Version: 2.1.0
 """
 
 import asyncio
@@ -222,9 +220,10 @@ async def generate(request: GenerateRequest):
     
     Strategies:
     - **auto**: Zgjedh modelin sipas kompleksitetit t pyetjes
-    - **fast**: Prdor phi3:mini ose clisonix-ocean:latest (2.2GB)
-    - **balanced**: Prdor clisonix-ocean:v2 ose llama3.1:8b (4.9GB)
-    - **deep**: Prdor gpt-oss:120b (65GB) pr analiza komplekse
+    - **balanced**: Prdor clisonix-ocean:v2 ose llama3.1:8b (4.9GB) - DEFAULT
+    - **deep**: Prdor gpt-oss:120b (65GB) pr analiza komplekse (microservice 8031)
+    
+    HEQUR: fast strategy (phi3:mini, clisonix-ocean:latest nuk flasin shqip)
     """
     global engine
     

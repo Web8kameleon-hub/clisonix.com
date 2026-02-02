@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(message)s")
 logger = logging.getLogger("ASI-Lite")
 
 # Config
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://ollama:11434")
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 MODEL = os.getenv("MODEL", "llama3.1:8b")
 PORT = int(os.getenv("PORT", "8030"))
 
@@ -105,6 +105,18 @@ async def root():
 @app.get("/health")
 async def health():
     return {"status": "healthy", "ollama": OLLAMA_HOST}
+
+@app.get("/api/v1/status")
+async def status():
+    """System status endpoint"""
+    return {
+        "status": "operational",
+        "service": "ASI-Lite",
+        "version": "1.0.0",
+        "model": MODEL,
+        "ollama": OLLAMA_HOST,
+        "port": PORT
+    }
 
 @app.post("/api/v1/chat")
 async def chat(req: ChatRequest):

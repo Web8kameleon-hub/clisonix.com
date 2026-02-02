@@ -7,9 +7,8 @@ Integron modele lokale LLM përmes Ollama.
 100% Lokale, 100% Private, 0 Pagesa.
 
 Modelet e mbështetura:
-- phi3:mini (Microsoft, kompakt)
-- llama3.2:3b (Meta, balanced)
-- mistral:7b (Mistral AI, powerful)
+- llama3.1:8b (Meta, DEFAULT - flet mirë shqip)
+- clisonix-ocean:v2 (Clisonix, backup)
 """
 
 import asyncio
@@ -34,7 +33,7 @@ IS_IN_DOCKER = os.path.exists("/.dockerenv") or os.environ.get("DOCKER_ENV") == 
 # Use host.docker.internal when in Docker to reach Ollama on host
 OLLAMA_HOST = "host.docker.internal" if IS_IN_DOCKER else "localhost"
 OLLAMA_BASE_URL = f"http://{OLLAMA_HOST}:11434"
-DEFAULT_MODEL = "phi3:mini"
+DEFAULT_MODEL = "llama3.1:8b"  # UPDATED: phi3:mini hequr - nuk flet shqip
 DEFAULT_TIMEOUT = 60.0  # seconds
 
 # System prompt - imported from centralized module

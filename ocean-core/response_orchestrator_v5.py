@@ -38,14 +38,14 @@ except ImportError:
     seed_stats = None
     KnowledgeSeed = None
 
-# Import Ollama Multi-Model Engine (5 models: phi3, clisonix-ocean:v2, llama3.1, etc.)
+# Import Ollama FAST Engine (LINJA OPTIKE - zero overhead)
 try:
-    from ollama_multi_engine import OllamaMultiEngine, Strategy as OllamaStrategy
+    from ollama_fast_engine import OllamaFastEngine, get_fast_engine
     OLLAMA_AVAILABLE = True
 except ImportError:
     OLLAMA_AVAILABLE = False
-    OllamaMultiEngine = None
-    OllamaStrategy = None
+    OllamaFastEngine = None
+    get_fast_engine = None
 
 # Import Albanian Dictionary
 try:
@@ -511,12 +511,12 @@ class ResponseOrchestratorV5:
         # DISABLED - Mega Layer Engine creates chaos
         self.mega_layer_engine = None
         
-        # Initialize Ollama Multi-Model Engine - THE ONLY ENGINE!
+        # Initialize Ollama FAST Engine - LINJA OPTIKE!
         self.ollama_engine: Optional[Any] = None
         if OLLAMA_AVAILABLE:
             try:
-                self.ollama_engine = OllamaMultiEngine(default_strategy=OllamaStrategy.AUTO)
-                logger.info("🦙 OllamaMultiEngine initialized - ONLY ENGINE ACTIVE")
+                self.ollama_engine = get_fast_engine()
+                logger.info("⚡ OllamaFastEngine initialized - LINJA OPTIKE ACTIVE")
             except Exception as e:
                 logger.error(f"❌ OllamaMultiEngine FAILED: {e}")
 
@@ -597,23 +597,21 @@ class ResponseOrchestratorV5:
             language_override_prompt = f"CRITICAL: Respond ONLY in {lang_name}. Do not use any other language."
             logger.info(f"🌍 Language override active: {lang_name}")
         
-        # OLLAMA - Primary AI Engine (nëse duhen të dhëna, API backend/Excel)
+        # OLLAMA FAST - Linja Optike (zero overhead)
         if self.ollama_engine:
             try:
-                await self.ollama_engine.initialize()
-                
                 # Build enhanced query with language instruction
                 enhanced_query = query
                 if language_override_prompt:
                     enhanced_query = f"[{language_override_prompt}]\n\n{query}"
                 
                 ollama_response = await self.ollama_engine.generate(enhanced_query)
-                if ollama_response.content:
+                if ollama_response.success and ollama_response.content:
                     base_text = ollama_response.content
-                    sources = [f"ollama:{ollama_response.model_used}"]
+                    sources = [f"ollama:{ollama_response.model}"]
                     base_confidence = 0.90
                     used_ollama = True
-                    logger.info(f"🦙 Ollama [{ollama_response.model_used}] ({ollama_response.total_duration_ms:.0f}ms)")
+                    logger.info(f"⚡ Ollama FAST [{ollama_response.model}] ({ollama_response.duration_ms:.0f}ms)")
             except Exception as e:
                 logger.error(f"Ollama error: {e}")
                 base_text = f"Ollama nuk u përgjigj: {e}"

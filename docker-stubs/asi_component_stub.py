@@ -67,7 +67,7 @@ def info():
         "role": ROLES.get(SERVICE_NAME.lower(), "ASI Component"),
         "capabilities": ["query", "analyze", "learn", "respond"],
         "connected_components": ["ALBA", "ALBI", "JONA", "ASI"],
-        "models": ["phi3:mini", "clisonix-ocean:v2", "llama3.1:8b"]
+        "models": ["llama3.1:8b", "clisonix-ocean:v2"]
     }
 
 @app.post("/query")

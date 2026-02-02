@@ -17,11 +17,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Mock marketplace items
+# Mock marketplace items - UPDATED: phi3:mini removed (doesn't speak Albanian)
 MODELS = {
-    "phi3:mini": {"downloads": 50000, "rating": 4.8, "price": 0, "author": "Microsoft"},
+    "llama3.1:8b": {"downloads": 100000, "rating": 4.9, "price": 0, "author": "Meta"},
     "clisonix-ocean:v2": {"downloads": 25000, "rating": 4.9, "price": 0, "author": "Clisonix"},
-    "llama3.1:8b": {"downloads": 100000, "rating": 4.7, "price": 0, "author": "Meta"},
     "gpt-oss:120b": {"downloads": 5000, "rating": 4.95, "price": 0, "author": "Community"}
 }
 

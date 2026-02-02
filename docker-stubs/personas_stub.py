@@ -26,7 +26,7 @@ PERSONAS = {
         "tone": "Friendly, fun, simple with emojis 🎨",
         "complexity": "very_simple",
         "example": "Imagine a rainbow 🌈 - that's how light works!",
-        "model": "phi3:mini"
+        "model": "llama3.1:8b"  # phi3:mini removed - doesn't speak Albanian
     },
     "STUDENT_AI": {
         "name": "STUDENT_AI",
