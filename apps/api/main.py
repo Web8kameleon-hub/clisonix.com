@@ -4967,19 +4967,26 @@ except ImportError as e:
 @app.get("/api/docs-index")
 async def docs_index():
     """Serve DOCS_INDEX.md as JSON with raw content"""
+    github_raw = "https://raw.githubusercontent.com/LedjanAhmati/Clisonix-cloud/main/DOCS_INDEX.md"
     try:
+        # Try local first
         docs_path = Path(__file__).parent.parent.parent / "DOCS_INDEX.md"
         if docs_path.exists():
             content = docs_path.read_text(encoding="utf-8")
-            return {
-                "title": "Clisonix Documentation Index",
-                "total_docs": 173,
-                "categories": 18,
-                "content": content,
-                "github_url": "https://github.com/LedjanAhmati/Clisonix-cloud/blob/main/DOCS_INDEX.md",
-                "raw_url": "https://raw.githubusercontent.com/LedjanAhmati/Clisonix-cloud/main/DOCS_INDEX.md"
-            }
-        return {"error": "DOCS_INDEX.md not found"}
+        else:
+            # Fallback to GitHub
+            import httpx
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(github_raw)
+                content = resp.text if resp.status_code == 200 else "# Documentation not available"
+        return {
+            "title": "Clisonix Documentation Index",
+            "total_docs": 173,
+            "categories": 18,
+            "content": content,
+            "github_url": "https://github.com/LedjanAhmati/Clisonix-cloud/blob/main/DOCS_INDEX.md",
+            "raw_url": github_raw
+        }
     except Exception as e:
         return {"error": str(e)}
 
