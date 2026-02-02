@@ -320,7 +320,7 @@ async def info():
         "service": "Balancer Nodes (Python) - External Mesh Routing",
         "port": 3334,
         "type": "node-discovery-external",
-        "version": "2.0.0",
+        "version": "2.1.0",
         "started_at": SERVICE_START,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "endpoints": {
@@ -332,10 +332,115 @@ async def info():
             "POST /api/offline-nodes/register": "Register offline node",
             "GET /api/offline-nodes": "List offline nodes",
             "POST /api/route-to-offline": "Queue work for offline node",
+            "POST /api/vendor-nodes/register": "Register user vendor node (edge)",
+            "GET /api/vendor-nodes": "List vendor nodes",
+            "POST /api/vendor-nodes/heartbeat": "Vendor node heartbeat",
+            "POST /api/vendor-nodes/complete": "Report task completion",
             "GET /api/mesh-status": "Get Mesh & load status",
             "GET /health": "Health check",
             "GET /info": "Service info"
         }
+    }
+
+# ============== VENDOR NODES (Edge Computing) ==============
+VENDOR_NODES: Dict[str, Dict[str, Any]] = {}
+
+@app.post("/api/vendor-nodes/register")
+async def register_vendor_node(nodeId: str, type: str = "vendor", 
+                               capabilities: Optional[Dict] = None,
+                               metadata: Optional[Dict] = None):
+    """Register a user's device as vendor node for edge computing"""
+    global REQUEST_COUNT
+    REQUEST_COUNT += 1
+    
+    if not nodeId:
+        raise HTTPException(status_code=400, detail="nodeId required")
+    
+    vendor_data = {
+        "nodeId": nodeId,
+        "type": type,
+        "capabilities": capabilities or {},
+        "metadata": metadata or {},
+        "status": "active",
+        "registeredAt": datetime.now(timezone.utc).isoformat(),
+        "lastHeartbeat": datetime.now(timezone.utc).isoformat(),
+        "tasksCompleted": 0,
+        "loadFactor": 0.0
+    }
+    
+    VENDOR_NODES[nodeId] = vendor_data
+    print(f"[{datetime.now().isoformat()}] 🌐 Vendor Node registered: {nodeId}")
+    
+    return {
+        "success": True,
+        "message": f"Vendor node {nodeId} registered for edge computing",
+        "node": vendor_data
+    }
+
+@app.get("/api/vendor-nodes")
+async def get_vendor_nodes():
+    """Get all registered vendor nodes"""
+    global REQUEST_COUNT
+    REQUEST_COUNT += 1
+    
+    active_nodes = [n for n in VENDOR_NODES.values() if n["status"] == "active"]
+    
+    return {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "totalVendorNodes": len(VENDOR_NODES),
+        "activeVendorNodes": len(active_nodes),
+        "vendorNodes": list(VENDOR_NODES.values())
+    }
+
+@app.post("/api/vendor-nodes/heartbeat")
+async def vendor_heartbeat(nodeId: str, stats: Optional[Dict] = None, load: Optional[Dict] = None):
+    """Update vendor node heartbeat"""
+    global REQUEST_COUNT
+    REQUEST_COUNT += 1
+    
+    if nodeId not in VENDOR_NODES:
+        raise HTTPException(status_code=404, detail=f"Vendor node {nodeId} not found")
+    
+    VENDOR_NODES[nodeId]["lastHeartbeat"] = datetime.now(timezone.utc).isoformat()
+    VENDOR_NODES[nodeId]["status"] = "active"
+    if stats:
+        VENDOR_NODES[nodeId]["stats"] = stats
+    if load:
+        VENDOR_NODES[nodeId]["loadFactor"] = load.get("cpu", 0)
+    
+    return {"success": True, "nodeId": nodeId}
+
+@app.post("/api/vendor-nodes/complete")
+async def vendor_complete(nodeId: str, taskId: str, result: Optional[Dict] = None):
+    """Report task completion from vendor node"""
+    global REQUEST_COUNT
+    REQUEST_COUNT += 1
+    
+    if nodeId in VENDOR_NODES:
+        VENDOR_NODES[nodeId]["tasksCompleted"] = VENDOR_NODES[nodeId].get("tasksCompleted", 0) + 1
+    
+    print(f"[{datetime.now().isoformat()}] ✅ Vendor {nodeId} completed task {taskId}")
+    
+    return {"success": True, "nodeId": nodeId, "taskId": taskId}
+
+@app.get("/api/vendor-nodes/best")
+async def get_best_vendor_node():
+    """Get the best available vendor node for task distribution"""
+    global REQUEST_COUNT
+    REQUEST_COUNT += 1
+    
+    # Find active nodes with lowest load
+    active_nodes = [n for n in VENDOR_NODES.values() if n["status"] == "active"]
+    
+    if not active_nodes:
+        return {"available": False, "message": "No vendor nodes available"}
+    
+    # Sort by load factor (lowest first)
+    best = sorted(active_nodes, key=lambda x: x.get("loadFactor", 1.0))[0]
+    
+    return {
+        "available": True,
+        "node": best
     }
 
 
@@ -347,6 +452,7 @@ if __name__ == "__main__":
     print(f"  BALANCER NODES SERVICE (Python)")
     print(f"  Listening on {host}:{port}")
     print(f"  Node discovery & load distribution")
+    print(f"  + Vendor Nodes (Edge Computing)")
     print(f"{'='*60}\n")
     
     uvicorn.run(app, host=host, port=port, log_level="info")
