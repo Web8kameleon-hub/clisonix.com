@@ -19,7 +19,7 @@ logger = logging.getLogger("ASI-Lite")
 
 # Config
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-MODEL = os.getenv("MODEL", "clisonix-ocean:v2")  # Our trained model, NOT llama3.1 or latest
+MODEL = os.getenv("MODEL", "llama3.2:3b")  # Default model for production
 PORT = int(os.getenv("PORT", "8030"))
 
 # Simple, natural system prompt
