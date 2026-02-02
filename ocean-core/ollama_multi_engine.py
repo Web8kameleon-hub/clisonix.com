@@ -354,18 +354,38 @@ class OllamaMultiEngine:
             "requests_by_model": {},
         }
         
-        # System prompt - imported from centralized Master Prompt
+        # System prompt - with fallback if centralized Master Prompt unavailable
+        self.system_prompt = self._load_system_prompt()
+    
+    def _load_system_prompt(self) -> str:
+        """Load system prompt from centralized location or use fallback."""
         try:
             import sys
-            sys.path.insert(0, 'c:/Users/Admin/Desktop/Clisonix-cloud/modules')
-            from curiosity_ocean.master_prompt import CURIOSITY_OCEAN_SYSTEM_PROMPT
-            self.system_prompt = CURIOSITY_OCEAN_SYSTEM_PROMPT
-        except ImportError:
-            # Fallback if import fails
-            self.system_prompt = """You are Curiosity Ocean, the AI of Clisonix Platform (clisonix.cloud).
+            import os
+            
+            # Try multiple possible paths for the master prompt
+            possible_paths = [
+                os.path.join(os.path.dirname(__file__), '..', 'modules'),
+                'c:/Users/Admin/Desktop/Clisonix-cloud/modules',
+                '/app/modules',  # Docker path
+            ]
+            
+            for path in possible_paths:
+                if os.path.exists(path):
+                    if path not in sys.path:
+                        sys.path.insert(0, path)
+                    try:
+                        from curiosity_ocean.master_prompt import CURIOSITY_OCEAN_SYSTEM_PROMPT
+                        return CURIOSITY_OCEAN_SYSTEM_PROMPT
+                    except ImportError:
+                        continue
+        except Exception:
+            pass
+        
+        # Fallback system prompt if import fails
+        return """You are Curiosity Ocean, the AI of Clisonix Platform (clisonix.cloud).
 Created by Ledjan Ahmati. Respond in the user's language. Be concise, accurate, helpful.
 Never invent facts. Admit if unsure: "Nuk e di" / "I don't know"."""
-    
     async def _get_client(self) -> httpx.AsyncClient:
         """Lazy-load HTTP client"""
         if self._client is None or self._client.is_closed:

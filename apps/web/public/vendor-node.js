@@ -89,7 +89,7 @@ class VendorNode {
         console.log("📡 Registered with master:", data);
         return data;
       }
-    } catch (e) {
+    } catch {
       console.warn("⚠️ Could not register with master, running offline");
     }
     return null;
@@ -115,7 +115,7 @@ class VendorNode {
       return !!(
         canvas.getContext("webgl") || canvas.getContext("experimental-webgl")
       );
-    } catch (e) {
+    } catch {
       return false;
     }
   }
@@ -134,7 +134,7 @@ class VendorNode {
             load: this.getCurrentLoad(),
           }),
         });
-      } catch (e) {
+      } catch {
         // Offline mode - continue working
       }
     }, 30000); // Every 30 seconds
@@ -362,7 +362,7 @@ class VendorNode {
           result,
         }),
       });
-    } catch (e) {
+    } catch {
       console.warn("Could not report completion");
     }
 

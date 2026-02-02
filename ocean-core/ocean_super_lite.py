@@ -28,8 +28,7 @@ FAST_KEYWORDS = {
 DEEP_KEYWORDS = {
     "analyze", "detailed", "complex", "research", "scientific", "breakdown",
     "explain", "analysis", "architecture", "strategy", "compare", "evaluate",
-    "expert", "comprehensive", "thorough", "in-depth",
-    "analizo", "detajuar", "kompleks", "shpjego", "krahaso"
+    "expert", "comprehensive", "thorough", "in-depth", "how", "why"
 }
 
 CREATIVE_KEYWORDS = {
@@ -81,22 +80,22 @@ def get_config(text: str) -> dict:
         "FAST": {
             "mode": "FAST",
             "layers": 3,
-            "num_predict": min(256, max(50, length * 2)),
-            "num_ctx": 512,
+            "num_predict": max(100, length * 3),
+            "num_ctx": 2048,
             "temperature": 0.3
         },
         "BALANCED": {
             "mode": "BALANCED",
             "layers": 6,
-            "num_predict": min(1024, max(200, length * 3)),
-            "num_ctx": 2048,
+            "num_predict": max(300, length * 5),
+            "num_ctx": 4096,
             "temperature": 0.5
         },
         "DEEP": {
             "mode": "DEEP",
             "layers": 11,
-            "num_predict": min(2048, max(500, length * 4)),
-            "num_ctx": 4096,
+            "num_predict": max(500, length * 8),
+            "num_ctx": 8192,
             "temperature": 0.2,
             "rerank": True,
             "cognitive_signature": True
@@ -104,8 +103,8 @@ def get_config(text: str) -> dict:
         "CREATIVE": {
             "mode": "CREATIVE",
             "layers": 7,
-            "num_predict": min(2048, max(400, length * 4)),
-            "num_ctx": 4096,
+            "num_predict": max(400, length * 6),
+            "num_ctx": 8192,
             "temperature": 0.9,
             "emotion_layer": True,
             "realism_layer": True
@@ -113,8 +112,8 @@ def get_config(text: str) -> dict:
         "TECHNICAL": {
             "mode": "TECHNICAL",
             "layers": 8,
-            "num_predict": min(2048, max(300, length * 3)),
-            "num_ctx": 4096,
+            "num_predict": max(400, length * 6),
+            "num_ctx": 8192,
             "temperature": 0.2,
             "technical_boundaries": True,
             "focus_layer": True
