@@ -4,6 +4,13 @@
     "description": "Complete API collection for Clisonix Cloud with REAL Prometheus metrics, CoinGecko, Weather, and OpenAI integration",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://46.225.14.83:8000",
+      "type": "string"
+    }
+  ],
   "item": [
     {
       "name": "ASI Trinity - Real Prometheus Metrics",
@@ -14,10 +21,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5436/asi/status",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/asi/status",
+              "host": ["{{base_url}}"],
               "path": ["asi", "status"]
             },
             "description": "Get ASI Trinity status with REAL Prometheus metrics"
@@ -30,10 +35,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5436/asi/health",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/asi/health",
+              "host": ["{{base_url}}"],
               "path": ["asi", "health"]
             },
             "description": "Check overall ASI Trinity health from real Prometheus data"
@@ -46,10 +49,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5436/asi/alba/metrics",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/asi/alba/metrics",
+              "host": ["{{base_url}}"],
               "path": ["asi", "alba", "metrics"]
             },
             "description": "ALBA Network real-time metrics: CPU, Memory, Network Latency from Prometheus"
@@ -62,10 +63,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5436/asi/albi/metrics",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/asi/albi/metrics",
+              "host": ["{{base_url}}"],
               "path": ["asi", "albi", "metrics"]
             },
             "description": "ALBI Neural real-time metrics: Goroutines, Neural Patterns, GC Operations from Prometheus"
@@ -78,10 +77,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5436/asi/jona/metrics",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/asi/jona/metrics",
+              "host": ["{{base_url}}"],
               "path": ["asi", "jona", "metrics"]
             },
             "description": "JONA Coordination real-time metrics: HTTP Requests, Coordination Score from Prometheus"
@@ -99,10 +96,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5436/api/monitoring/dashboards",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/api/monitoring/dashboards",
+              "host": ["{{base_url}}"],
               "path": ["api", "monitoring", "dashboards"]
             },
             "description": "Get links to Prometheus, Grafana, and Tempo dashboards"
@@ -115,10 +110,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5436/api/monitoring/real-metrics-info",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/api/monitoring/real-metrics-info",
+              "host": ["{{base_url}}"],
               "path": ["api", "monitoring", "real-metrics-info"]
             },
             "description": "Get documentation about REAL vs SYNTHETIC data sources"
@@ -136,10 +129,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5436/api/ai/health",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/api/ai/health",
+              "host": ["{{base_url}}"],
               "path": ["api", "ai", "health"]
             },
             "description": "Check OpenAI API connectivity and configuration status"
@@ -157,10 +148,8 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5436/api/ai/analyze-neural?query=Analyze%20the%20neural%20pattern:%20increased%20alpha%20waves%20(8-12Hz)%20with%20stable%20amplitude",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/api/ai/analyze-neural?query=Analyze%20the%20neural%20pattern:%20increased%20alpha%20waves%20(8-12Hz)%20with%20stable%20amplitude",
+              "host": ["{{base_url}}"],
               "path": ["api", "ai", "analyze-neural"],
               "query": [
                 {
@@ -188,10 +177,8 @@
               "raw": "{\n  \"frequencies\": {\n    \"delta\": 2.5,\n    \"theta\": 6.5,\n    \"alpha\": 10.5,\n    \"beta\": 20.0,\n    \"gamma\": 40.0\n  },\n  \"dominant_freq\": 10.5,\n  \"amplitude_range\": {\n    \"min\": 5.2,\n    \"max\": 45.8\n  }\n}"
             },
             "url": {
-              "raw": "http://localhost:5436/api/ai/eeg-interpretation",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/api/ai/eeg-interpretation",
+              "host": ["{{base_url}}"],
               "path": ["api", "ai", "eeg-interpretation"]
             },
             "description": "Get real OpenAI GPT-4 interpretation of EEG frequency data"
@@ -209,10 +196,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5436/api/crypto/market",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/api/crypto/market",
+              "host": ["{{base_url}}"],
               "path": ["api", "crypto", "market"]
             },
             "description": "Get real cryptocurrency prices from CoinGecko API"
@@ -225,10 +210,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5436/api/crypto/market/detailed/bitcoin",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/api/crypto/market/detailed/bitcoin",
+              "host": ["{{base_url}}"],
               "path": ["api", "crypto", "market", "detailed", "bitcoin"]
             },
             "description": "Get detailed real cryptocurrency data from CoinGecko"
@@ -241,10 +224,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5436/api/weather?latitude=41.3275&longitude=19.8187",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/api/weather?latitude=41.3275&longitude=19.8187",
+              "host": ["{{base_url}}"],
               "path": ["api", "weather"],
               "query": [
                 {
@@ -267,10 +248,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5436/api/weather/multiple-cities",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/api/weather/multiple-cities",
+              "host": ["{{base_url}}"],
               "path": ["api", "weather", "multiple-cities"]
             },
             "description": "Get real weather for multiple Albanian cities from Open-Meteo API"
@@ -283,10 +262,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5436/api/realdata/dashboard",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/api/realdata/dashboard",
+              "host": ["{{base_url}}"],
               "path": ["api", "realdata", "dashboard"]
             },
             "description": "Get combined crypto + weather real data in one request"
@@ -304,10 +281,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5436/health",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
               "path": ["health"]
             },
             "description": "Check FastAPI backend health"
@@ -320,10 +295,8 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5436/status",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "8000",
+              "raw": "{{base_url}}/status",
+              "host": ["{{base_url}}"],
               "path": ["status"]
             },
             "description": "Get full system status report"
@@ -333,106 +306,52 @@
       ]
     },
     {
-      "name": "Frontend - Real Data Modules",
+      "name": "Kitchen API",
       "item": [
         {
-          "name": "Crypto Dashboard",
+          "name": "Kitchen Status",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/modules/crypto-dashboard",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "3000",
-              "path": ["modules", "crypto-dashboard"]
+              "raw": "{{base_url}}/api/kitchen/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "kitchen", "status"]
             },
-            "description": "View Crypto Dashboard with REAL CoinGecko data"
+            "description": "Get Kitchen layers status"
           },
           "response": []
         },
         {
-          "name": "Weather Dashboard",
+          "name": "Kitchen Health",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/modules/weather-dashboard",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "3000",
-              "path": ["modules", "weather-dashboard"]
+              "raw": "{{base_url}}/api/kitchen/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "kitchen", "health"]
             },
-            "description": "View Weather Dashboard with REAL Open-Meteo data"
-          },
-          "response": []
-        },
-        {
-          "name": "Industrial Dashboard",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:3000/modules/industrial-dashboard",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "3000",
-              "path": ["modules", "industrial-dashboard"]
-            },
-            "description": "View Industrial Dashboard with REAL Prometheus metrics"
+            "description": "Check Kitchen health"
           },
           "response": []
         }
       ]
     },
     {
-      "name": "External Monitoring Tools",
+      "name": "Docs Index",
       "item": [
         {
-          "name": "Prometheus UI",
+          "name": "Get Docs Index",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:9090",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "9090",
-              "path": []
+              "raw": "{{base_url}}/api/docs-index",
+              "host": ["{{base_url}}"],
+              "path": ["api", "docs-index"]
             },
-            "description": "Access Prometheus metrics database"
-          },
-          "response": []
-        },
-        {
-          "name": "Grafana Dashboard",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:3001",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "3001",
-              "path": []
-            },
-            "description": "Access Grafana visualization (admin/admin)"
-          },
-          "response": []
-        },
-        {
-          "name": "Tempo Tracing",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:3200",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "3200",
-              "path": []
-            },
-            "description": "Access Tempo distributed tracing"
+            "description": "Get documentation index with 173 docs in 18 categories"
           },
           "response": []
         }
@@ -440,4 +359,3 @@
     }
   ]
 }
-
