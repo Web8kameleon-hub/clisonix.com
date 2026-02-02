@@ -134,6 +134,11 @@ export default function CuriosityOceanChat() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-white flex flex-col">
+      {/* Beta Banner */}
+      <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-center py-2 text-sm font-medium">
+        🚀 Beta Version — Responses may take 30-60 seconds on this server
+      </div>
+      
       {/* Header */}
       <div className="border-b border-gray-200 bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">
