@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.vars.outputs.short_sha }}
-      image_name: ${{ needs.build-images.outputs.image_name }}
+      image_name: ${{ env.IMAGE_NAME }}
       
     steps:
       - name: Checkout code
@@ -105,7 +105,7 @@ jobs:
         with:
           context: ./apps/api
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/api:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -114,7 +114,7 @@ jobs:
         with:
           context: ./apps/web
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/web:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -123,7 +123,7 @@ jobs:
         with:
           context: ./ocean-core
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/ocean-core:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/ocean-core:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -136,7 +136,7 @@ jobs:
           context: .
           file: Dockerfile.alba
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/alba:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/alba:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -146,7 +146,7 @@ jobs:
           context: .
           file: Dockerfile.albi
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/albi:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/albi:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -156,7 +156,7 @@ jobs:
           context: .
           file: Dockerfile.jona
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/jona:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/jona:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -166,7 +166,7 @@ jobs:
           context: .
           file: Dockerfile.asi
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/asi:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/asi:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -179,7 +179,7 @@ jobs:
           context: .
           file: Dockerfile.liam
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/liam:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/liam:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -189,7 +189,7 @@ jobs:
           context: .
           file: Dockerfile.alda
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/alda:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/alda:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -199,7 +199,7 @@ jobs:
           context: .
           file: Dockerfile.alphabet
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/alphabet:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/alphabet:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -212,7 +212,7 @@ jobs:
           context: .
           file: Dockerfile.blerina
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/blerina:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/blerina:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -222,7 +222,7 @@ jobs:
           context: .
           file: Dockerfile.alba-idle
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/alba-idle:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/alba-idle:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -232,7 +232,7 @@ jobs:
           context: .
           file: Dockerfile.personas
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/personas:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/personas:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -245,7 +245,7 @@ jobs:
           context: .
           file: Dockerfile.agiem
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/agiem:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/agiem:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -255,7 +255,7 @@ jobs:
           context: .
           file: Dockerfile.datasource
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/datasource:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/datasource:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -268,7 +268,7 @@ jobs:
           context: .
           file: Dockerfile.lab
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/lab:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/lab:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -278,7 +278,7 @@ jobs:
           context: .
           file: Dockerfile.saas
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/saas:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/saas:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -287,7 +287,7 @@ jobs:
         with:
           context: ./services/aviation-weather
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/aviation:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/aviation:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -297,7 +297,7 @@ jobs:
           context: .
           file: Dockerfile.behavioral
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/behavioral:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/behavioral:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -307,7 +307,7 @@ jobs:
           context: .
           file: Dockerfile.economy
           push: true
-          tags: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/economy:${{ steps.vars.outputs.short_sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/economy:${{ steps.vars.outputs.short_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -498,7 +498,7 @@ jobs:
               spec:
                 containers:
                 - name: $SERVICE
-                  image: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/$SERVICE:$TAG
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$SERVICE:$TAG
                   ports:
                   - containerPort: $PORT
                   env:
@@ -546,7 +546,7 @@ jobs:
               spec:
                 containers:
                 - name: liam
-                  image: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/liam:$TAG
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/liam:$TAG
                   ports:
                   - containerPort: 8062
           ---
@@ -579,7 +579,7 @@ jobs:
               spec:
                 containers:
                 - name: alda
-                  image: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/alda:$TAG
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/alda:$TAG
                   ports:
                   - containerPort: 8063
           ---
@@ -612,7 +612,7 @@ jobs:
               spec:
                 containers:
                 - name: alphabet
-                  image: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/alphabet:$TAG
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/alphabet:$TAG
                   ports:
                   - containerPort: 8061
                   env:
@@ -657,7 +657,7 @@ jobs:
               spec:
                 containers:
                 - name: ocean
-                  image: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/ocean-core:$TAG
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/ocean-core:$TAG
                   ports:
                   - containerPort: 8030
                   resources:
@@ -704,7 +704,7 @@ jobs:
               spec:
                 containers:
                 - name: $SERVICE
-                  image: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/$SERVICE:$TAG
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$SERVICE:$TAG
                   ports:
                   - containerPort: $PORT
           ---
@@ -748,7 +748,7 @@ jobs:
               spec:
                 containers:
                 - name: agiem
-                  image: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/agiem:$TAG
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/agiem:$TAG
                   ports:
                   - containerPort: 9300
           ---
@@ -784,7 +784,7 @@ jobs:
               spec:
                 containers:
                 - name: datasource
-                  image: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/datasource:$TAG
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/datasource:$TAG
                   ports:
                   - containerPort: $PORT
                   env:
@@ -839,7 +839,7 @@ jobs:
               spec:
                 containers:
                 - name: lab
-                  image: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/lab:$TAG
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/lab:$TAG
                   ports:
                   - containerPort: $PORT
                   env:
@@ -888,7 +888,7 @@ jobs:
               spec:
                 containers:
                 - name: api
-                  image: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/api:$TAG
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api:$TAG
                   ports:
                   - containerPort: 8000
                   env:
@@ -926,7 +926,7 @@ jobs:
               spec:
                 containers:
                 - name: web
-                  image: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/web:$TAG
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:$TAG
                   ports:
                   - containerPort: 3000
           ---
@@ -959,7 +959,7 @@ jobs:
               spec:
                 containers:
                 - name: aviation
-                  image: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/aviation:$TAG
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/aviation:$TAG
                   ports:
                   - containerPort: 8080
           ---
@@ -979,7 +979,7 @@ jobs:
               spec:
                 containers:
                 - name: behavioral
-                  image: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/behavioral:$TAG
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/behavioral:$TAG
                   ports:
                   - containerPort: 8093
           ---
@@ -999,7 +999,7 @@ jobs:
               spec:
                 containers:
                 - name: economy
-                  image: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/economy:$TAG
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/economy:$TAG
                   ports:
                   - containerPort: 8091
           ---
@@ -1019,7 +1019,7 @@ jobs:
               spec:
                 containers:
                 - name: saas
-                  image: ${{ env.REGISTRY }}/${{ needs.build-images.outputs.image_name }}/saas:$TAG
+                  image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/saas:$TAG
                   ports:
                   - containerPort: 9400
           EOF

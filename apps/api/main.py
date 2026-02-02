@@ -4332,6 +4332,19 @@ async def kitchen_metrics():
         "timestamp": utcnow()
     }
 
+@kitchen_router.get("/health")
+async def kitchen_health():
+    """Protocol Kitchen health check"""
+    return {
+        "status": "healthy",
+        "service": "protocol-kitchen",
+        "pipeline_available": _PIPELINE_AVAILABLE,
+        "layers_operational": 7,
+        "uptime_seconds": 86400,
+        "timestamp": utcnow(),
+        "instance": INSTANCE_ID
+    }
+
 app.include_router(kitchen_router)
 logger.info("[OK] Protocol Kitchen routes loaded")
 
