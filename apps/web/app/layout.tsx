@@ -5,6 +5,9 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { RequestLogger } from "../src/components/telemetry/RequestLogger";
 import { DynamicFavicon } from "../src/components/DynamicFavicon";
 
+// Check if Clerk is configured
+const isClerkConfigured = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -140,10 +143,17 @@ export default function RootLayout({
         className={`${inter.variable} antialiased`}
         suppressHydrationWarning
       >
-        <ClerkProvider>
-          <RequestLogger />
-          {children}
-        </ClerkProvider>
+        {isClerkConfigured ? (
+          <ClerkProvider>
+            <RequestLogger />
+            {children}
+          </ClerkProvider>
+        ) : (
+          <>
+            <RequestLogger />
+            {children}
+          </>
+        )}
       </body>
     </html>
   );

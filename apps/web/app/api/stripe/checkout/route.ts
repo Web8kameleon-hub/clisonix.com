@@ -24,11 +24,13 @@ const getStripe = () => {
 // Price IDs for each plan (with fallbacks for build time)
 const PRICE_IDS: Record<string, Record<string, string>> = {
   starter: {
-    monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY || "price_starter_monthly",
+    monthly:
+      process.env.STRIPE_PRICE_STARTER_MONTHLY || "price_starter_monthly",
     yearly: process.env.STRIPE_PRICE_STARTER_YEARLY || "price_starter_yearly",
   },
   professional: {
-    monthly: process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY || "price_pro_monthly",
+    monthly:
+      process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY || "price_pro_monthly",
     yearly: process.env.STRIPE_PRICE_PROFESSIONAL_YEARLY || "price_pro_yearly",
   },
   enterprise: {
