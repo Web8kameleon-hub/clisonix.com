@@ -1,0 +1,159 @@
+/**
+ * Clisonix Cloud - Stripe Checkout API
+ *
+ * Creates checkout sessions for subscription plans
+ *
+ * @author Ledjan Ahmati
+ * @copyright 2026 Clisonix Cloud
+ */
+
+import { NextRequest, NextResponse } from "next/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2024-12-18.acacia",
+});
+
+// Price IDs for each plan
+const PRICE_IDS: Record<string, Record<string, string>> = {
+  starter: {
+    monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY!,
+    yearly: process.env.STRIPE_PRICE_STARTER_YEARLY!,
+  },
+  professional: {
+    monthly: process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY!,
+    yearly: process.env.STRIPE_PRICE_PROFESSIONAL_YEARLY!,
+  },
+  enterprise: {
+    monthly: process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY!,
+    yearly: process.env.STRIPE_PRICE_ENTERPRISE_YEARLY!,
+  },
+};
+
+export async function POST(request: NextRequest) {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const user = await currentUser();
+    const body = await request.json();
+    const { plan, interval = "monthly" } = body;
+
+    if (!plan || !PRICE_IDS[plan]) {
+      return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
+    }
+
+    const priceId = PRICE_IDS[plan][interval];
+    if (!priceId) {
+      return NextResponse.json({ error: "Invalid interval" }, { status: 400 });
+    }
+
+    // Create or retrieve Stripe customer
+    let customerId: string;
+
+    // Check if user already has a Stripe customer
+    const existingCustomers = await stripe.customers.list({
+      email: user?.emailAddresses[0]?.emailAddress,
+      limit: 1,
+    });
+
+    if (existingCustomers.data.length > 0) {
+      customerId = existingCustomers.data[0].id;
+    } else {
+      const customer = await stripe.customers.create({
+        email: user?.emailAddresses[0]?.emailAddress,
+        name: `${user?.firstName} ${user?.lastName}`,
+        metadata: {
+          clerk_user_id: userId,
+        },
+      });
+      customerId = customer.id;
+    }
+
+    // Create checkout session
+    const session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      mode: "subscription",
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://clisonix.cloud"}/subscription?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://clisonix.cloud"}/pricing?cancelled=true`,
+      metadata: {
+        clerk_user_id: userId,
+        plan: plan,
+        interval: interval,
+      },
+      subscription_data: {
+        metadata: {
+          clerk_user_id: userId,
+          plan: plan,
+        },
+      },
+      allow_promotion_codes: true,
+      billing_address_collection: "required",
+    });
+
+    return NextResponse.json({
+      sessionId: session.id,
+      url: session.url,
+    });
+  } catch (error) {
+    console.error("Error creating checkout session:", error);
+    return NextResponse.json(
+      { error: "Failed to create checkout session" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function GET() {
+  return NextResponse.json({
+    plans: {
+      starter: {
+        name: "Starter",
+        monthly: 9,
+        yearly: 90,
+        features: [
+          "500 API calls/day",
+          "Basic analytics",
+          "Email support",
+          "1 project",
+        ],
+      },
+      professional: {
+        name: "Professional",
+        monthly: 29,
+        yearly: 290,
+        features: [
+          "5,000 API calls/day",
+          "Advanced analytics",
+          "Priority support",
+          "10 projects",
+          "Team collaboration",
+        ],
+      },
+      enterprise: {
+        name: "Enterprise",
+        monthly: 99,
+        yearly: 990,
+        features: [
+          "Unlimited API calls",
+          "Custom analytics",
+          "Dedicated support",
+          "Unlimited projects",
+          "SSO & SAML",
+          "SLA guarantee",
+        ],
+      },
+    },
+  });
+}

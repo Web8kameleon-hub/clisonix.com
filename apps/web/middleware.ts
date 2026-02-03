@@ -1,0 +1,54 @@
+/**
+ * Clisonix Cloud - Authentication Middleware
+ * Protects routes using Clerk authentication
+ *
+ * @author Ledjan Ahmati
+ * @copyright 2026 Clisonix Cloud
+ */
+
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+
+// Public routes that don't require authentication
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+  "/landing(.*)",
+  "/about-us(.*)",
+  "/pricing(.*)",
+  "/why-clisonix(.*)",
+  "/platform(.*)",
+  "/security(.*)",
+  "/company(.*)",
+  "/developers(.*)",
+  "/status(.*)",
+  "/health(.*)",
+  "/api/(.*)", // API routes are handled separately
+]);
+
+// Routes that require specific subscriptions
+const isPremiumRoute = createRouteMatcher([
+  "/modules/neural-symphony(.*)",
+  "/modules/behavioral(.*)",
+  "/modules/aviation-weather(.*)",
+  "/admin(.*)",
+]);
+
+export default clerkMiddleware(async (auth, request) => {
+  // Allow public routes
+  if (isPublicRoute(request)) {
+    return;
+  }
+
+  // Protect all other routes
+  await auth.protect();
+});
+
+export const config = {
+  matcher: [
+    // Skip Next.js internals and all static files
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Always run for API routes
+    "/(api|trpc)(.*)",
+  ],
+};

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
 import { RequestLogger } from "../src/components/telemetry/RequestLogger";
 import { DynamicFavicon } from "../src/components/DynamicFavicon";
 
@@ -139,8 +140,10 @@ export default function RootLayout({
         className={`${inter.variable} antialiased`}
         suppressHydrationWarning
       >
-        <RequestLogger />
-        {children}
+        <ClerkProvider>
+          <RequestLogger />
+          {children}
+        </ClerkProvider>
       </body>
     </html>
   );
