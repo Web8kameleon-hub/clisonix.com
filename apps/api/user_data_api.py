@@ -411,3 +411,34 @@ async def webhook_ingest(
                     return await ingest_data(ingest, user_id)
     
     raise HTTPException(status_code=404, detail="Webhook source not found")
+
+
+# ============================================================================
+# STANDALONE APP (for Docker deployment)
+# ============================================================================
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI(
+    title="Clisonix User Data API",
+    version="1.0.0",
+    description="User data sources management API"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(user_data_router)
+
+@app.get("/health")
+async def health():
+    return {"status": "healthy", "service": "userdata"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8010)

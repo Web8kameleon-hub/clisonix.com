@@ -581,9 +581,11 @@ def create_app() -> FastAPI:
 # MAIN
 # ============================================================================
 
+# Module-level app for uvicorn
+app = create_app()
+
 if __name__ == "__main__":
     import uvicorn
     
-    app = create_app()
-    # Port 8009 - Curiosity Ocean (HQ is 8000, ALBA 5555, ALBI 6680, JONA 7777, Knowledge 8008)
-    uvicorn.run(app, host="0.0.0.0", port=8009)
+    # Port 8011 - Curiosity Ocean
+    uvicorn.run(app, host="0.0.0.0", port=8011)

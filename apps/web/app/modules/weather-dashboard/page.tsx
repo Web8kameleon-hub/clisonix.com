@@ -110,6 +110,7 @@ export default function BiometricEnvironmentMonitor() {
         }
     }, []);
 
+
     // Fetch weather for a specific location
     const fetchWeatherForLocation = useCallback(async (lat: number, lon: number, name: string, country: string): Promise<WeatherData> => {
         const response = await fetch(
@@ -127,6 +128,32 @@ export default function BiometricEnvironmentMonitor() {
             uvIndex: 0
         };
     }, []);
+
+    // Manual search handler (when no result is found)
+    const handleManualSearch = useCallback(async () => {
+        setSearchLoading(true);
+        setError(null);
+        try {
+            // Try geocoding first
+            const response = await fetch(
+                `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchQuery)}&count=1&language=en&format=json`
+            );
+            const result = await response.json();
+            if (result.results && result.results.length > 0) {
+                const loc = result.results[0];
+                const weather = await fetchWeatherForLocation(loc.latitude, loc.longitude, loc.name, loc.country);
+                setSearchWeather(weather);
+                setSearchResults([]);
+                setSearchQuery(`${loc.name}, ${loc.country}`);
+            } else {
+                setError('Nuk u gjet asnjë vendndodhje me këtë emër.');
+            }
+        } catch {
+            setError('Dështoi kërkimi manual.');
+        } finally {
+            setSearchLoading(false);
+        }
+    }, [searchQuery, fetchWeatherForLocation]);
 
     // Handle selecting a search result
     const handleSelectSearchResult = useCallback(async (location: {name: string; country: string; lat: number; lon: number}) => {
@@ -442,7 +469,8 @@ export default function BiometricEnvironmentMonitor() {
                       </div>
                       
                       {/* Search Results Dropdown */}
-                      {searchResults.length > 0 && (
+
+                      {(searchResults.length > 0 || (searchQuery.length > 2 && !searchLoading)) && (
                           <div className="mt-2 bg-slate-800 border border-slate-600 rounded-lg max-h-60 overflow-y-auto">
                               {searchResults.map((result, idx) => (
                                   <button
@@ -457,6 +485,15 @@ export default function BiometricEnvironmentMonitor() {
                                       </span>
                                   </button>
                               ))}
+                              {/* Manual search option if no results */}
+                              {searchResults.length === 0 && searchQuery.length > 2 && !searchLoading && (
+                                  <button
+                                      onClick={handleManualSearch}
+                                      className="w-full px-4 py-3 text-left hover:bg-violet-700 transition-colors border-t border-slate-700 text-violet-300 font-semibold"
+                                  >
+                                      ➕ Shto manualisht: <span className="font-bold">{searchQuery}</span>
+                                  </button>
+                              )}
                           </div>
                       )}
 

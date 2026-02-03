@@ -144,7 +144,13 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         {isClerkConfigured ? (
-          <ClerkProvider>
+          <ClerkProvider
+            appearance={{
+              variables: {
+                colorPrimary: '#10b981',
+              }
+            }}
+          >
             <RequestLogger />
             {children}
           </ClerkProvider>

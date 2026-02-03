@@ -6,9 +6,12 @@ Ocean Nanogrid - Sleep/Wake Pattern
 - Keep-alive to Ollama
 - Minimal footprint when idle
 - Instant wake on request
+- Rate limiting: 20 msg/hour for free tier (6 months trial)
 """
 import os, time, asyncio
-from fastapi import FastAPI, HTTPException
+from datetime import datetime, timedelta
+from collections import defaultdict
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx
@@ -16,6 +19,26 @@ import httpx
 OLLAMA = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 MODEL = os.getenv("MODEL", "llama3.1:8b")
 PORT = int(os.getenv("PORT", "8030"))
+
+# Rate limiting config
+FREE_TIER_LIMIT = 20  # messages per hour
+FREE_TRIAL_MONTHS = 6
+rate_limits: dict = defaultdict(list)  # user_id -> [timestamps]
+
+def check_rate_limit(user_id: str) -> tuple[bool, int]:
+    """Check if user is within rate limit. Returns (allowed, remaining)"""
+    now = datetime.now()
+    hour_ago = now - timedelta(hours=1)
+    
+    # Clean old entries
+    rate_limits[user_id] = [ts for ts in rate_limits[user_id] if ts > hour_ago]
+    
+    count = len(rate_limits[user_id])
+    if count >= FREE_TIER_LIMIT:
+        return False, 0
+    
+    rate_limits[user_id].append(now)
+    return True, FREE_TIER_LIMIT - count - 1
 
 # Persistent client (connection pool)
 _client: httpx.AsyncClient = None
@@ -67,11 +90,24 @@ async def health():
     return {"status": "ok"}
 
 @app.post("/api/v1/chat", response_model=Res)
-async def chat(req: Req):
+async def chat(req: Req, request: Request):
     t0 = time.time()
     q = req.message or req.query
     if not q:
         raise HTTPException(400, "message required")
+    
+    # Get user identifier (IP for now, will be Clerk user_id later)
+    user_id = request.headers.get("X-User-ID") or request.client.host or "anonymous"
+    
+    # Check rate limit
+    allowed, remaining = check_rate_limit(user_id)
+    if not allowed:
+        raise HTTPException(429, detail={
+            "error": "Rate limit exceeded",
+            "limit": FREE_TIER_LIMIT,
+            "period": "1 hour",
+            "upgrade_url": "https://clisonix.com/pricing"
+        })
     
     client = await get_client()
     
@@ -96,8 +132,29 @@ async def chat(req: Req):
     return Res(response=resp, time=round(time.time() - t0, 2))
 
 @app.post("/api/v1/query", response_model=Res)
-async def query(req: Req):
-    return await chat(req)
+async def query(req: Req, request: Request):
+    return await chat(req, request)
+
+@app.get("/api/v1/rate-limit")
+async def get_rate_limit(request: Request):
+    """Check current rate limit status"""
+    user_id = request.headers.get("X-User-ID") or request.client.host or "anonymous"
+    now = datetime.now()
+    hour_ago = now - timedelta(hours=1)
+    
+    # Clean and count
+    rate_limits[user_id] = [ts for ts in rate_limits[user_id] if ts > hour_ago]
+    count = len(rate_limits[user_id])
+    
+    return {
+        "user_id": user_id,
+        "used": count,
+        "limit": FREE_TIER_LIMIT,
+        "remaining": max(0, FREE_TIER_LIMIT - count),
+        "period": "1 hour",
+        "tier": "free_trial",
+        "trial_months": FREE_TRIAL_MONTHS
+    }
 
 @app.get("/api/v1/status")
 async def status():
