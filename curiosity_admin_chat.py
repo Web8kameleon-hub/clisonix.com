@@ -49,7 +49,7 @@ def detect_admin_intent(message: str) -> Tuple[bool, str]:
     message_lower = message.lower()
     
     # Check for admin keywords
-    admin_score = 0
+    admin_score: int = 0
     matched_keywords = []
     
     for keyword in ADMIN_KEYWORDS:
@@ -69,7 +69,7 @@ def detect_admin_intent(message: str) -> Tuple[bool, str]:
     technical_patterns = ["how to", "configure", "setup", "install", "deploy"]
     for pattern in technical_patterns:
         if pattern in message_lower:
-            admin_score += 0.5
+            admin_score += 1
     
     if admin_score >= 2:
         return True, "Technical/Admin question detected"
@@ -105,7 +105,7 @@ def chat_with_ocean(query: str, context: Optional[str] = None, is_admin: bool = 
             "context": full_context
         }
         
-        print(f"\n🤔 Thinking...", end="", flush=True)
+        print("\n🤔 Thinking...", end="", flush=True)
         response = requests.post(
             OCEAN_API,
             json=payload,
@@ -141,10 +141,9 @@ def handle_admin_command(command: str) -> Optional[str]:
         try:
             resp = requests.get(f"{OCEAN_URL}/health", timeout=5)
             if resp.status_code == 200:
-                return f"✅ Ocean Health: {json.dumps(resp.json(), indent=2)}"
-        except:
-            pass
-        return "⚠️ Cannot check health"
+                return "✅ Ocean Health: " + json.dumps(resp.json(), indent=2)
+        except Exception as e:
+            return "⚠️ Cannot check health: " + str(e)
     elif command == "!config":
         return """⚙️ System Configuration:
   • Server: 46.225.14.83
@@ -178,15 +177,15 @@ def main():
         is_admin = True
         current_user = username
         print(f"\n✅ Welcome Admin {username}!")
-        print(f"🔓 Admin mode activated - You have elevated privileges")
+        print("🔓 Admin mode activated - You have elevated privileges")
     else:
         current_user = username
         print(f"\n✅ Welcome {username}!")
-        print(f"📖 Standard user mode - Ask anything!")
+        print("Standard user mode - Ask anything!")
     
     role_badge = "🛡️ [ADMIN]" if is_admin else "👤 [USER]"
     
-    print(f"\n{role_badge} Type 'help' for commands, 'exit' to quit")
+    print("\n" + role_badge + " Type 'help' for commands, 'exit' to quit")
     print("=" * 70)
     
     while True:
