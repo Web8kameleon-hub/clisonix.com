@@ -1,12 +1,10 @@
 /**
  * Clisonix Cloud Industrial Next.js Configuration
  * Production-ready with API rewrites for backend proxy
- * PWA enabled for offline support
  */
 
 import path from "path";
 import { fileURLToPath } from "url";
-import withPWAInit from "@ducanh2912/next-pwa";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -76,17 +74,8 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false, // Security: hide X-Powered-By
 
-  // Output optimization - using npm start (not standalone)
-  // output: 'standalone', // Disabled - using npm start for simpler deployment
-
   // Server-only packages (not bundled for client)
   serverExternalPackages: ["stripe"],
-
-  // Experimental features for better performance
-  experimental: {
-    // optimizeCss disabled - requires critters module
-    // optimizeCss: true,
-  },
 
   // ==========================================================================
   // SECURITY HEADERS
@@ -260,161 +249,14 @@ const nextConfig = {
     maxInactiveAge: 60 * 1000,
     pagesBufferLength: 5,
   },
+
+  httpAgentOptions: {
+    keepAlive: true,
+  },
+  httpsAgentOptions: {
+    keepAlive: true,
+  },
   allowedDevOrigins: ["localhost:3000", "127.0.0.1:3000", "clisonix.com"],
 };
 
-// PWA Configuration
-const withPWA = withPWAInit({
-  dest: "public",
-  disable: process.env.NODE_ENV === "development",
-  register: true,
-  skipWaiting: true,
-  cacheOnFrontEndNav: true,
-  aggressiveFrontEndNavCaching: true,
-  reloadOnOnline: true,
-  swcMinify: true,
-  workboxOptions: {
-    disableDevLogs: true,
-    runtimeCaching: [
-      {
-        urlPattern: /^https:\/\/fonts\.(?:gstatic)\.com\/.*/i,
-        handler: "CacheFirst",
-        options: {
-          cacheName: "google-fonts-webfonts",
-          expiration: {
-            maxEntries: 4,
-            maxAgeSeconds: 365 * 24 * 60 * 60, // 365 days
-          },
-        },
-      },
-      {
-        urlPattern: /^https:\/\/fonts\.(?:googleapis)\.com\/.*/i,
-        handler: "StaleWhileRevalidate",
-        options: {
-          cacheName: "google-fonts-stylesheets",
-          expiration: {
-            maxEntries: 4,
-            maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
-          },
-        },
-      },
-      {
-        urlPattern: /\.(?:eot|otf|ttc|ttf|woff|woff2|font\.css)$/i,
-        handler: "StaleWhileRevalidate",
-        options: {
-          cacheName: "static-font-assets",
-          expiration: {
-            maxEntries: 4,
-            maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
-          },
-        },
-      },
-      {
-        urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp|avif)$/i,
-        handler: "StaleWhileRevalidate",
-        options: {
-          cacheName: "static-image-assets",
-          expiration: {
-            maxEntries: 64,
-            maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
-          },
-        },
-      },
-      {
-        urlPattern: /\/_next\/static.+\.js$/i,
-        handler: "CacheFirst",
-        options: {
-          cacheName: "next-static-js-assets",
-          expiration: {
-            maxEntries: 64,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
-          },
-        },
-      },
-      {
-        urlPattern: /\.(?:mp3|wav|ogg)$/i,
-        handler: "CacheFirst",
-        options: {
-          rangeRequests: true,
-          cacheName: "static-audio-assets",
-          expiration: {
-            maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
-          },
-        },
-      },
-      {
-        urlPattern: /\.(?:mp4|webm)$/i,
-        handler: "CacheFirst",
-        options: {
-          rangeRequests: true,
-          cacheName: "static-video-assets",
-          expiration: {
-            maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
-          },
-        },
-      },
-      {
-        urlPattern: /\.(?:js)$/i,
-        handler: "StaleWhileRevalidate",
-        options: {
-          cacheName: "static-js-assets",
-          expiration: {
-            maxEntries: 64,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
-          },
-        },
-      },
-      {
-        urlPattern: /\.(?:css|less)$/i,
-        handler: "StaleWhileRevalidate",
-        options: {
-          cacheName: "static-style-assets",
-          expiration: {
-            maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
-          },
-        },
-      },
-      {
-        urlPattern: /\/_next\/data\/.+\/.+\.json$/i,
-        handler: "StaleWhileRevalidate",
-        options: {
-          cacheName: "next-data",
-          expiration: {
-            maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
-          },
-        },
-      },
-      {
-        urlPattern: /\/api\/.*$/i,
-        handler: "NetworkFirst",
-        method: "GET",
-        options: {
-          cacheName: "apis",
-          expiration: {
-            maxEntries: 16,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
-          },
-          networkTimeoutSeconds: 10,
-        },
-      },
-      {
-        urlPattern: /.*/i,
-        handler: "NetworkFirst",
-        options: {
-          cacheName: "others",
-          expiration: {
-            maxEntries: 32,
-            maxAgeSeconds: 24 * 60 * 60, // 24 hours
-          },
-          networkTimeoutSeconds: 10,
-        },
-      },
-    ],
-  },
-});
-
-export default withPWA(nextConfig);
+export default nextConfig;
