@@ -114,7 +114,7 @@ def get_smart_tokens(text: str) -> int:
     return min(2048, text_len * 10)
 
 
-app = FastAPI(title="Ocean Curiosity", version="7.0")
+app = FastAPI(title="Ocean Curiosity", version="8.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
