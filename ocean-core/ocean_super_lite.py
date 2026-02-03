@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-Ocean Curiosity v5.1 - Optimized for Speed
+Ocean Curiosity v5.2 - Speed + v2 API
 Fast responses for simple queries, elastic for complex ones
 Tokens: min 256 for greetings, scales up for longer queries
+v2 API: Additional helper endpoints
 """
 import os, time
 from fastapi import FastAPI, HTTPException
@@ -70,7 +71,7 @@ def get_smart_tokens(text: str) -> int:
     return min(2048, text_len * 10)
 
 
-app = FastAPI(title="Ocean Curiosity", version="5.1")
+app = FastAPI(title="Ocean Curiosity", version="5.2")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -111,15 +112,16 @@ async def ask_ollama(prompt: str) -> tuple:
 async def root():
     return {
         "service": "Ocean Curiosity",
-        "version": "5.1",
+        "version": "5.2",
         "model": MODEL,
-        "mode": "smart-elastic"
+        "mode": "smart-elastic",
+        "api": ["v1", "v2"]
     }
 
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": "5.1"}
+    return {"status": "ok", "version": "5.2"}
 
 
 @app.post("/api/v1/chat", response_model=Res)
@@ -151,7 +153,7 @@ async def status():
     return {
         "status": "ok",
         "model": MODEL,
-        "version": "5.1",
+        "version": "5.2",
         "mode": "smart-elastic",
         "token_tiers": {
             "simple": 256,
@@ -160,6 +162,63 @@ async def status():
             "complex": 2048
         }
     }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# API v2 - HELPER ENDPOINTS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.post("/api/v2/chat", response_model=Res)
+async def chat_v2(req: Req):
+    """v2 Chat - Same as v1 (helper alias)"""
+    return await chat(req)
+
+
+@app.post("/api/v2/query", response_model=Res)
+async def query_v2(req: Req):
+    """v2 Query - Same as v1 (helper alias)"""
+    return await chat(req)
+
+
+@app.get("/api/v2/status")
+async def status_v2():
+    """v2 Status with extended info"""
+    return {
+        "status": "ok",
+        "model": MODEL,
+        "version": "5.2",
+        "api": "v2",
+        "mode": "smart-elastic",
+        "engine": "Curiosity Ocean",
+        "token_tiers": {
+            "simple": 256,
+            "short": 512,
+            "medium": 1024,
+            "complex": 2048
+        },
+        "endpoints": {
+            "v1": ["/api/v1/chat", "/api/v1/query", "/api/v1/status"],
+            "v2": ["/api/v2/chat", "/api/v2/query", "/api/v2/status", "/api/v2/models", "/api/v2/ping"]
+        }
+    }
+
+
+@app.get("/api/v2/models")
+async def models_v2():
+    """List available models"""
+    return {
+        "models": [
+            {"id": MODEL, "active": True, "type": "llm"},
+            {"id": "curiosity-ocean", "active": True, "type": "assistant"}
+        ],
+        "default": MODEL
+    }
+
+
+@app.get("/api/v2/ping")
+async def ping_v2():
+    """Simple ping for connectivity check"""
+    return {"pong": True, "version": "5.2"}
 
 
 if __name__ == "__main__":
