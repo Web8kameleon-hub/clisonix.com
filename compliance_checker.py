@@ -5,13 +5,15 @@ Stage Compliance Checker - Clisonix Cloud
 Kontrollon përputhshmërinë me rregullata evropiane automatikisht.
 """
 
+import json
 import os
 import sys
-import json
-import requests
+from collections import defaultdict
 from datetime import datetime
 from typing import Dict, List, Tuple
-from collections import defaultdict
+
+import requests
+
 
 class ComplianceChecker:
     def __init__(self):

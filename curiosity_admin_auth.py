@@ -5,7 +5,6 @@ Enhanced security with token-based auth
 """
 
 import hashlib
-import json
 from datetime import datetime
 from typing import Optional, Tuple
 
@@ -94,8 +93,9 @@ class AdminAuthSystem:
             for keyword in keywords:
                 if keyword in query_lower:
                     analysis["is_admin_query"] = True
-                    if category not in analysis["required_permissions"]:
-                        analysis["required_permissions"].append(category)
+                    required_perms: list = analysis["required_permissions"]  # type: ignore
+                    if category not in required_perms:
+                        required_perms.append(category)
                     if not analysis["category"]:
                         analysis["category"] = category
         
@@ -115,22 +115,24 @@ class AdminAuthSystem:
         cmd = parts[0] if parts else ""
         
         if cmd == "!whoami":
-            return f"🔐 User: {self.current_user}\n📊 Level: {self.admin_level}\n🎫 Token: {self.session_token}"
+            return f"🔐 User: {self.current_user}\n📊 Level: {self.admin_level}\n🎫 Token: {self.session_token[:8]}..."
         
         elif cmd == "!perms":
-            return f"🔑 Permissions:\n" + "\n".join([f"  • {p}" for p in self.permissions])
+            perms_str = "\n".join([f"  • {p}" for p in self.permissions])
+            return f"🔑 Permissions:\n{perms_str}"
         
         elif cmd == "!session":
             elapsed = (datetime.now() - self.login_time).total_seconds()
             return f"🕐 Session Info:\n  Login: {self.login_time}\n  Duration: {elapsed:.0f}s"
         
         elif cmd == "!audit":
+            perms = ', '.join(self.permissions)
             return f"""📋 Audit Log:
   User: {self.current_user}
   Level: {self.admin_level}
-  Token: {self.session_token}
+  Token: {self.session_token[:8]}...
   Login: {self.login_time}
-  Permissions: {', '.join(self.permissions)}"""
+  Permissions: {perms}"""
         
         elif cmd == "!system":
             return """⚙️ System Status:
@@ -215,7 +217,7 @@ def main():
             analysis = auth.analyze_query(user_input)
             
             if analysis["is_admin_query"]:
-                print(f"\n🔍 Analysis:")
+                print("\n🔍 Analysis:")
                 print(f"  Category: {analysis['category']}")
                 print(f"  Risk Level: {analysis['risk_level']}")
                 print(f"  Required: {', '.join(analysis['required_permissions'])}")
@@ -231,7 +233,7 @@ def main():
                     continue
             
             # Send to Ocean
-            print(f"\n🤔 Thinking...")
+            print("\n🤔 Thinking...")
             try:
                 context = auth.get_context(user_input)
                 response = requests.post(
@@ -259,7 +261,7 @@ def demo_mode(auth: AdminAuthSystem):
     
     # Test credentials parsing
     test_input = "adm 02.02.2026 -ocean simple adm hello-ocean hello wellcome -admin- Vloravlorapobrat2.!"
-    print(f"\n📝 Input: {test_input}")
+    print("\n📝 Input: {}".format(test_input))
     
     # Extract admin indicators
     indicators = {
@@ -270,17 +272,17 @@ def demo_mode(auth: AdminAuthSystem):
         "greetings": test_input.count("hello") + test_input.count("wellcome")
     }
     
-    print(f"\n🔍 Admin Indicators Detected:")
+    print("\n🔍 Admin Indicators Detected:")
     for key, value in indicators.items():
-        print(f"  • {key}: {value}")
+        print("  • {}: {}".format(key, value))
     
     # Try authentication with extracted token
-    print(f"\n🔐 Attempting authentication...")
+    print("\n🔐 Attempting authentication...")
     success, msg = auth.authenticate("admin", "Vloravlorapobrat2.!")
     print(f"   {msg}")
     
     if success:
-        print(f"\n✅ Admin Access Granted!")
+        print("\n✅ Admin Access Granted!")
         print(f"   Level: {auth.admin_level}")
         print(f"   Permissions: {', '.join(auth.permissions)}")
         print(f"   Token: {auth.session_token}")
