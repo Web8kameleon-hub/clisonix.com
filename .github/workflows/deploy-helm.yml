@@ -325,23 +325,56 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Try SSH deployment first (for Docker Compose servers)
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HETZNER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ env.HETZNER_IP }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Deploy via SSH (Docker Compose)
+        id: ssh_deploy
+        continue-on-error: true
+        run: |
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@${{ env.HETZNER_IP }} << 'ENDSSH'
+          cd /root/Clisonix-cloud
+          echo "📥 Pulling latest code..."
+          git pull origin main || true
+          echo "🔄 Restarting core services..."
+          docker-compose up -d web api ocean-core alba asi cycle 2>/dev/null || docker compose up -d web api ocean-core alba asi cycle
+          echo "✅ SSH deployment complete"
+          docker ps --format 'table {{.Names}}\t{{.Status}}' | head -20
+          ENDSSH
+
+      - name: Skip Kubernetes if SSH succeeded
+        if: steps.ssh_deploy.outcome == 'success'
+        run: |
+          echo "✅ SSH deployment succeeded - skipping Kubernetes deployment"
+          echo "SSH_DEPLOYED=true" >> $GITHUB_ENV
+
+      # Kubernetes deployment (only if SSH failed and kubeconfig exists)
       - name: Set up Helm
+        if: steps.ssh_deploy.outcome != 'success'
         uses: azure/setup-helm@v4
         with:
           version: 'v3.14.0'
 
       - name: Set up kubectl
+        if: steps.ssh_deploy.outcome != 'success'
         uses: azure/setup-kubectl@v4
         with:
           version: 'v1.29.0'
 
       - name: Configure kubeconfig
+        if: steps.ssh_deploy.outcome != 'success'
         run: |
           mkdir -p $HOME/.kube
           echo "${{ secrets.HETZNER_KUBECONFIG }}" | base64 -d > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
       - name: Verify cluster connection
+        if: steps.ssh_deploy.outcome != 'success'
         run: |
           echo "🔗 Connecting to Hetzner cluster..."
           kubectl cluster-info
@@ -349,12 +382,14 @@ jobs:
           echo "✅ Cluster connection verified"
 
       - name: Add Helm repositories
+        if: steps.ssh_deploy.outcome != 'success'
         run: |
           helm repo add bitnami https://charts.bitnami.com/bitnami
           helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
           helm repo update
 
       - name: Create namespace
+        if: steps.ssh_deploy.outcome != 'success'
         run: |
           NAMESPACE="${{ env.NAMESPACE_PREFIX }}-${{ inputs.environment || 'production' }}"
           kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -

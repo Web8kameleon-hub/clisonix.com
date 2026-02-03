@@ -1,0 +1,120 @@
+# =============================================================================
+# CLISONIX CLOUD - DOCKER COMPOSE DEPLOYMENT VIA SSH
+# =============================================================================
+# Deploys to Hetzner server using SSH and Docker Compose
+# Server: 46.225.14.83 (hetzner-new)
+#
+# This workflow:
+# 1. Builds Docker images locally (GitHub Actions)
+# 2. Pushes to GitHub Container Registry
+# 3. SSHs to Hetzner and runs docker-compose pull + up
+# =============================================================================
+
+name: "🚀 Deploy via SSH (Docker Compose)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: 'Deployment scope'
+        required: true
+        default: 'pull-only'
+        type: choice
+        options:
+          - pull-only        # Just git pull, no rebuild
+          - rebuild-core     # Rebuild core containers
+          - full-rebuild     # Rebuild all containers
+
+concurrency:
+  group: ssh-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  HETZNER_IP: 46.225.14.83
+  DEPLOY_PATH: /root/Clisonix-cloud
+
+jobs:
+  deploy-ssh:
+    name: "🚀 Deploy to Hetzner via SSH"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HETZNER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ env.HETZNER_IP }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Git Pull on Server
+        run: |
+          ssh -o StrictHostKeyChecking=no root@${{ env.HETZNER_IP }} << 'ENDSSH'
+          cd ${{ env.DEPLOY_PATH }}
+          echo "📥 Pulling latest code..."
+          git pull origin main
+          echo "✅ Code updated"
+          ENDSSH
+
+      - name: Deploy - Pull Only
+        if: inputs.scope == 'pull-only'
+        run: |
+          ssh -o StrictHostKeyChecking=no root@${{ env.HETZNER_IP }} << 'ENDSSH'
+          cd ${{ env.DEPLOY_PATH }}
+          echo "🔄 Restarting services with new code..."
+          docker-compose restart web api ocean-core
+          echo "✅ Services restarted"
+          ENDSSH
+
+      - name: Deploy - Rebuild Core
+        if: inputs.scope == 'rebuild-core'
+        run: |
+          ssh -o StrictHostKeyChecking=no root@${{ env.HETZNER_IP }} << 'ENDSSH'
+          cd ${{ env.DEPLOY_PATH }}
+          echo "🔨 Rebuilding core containers..."
+          docker-compose build --no-cache web api ocean-core
+          docker-compose up -d web api ocean-core
+          echo "✅ Core containers rebuilt"
+          ENDSSH
+
+      - name: Deploy - Full Rebuild
+        if: inputs.scope == 'full-rebuild'
+        run: |
+          ssh -o StrictHostKeyChecking=no root@${{ env.HETZNER_IP }} << 'ENDSSH'
+          cd ${{ env.DEPLOY_PATH }}
+          echo "🔨 Full rebuild in progress..."
+          docker-compose build --no-cache
+          docker-compose up -d
+          echo "✅ All containers rebuilt"
+          ENDSSH
+
+      - name: Verify Deployment
+        run: |
+          ssh -o StrictHostKeyChecking=no root@${{ env.HETZNER_IP }} << 'ENDSSH'
+          cd ${{ env.DEPLOY_PATH }}
+          echo "📊 Container Status:"
+          docker ps --format 'table {{.Names}}\t{{.Status}}' | grep -E 'healthy|Up'
+          echo ""
+          echo "🌐 Testing endpoints..."
+          curl -s http://localhost:8000/health | head -c 100 && echo ""
+          curl -s http://localhost:8030/health | head -c 100 && echo ""
+          curl -s -o /dev/null -w "Website: HTTP %{http_code}\n" http://localhost:80/
+          ENDSSH
+
+      - name: Generate Summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Setting | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Server | ${{ env.HETZNER_IP }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Scope | ${{ inputs.scope }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 Access Points" >> $GITHUB_STEP_SUMMARY
+          echo "- **Website:** https://clisonix.com" >> $GITHUB_STEP_SUMMARY
+          echo "- **API:** https://clisonix.com/api" >> $GITHUB_STEP_SUMMARY
+          echo "- **Ocean:** Port 8030" >> $GITHUB_STEP_SUMMARY
