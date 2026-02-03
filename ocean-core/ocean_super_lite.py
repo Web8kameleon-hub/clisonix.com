@@ -142,7 +142,7 @@ async def ask_ollama(prompt: str) -> tuple:
 async def root():
     return {
         "service": "Ocean Curiosity",
-        "version="7.0",
+        "version": "7.0",
         "model": MODEL,
         "mode": "smart-elastic",
         "api": ["v1", "v2"]
@@ -151,7 +151,7 @@ async def root():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version="7.0"}
+    return {"status": "ok", "version": "7.0"}
 
 
 @app.post("/api/v1/chat", response_model=Res)
@@ -183,7 +183,7 @@ async def status():
     return {
         "status": "ok",
         "model": MODEL,
-        "version="7.0",
+        "version": "7.0",
         "mode": "smart-elastic",
         "token_tiers": {
             "simple": 256,
@@ -216,7 +216,7 @@ async def status_v2():
     return {
         "status": "ok",
         "model": MODEL,
-        "version="7.0",
+        "version": "7.0",
         "api": "v2",
         "mode": "smart-elastic",
         "engine": "Curiosity Ocean",
@@ -248,7 +248,7 @@ async def models_v2():
 @app.get("/api/v2/ping")
 async def ping_v2():
     """Simple ping for connectivity check"""
-    return {"pong": True, "version="7.0"}
+    return {"pong": True, "version": "7.0"}
 
 
 if __name__ == "__main__":
