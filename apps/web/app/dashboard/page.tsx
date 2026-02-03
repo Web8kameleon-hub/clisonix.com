@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Brain, Settings, ArrowLeft, Plus, Download } from 'lucide-react';
+import { ArrowLeft, Plus, Download } from 'lucide-react';
 
 // Dynamic API URL - uses environment variable or defaults
 const OCEAN_API_URL = process.env.NEXT_PUBLIC_OCEAN_API_URL || 'http://localhost:8030';
@@ -34,7 +34,7 @@ export default function DataDashboard() {
     trackedMetrics: 0,
     laboratories: 0
   });
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Fetch real data from Ocean Core API
@@ -89,10 +89,6 @@ export default function DataDashboard() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchMetrics = async () => {
-    await fetchRealData();
   };
 
   const getTypeIcon = (type: string) => {

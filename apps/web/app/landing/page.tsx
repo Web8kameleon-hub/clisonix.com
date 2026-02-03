@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 export default function LandingPage() {
-  const [email, setEmail] = useState('');
+  const [_email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
   const handleWaitlist = (e: React.FormEvent) => {

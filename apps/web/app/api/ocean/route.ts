@@ -55,7 +55,7 @@ interface OceanCoreResponse {
  */
 async function queryOceanCore(
   question: string,
-  curiosityLevel: string,
+  _curiosityLevel: string,
 ): Promise<OceanCoreResponse | null> {
   try {
     // No timeout - let Ollama take as long as it needs
