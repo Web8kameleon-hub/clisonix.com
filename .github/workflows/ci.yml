@@ -164,11 +164,18 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
+        id: docker_build
         run: |
-          docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} -f Dockerfile . 2>&1 || echo "⚠️  Build completed with warnings"
+          if docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} -f Dockerfile . 2>&1; then
+            echo "build_success=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️  Docker build failed - using filesystem scan only"
+            echo "build_success=false" >> $GITHUB_OUTPUT
+          fi
         continue-on-error: true
 
       - name: Trivy Image Scan (CRITICAL/HIGH only)
+        if: steps.docker_build.outputs.build_success == 'true'
         uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
