@@ -4,10 +4,11 @@ Curiosity Ocean Chat - Admin Detection System
 Detects admin users and provides elevated context
 """
 
-import requests
 import json
-from typing import Optional, Tuple
 from datetime import datetime
+from typing import Optional, Tuple
+
+import requests
 
 # Configuration
 OCEAN_URL = "http://46.225.14.83:8030"

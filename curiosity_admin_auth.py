@@ -7,7 +7,8 @@ Enhanced security with token-based auth
 import hashlib
 import json
 from datetime import datetime
-from typing import Tuple, Optional
+from typing import Optional, Tuple
+
 import requests
 
 # Configuration

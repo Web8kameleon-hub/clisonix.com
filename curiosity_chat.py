@@ -4,10 +4,11 @@ Curiosity Ocean Chat Client
 Simple CLI to chat with Ocean Curiosity AI
 """
 
-import requests
-import sys
 import json
+import sys
 from typing import Optional
+
+import requests
 
 # Configuration
 OCEAN_URL = "http://46.225.14.83:8030"  # Change to your server
