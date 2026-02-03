@@ -23,6 +23,18 @@ Industrial Backend & Payment System
 - **ALBA:** Adaptive Learning & Brain Analysis - Real-time EEG processing  
 - **JONA:** Joint Oscillatory Neural Analysis - Multi-modal signal correlation
 
+### 🚀 LLM Inference Engines
+
+- **Ollama:** Local LLM inference (llama3.1:8b) - CPU optimized
+- **vLLM:** High-throughput GPU inference engine ([vllm.ai](https://vllm.ai)) - Requires NVIDIA GPU
+- **Curiosity Ocean:** Hybrid multilingual AI assistant v8.0
+
+### 🔬 ML/AI Stack
+
+- **PyTorch:** Deep learning framework (CPU/CUDA)
+- **Transformers:** Hugging Face models integration
+- **Sentence-Transformers:** Semantic embeddings
+
 ### 💳 Payment System Integration
 
 - **SEPA Payments:** Direct bank transfers with real IBAN validation
