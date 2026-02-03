@@ -10,20 +10,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-01-28.clover",
-});
+// Initialize Stripe lazily to avoid build-time errors
+const getStripe = () => {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error("STRIPE_SECRET_KEY is not configured");
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2024-12-18.acacia" as Stripe.LatestApiVersion,
+  });
+};
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
 
 // Subscription plan mapping
 const PLAN_MAPPING: Record<string, string> = {
-  [process.env.STRIPE_PRICE_STARTER_MONTHLY!]: "starter",
-  [process.env.STRIPE_PRICE_STARTER_YEARLY!]: "starter",
-  [process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY!]: "professional",
-  [process.env.STRIPE_PRICE_PROFESSIONAL_YEARLY!]: "professional",
-  [process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY!]: "enterprise",
-  [process.env.STRIPE_PRICE_ENTERPRISE_YEARLY!]: "enterprise",
+  [process.env.STRIPE_PRICE_STARTER_MONTHLY || "price_starter_monthly"]: "starter",
+  [process.env.STRIPE_PRICE_STARTER_YEARLY || "price_starter_yearly"]: "starter",
+  [process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY || "price_pro_monthly"]: "professional",
+  [process.env.STRIPE_PRICE_PROFESSIONAL_YEARLY || "price_pro_yearly"]: "professional",
+  [process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY || "price_ent_monthly"]: "enterprise",
+  [process.env.STRIPE_PRICE_ENTERPRISE_YEARLY || "price_ent_yearly"]: "enterprise",
 };
 
 export async function POST(request: NextRequest) {
@@ -31,6 +37,7 @@ export async function POST(request: NextRequest) {
   const signature = request.headers.get("stripe-signature")!;
 
   let event: Stripe.Event;
+  const stripe = getStripe();
 
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);

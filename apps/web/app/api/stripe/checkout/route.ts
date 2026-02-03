@@ -11,23 +11,29 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-01-28.clover",
-});
+// Initialize Stripe lazily to avoid build-time errors
+const getStripe = () => {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error("STRIPE_SECRET_KEY is not configured");
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2024-12-18.acacia" as Stripe.LatestApiVersion,
+  });
+};
 
-// Price IDs for each plan
+// Price IDs for each plan (with fallbacks for build time)
 const PRICE_IDS: Record<string, Record<string, string>> = {
   starter: {
-    monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY!,
-    yearly: process.env.STRIPE_PRICE_STARTER_YEARLY!,
+    monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY || "price_starter_monthly",
+    yearly: process.env.STRIPE_PRICE_STARTER_YEARLY || "price_starter_yearly",
   },
   professional: {
-    monthly: process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY!,
-    yearly: process.env.STRIPE_PRICE_PROFESSIONAL_YEARLY!,
+    monthly: process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY || "price_pro_monthly",
+    yearly: process.env.STRIPE_PRICE_PROFESSIONAL_YEARLY || "price_pro_yearly",
   },
   enterprise: {
-    monthly: process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY!,
-    yearly: process.env.STRIPE_PRICE_ENTERPRISE_YEARLY!,
+    monthly: process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY || "price_ent_monthly",
+    yearly: process.env.STRIPE_PRICE_ENTERPRISE_YEARLY || "price_ent_yearly",,
   },
 };
 
@@ -51,6 +57,8 @@ export async function POST(request: NextRequest) {
     if (!priceId) {
       return NextResponse.json({ error: "Invalid interval" }, { status: 400 });
     }
+
+    const stripe = getStripe();
 
     // Create or retrieve Stripe customer
     let customerId: string;
