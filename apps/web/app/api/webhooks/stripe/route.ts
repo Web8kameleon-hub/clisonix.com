@@ -24,12 +24,18 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
 
 // Subscription plan mapping
 const PLAN_MAPPING: Record<string, string> = {
-  [process.env.STRIPE_PRICE_STARTER_MONTHLY || "price_starter_monthly"]: "starter",
-  [process.env.STRIPE_PRICE_STARTER_YEARLY || "price_starter_yearly"]: "starter",
-  [process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY || "price_pro_monthly"]: "professional",
-  [process.env.STRIPE_PRICE_PROFESSIONAL_YEARLY || "price_pro_yearly"]: "professional",
-  [process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY || "price_ent_monthly"]: "enterprise",
-  [process.env.STRIPE_PRICE_ENTERPRISE_YEARLY || "price_ent_yearly"]: "enterprise",
+  [process.env.STRIPE_PRICE_STARTER_MONTHLY || "price_starter_monthly"]:
+    "starter",
+  [process.env.STRIPE_PRICE_STARTER_YEARLY || "price_starter_yearly"]:
+    "starter",
+  [process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY || "price_pro_monthly"]:
+    "professional",
+  [process.env.STRIPE_PRICE_PROFESSIONAL_YEARLY || "price_pro_yearly"]:
+    "professional",
+  [process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY || "price_ent_monthly"]:
+    "enterprise",
+  [process.env.STRIPE_PRICE_ENTERPRISE_YEARLY || "price_ent_yearly"]:
+    "enterprise",
 };
 
 export async function POST(request: NextRequest) {

@@ -33,7 +33,7 @@ const PRICE_IDS: Record<string, Record<string, string>> = {
   },
   enterprise: {
     monthly: process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY || "price_ent_monthly",
-    yearly: process.env.STRIPE_PRICE_ENTERPRISE_YEARLY || "price_ent_yearly",,
+    yearly: process.env.STRIPE_PRICE_ENTERPRISE_YEARLY || "price_ent_yearly",
   },
 };
 
