@@ -7,7 +7,20 @@
 
 import { SignUp } from "@clerk/nextjs";
 
+const isClerkConfigured = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
 export default function SignUpPage() {
+  if (!isClerkConfigured) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-white mb-4">Clisonix Cloud</h1>
+          <p className="text-gray-400 text-lg">Sign up is currently unavailable. Please contact support.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
       {/* Background Effects */}

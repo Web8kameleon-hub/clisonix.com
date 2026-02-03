@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
 import { RequestLogger } from "../src/components/telemetry/RequestLogger";
 import { DynamicFavicon } from "../src/components/DynamicFavicon";
 
 // Check if Clerk is configured
 const isClerkConfigured = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+// Dynamic import for ClerkProvider - only if configured
+const ClerkProvider = isClerkConfigured 
+  ? require("@clerk/nextjs").ClerkProvider 
+  : ({ children }: { children: React.ReactNode }) => <>{children}</>;
+
 
 const inter = Inter({
   variable: "--font-inter",

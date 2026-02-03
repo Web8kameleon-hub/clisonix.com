@@ -9,9 +9,20 @@
 
 "use client";
 
-import { useUser, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+
+// Conditional Clerk imports
+const isClerkConfigured = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+let useUser: any = () => ({ user: null, isLoaded: true });
+let UserButton: any = () => null;
+
+if (isClerkConfigured) {
+  const clerk = require("@clerk/nextjs");
+  useUser = clerk.useUser;
+  UserButton = clerk.UserButton;
+}
 
 interface UserStats {
   apiCalls: number;
@@ -32,6 +43,9 @@ export default function UserDashboardPage() {
       // Fetch user stats
       fetchUserStats();
       fetchRecentChats();
+    } else if (isLoaded && !user && isClerkConfigured) {
+      // Redirect to sign in if not authenticated and Clerk is configured
+      window.location.href = "/sign-in";
     }
   }, [isLoaded, user]);
 
