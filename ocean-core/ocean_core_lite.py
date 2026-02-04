@@ -12,14 +12,15 @@ Pa: MegaLayerEngine, KnowledgeSeeds, RealAnswerEngine
 Port: 8030
 """
 
-import os
 import logging
+import os
 import time
+from typing import Dict, List, Optional
+
+import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional, Dict, List
-import httpx
 
 # ═══════════════════════════════════════════════════════════════════
 # CONFIG

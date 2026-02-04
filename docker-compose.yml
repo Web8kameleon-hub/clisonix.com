@@ -199,8 +199,16 @@ services:
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      # Kitchen API
+      KITCHEN_JOBS_DIR: "/app/kitchen-jobs"
+      KITCHEN_REPORTS_DIR: "/app/kitchen-reports"
+      KITCHEN_RUN_API_KEY: ${KITCHEN_RUN_API_KEY:-clisonix-kitchen-secret}
     ports:
       - "3000:3000"
+    volumes:
+      # Share kitchen jobs/reports with worker
+      - kitchen_jobs:/app/kitchen-jobs
+      - kitchen_reports:/app/kitchen-reports
     depends_on:
       api:
         condition: service_healthy
@@ -591,8 +599,47 @@ services:
   #     retries: 3
   #   restart: unless-stopped
 
+  # ==========================
+  # KITCHEN WORKER (Newman Test Runner)
+  # ==========================
+  kitchen-worker:
+    build:
+      context: ./services/kitchen-worker
+      dockerfile: Dockerfile
+    container_name: clisonix-kitchen-worker
+    environment:
+      NODE_ENV: "production"
+      KITCHEN_JOBS_DIR: "/app/kitchen-jobs"
+      KITCHEN_REPORTS_DIR: "/app/kitchen-reports"
+      COLLECTIONS_DIR: "/app/postman-collections"
+      POLL_INTERVAL_MS: "3000"
+      MAX_CONCURRENT_JOBS: "2"
+      HEALTH_PORT: "3100"
+    ports:
+      - "3100:3100"
+    volumes:
+      # Share jobs/reports with web container
+      - kitchen_jobs:/app/kitchen-jobs
+      - kitchen_reports:/app/kitchen-reports
+      # Mount Postman collections
+      - ./postman-collections:/app/postman-collections:ro
+      # Also mount root-level collections
+      - ./clisonix-ultra-mega-collection.json:/app/postman-collections/clisonix-ultra-mega-collection.json:ro
+      - ./clisonix-cloud.postman_collection.json:/app/postman-collections/clisonix-cloud.postman_collection.json:ro
+      - ./Clisonix_Cloud_API.postman_collection.json:/app/postman-collections/Clisonix_Cloud_API.postman_collection.json:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3100/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
 volumes:
   ollama_data:
+    driver: local
+  kitchen_jobs:
+    driver: local
+  kitchen_reports:
     driver: local
 
 networks:

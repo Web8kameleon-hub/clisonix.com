@@ -61,7 +61,7 @@ async function queryOceanCore(
     // 5 minute timeout for elastic responses
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 300000);
-    
+
     // ASI-Lite minimal endpoint - elastic responses up to 5 minutes
     const response = await fetch(`${OCEAN_CORE_URL}/api/v1/query`, {
       method: "POST",
@@ -73,7 +73,7 @@ async function queryOceanCore(
       }),
       signal: controller.signal,
     });
-    
+
     clearTimeout(timeoutId);
 
     if (response.ok) {

@@ -16,15 +16,16 @@ Aktivizon TË GJITHA sistemet e avancuara:
 Port: 8030
 """
 
-import os
 import asyncio
 import logging
+import os
 import time
+from typing import Any, Dict, List, Optional
+
+import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional, Dict, Any, List
-import httpx
 
 # ═══════════════════════════════════════════════════════════════════
 # LOGGING
@@ -50,10 +51,10 @@ TRANSLATION_NODE = os.getenv("TRANSLATION_NODE", "http://localhost:8036")
 # 1. Mega Layer Engine - 14 MILIARD KOMBINIME
 try:
     from mega_layer_engine import (
-        get_mega_layer_engine, 
-        MegaLayerEngine,
+        TOTAL_COMBINATIONS,
         LayerActivation,
-        TOTAL_COMBINATIONS
+        MegaLayerEngine,
+        get_mega_layer_engine,
     )
     MEGA_LAYERS_AVAILABLE = True
     logger.info(f"✅ MegaLayerEngine loaded - {TOTAL_COMBINATIONS:,} kombinime!")
@@ -82,9 +83,9 @@ except ImportError as e:
 # 4. Albanian Dictionary - 707 linja
 try:
     from albanian_dictionary import (
-        get_albanian_response,
+        ALL_ALBANIAN_WORDS,
         detect_albanian,
-        ALL_ALBANIAN_WORDS
+        get_albanian_response,
     )
     ALBANIAN_DICT_AVAILABLE = True
     logger.info(f"✅ Albanian Dictionary loaded - {len(ALL_ALBANIAN_WORDS)} words")
@@ -105,10 +106,10 @@ except ImportError as e:
 try:
     from knowledge_layer import (
         AGENT_IDENTITY,
+        HOW_TO_USE,
         SERVICES,
         USER_INTENTS,
-        HOW_TO_USE,
-        route_intent
+        route_intent,
     )
     KNOWLEDGE_LAYER_AVAILABLE = True
     logger.info(f"✅ Knowledge Layer loaded - {len(SERVICES)} services")

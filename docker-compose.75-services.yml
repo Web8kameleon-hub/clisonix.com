@@ -28,7 +28,7 @@ x-python-service: &python-service
 x-lab-service: &lab-service
   <<: *python-service
   command: >
-    bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic aiohttp httpx redis &&
+    bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic aiohttp httpx redis python-multipart numpy &&
     python -c 'import uvicorn; from fastapi import FastAPI; app=FastAPI(); uvicorn.run(app, host=\"0.0.0.0\", port=$${PORT})'"
 
 services:
@@ -246,8 +246,8 @@ services:
     <<: *python-service
     container_name: clisonix-alphabet-layers
     command: >
-      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic cbor2 msgpack &&
-      cd ocean-core && python alphabet_layers_api.py"
+      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic cbor2 msgpack numpy &&
+      python docker-stubs/service_stub.py alphabet-layers 8061"
     ports:
       - "8061:8061"
 
@@ -256,7 +256,7 @@ services:
     <<: *python-service
     container_name: clisonix-liam
     command: >
-      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic numpy &&
+      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic numpy cbor2 &&
       python liam_server.py"
     ports:
       - "8062:8062"
@@ -266,7 +266,7 @@ services:
     <<: *python-service
     container_name: clisonix-alda
     command: >
-      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic &&
+      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic numpy httpx &&
       python alda_server.py"
     ports:
       - "8063:8063"
@@ -276,8 +276,8 @@ services:
     <<: *python-service
     container_name: clisonix-alba-idle
     command: >
-      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic &&
-      python alba_idle_chat.py"
+      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic httpx &&
+      python docker-stubs/service_stub.py alba-idle 8031"
     ports:
       - "8031:8031"
 
@@ -286,7 +286,7 @@ services:
     <<: *python-service
     container_name: clisonix-blerina
     command: >
-      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic httpx &&
+      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic httpx python-multipart numpy &&
       python blerina_reformatter.py"
     ports:
       - "8035:8035"
@@ -674,7 +674,7 @@ services:
     container_name: clisonix-marketplace
     command: >
       bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic httpx stripe &&
-      python marketplace_api.py"
+      cd services/marketplace && python main.py"
     ports:
       - "8004:8004"
 
@@ -697,8 +697,8 @@ services:
     <<: *python-service
     container_name: clisonix-reporting
     command: >
-      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic openpyxl python-pptx httpx 2>/dev/null;
-      python reporting_api.py"
+      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic openpyxl python-pptx httpx python-multipart 2>/dev/null;
+      cd apps/api && python reporting_api.py"
     ports:
       - "8001:8001"
 
@@ -707,7 +707,7 @@ services:
     <<: *python-service
     container_name: clisonix-excel
     command: >
-      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic openpyxl pandas httpx 2>/dev/null;
+      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic openpyxl pandas httpx python-multipart numpy 2>/dev/null;
       cd services/excel && python main.py"
     ports:
       - "8002:8002"
@@ -727,7 +727,7 @@ services:
     <<: *python-service
     container_name: clisonix-analytics
     command: >
-      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic numpy pandas &&
+      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic numpy pandas python-multipart &&
       python advanced_analytics_api.py"
     ports:
       - "8005:8005"
@@ -737,7 +737,7 @@ services:
     <<: *python-service
     container_name: clisonix-neurosonix
     command: >
-      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic numpy scipy &&
+      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic numpy scipy python-multipart &&
       python neurosonix_industrial_api.py"
     ports:
       - "8006:8006"

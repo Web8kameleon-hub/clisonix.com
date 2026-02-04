@@ -7,6 +7,7 @@ Unified API for Vision, Audio, and Document Processing
 - Audio: Speech-to-text, audio analysis
 - Documents: PDF/DOCX parsing, text extraction, reasoning
 """
+import asyncio
 import base64
 import io
 import json
@@ -15,7 +16,7 @@ import os
 import time
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import httpx
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile
