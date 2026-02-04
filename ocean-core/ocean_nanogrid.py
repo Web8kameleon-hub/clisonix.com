@@ -26,6 +26,83 @@ OLLAMA = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 MODEL = os.getenv("MODEL", "llama3.1:8b")
 PORT = int(os.getenv("PORT", "8030"))
 
+# ═══════════════════════════════════════════════════════════════════
+# REAL-TIME CONTEXT - Date, Time, News, Weather
+# ═══════════════════════════════════════════════════════════════════
+
+def get_realtime_context() -> str:
+    """Get current date, time, and day of week"""
+    now = datetime.now()
+    weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    months = ["January", "February", "March", "April", "May", "June", 
+              "July", "August", "September", "October", "November", "December"]
+    
+    return f"""
+## CURRENT DATE & TIME
+- Date: {weekdays[now.weekday()]}, {months[now.month-1]} {now.day}, {now.year}
+- Time: {now.strftime('%H:%M:%S')} (Server Time - CET/Berlin)
+- Timestamp: {now.isoformat()}
+
+## YOUR CAPABILITIES
+You have access to:
+- Wikipedia (general knowledge)
+- GitHub (open source projects)
+- Weather data (global)
+- Crypto prices (real-time)
+- EU statistics (Eurostat)
+- Albanian data (INSTAT, Bank of Albania)
+"""
+
+
+async def fetch_wikipedia(query: str) -> str:
+    """Quick Wikipedia search"""
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            params = {"action": "query", "list": "search", "srsearch": query, 
+                      "srlimit": 3, "format": "json"}
+            r = await client.get("https://en.wikipedia.org/w/api.php", params=params)
+            if r.status_code == 200:
+                results = r.json().get("query", {}).get("search", [])
+                if results:
+                    return "\n".join([f"- {item['title']}: {item['snippet'][:150]}..." 
+                                     for item in results[:3]])
+    except:
+        pass
+    return ""
+
+
+async def fetch_weather(city: str = "Tirana") -> str:
+    """Get weather from wttr.in (free, no API key)"""
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            r = await client.get(f"https://wttr.in/{city}?format=j1")
+            if r.status_code == 200:
+                data = r.json()
+                current = data.get("current_condition", [{}])[0]
+                return f"Weather in {city}: {current.get('temp_C')}°C, {current.get('weatherDesc', [{}])[0].get('value', 'Unknown')}"
+    except:
+        pass
+    return ""
+
+
+def build_system_prompt(extra_context: str = "") -> str:
+    """Build system prompt with real-time context"""
+    realtime = get_realtime_context()
+    return f"""You are **Ocean** 🌊, the AI brain of Clisonix Cloud.
+
+{realtime}
+
+## RESPONSE RULES
+1. START WRITING IMMEDIATELY - no thinking pause
+2. Respond in the user's language
+3. Be helpful and thorough
+4. Use real-time data when relevant (date, weather, etc.)
+5. Never say "I don't have access to current date/time" - YOU DO!
+
+{extra_context}
+
+Remember: You know the current date and time! Use it when relevant."""
+
 # Rate limiting config
 FREE_TIER_LIMIT = 1000  # messages per hour (increased from 20 for better development experience)
 FREE_TRIAL_MONTHS = 6
@@ -130,10 +207,13 @@ async def chat(req: Req, request: Request):
     client = await get_client()
     
     try:
+        # Build prompt with real-time context
+        system_prompt = build_system_prompt()
+        
         r = await client.post(f"{OLLAMA}/api/chat", json={
             "model": MODEL,
             "messages": [
-                {"role": "system", "content": "You are Ocean, AI of Clisonix Cloud. START WRITING IMMEDIATELY without pausing to think. Respond thoroughly and continuously. Do not conclude early."},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": q}
             ],
             "stream": False,
@@ -161,6 +241,8 @@ async def chat(req: Req, request: Request):
 async def stream_ollama(query: str) -> AsyncGenerator[str, None]:
     """Stream response from Ollama - text appears immediately!"""
     client = await get_client()
+    system_prompt = build_system_prompt()
+    
     try:
         async with client.stream(
             "POST",
@@ -168,7 +250,7 @@ async def stream_ollama(query: str) -> AsyncGenerator[str, None]:
             json={
                 "model": MODEL,
                 "messages": [
-                    {"role": "system", "content": "You are Ocean, AI of Clisonix Cloud. START WRITING IMMEDIATELY. Respond thoroughly."},
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": query}
                 ],
                 "stream": True,  # STREAMING!
@@ -247,7 +329,38 @@ async def get_rate_limit(request: Request):
 
 @app.get("/api/v1/status")
 async def status():
-    return {"status": "ok", "model": MODEL, "mode": "nanogrid"}
+    return {"status": "ok", "model": MODEL, "mode": "nanogrid", "realtime": True}
+
+
+# ═══════════════════════════════════════════════════════════════════
+# REAL-TIME DATA ENDPOINTS
+# ═══════════════════════════════════════════════════════════════════
+
+@app.get("/api/v1/now")
+async def get_now():
+    """Get current date/time"""
+    now = datetime.now()
+    return {
+        "date": now.strftime("%Y-%m-%d"),
+        "time": now.strftime("%H:%M:%S"),
+        "weekday": now.strftime("%A"),
+        "timestamp": now.isoformat(),
+        "timezone": "CET/Berlin"
+    }
+
+
+@app.get("/api/v1/weather/{city}")
+async def get_weather(city: str = "Tirana"):
+    """Get weather for a city"""
+    weather = await fetch_weather(city)
+    return {"city": city, "weather": weather}
+
+
+@app.get("/api/v1/wiki/{query}")
+async def get_wiki(query: str):
+    """Search Wikipedia"""
+    results = await fetch_wikipedia(query)
+    return {"query": query, "results": results}
 
 # Keep-alive pulse (background)
 async def keep_alive():
