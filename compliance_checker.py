@@ -7,10 +7,9 @@ Kontrollon përputhshmërinë me rregullata evropiane automatikisht.
 
 import json
 import os
-import sys
 from collections import defaultdict
 from datetime import datetime
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 import requests
 
@@ -281,7 +280,7 @@ def main():
             "result": result
         }, f, indent=2)
     
-    print(f"💾 Raporti i ruajtur në: compliance_report.json")
+    print("💾 Raporti i ruajtur në: compliance_report.json")
 
 if __name__ == "__main__":
     main()
