@@ -62,14 +62,14 @@ async function queryOceanCore(
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 300000);
 
-    // ASI-Lite minimal endpoint - elastic responses up to 5 minutes
-    const response = await fetch(`${OCEAN_CORE_URL}/api/v1/query`, {
+    // Ocean-Core chat endpoint - elastic responses up to 5 minutes
+    const response = await fetch(`${OCEAN_CORE_URL}/api/v1/chat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        query: question,
+        message: question,
       }),
       signal: controller.signal,
     });
