@@ -24,11 +24,12 @@ Version: 3.0.0 FAST
 """
 
 import asyncio
-import httpx
 import logging
 import os
 from dataclasses import dataclass
 from typing import Optional
+
+import httpx
 
 logger = logging.getLogger("ollama_fast")
 
@@ -70,7 +71,9 @@ try:
     modules_path = Path(__file__).parent.parent / "modules"
     if modules_path.exists():
         sys.path.insert(0, str(modules_path))
-        from curiosity_ocean.master_prompt import CURIOSITY_OCEAN_COMPACT_PROMPT  # type: ignore
+        from curiosity_ocean.master_prompt import (
+            CURIOSITY_OCEAN_COMPACT_PROMPT,  # type: ignore
+        )
         SYSTEM_PROMPT = CURIOSITY_OCEAN_COMPACT_PROMPT
         logger.info("⚡ Master prompt loaded (compact)")
     else:
@@ -229,6 +232,56 @@ class OllamaFastEngine:
     async def chat(self, message: str) -> FastResponse:
         """Alias për generate - për compatibility"""
         return await self.generate(message)
+    
+    async def generate_stream(self, prompt: str, system: str = None):
+        """
+        ⚡ STREAMING - Tokens one by one (SSE format)
+        
+        Args:
+            prompt: Pyetja
+            system: System prompt (opsional)
+        
+        Yields:
+            Chunks of response as they arrive
+        """
+        # Verifiko modelin (vetëm herën e parë)
+        if not self._model_verified:
+            await self.verify_model()
+        
+        try:
+            client = await self._get_client()
+            
+            # STREAMING REQUEST
+            async with client.stream(
+                "POST",
+                "/api/generate",
+                json={
+                    "model": self.model,
+                    "prompt": prompt,
+                    "system": system or SYSTEM_PROMPT,
+                    "stream": True,
+                    "options": {
+                        "temperature": 0.7,
+                        "num_predict": 1024,
+                    }
+                }
+            ) as resp:
+                if resp.status_code == 200:
+                    async for line in resp.aiter_lines():
+                        if line:
+                            try:
+                                import json
+                                data = json.loads(line)
+                                if "response" in data:
+                                    yield data["response"]
+                            except:
+                                pass
+                else:
+                    yield f"[Gabim: Ollama ktheu {resp.status_code}]"
+                    
+        except Exception as e:
+            logger.error(f"Streaming error: {e}")
+            yield f"[Gabim: {str(e)}]"
     
     async def close(self):
         """Mbyll klientin"""
