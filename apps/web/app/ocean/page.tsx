@@ -119,7 +119,7 @@ Jam i fuqizuar nga Clisonix AI me:
     checkStatus()
   }, [])
 
-// Send message to Ocean Core via Next.js API route
+// Send message to Ocean Core with STREAMING via Next.js API route
   const sendMessage = async () => {
     if (!inputMessage.trim() || chatLoading) return
 
@@ -134,36 +134,76 @@ Jam i fuqizuar nga Clisonix AI me:
     setInputMessage('')
     setChatLoading(true)
 
-    // Add empty assistant message that we'll fill
+    // Add empty assistant message that we'll fill with streaming content
     const assistantMessageId = Date.now() + 1
     setMessages(prev => [...prev, {
       id: assistantMessageId,
       role: 'assistant',
-      content: '🌊 Duke menduar...',
+      content: '',
       timestamp: new Date()
     }])
 
     try {
-      // Use Next.js API route (works from browser!)
-      const response = await fetch(OCEAN_API, {
+      // Use STREAMING endpoint - starts writing immediately!
+      const response = await fetch('/api/ocean/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: inputMessage })
       })
 
-      if (response.ok) {
-        const data = await response.json()
-        const content = data.ocean_response || data.response || 'Po përpunoj...'
-        
-        // Update the assistant message
+      if (!response.ok) throw new Error('API error')
+      if (!response.body) throw new Error('No response body')
+
+      // Read streaming response
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let fullContent = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split('\n')
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6)
+            if (data === '[DONE]') continue
+            
+            try {
+              const json = JSON.parse(data)
+              if (json.chunk) {
+                fullContent += json.chunk
+                // Update message in real-time as chunks arrive
+                setMessages(prev => prev.map(msg =>
+                  msg.id === assistantMessageId
+                    ? { ...msg, content: fullContent }
+                    : msg
+                ))
+              }
+            } catch {
+              // Not JSON, might be raw text
+              fullContent += data
+              setMessages(prev => prev.map(msg =>
+                msg.id === assistantMessageId
+                  ? { ...msg, content: fullContent }
+                  : msg
+              ))
+            }
+          }
+        }
+      }
+
+      // Ensure final content is set
+      if (fullContent) {
         setMessages(prev => prev.map(msg =>
           msg.id === assistantMessageId
-            ? { ...msg, content: content }
+            ? { ...msg, content: fullContent }
             : msg
         ))
-      } else {
-        throw new Error('API error')
       }
+
     } catch (err) {
       setMessages(prev => prev.map(msg =>
         msg.id === assistantMessageId
