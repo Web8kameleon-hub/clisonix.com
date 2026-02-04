@@ -41,16 +41,39 @@ def get_realtime_context() -> str:
 ## CURRENT DATE & TIME
 - Date: {weekdays[now.weekday()]}, {months[now.month-1]} {now.day}, {now.year}
 - Time: {now.strftime('%H:%M:%S')} (Server Time - CET/Berlin)
-- Timestamp: {now.isoformat()}
+- Unix Timestamp: {int(now.timestamp())}
 
-## YOUR CAPABILITIES
-You have access to:
-- Wikipedia (general knowledge)
-- GitHub (open source projects)
-- Weather data (global)
-- Crypto prices (real-time)
-- EU statistics (Eurostat)
-- Albanian data (INSTAT, Bank of Albania)
+## LIVE DATA ACCESS (Use when relevant)
+🌐 **Web & Knowledge:**
+- Wikipedia API (general encyclopedia)
+- Arxiv API (scientific papers)
+- PubMed API (medical research)
+- GitHub API (open source code)
+- DBpedia (structured data)
+
+📊 **Statistics & Finance:**
+- Eurostat (EU statistics)
+- European Central Bank (exchange rates)
+- CoinGecko (crypto prices)
+- World Bank Open Data
+
+🌍 **Regional Data:**
+- INSTAT Albania (Albanian statistics)
+- Bank of Albania (Albanian finance)
+- EU Open Data Portal
+- US Census, NOAA Weather
+
+🌤️ **Real-Time:**
+- Weather (wttr.in - global)
+- Air Quality (OpenAQ)
+- Earthquake data (USGS)
+
+## CLISONIX AGENTS (Internal Services)
+- ALBA: Audio/EEG Analysis (port 5555)
+- ALBI: Neural Biofeedback (port 6680)
+- ASI: Advanced System Intelligence
+- JONA: Industrial IoT Gateway
+- Translation Node: 72 languages (port 8036)
 """
 
 
@@ -361,6 +384,98 @@ async def get_wiki(query: str):
     """Search Wikipedia"""
     results = await fetch_wikipedia(query)
     return {"query": query, "results": results}
+
+
+# ═══════════════════════════════════════════════════════════════════
+# MORE DATA SOURCES
+# ═══════════════════════════════════════════════════════════════════
+
+@app.get("/api/v1/crypto/{symbol}")
+async def get_crypto(symbol: str = "bitcoin"):
+    """Get crypto price from CoinGecko (free)"""
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            r = await client.get(f"https://api.coingecko.com/api/v3/simple/price?ids={symbol}&vs_currencies=usd,eur")
+            if r.status_code == 200:
+                return {"symbol": symbol, "prices": r.json()}
+    except:
+        pass
+    return {"symbol": symbol, "error": "Could not fetch price"}
+
+
+@app.get("/api/v1/github/{owner}/{repo}")
+async def get_github_repo(owner: str, repo: str):
+    """Get GitHub repo info"""
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            r = await client.get(f"https://api.github.com/repos/{owner}/{repo}")
+            if r.status_code == 200:
+                data = r.json()
+                return {
+                    "name": data.get("full_name"),
+                    "description": data.get("description"),
+                    "stars": data.get("stargazers_count"),
+                    "forks": data.get("forks_count"),
+                    "language": data.get("language"),
+                    "url": data.get("html_url")
+                }
+    except:
+        pass
+    return {"error": "Could not fetch repo"}
+
+
+@app.get("/api/v1/arxiv/{query}")
+async def search_arxiv(query: str):
+    """Search scientific papers on Arxiv"""
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            r = await client.get(f"http://export.arxiv.org/api/query?search_query=all:{query}&max_results=5")
+            if r.status_code == 200:
+                # Parse XML response (simplified)
+                text = r.text
+                titles = []
+                import re
+                for match in re.findall(r'<title>(.*?)</title>', text):
+                    if match != "ArXiv Query":
+                        titles.append(match.strip())
+                return {"query": query, "papers": titles[:5]}
+    except:
+        pass
+    return {"query": query, "papers": []}
+
+
+@app.get("/api/v1/earthquake")
+async def get_earthquakes():
+    """Get recent earthquakes from USGS"""
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            r = await client.get("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson")
+            if r.status_code == 200:
+                data = r.json()
+                quakes = []
+                for f in data.get("features", [])[:5]:
+                    props = f.get("properties", {})
+                    quakes.append({
+                        "place": props.get("place"),
+                        "magnitude": props.get("mag"),
+                        "time": props.get("time")
+                    })
+                return {"earthquakes": quakes}
+    except:
+        pass
+    return {"earthquakes": []}
+
+
+@app.get("/api/v1/sources")
+async def list_sources():
+    """List all available data sources"""
+    return {
+        "realtime": ["now", "weather", "earthquake"],
+        "knowledge": ["wiki", "arxiv", "github"],
+        "finance": ["crypto"],
+        "agents": ["alba", "albi", "asi", "jona", "translation"]
+    }
+
 
 # Keep-alive pulse (background)
 async def keep_alive():
