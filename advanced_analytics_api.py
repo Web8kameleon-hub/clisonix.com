@@ -20,19 +20,19 @@ from pydantic import BaseModel
 # Import cycle engine
 try:
     from cycle_engine import CycleEngine, CycleStatus, CycleType
-except:
-    CycleEngine = None
+except ImportError:
+    CycleEngine = None  # type: ignore[assignment]
 
 # Import ALBA and ASI cores
 try:
     from alba_core import AlbaCore
-except:
-    AlbaCore = None
+except ImportError:
+    AlbaCore = None  # type: ignore[assignment]
 
 try:
     from asi_core import ASICore
-except:
-    ASICore = None
+except ImportError:
+    ASICore = None  # type: ignore[assignment]
 
 # Import compliance modules
 try:
@@ -79,8 +79,8 @@ class AnalyticsResult(BaseModel):
     timestamp: datetime
 
 # Global analytics state
-analytics_models = {}
-active_analyses = {}
+analytics_models: Dict[str, Dict[str, Any]] = {}
+active_analyses: Dict[str, Any] = {}
 
 @router.post("/query", response_model=AnalyticsResult)
 async def run_analytics_query(query: AnalyticsQuery, background_tasks: BackgroundTasks):
@@ -117,7 +117,7 @@ async def get_analytics_result(query_id: str):
 async def generate_insights(request: InsightRequest):
     """Gjenero insights inteligjente nga të dhënat"""
     try:
-        insights = await generate_intelligent_insights(request.domain, request.context, request.depth)
+        insights = await generate_intelligent_insights(request.domain, request.context, request.depth or "standard")
 
         return {
             "domain": request.domain,
@@ -214,7 +214,7 @@ async def process_analytics_query(query_id: str, query: AnalyticsQuery):
         processing_time = (datetime.now(timezone.utc) - start_time).total_seconds()
 
         # Store results
-        active_analyses[query_id] = AnalyticsResult(
+        result_obj: AnalyticsResult = AnalyticsResult(
             query_id=query_id,
             results=results,
             insights=insights,
@@ -222,6 +222,7 @@ async def process_analytics_query(query_id: str, query: AnalyticsQuery):
             processing_time=processing_time,
             timestamp=datetime.now(timezone.utc)
         )
+        active_analyses[query_id] = result_obj
 
     except Exception as e:
         active_analyses[query_id] = {
