@@ -12,7 +12,7 @@ import requests
 # Configuration
 OCEAN_URL = "http://46.225.14.83:8030"
 OCEAN_API = f"{OCEAN_URL}/api/v1/query"
-TIMEOUT = 30
+TIMEOUT = 300
 
 # Admin keywords and patterns
 ADMIN_KEYWORDS = [

@@ -11,7 +11,7 @@ import requests
 # Configuration
 OCEAN_URL = "http://46.225.14.83:8030"  # Change to your server
 OCEAN_API = f"{OCEAN_URL}/api/v1/query"
-TIMEOUT = 30
+TIMEOUT = 300
 
 def chat_with_ocean(query: str, context: Optional[str] = None) -> str:
     """Send a query to Curiosity Ocean and get response"""
