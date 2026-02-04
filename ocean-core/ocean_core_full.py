@@ -375,10 +375,10 @@ async def process_query_full(req: ChatRequest) -> ChatResponse:
                     "stream": False,
                     "options": {
                         "temperature": 0.7,
-                        "num_ctx": 2048,   # Reduced for speed
+                        "num_ctx": 8192,
                         "repeat_penalty": 1.2,
                         "top_p": 0.9,
-                        "num_predict": 512  # Shorter responses = faster
+                        "num_predict": -1
                     }
                 }
             )

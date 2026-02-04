@@ -144,8 +144,8 @@ async def process_chat(req: ChatRequest) -> ChatResponse:
                     "stream": False,
                     "options": {
                         "temperature": 0.7,
-                        "num_ctx": 1024,      # Small context = fast
-                        "num_predict": 256,   # Short response = fast
+                        "num_ctx": 4096,
+                        "num_predict": -1,
                         "repeat_penalty": 1.1
                     }
                 }
