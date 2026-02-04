@@ -5,14 +5,10 @@ Ocean Multimodal Test Client
 Test all sensory pipelines: Vision, Audio, Document, Reasoning
 """
 import asyncio
-import base64
-import json
 import logging
 import sys
-from pathlib import Path
 
 import httpx
-import pytest
 
 logging.basicConfig(
     level=logging.INFO,
@@ -40,7 +36,7 @@ class OceanTestClient:
             response = await self.client.get(f"{self.base_url}/health")
             if response.status_code == 200:
                 data = response.json()
-                logger.info(f"✅ Health check passed")
+                logger.info("✅ Health check passed")
                 logger.info(f"   Pipelines: {data['pipelines']}")
                 logger.info(f"   Uptime: {data['uptime_seconds']:.1f}s")
                 self.results.append(("health", "PASS", data))
@@ -72,7 +68,7 @@ class OceanTestClient:
             
             if response.status_code == 200:
                 data = response.json()
-                logger.info(f"✅ Vision analysis passed")
+                logger.info("✅ Vision analysis passed")
                 logger.info(f"   Processing time: {data.get('processing_time_ms', 0):.1f}ms")
                 logger.info(f"   Confidence: {data.get('confidence', 'N/A')}")
                 self.results.append(("vision", "PASS", data))
@@ -103,7 +99,7 @@ class OceanTestClient:
             
             if response.status_code == 200:
                 data = response.json()
-                logger.info(f"✅ Audio transcription passed")
+                logger.info("✅ Audio transcription passed")
                 logger.info(f"   Transcript length: {len(data.get('transcript', ''))}")
                 logger.info(f"   Processing time: {data.get('processing_time_ms', 0):.1f}ms")
                 self.results.append(("audio", "PASS", data))
@@ -135,7 +131,7 @@ class OceanTestClient:
             
             if response.status_code == 200:
                 data = response.json()
-                logger.info(f"✅ Document analysis passed")
+                logger.info("✅ Document analysis passed")
                 logger.info(f"   Word count: {data.get('word_count', 0)}")
                 logger.info(f"   Processing time: {data.get('processing_time_ms', 0):.1f}ms")
                 self.results.append(("document", "PASS", data))
@@ -165,7 +161,7 @@ class OceanTestClient:
             
             if response.status_code == 200:
                 data = response.json()
-                logger.info(f"✅ Reasoning passed")
+                logger.info("✅ Reasoning passed")
                 logger.info(f"   Response length: {len(data.get('reasoning', ''))}")
                 logger.info(f"   Processing time: {data.get('processing_time_ms', 0):.1f}ms")
                 self.results.append(("reasoning", "PASS", data))
@@ -206,7 +202,7 @@ class OceanTestClient:
             
             if response.status_code == 200:
                 data = response.json()
-                logger.info(f"✅ Multimodal fusion passed")
+                logger.info("✅ Multimodal fusion passed")
                 logger.info(f"   Processing time: {data.get('processing_time_ms', 0):.1f}ms")
                 self.results.append(("multimodal", "PASS", data))
                 return True
