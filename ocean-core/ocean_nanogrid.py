@@ -59,7 +59,7 @@ async def get_client() -> httpx.AsyncClient:
     global _client
     if _client is None or _client.is_closed:
         _client = httpx.AsyncClient(
-            timeout=30.0,
+            timeout=300.0,  # 5 minutes for elastic responses
             limits=httpx.Limits(max_keepalive_connections=5, max_connections=10),
             http2=True  # HTTP/2 for multiplexing
         )
