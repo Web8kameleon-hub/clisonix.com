@@ -226,24 +226,22 @@
 
 ## 9. Risk Assessment
 
-| Risk                | Nivel       | Mitigation           | Status          |
-| ------------------- | ----------- | -------------------- | --------------- |
-| Data Breach         | 🔴 High    | Encryption + MFA     | ✅ In Place     |
-| Service Downtime    | 🟡 Medium  | Redundancy           | ⏳ Planned      |
-| Data Breach         | 🔴 High    | Encryption + MFA     | ✅ In Place     |
-| Service Downtime    | 🟡 Medium  | Redundancy           | ⏳ Planned      |
-| API Abuse           | 🟡 Medium  | Rate Limiting        | ✅ In Place     |
-| Model Bias          | 🟡 Medium  | Testing              | ✅ Ongoing      |
-| License Violation   | 🟢 Low     | Audit                | ⏳ Scheduled     |
+| Risk              | Nivel      | Mitigation           | Status         |
+| :---------------- | :--------- | :------------------- | :------------- |
+| Data Breach       | 🔴 High    | Encryption + MFA     | ✅ In Place    |
+| Service Downtime  | 🟡 Medium  | Redundancy           | ⏳ Planned     |
+| API Abuse         | 🟡 Medium  | Rate Limiting        | ✅ In Place    |
+| Model Bias        | 🟡 Medium  | Testing              | ✅ Ongoing     |
+| License Violation | 🟢 Low     | Audit                | ⏳ Scheduled    |
 
 ---
 
 ## 10. Contact & Escalation
 
-- **GDPR Officer:** privacy@clisonix.com
-- **Security Officer:** security@clisonix.com
-- **Compliance Manager:** compliance@clisonix.com
-- **Support:** support@clisonix.com
+- **GDPR Officer:** [privacy@clisonix.com](mailto:privacy@clisonix.com)
+- **Security Officer:** [security@clisonix.com](mailto:security@clisonix.com)
+- **Compliance Manager:** [compliance@clisonix.com](mailto:compliance@clisonix.com)
+- **Support:** [support@clisonix.com](mailto:support@clisonix.com)
 
 ---
 
