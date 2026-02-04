@@ -130,13 +130,13 @@ async def chat(req: Req, request: Request):
         r = await client.post(f"{OLLAMA}/api/chat", json={
             "model": MODEL,
             "messages": [
-                {"role": "system", "content": "You are Ocean, AI of Clisonix Cloud. Be brief."},
+                {"role": "system", "content": "You are Ocean, AI of Clisonix Cloud. Respond thoroughly."},
                 {"role": "user", "content": q}
             ],
             "stream": False,
             "options": {
-                "num_ctx": 512,
-                "num_predict": 100,
+                "num_ctx": 8192,
+                "num_predict": -1,
                 "temperature": 0.7
             }
         })
