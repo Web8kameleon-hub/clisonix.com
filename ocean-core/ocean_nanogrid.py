@@ -21,7 +21,7 @@ MODEL = os.getenv("MODEL", "llama3.1:8b")
 PORT = int(os.getenv("PORT", "8030"))
 
 # Rate limiting config
-FREE_TIER_LIMIT = 20  # messages per hour
+FREE_TIER_LIMIT = 1000  # messages per hour (increased from 20 for better development experience)
 FREE_TRIAL_MONTHS = 6
 rate_limits: dict = defaultdict(list)  # user_id -> [timestamps]
 
