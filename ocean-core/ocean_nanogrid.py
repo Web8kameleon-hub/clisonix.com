@@ -9,14 +9,17 @@ Ocean Nanogrid - Sleep/Wake Pattern
 - Rate limiting: 20 msg/hour for free tier (6 months trial)
 """
 import asyncio
+import json
 import os
 import time
 from collections import defaultdict
 from datetime import datetime, timedelta
+from typing import AsyncGenerator
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 OLLAMA = os.getenv("OLLAMA_HOST", "http://localhost:11434")
@@ -149,6 +152,73 @@ async def chat(req: Req, request: Request):
         raise HTTPException(500, str(e))
     
     return Res(response=resp, time=round(time.time() - t0, 2))
+
+
+# ═══════════════════════════════════════════════════════════════════
+# STREAMING ENDPOINT - First token in 2-3 seconds!
+# ═══════════════════════════════════════════════════════════════════
+
+async def stream_ollama(query: str) -> AsyncGenerator[str, None]:
+    """Stream response from Ollama - text appears immediately!"""
+    client = await get_client()
+    try:
+        async with client.stream(
+            "POST",
+            f"{OLLAMA}/api/chat",
+            json={
+                "model": MODEL,
+                "messages": [
+                    {"role": "system", "content": "You are Ocean, AI of Clisonix Cloud. START WRITING IMMEDIATELY. Respond thoroughly."},
+                    {"role": "user", "content": query}
+                ],
+                "stream": True,  # STREAMING!
+                "options": {
+                    "num_ctx": 8192,
+                    "num_predict": -1,
+                    "temperature": 0.7,
+                    "num_keep": 0,
+                    "mirostat": 0
+                }
+            }
+        ) as response:
+            async for line in response.aiter_lines():
+                if line:
+                    try:
+                        data = json.loads(line)
+                        if "message" in data and "content" in data["message"]:
+                            content = data["message"]["content"]
+                            if content:
+                                yield content
+                        if data.get("done", False):
+                            break
+                    except json.JSONDecodeError:
+                        continue
+    except Exception as e:
+        yield f"\n[Error: {str(e)}]"
+
+
+@app.post("/api/v1/chat/stream")
+async def chat_stream(req: Req, request: Request):
+    """
+    STREAMING chat endpoint!
+    First token appears within 2-3 seconds instead of waiting 60+ seconds.
+    """
+    q = req.message or req.query
+    if not q:
+        raise HTTPException(400, "message required")
+    
+    # Rate limit check
+    user_id = request.headers.get("X-User-ID") or request.client.host or "anonymous"
+    is_admin = request.headers.get("X-Admin") == "true"
+    allowed, remaining = check_rate_limit(user_id, is_admin=is_admin)
+    if not allowed:
+        raise HTTPException(429, "Rate limit exceeded")
+    
+    return StreamingResponse(
+        stream_ollama(q),
+        media_type="text/plain"
+    )
+
 
 @app.post("/api/v1/query", response_model=Res)
 async def query(req: Req, request: Request):

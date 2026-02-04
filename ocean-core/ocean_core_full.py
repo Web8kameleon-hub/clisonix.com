@@ -20,12 +20,14 @@ import asyncio
 import logging
 import os
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, AsyncGenerator
 
 import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+import json
 
 # ═══════════════════════════════════════════════════════════════════
 # LOGGING
@@ -318,6 +320,51 @@ def find_knowledge_seed(query: str) -> Optional[str]:
     return None
 
 # ═══════════════════════════════════════════════════════════════════
+# STREAMING RESPONSE GENERATOR
+# ═══════════════════════════════════════════════════════════════════
+
+async def stream_ollama_response(
+    model: str,
+    messages: list,
+    options: dict,
+    engines_used: list,
+    lang_code: str
+) -> AsyncGenerator[str, None]:
+    """
+    Stream response from Ollama word by word.
+    This makes the first token appear in 2-3 seconds instead of waiting 60+ seconds.
+    """
+    try:
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            async with client.stream(
+                "POST",
+                f"{OLLAMA_HOST}/api/chat",
+                json={
+                    "model": model,
+                    "messages": messages,
+                    "stream": True,  # STREAMING ENABLED!
+                    "options": options
+                }
+            ) as response:
+                async for line in response.aiter_lines():
+                    if line:
+                        try:
+                            data = json.loads(line)
+                            if "message" in data and "content" in data["message"]:
+                                content = data["message"]["content"]
+                                if content:
+                                    yield content
+                            # Check if done
+                            if data.get("done", False):
+                                break
+                        except json.JSONDecodeError:
+                            continue
+    except Exception as e:
+        logger.error(f"Streaming error: {e}")
+        yield f"\n\n[Error: {str(e)}]"
+
+
+# ═══════════════════════════════════════════════════════════════════
 # MAIN PROCESSING PIPELINE
 # ═══════════════════════════════════════════════════════════════════
 
@@ -504,6 +551,80 @@ async def status():
 async def chat(req: ChatRequest):
     """Main chat endpoint - Full processing pipeline"""
     return await process_query_full(req)
+
+
+@app.post("/api/v1/chat/stream")
+async def chat_stream(req: ChatRequest):
+    """
+    STREAMING chat endpoint - Returns text in real-time!
+    First token appears within 2-3 seconds instead of waiting 60+ seconds.
+    """
+    prompt = req.message or req.query
+    if not prompt:
+        raise HTTPException(status_code=400, detail="message or query required")
+    
+    engines_used = []
+    
+    # 1. Detect Language (fast)
+    lang_code, lang_name, confidence = await detect_language(prompt)
+    engines_used.append(f"TranslationNode({lang_code})")
+    
+    lang_instruction = ""
+    if lang_code != "en":
+        lang_instruction = f"\n\nIMPORTANT: The user is writing in {lang_name}. You MUST respond in {lang_name}."
+    
+    # 2. Knowledge Seeds (optional)
+    seed_context = ""
+    if req.use_knowledge_seeds:
+        seed = find_knowledge_seed(prompt)
+        if seed:
+            seed_context = f"\n\nRELEVANT KNOWLEDGE:\n{seed}"
+            engines_used.append("KnowledgeSeeds")
+    
+    # 3. Strict mode
+    strict_instruction = ""
+    if req.strict_mode:
+        strict_instruction = """
+
+## STRICT MODE ACTIVATED - MANDATORY RULES
+1. STAY ON TOPIC - Answer ONLY what was asked
+2. NO QUESTIONS - Do not ask the user questions
+3. IMMEDIATE START - Begin writing immediately
+4. CONTINUOUS OUTPUT - Write without stopping"""
+        engines_used.append("StrictMode")
+    
+    # Build prompt
+    enhanced_prompt = SYSTEM_PROMPT + lang_instruction + seed_context + strict_instruction
+    
+    messages = [
+        {"role": "system", "content": enhanced_prompt},
+        {"role": "user", "content": prompt}
+    ]
+    
+    options = {
+        "temperature": 0.7,
+        "num_ctx": 8192,
+        "repeat_penalty": 1.2,
+        "top_p": 0.9,
+        "num_predict": -1,
+        "num_keep": 0,
+        "mirostat": 0,
+        "repeat_last_n": 64,
+        "stop": []
+    }
+    
+    logger.info(f"🌊 Streaming request [{lang_code}]: {prompt[:50]}...")
+    
+    return StreamingResponse(
+        stream_ollama_response(
+            model=req.model or MODEL,
+            messages=messages,
+            options=options,
+            engines_used=engines_used,
+            lang_code=lang_code
+        ),
+        media_type="text/plain"
+    )
 
 @app.post("/api/v1/query", response_model=ChatResponse)
 async def query(req: ChatRequest):
