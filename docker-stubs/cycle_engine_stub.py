@@ -3,11 +3,12 @@
 Cycle Engine Stub - Data processing cycles and pipelines
 """
 import sys
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
-from datetime import datetime
-from typing import Dict, List, Optional, Any
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8070
 

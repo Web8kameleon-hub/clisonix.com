@@ -3,14 +3,13 @@ Monitoring System Configuration - Security & Performance
 Real-time metrics, alerting, and compliance tracking
 """
 
-import json
 import logging
 import os
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from typing import Any, Dict, List
 
-import psutil
+import psutil  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 
