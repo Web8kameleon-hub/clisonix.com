@@ -375,11 +375,15 @@ async def chat(req: Req, request: Request):
 
 async def stream_ollama(query: str) -> AsyncGenerator[str, None]:
     """Stream response from Ollama - text appears immediately!"""
-    client = await get_client()
+    # Streaming client me timeout pa limit
+    stream_client = httpx.AsyncClient(
+        timeout=httpx.Timeout(None, connect=30.0),
+        http2=True
+    )
     system_prompt = build_system_prompt()
     
     try:
-        async with client.stream(
+        async with stream_client.stream(
             "POST",
             f"{OLLAMA}/api/chat",
             json={
@@ -412,6 +416,8 @@ async def stream_ollama(query: str) -> AsyncGenerator[str, None]:
                         continue
     except Exception as e:
         yield f"\n[Error: {str(e)}]"
+    finally:
+        await stream_client.aclose()
 
 
 @app.post("/api/v1/chat/stream")
