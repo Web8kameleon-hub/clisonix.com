@@ -82,7 +82,7 @@ export default function OceanPage() {
     checkStatus()
   }, [])
 
-  // Send message to Ocean Core
+// Send message to Ocean Core with STREAMING support
   const sendMessage = async () => {
     if (!inputMessage.trim() || chatLoading) return
 
@@ -97,55 +97,67 @@ export default function OceanPage() {
     setInputMessage('')
     setChatLoading(true)
 
+    // Add empty assistant message that we'll stream into
+    const assistantMessageId = Date.now() + 1
+    setMessages(prev => [...prev, {
+      id: assistantMessageId,
+      role: 'assistant',
+      content: '',
+      timestamp: new Date()
+    }])
+
     try {
-      // Use orchestrated chat for full AI response
-      const response = await fetch(`${OCEAN_API}/chat/orchestrated`, {
+      // Use STREAMING endpoint for real-time response!
+      const response = await fetch(`${OCEAN_API}/chat/stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: inputMessage })
       })
 
-      if (response.ok) {
-        const data = await response.json()
-        const assistantMessage: ChatMessage = {
-          id: Date.now() + 1,
-          role: 'assistant',
-          content: data.fused_answer || data.response || 'No response received',
-          timestamp: new Date(),
-          persona: data.query_category,
-          sources: data.sources_cited,
-          confidence: data.confidence
+      if (response.ok && response.body) {
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let fullContent = ''
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          const chunk = decoder.decode(value, { stream: true })
+          fullContent += chunk
+
+          // Update the assistant message with streamed content
+          setMessages(prev => prev.map(msg =>
+            msg.id === assistantMessageId
+              ? { ...msg, content: fullContent }
+              : msg
+          ))
         }
-        setMessages(prev => [...prev, assistantMessage])
       } else {
-        // Fallback to simple chat
-        const simpleResponse = await fetch(`${OCEAN_API}/chat`, {
+        // Fallback to regular chat endpoint
+        const fallbackResponse = await fetch(`${OCEAN_API}/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message: inputMessage })
         })
-        
-        if (simpleResponse.ok) {
-          const simpleData = await simpleResponse.json()
-          setMessages(prev => [...prev, {
-            id: Date.now() + 1,
-            role: 'assistant',
-            content: simpleData.response || 'Processing...',
-            timestamp: new Date(),
-            sources: simpleData.sources,
-            confidence: simpleData.confidence
-          }])
+
+        if (fallbackResponse.ok) {
+          const data = await fallbackResponse.json()
+          setMessages(prev => prev.map(msg =>
+            msg.id === assistantMessageId
+              ? { ...msg, content: data.response || 'Processing...' }
+              : msg
+          ))
         } else {
-          throw new Error('Both endpoints failed')
+          throw new Error('All endpoints failed')
         }
       }
     } catch (err) {
-      setMessages(prev => [...prev, {
-        id: Date.now() + 1,
-        role: 'assistant',
-        content: '❌ **Connection Error**\n\nCould not reach the Ocean Core API. Please verify:\n1. Ocean Core is running on port 8030\n2. Run: `docker ps | grep ocean`\n3. Check logs: `docker logs clisonix-ocean-core`',
-        timestamp: new Date()
-      }])
+      setMessages(prev => prev.map(msg =>
+        msg.id === assistantMessageId
+          ? { ...msg, content: '❌ **Connection Error**\n\nCould not reach Ocean Core. Check if service is running.' }
+          : msg
+      ))
       console.error('Chat error:', err)
     } finally {
       setChatLoading(false)
