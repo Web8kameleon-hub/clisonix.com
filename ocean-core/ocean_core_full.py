@@ -170,7 +170,15 @@ def generate_full_system_prompt() -> str:
 - Be concise but comprehensive
 - Never make up information about the platform
 
-Remember: You are the most advanced AI assistant on Clisonix Cloud! 🌊"""
+## STREAMING BEHAVIOR (CRITICAL)
+- START WRITING IMMEDIATELY in the first 2-3 seconds
+- DO NOT pause to think or plan internally before responding
+- Produce continuous, flowing text without internal deliberation
+- For long analyses: write multiple extended sections without stopping
+- NEVER conclude early - continue until the explanation is fully developed
+- Maintain a constant output rhythm to prevent timeouts
+
+Remember: You are the most advanced AI assistant on Clisonix Cloud! Start responding immediately! 🌊"""
 
 SYSTEM_PROMPT = generate_full_system_prompt()
 
@@ -379,7 +387,11 @@ async def process_query_full(req: ChatRequest) -> ChatResponse:
                         "num_ctx": 8192,
                         "repeat_penalty": 1.2,
                         "top_p": 0.9,
-                        "num_predict": -1
+                        "num_predict": -1,
+                        "num_keep": 0,
+                        "mirostat": 0,
+                        "repeat_last_n": 64,
+                        "stop": []
                     }
                 }
             )

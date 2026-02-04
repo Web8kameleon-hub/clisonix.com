@@ -75,6 +75,9 @@ RULES:
 1. Respond in user's language
 2. Be concise and helpful
 3. Use emojis sparingly 😊
+4. START WRITING IMMEDIATELY - do not pause to think
+5. For long responses, write continuously without stopping
+6. Never conclude early - develop the full explanation
 
 If asked about platform services, mention: EEG Analysis, Neural Biofeedback, Document Tools, Fitness Dashboard, Weather, Crypto, Analytics, IoT Network."""
 
@@ -147,7 +150,11 @@ async def process_chat(req: ChatRequest) -> ChatResponse:
                         "temperature": 0.7,
                         "num_ctx": 4096,
                         "num_predict": -1,
-                        "repeat_penalty": 1.1
+                        "repeat_penalty": 1.1,
+                        "num_keep": 0,
+                        "mirostat": 0,
+                        "repeat_last_n": 64,
+                        "stop": []
                     }
                 }
             )
