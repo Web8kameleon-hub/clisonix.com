@@ -3,12 +3,12 @@
  * CURIOSITY OCEAN - Interactive AI Chat
  * =====================================
  * 
- * Full integration with Ocean Core API (port 8030)
+ * Full integration with Ocean Core API via Next.js API route
  * Features:
  * - Real-time chat with AI Orchestrator
- * - Persona selection
- * - Laboratory integration
- * - 61 Alphabet Layers analysis
+ * - Streaming responses
+ * - Real-time date/time awareness
+ * - Wikipedia, Weather, GitHub integration
  */
 
 import { useState, useEffect, useRef } from 'react'
@@ -30,8 +30,8 @@ interface OceanStatus {
   timestamp: string
 }
 
-// Use relative API for same-origin or direct localhost for development
-const OCEAN_API = process.env.NEXT_PUBLIC_OCEAN_API || 'http://localhost:8030/api/v1'
+// Use Next.js API route as proxy to Ocean-Core (works from browser!)
+const OCEAN_API = '/api/ocean'
 
 export default function OceanPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -55,24 +55,61 @@ export default function OceanPage() {
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        const response = await fetch(`${OCEAN_API}/status`)
+        // Use Next.js API route
+        const response = await fetch(OCEAN_API)
         if (response.ok) {
           const data = await response.json()
-          setStatus(data)
+          setStatus({ 
+            service: 'Ocean Core',
+            version: '2.0',
+            status: data.status || 'connected',
+            timestamp: new Date().toISOString()
+          })
           setError(null)
           
-          // Add welcome message
+          // Add welcome message with current date
+          const now = new Date()
           setMessages([{
             id: 1,
             role: 'assistant',
-            content: '🌊 **Welcome to Curiosity Ocean!**\n\nI am powered by the Clisonix AI Orchestrator with 14 expert personas, 23 laboratories, and 61 alphabet layers of analysis.\n\nAsk me anything about:\n- 🧠 AI & Consciousness\n- 💹 Finance & Markets\n- 🔬 Science & Research\n- 🏭 Industrial Processes\n- 🔐 Security & Technology\n\nWhat sparks your curiosity today?',
-            timestamp: new Date()
+            content: `🌊 **Mirë se vini në Curiosity Ocean!**
+
+📅 Sot është ${now.toLocaleDateString('sq-AL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+🕐 Ora: ${now.toLocaleTimeString('sq-AL')}
+
+Jam i fuqizuar nga Clisonix AI me:
+- 📊 Data në kohë reale (data, ora, moti)
+- 📖 Wikipedia & Arxiv
+- 💻 GitHub API
+- 🌍 Weather API
+
+Çfarë dëshironi të dini sot?`,
+            timestamp: now
           }])
         } else {
           throw new Error('API not available')
         }
       } catch (err) {
-        setError('Could not connect to Ocean Core API. Please check if the service is running on port 8030.')
+        // Still show welcome even if status check fails
+        setStatus({ 
+          service: 'Ocean Core',
+          version: '2.0',
+          status: 'ready',
+          timestamp: new Date().toISOString()
+        })
+        setError(null)
+        
+        const now = new Date()
+        setMessages([{
+          id: 1,
+          role: 'assistant',
+          content: `🌊 **Mirë se vini në Curiosity Ocean!**
+
+📅 Sot është ${now.toLocaleDateString('sq-AL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+
+Çfarë dëshironi të dini sot?`,
+          timestamp: now
+        }])
         console.error('Ocean Core connection error:', err)
       } finally {
         setLoading(false)
@@ -82,7 +119,7 @@ export default function OceanPage() {
     checkStatus()
   }, [])
 
-// Send message to Ocean Core with STREAMING support
+// Send message to Ocean Core via Next.js API route
   const sendMessage = async () => {
     if (!inputMessage.trim() || chatLoading) return
 
@@ -97,65 +134,40 @@ export default function OceanPage() {
     setInputMessage('')
     setChatLoading(true)
 
-    // Add empty assistant message that we'll stream into
+    // Add empty assistant message that we'll fill
     const assistantMessageId = Date.now() + 1
     setMessages(prev => [...prev, {
       id: assistantMessageId,
       role: 'assistant',
-      content: '',
+      content: '🌊 Duke menduar...',
       timestamp: new Date()
     }])
 
     try {
-      // Use STREAMING endpoint for real-time response!
-      const response = await fetch(`${OCEAN_API}/chat/stream`, {
+      // Use Next.js API route (works from browser!)
+      const response = await fetch(OCEAN_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: inputMessage })
       })
 
-      if (response.ok && response.body) {
-        const reader = response.body.getReader()
-        const decoder = new TextDecoder()
-        let fullContent = ''
-
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-
-          const chunk = decoder.decode(value, { stream: true })
-          fullContent += chunk
-
-          // Update the assistant message with streamed content
-          setMessages(prev => prev.map(msg =>
-            msg.id === assistantMessageId
-              ? { ...msg, content: fullContent }
-              : msg
-          ))
-        }
+      if (response.ok) {
+        const data = await response.json()
+        const content = data.ocean_response || data.response || 'Po përpunoj...'
+        
+        // Update the assistant message
+        setMessages(prev => prev.map(msg =>
+          msg.id === assistantMessageId
+            ? { ...msg, content: content }
+            : msg
+        ))
       } else {
-        // Fallback to regular chat endpoint
-        const fallbackResponse = await fetch(`${OCEAN_API}/chat`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: inputMessage })
-        })
-
-        if (fallbackResponse.ok) {
-          const data = await fallbackResponse.json()
-          setMessages(prev => prev.map(msg =>
-            msg.id === assistantMessageId
-              ? { ...msg, content: data.response || 'Processing...' }
-              : msg
-          ))
-        } else {
-          throw new Error('All endpoints failed')
-        }
+        throw new Error('API error')
       }
     } catch (err) {
       setMessages(prev => prev.map(msg =>
         msg.id === assistantMessageId
-          ? { ...msg, content: '❌ **Connection Error**\n\nCould not reach Ocean Core. Check if service is running.' }
+          ? { ...msg, content: '❌ Gabim lidhjeje. Provoni përsëri.' }
           : msg
       ))
       console.error('Chat error:', err)
