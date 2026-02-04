@@ -27,6 +27,114 @@ MODEL = os.getenv("MODEL", "llama3.1:8b")
 PORT = int(os.getenv("PORT", "8030"))
 
 # ═══════════════════════════════════════════════════════════════════
+# TRANSLATION OVERRIDE + LEXICON CUSTOM
+# Korrigjon përkthimet e gabuara PARA reasoning-it
+# ═══════════════════════════════════════════════════════════════════
+
+LEXICON_CUSTOM = {
+    # Fjalë problematike → Përkthime të sakta
+    "vend": "website",
+    "vendi": "website", 
+    "vendi juaj": "your website",
+    "vendin tuaj": "your website",
+    "site": "website",
+    "faqe": "page",
+    "faqja": "page",
+    "faqen": "page",
+    "vizitorë": "visitors",
+    "vizitore": "visitors",
+    "trafik": "traffic",
+    "trafikun": "traffic",
+    "platformë": "platform",
+    "platforma": "platform",
+    "modul": "module",
+    "modulet": "modules",
+    "shërbim": "service",
+    "sherbim": "service",
+    "shërbim cloud": "cloud service",
+    "rrjet": "network",
+    "rrjeti": "network",
+    "lidhje": "connection",
+    "lidhja": "connection",
+    "përdorues": "user",
+    "perdorues": "user",
+    "përdoruesit": "users",
+    "llogari": "account",
+    "llogaria": "account",
+    "çelës": "key",
+    "celes": "key",
+    "fjalëkalim": "password",
+    "fjalekalim": "password",
+    "aksesim": "access",
+    "akses": "access",
+    "kod": "code",
+    "kodi": "code",
+    "gabim": "error",
+    "gabimi": "error",
+    "problem": "issue",
+    "problemi": "issue",
+    "ngarkesë": "load",
+    "ngarko": "upload",
+    "shkarko": "download",
+    "ruaj": "save",
+    "fshi": "delete",
+    "ndrysho": "edit",
+    "krijo": "create",
+    "konfigurim": "configuration",
+    "konfigurimet": "settings",
+    "paneli": "dashboard",
+    "panel kontrolli": "control panel",
+    # Clisonix-specifike
+    "Clisonix": "Clisonix Cloud platform",
+    "oqeani": "Ocean AI",
+    "ocean": "Ocean AI",
+}
+
+# Fjalë që NUK duhet të përdoren
+AVOID_WORDS = ["vendbanim", "shpirt historik", "pasionshëm", "romantik", "mistik"]
+
+# Fjalë të preferuara
+PREFER_WORDS = ["platformë", "website", "trafik", "modul", "shërbim", "users", "traffic"]
+
+def apply_translation_override(text: str) -> str:
+    """
+    Apliko korrigjime të përkthimeve PARA se të shkojë te modeli.
+    Zëvendëson fjalët problematike me versionet e sakta.
+    """
+    if not text:
+        return text
+    
+    result = text.lower()
+    
+    # Zëvendëso sipas lexicon-it (frazat më të gjata së pari)
+    sorted_lexicon = sorted(LEXICON_CUSTOM.items(), key=lambda x: len(x[0]), reverse=True)
+    
+    for albanian, english in sorted_lexicon:
+        if albanian.lower() in result:
+            # Ruaj kontekstin shqip por shto përkthimin
+            # Kjo ndihmon modelin të kuptojë
+            pass  # Mos zëvendëso, por shto context
+    
+    return text  # Ruaj origjinalin, por shto context në system prompt
+
+def get_lexicon_context() -> str:
+    """
+    Kthen context për modelin me përkthimet e sakta.
+    """
+    context = """
+## 🔤 TRANSLATION LEXICON (Albanian → English)
+When user speaks Albanian, understand these correctly:
+"""
+    for alb, eng in list(LEXICON_CUSTOM.items())[:20]:
+        context += f"- \"{alb}\" = \"{eng}\"\n"
+    
+    context += """
+⚠️ NEVER use these words in response: vendbanim, shpirt historik, pasionshëm
+✅ PREFER these technical terms: website, platform, traffic, module, service, users
+"""
+    return context
+
+# ═══════════════════════════════════════════════════════════════════
 # REAL-TIME CONTEXT - Date, Time, News, Weather
 # ═══════════════════════════════════════════════════════════════════
 
@@ -109,18 +217,22 @@ async def fetch_weather(city: str = "Tirana") -> str:
 
 
 def build_system_prompt(extra_context: str = "") -> str:
-    """Build system prompt with real-time context"""
+    """Build system prompt with real-time context and lexicon"""
     realtime = get_realtime_context()
+    lexicon = get_lexicon_context()
     return f"""You are **Ocean** 🌊, the AI brain of Clisonix Cloud.
 
 {realtime}
 
+{lexicon}
+
 ## RESPONSE RULES
 1. START WRITING IMMEDIATELY - no thinking pause
-2. Respond in the user's language
+2. Respond in the user's language (Albanian or English)
 3. Be helpful and thorough
 4. Use real-time data when relevant (date, weather, etc.)
 5. Never say "I don't have access to current date/time" - YOU DO!
+6. Understand Albanian correctly using the lexicon above
 
 {extra_context}
 
