@@ -14,7 +14,7 @@ Reasoning (🧠)  → LLM inference over any input
 ## Ports & Services
 
 | Service | Port | Status | Models |
-|---------|------|---------|---------|
+| --------- | ------ | --------- | --------- |
 | Ocean Core | 8030 | ✅ Running | llama3.1 |
 | **Ocean Multimodal** | **8031** | **NEW** | llava, whisper, llama3.1 |
 | Ollama | 11434 | ✅ Running | All models |
@@ -22,6 +22,7 @@ Reasoning (🧠)  → LLM inference over any input
 ## Deploy in 3 Steps
 
 ### Step 1: Add to docker-compose.yml
+
 ```yaml
 ocean-multimodal:
   build:
@@ -34,6 +35,7 @@ ocean-multimodal:
 ```
 
 ### Step 2: Pull Models
+
 ```bash
 docker exec clisonix-06-ollama ollama pull llava:latest
 docker exec clisonix-06-ollama ollama pull whisper:latest
@@ -41,6 +43,7 @@ docker exec clisonix-06-ollama ollama pull llama3.1:8b
 ```
 
 ### Step 3: Deploy
+
 ```bash
 docker compose up -d ocean-multimodal
 ```
@@ -48,6 +51,7 @@ docker compose up -d ocean-multimodal
 ## Quick API Examples
 
 ### Vision (Image Analysis)
+
 ```bash
 curl -X POST http://localhost:8031/api/v1/vision \
   -H "Content-Type: application/json" \
@@ -58,6 +62,7 @@ curl -X POST http://localhost:8031/api/v1/vision \
 ```
 
 ### Audio (Speech-to-Text)
+
 ```bash
 curl -X POST http://localhost:8031/api/v1/audio \
   -H "Content-Type: application/json" \
@@ -68,6 +73,7 @@ curl -X POST http://localhost:8031/api/v1/audio \
 ```
 
 ### Document (Text Analysis)
+
 ```bash
 curl -X POST http://localhost:8031/api/v1/document \
   -H "Content-Type: application/json" \
@@ -78,6 +84,7 @@ curl -X POST http://localhost:8031/api/v1/document \
 ```
 
 ### Reasoning (LLM Inference)
+
 ```bash
 curl -X POST http://localhost:8031/api/v1/reason \
   -H "Content-Type: application/json" \
@@ -88,6 +95,7 @@ curl -X POST http://localhost:8031/api/v1/reason \
 ```
 
 ### Multimodal (All Together)
+
 ```bash
 curl -X POST http://localhost:8031/api/v1/analyze \
   -H "Content-Type: application/json" \
