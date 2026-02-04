@@ -8,13 +8,16 @@ Ocean Nanogrid - Sleep/Wake Pattern
 - Instant wake on request
 - Rate limiting: 20 msg/hour for free tier (6 months trial)
 """
-import os, time, asyncio
-from datetime import datetime, timedelta
+import asyncio
+import os
+import time
 from collections import defaultdict
+from datetime import datetime, timedelta
+
+import httpx
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import httpx
 
 OLLAMA = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 MODEL = os.getenv("MODEL", "llama3.1:8b")
@@ -25,8 +28,17 @@ FREE_TIER_LIMIT = 1000  # messages per hour (increased from 20 for better develo
 FREE_TRIAL_MONTHS = 6
 rate_limits: dict = defaultdict(list)  # user_id -> [timestamps]
 
-def check_rate_limit(user_id: str) -> tuple[bool, int]:
-    """Check if user is within rate limit. Returns (allowed, remaining)"""
+def check_rate_limit(user_id: str, is_admin: bool = False) -> tuple[bool, int]:
+    """Check if user is within rate limit. Returns (allowed, remaining)
+    
+    Args:
+        user_id: User identifier (email, ID, or IP)
+        is_admin: Admin users bypass all rate limits
+    """
+    # Admin users have no limit
+    if is_admin:
+        return True, float('inf')
+    
     now = datetime.now()
     hour_ago = now - timedelta(hours=1)
     
@@ -99,8 +111,11 @@ async def chat(req: Req, request: Request):
     # Get user identifier (IP for now, will be Clerk user_id later)
     user_id = request.headers.get("X-User-ID") or request.client.host or "anonymous"
     
+    # Check if admin (via header or user ID)
+    is_admin = request.headers.get("X-Admin") == "true" or user_id in ["admin", "adm"]
+    
     # Check rate limit
-    allowed, remaining = check_rate_limit(user_id)
+    allowed, remaining = check_rate_limit(user_id, is_admin=is_admin)
     if not allowed:
         raise HTTPException(429, detail={
             "error": "Rate limit exceeded",
