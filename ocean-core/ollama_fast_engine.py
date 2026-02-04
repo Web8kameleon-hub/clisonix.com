@@ -44,8 +44,9 @@ if OLLAMA_HOST.startswith("http://"):
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", f"http://{OLLAMA_HOST}:11434")
 
-# TIMEOUT: 30 sekonda max (jo 90!)
-TIMEOUT = 30.0
+# TIMEOUT: Pa limit për streaming, 120s për chat normal
+TIMEOUT = 120.0
+STREAM_TIMEOUT = None  # Pa limit për streaming
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # MODEL SELECTION - VETËM MODELE QË FLASIN MIRË
@@ -249,10 +250,14 @@ class OllamaFastEngine:
             await self.verify_model()
         
         try:
-            client = await self._get_client()
+            # Streaming client - pa timeout
+            stream_client = httpx.AsyncClient(
+                base_url=self.url,
+                timeout=httpx.Timeout(STREAM_TIMEOUT, connect=10.0)
+            )
             
             # STREAMING REQUEST
-            async with client.stream(
+            async with stream_client.stream(
                 "POST",
                 "/api/generate",
                 json={
@@ -262,7 +267,7 @@ class OllamaFastEngine:
                     "stream": True,
                     "options": {
                         "temperature": 0.7,
-                        "num_predict": 1024,
+                        "num_predict": 2048,
                     }
                 }
             ) as resp:
@@ -278,6 +283,8 @@ class OllamaFastEngine:
                                 pass
                 else:
                     yield f"[Gabim: Ollama ktheu {resp.status_code}]"
+            
+            await stream_client.aclose()
                     
         except Exception as e:
             logger.error(f"Streaming error: {e}")
