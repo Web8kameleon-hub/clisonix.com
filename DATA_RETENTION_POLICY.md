@@ -1,5 +1,6 @@
 # 🔒 Data Retention & Privacy Policy
-**Clisonix Cloud - GDPR Compliance Document**
+
+## Clisonix Cloud - GDPR Compliance Document
 
 ---
 
@@ -8,7 +9,7 @@
 ### Personal Data Retention Periods
 
 | Data Type | Retention Period | Justification | Deletion Method |
-|-----------|------------------|---------------|-----------------|
+| :--- | :--- | :--- | :--- |
 | User Account Info | Duration of Account | Active Use | PURGE from DB |
 | Payment Records | 7 Years | Tax/Legal | Encrypted Archive |
 | EEG Data (Raw) | 30 Days | Processing Only | Secure Delete |
@@ -20,7 +21,7 @@
 
 ### Deletion Process
 
-```sql
+``` sql
 -- 1. Mark for deletion (soft delete)
 UPDATE users SET deleted_at = NOW() WHERE user_id = $1;
 
@@ -34,7 +35,7 @@ DELETE FROM user_data WHERE user_id NOT IN (SELECT id FROM users);
 
 ### Automated Retention Jobs
 
-```python
+``` python
 # retention_service.py
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -63,24 +64,28 @@ def delete_temp_eeg_data():
 ## 2. User Rights
 
 ### Right to Access (Article 15)
+
 - **Method:** POST `/api/v1/user/data-export`
 - **Format:** JSON, CSV, XML
 - **Timeline:** 30 days
 - **Cost:** Free
 
 ### Right to Erasure (Article 17)
+
 - **Method:** DELETE `/api/v1/user/account`
 - **Confirmation:** Email verification required
 - **Timeline:** 30 days for all copies
 - **Exceptions:** Legal obligation, payment records
 
 ### Right to Portability (Article 20)
+
 - **Method:** POST `/api/v1/user/data-export`
 - **Format:** Machine-readable (JSON/CSV)
 - **Timeline:** 30 days
 - **Cost:** Free
 
 ### Right to Rectification (Article 16)
+
 - **Method:** PATCH `/api/v1/user/profile`
 - **Audit:** All changes logged
 - **Timeline:** Immediate
@@ -90,6 +95,7 @@ def delete_temp_eeg_data():
 ## 3. Data Categories
 
 ### 1️⃣ Directly Provided
+
 - Email address
 - Password (hashed + salted)
 - Full name
@@ -97,6 +103,7 @@ def delete_temp_eeg_data():
 - Payment info (via Stripe - PCI-DSS)
 
 ### 2️⃣ Automatically Collected
+
 - IP addresses
 - Device information
 - Browser fingerprint
@@ -104,6 +111,7 @@ def delete_temp_eeg_data():
 - Login timestamps
 
 ### 3️⃣ Derived/Generated
+
 - EEG analysis results
 - Audio processing output
 - ML model predictions
@@ -111,6 +119,7 @@ def delete_temp_eeg_data():
 - Usage analytics
 
 ### 4️⃣ Third-party Sourced
+
 - Stripe payment data
 - OAuth provider info (Clerk)
 - Geographical location
@@ -171,7 +180,7 @@ CREATE TABLE user_consents (
 ### Processors & Sub-processors
 
 | Service | Purpose | Type | DPA | Adequacy |
-|---------|---------|------|-----|----------|
+| :--- | :--- | :--- | :--- | :--- |
 | Stripe | Payments | Processor | ✅ | ✅ US/EU |
 | AWS S3 | File Storage | Processor | ✅ | ✅ US/EU |
 | Ollama | AI Processing | Internal | N/A | N/A |
@@ -191,7 +200,7 @@ CREATE TABLE user_consents (
 ### Risk Analysis
 
 | Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|-----------|
+| :--- | :--- | :--- | :--- |
 | Unauthorized Access | Medium | High | Encryption + 2FA |
 | Data Breach | Low | Critical | Incident Response Plan |
 | Unauthorized Sharing | Low | High | Access Control + Audit |
@@ -200,19 +209,22 @@ CREATE TABLE user_consents (
 
 ### Safeguards Implemented
 
-✅ **Technical:**
+**Technical:**
+
 - End-to-end encryption (TLS 1.3)
 - AES-256 encryption at rest
 - Secure password hashing (bcrypt)
 - Regular penetration testing
 
-✅ **Organizational:**
+**Organizational:**
+
 - GDPR compliance training
 - Incident response plan
 - Data protection officer
 - Privacy by design
 
-✅ **Contractual:**
+**Contractual:**
+
 - DPA with all processors
 - SCCs with non-EU partners
 - Confidentiality agreements
@@ -223,7 +235,7 @@ CREATE TABLE user_consents (
 
 ### Notification Timeline
 
-```
+``` text
 ⏱️ Detection
     ↓ (1-24 hours)
 📢 Internal Alert
@@ -235,7 +247,7 @@ CREATE TABLE user_consents (
 
 ### Incident Log Template
 
-```json
+``` json
 {
   "incident_id": "INC-2026-001",
   "date": "2026-02-03",
