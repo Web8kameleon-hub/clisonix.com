@@ -90,7 +90,7 @@ def create_cycle(cycle: CycleCreate):
         "status": "idle",
         "frequency": cycle.frequency,
         "action": cycle.action,
-        "last_run": None
+        "last_run": ""
     }
     return {"status": "created", "cycle": cycle.name}
 
