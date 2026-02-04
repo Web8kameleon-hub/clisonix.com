@@ -621,12 +621,8 @@ services:
       # Share jobs/reports with web container
       - kitchen_jobs:/app/kitchen-jobs
       - kitchen_reports:/app/kitchen-reports
-      # Mount Postman collections
+      # Mount Postman collections from postman-collections folder only
       - ./postman-collections:/app/postman-collections:ro
-      # Also mount root-level collections
-      - ./clisonix-ultra-mega-collection.json:/app/postman-collections/clisonix-ultra-mega-collection.json:ro
-      - ./clisonix-cloud.postman_collection.json:/app/postman-collections/clisonix-cloud.postman_collection.json:ro
-      - ./Clisonix_Cloud_API.postman_collection.json:/app/postman-collections/Clisonix_Cloud_API.postman_collection.json:ro
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:3100/health"]
       interval: 30s
