@@ -640,6 +640,8 @@ services:
     container_name: clisonix-quantum
     ports:
       - "8008:8008"
+    environment:
+      QUANTUM_PORT: "8008"
     command: ["python", "stubs/quantum_stub.py", "8008"]
 
   # ==========================================================

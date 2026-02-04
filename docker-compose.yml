@@ -134,6 +134,7 @@ services:
     container_name: clisonix-api
     environment:
       PYTHONUNBUFFERED: "1"
+      API_PORT: "8000"
       DATABASE_URL: "postgresql://clisonix:clisonix@postgres:5432/clisonixdb"
       REDIS_URL: "redis://redis:6379/0"
     ports:
@@ -411,6 +412,7 @@ services:
     environment:
       PYTHONUNBUFFERED: "1"
       REDIS_URL: "redis://redis:6379/0"
+      SAAS_PORT: "8008"
     ports:
       - "8008:8008"
     depends_on:
