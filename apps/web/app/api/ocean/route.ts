@@ -104,7 +104,7 @@ async function queryOceanCore(
  */
 async function checkOceanCoreHealth(): Promise<boolean> {
   try {
-    const response = await fetch(`${OCEAN_CORE_URL}/api/status`, {
+    const response = await fetch(`${OCEAN_CORE_URL}/api/v1/status`, {
       signal: AbortSignal.timeout(2000),
     });
     return response.ok;
