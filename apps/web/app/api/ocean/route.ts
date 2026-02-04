@@ -58,8 +58,11 @@ async function queryOceanCore(
   _curiosityLevel: string,
 ): Promise<OceanCoreResponse | null> {
   try {
-    // No timeout - let Ollama take as long as it needs
-    // ASI-Lite minimal endpoint - fast 1-3 second responses
+    // 5 minute timeout for elastic responses
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 300000);
+    
+    // ASI-Lite minimal endpoint - elastic responses up to 5 minutes
     const response = await fetch(`${OCEAN_CORE_URL}/api/v1/query`, {
       method: "POST",
       headers: {
@@ -68,7 +71,10 @@ async function queryOceanCore(
       body: JSON.stringify({
         query: question,
       }),
+      signal: controller.signal,
     });
+    
+    clearTimeout(timeoutId);
 
     if (response.ok) {
       const data = await response.json();
