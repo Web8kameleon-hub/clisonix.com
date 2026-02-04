@@ -3,14 +3,14 @@ AI Model Versioning & Registry - AI Act Compliance
 Tracks all ML models, versions, performance, and compliance status
 """
 
-import os
+import hashlib
 import json
 import logging
+import os
+from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Dict, Any, List, Optional
 from enum import Enum
-from dataclasses import dataclass, asdict
-import hashlib
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 

@@ -3,12 +3,13 @@ Payment Gateway Configuration - PSD2 Compliance
 Supports Stripe, SEPA (Direct Debit), PayPal with SCA/2FA
 """
 
-import os
 import logging
-from enum import Enum
-from typing import Optional, Dict, Any
-import stripe
+import os
 from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Dict, Optional
+
+import stripe
 
 logger = logging.getLogger(__name__)
 

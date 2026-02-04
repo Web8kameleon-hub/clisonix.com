@@ -4,8 +4,9 @@ Enables AES-256 encryption at rest for PostgreSQL
 """
 
 import os
+
 from cryptography.fernet import Fernet
-from sqlalchemy import event, create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 
 # Encryption Configuration

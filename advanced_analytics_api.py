@@ -7,17 +7,19 @@ Pjesë e Clisonix Industrial Backend
 """
 
 from __future__ import annotations
+
 import asyncio
 import json
 import uuid
-from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Any, Optional
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List, Optional
+
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel
 
 # Import cycle engine
 try:
-    from cycle_engine import CycleEngine, CycleType, CycleStatus
+    from cycle_engine import CycleEngine, CycleStatus, CycleType
 except:
     CycleEngine = None
 
@@ -31,6 +33,19 @@ try:
     from asi_core import ASICore
 except:
     ASICore = None
+
+# Import compliance modules
+try:
+    from ai_model_versioning import AIComplianceChecker, AIModelRegistry
+    from database_encryption_config import DatabaseEncryption, get_encrypted_db_url
+    from monitoring_system_config import (
+        ComplianceMonitor,
+        ServiceMonitor,
+        SystemMonitor,
+    )
+    from payment_gateway_config import PaymentGatewayConfig, StripePaymentManager
+except ImportError as e:
+    print(f"Warning: Compliance modules not fully loaded: {e}")
 
 router = APIRouter(prefix="/analytics", tags=["Advanced Analytics"])
 
