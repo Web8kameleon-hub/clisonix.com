@@ -21,18 +21,18 @@ from pydantic import BaseModel
 try:
     from cycle_engine import CycleEngine, CycleStatus, CycleType
 except ImportError:
-    CycleEngine = None  # type: ignore[assignment]
+    CycleEngine = None  # type: ignore[assignment,misc]
 
 # Import ALBA and ASI cores
 try:
     from alba_core import AlbaCore
 except ImportError:
-    AlbaCore = None  # type: ignore[assignment]
+    AlbaCore = None  # type: ignore[assignment,misc]
 
 try:
     from asi_core import ASICore
 except ImportError:
-    ASICore = None  # type: ignore[assignment]
+    ASICore = None  # type: ignore[assignment,misc]
 
 # Import compliance modules
 try:
