@@ -4,7 +4,8 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
-COPY ocean_nanogrid.py requirements-lite.txt ./
+# Kopjo file-at kryesore
+COPY ocean_api.py ollama_fast_engine.py requirements-lite.txt ./
 
 RUN pip install --no-cache-dir -r requirements-lite.txt
 
@@ -13,4 +14,4 @@ EXPOSE 8030
 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl -f http://localhost:8030/health || exit 1
 
-CMD ["python", "ocean_nanogrid.py"]
+CMD ["python", "ocean_api.py"]
