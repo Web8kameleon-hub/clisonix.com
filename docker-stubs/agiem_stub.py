@@ -81,14 +81,15 @@ def get_region(name: str):
 @app.post("/query")
 def query(request: MarketQuery):
     """Query global market intelligence"""
-    region_data = REGIONS.get(request.region, REGIONS["europe"])
+    region = request.region or "global"
+    region_data = REGIONS.get(region, REGIONS["europe"])
     
     return MarketResponse(
-        region=request.region,
+        region=region,
         data={
             "query": request.query,
             "sector": request.sector,
-            "result": f"Market intelligence for {request.region}"
+            "result": f"Market intelligence for {region}"
         },
         sources=["IMF", "World Bank", "Regional Data"],
         confidence=0.87,
