@@ -4,7 +4,7 @@
 
 Ocean now has **4 sensory modes** for AI perception:
 
-```
+```text
 Vision (👁️)     → Image analysis, object detection, OCR
 Audio (🎙️)      → Speech-to-text, transcription  
 Document (📄)   → Text extraction, reasoning
@@ -14,7 +14,7 @@ Reasoning (🧠)  → LLM inference over any input
 ## Ports & Services
 
 | Service | Port | Status | Models |
-|---------|------|--------|--------|
+|---------|------|---------|---------|
 | Ocean Core | 8030 | ✅ Running | llama3.1 |
 | **Ocean Multimodal** | **8031** | **NEW** | llava, whisper, llama3.1 |
 | Ollama | 11434 | ✅ Running | All models |

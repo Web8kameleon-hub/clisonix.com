@@ -5,7 +5,6 @@ Detects admin users and provides elevated context
 """
 
 import json
-from datetime import datetime
 from typing import Optional, Tuple
 
 import requests

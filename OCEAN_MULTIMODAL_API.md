@@ -17,9 +17,11 @@ Ocean Multimodal is a unified interface for AI perception and reasoning with fou
 
 ```bash
 GET /health
+
 ```
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -33,6 +35,7 @@ GET /health
   "uptime_seconds": 3600.5,
   "timestamp": "2026-02-04T10:30:00Z"
 }
+
 ```
 
 ---
@@ -51,9 +54,11 @@ Content-Type: application/json
   "analyze_objects": true,
   "extract_text": true
 }
+
 ```
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -65,9 +70,10 @@ Content-Type: application/json
   "confidence": "high",
   "processing_time_ms": 1234.5
 }
+
 ```
 
-### Using Multimodal Endpoint
+### Audio via Multimodal
 
 ```bash
 POST /api/v1/analyze
@@ -82,9 +88,11 @@ Content-Type: application/json
     "extract_text": true
   }
 }
+
 ```
 
 **Response:**
+
 ```json
 {
   "mode": "vision",
@@ -98,6 +106,7 @@ Content-Type: application/json
     "confidence": "high"
   }
 }
+
 ```
 
 ---
@@ -115,9 +124,11 @@ Content-Type: application/json
   "language": "en",
   "include_timestamps": true
 }
+
 ```
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -132,6 +143,7 @@ Content-Type: application/json
     {"word": "this", "start": 0.1, "end": 0.2}
   ]
 }
+
 ```
 
 ### Using Multimodal Endpoint
@@ -148,6 +160,7 @@ Content-Type: application/json
     "include_timestamps": true
   }
 }
+
 ```
 
 ---
@@ -166,9 +179,11 @@ Content-Type: application/json
   "analyze_entities": true,
   "extract_summary": true
 }
+
 ```
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -182,6 +197,7 @@ Content-Type: application/json
   "confidence": "medium",
   "processing_time_ms": 4120.5
 }
+
 ```
 
 ### Supported Document Types
@@ -191,7 +207,7 @@ Content-Type: application/json
 - `pdf`: PDF files (requires text extraction)
 - `docx`: Microsoft Word documents (requires extraction)
 
-### Using Multimodal Endpoint
+### Document via Multimodal
 
 ```bash
 POST /api/v1/analyze
@@ -206,6 +222,7 @@ Content-Type: application/json
     "extract_summary": true
   }
 }
+
 ```
 
 ---
@@ -226,18 +243,21 @@ Content-Type: application/json
     "previous_queries": [...]
   }
 }
+
 ```
 
 **Response:**
+
 ```json
 {
   "status": "success",
   "reasoning": "Quantum computers could break current encryption...",
   "processing_time_ms": 5600.0
 }
+
 ```
 
-### Using Multimodal Endpoint
+### Reasoning via Multimodal
 
 ```bash
 POST /api/v1/analyze
@@ -251,6 +271,7 @@ Content-Type: application/json
     "field": "biology"
   }
 }
+
 ```
 
 ---
@@ -279,9 +300,11 @@ Content-Type: application/json
   },
   "reasoning_prompt": "Synthesize all inputs into coherent understanding"
 }
+
 ```
 
 **Response:**
+
 ```json
 {
   "mode": "multimodal",
@@ -298,6 +321,7 @@ Content-Type: application/json
     "integrated_understanding": "Combined analysis across all sensory inputs"
   }
 }
+
 ```
 
 ---
@@ -349,6 +373,7 @@ def reason(prompt, context=None):
         json={"prompt": prompt, "context": context}
     )
     return response.json()
+
 ```
 
 ### JavaScript/Node.js Example
@@ -390,6 +415,7 @@ async function transcribeAudio(audioPath) {
   );
   return response.data;
 }
+
 ```
 
 ---
@@ -404,6 +430,7 @@ async function transcribeAudio(audioPath) {
   "status_code": 500,
   "timestamp": "2026-02-04T10:30:45Z"
 }
+
 ```
 
 ### Common Status Codes
@@ -431,6 +458,7 @@ curl -X POST http://localhost:8031/api/v1/analyze \
   -H "X-Admin: true" \
   -H "Content-Type: application/json" \
   -d '{...}'
+
 ```
 
 ---
@@ -438,7 +466,7 @@ curl -X POST http://localhost:8031/api/v1/analyze \
 ## Performance Benchmarks
 
 | Pipeline | Typical Time | Notes |
-|----------|--------------|-------|
+|----------|--------------|---------|
 | Vision | 1.5-2.5s | Depends on image size |
 | Audio | 2.0-4.0s | Depends on audio length |
 | Document | 1.0-3.0s | Depends on content length |
@@ -467,6 +495,7 @@ ocean-multimodal:
   depends_on:
     - ollama
   restart: always
+
 ```
 
 ### Manual Start
@@ -480,6 +509,7 @@ python ocean-core/ocean_multimodal.py
 
 # Test health
 curl http://localhost:8031/health
+
 ```
 
 ---
@@ -487,32 +517,50 @@ curl http://localhost:8031/health
 ## Troubleshooting
 
 ### Ollama Connection Error
+
 ```
+
 Error: Connection refused (Ollama offline)
+
 ```
+
 **Solution**: Ensure Ollama is running on the configured host
+
 ```bash
 docker ps | grep ollama
+
 ```
 
 ### Model Not Found
+
 ```
+
 Error: Model 'llava:latest' not found
+
 ```
+
 **Solution**: Pull the model first
+
 ```bash
 ollama pull llava
 ollama pull whisper
 ollama pull llama3.1:8b
+
 ```
 
 ### Memory Issues
+
 ```
+
 Error: Out of memory
+
 ```
+
 **Solution**: Use smaller models or increase container limits
+
 ```bash
 docker update --memory 8g clisonix-ocean-multimodal
+
 ```
 
 ---

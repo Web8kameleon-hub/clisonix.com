@@ -8,6 +8,7 @@ Add the ocean-multimodal service to your main `docker-compose.yml`:
 
 ```yaml
 ocean-multimodal:
+
   build:
     context: ./ocean-core
     dockerfile: Dockerfile.multimodal
@@ -29,21 +30,25 @@ ocean-multimodal:
     timeout: 10s
     retries: 3
   restart: always
+
 ```
 
 ### 2. Pull Required Models
 
 ```bash
 # On the server with Ollama running
+
 docker exec clisonix-06-ollama ollama pull llava:latest
 docker exec clisonix-06-ollama ollama pull whisper:latest
 docker exec clisonix-06-ollama ollama pull llama3.1:8b
+
 ```
 
 ### 3. Deploy Services
 
 ```bash
 # Rebuild all services
+
 docker compose build --no-cache
 
 # Start only Ocean Multimodal
@@ -54,12 +59,14 @@ docker compose up -d
 
 # Check status
 docker compose ps | grep ocean
+
 ```
 
 ### 4. Verify Health
 
 ```bash
 # Check health endpoint
+
 curl http://localhost:8031/health
 
 # Expected response
@@ -72,6 +79,7 @@ curl http://localhost:8031/health
     "reasoning": "online"
   }
 }
+
 ```
 
 ---
@@ -82,17 +90,21 @@ curl http://localhost:8031/health
 
 ```bash
 # Install test dependencies
+
 pip install pytest pytest-asyncio httpx
 
 # Run tests
 python ocean-core/test_multimodal.py
+
 ```
 
 ### Manual Testing
 
 #### Vision Pipeline
+
 ```bash
 curl -X POST http://localhost:8031/api/v1/vision \
+
   -H "Content-Type: application/json" \
   -d '{
     "image_base64": "iVBORw0KGgoAAAANS...",
@@ -100,22 +112,28 @@ curl -X POST http://localhost:8031/api/v1/vision \
     "analyze_objects": true,
     "extract_text": true
   }'
+
 ```
 
 #### Audio Pipeline
+
 ```bash
 curl -X POST http://localhost:8031/api/v1/audio \
+
   -H "Content-Type: application/json" \
   -d '{
     "audio_base64": "SUQzBAAAAAAAI1...",
     "language": "en",
     "include_timestamps": true
   }'
+
 ```
 
 #### Document Pipeline
+
 ```bash
 curl -X POST http://localhost:8031/api/v1/document \
+
   -H "Content-Type: application/json" \
   -d '{
     "content": "Your document text here...",
@@ -123,11 +141,14 @@ curl -X POST http://localhost:8031/api/v1/document \
     "analyze_entities": true,
     "extract_summary": true
   }'
+
 ```
 
 #### Reasoning Pipeline
+
 ```bash
 curl -X POST http://localhost:8031/api/v1/reason \
+
   -H "Content-Type: application/json" \
   -d '{
     "prompt": "What is the meaning of life?",
@@ -135,11 +156,14 @@ curl -X POST http://localhost:8031/api/v1/reason \
       "domain": "philosophy"
     }
   }'
+
 ```
 
 #### Multimodal Fusion
+
 ```bash
 curl -X POST http://localhost:8031/api/v1/analyze \
+
   -H "Content-Type: application/json" \
   -d '{
     "mode": "multimodal",
@@ -147,6 +171,7 @@ curl -X POST http://localhost:8031/api/v1/analyze \
     "audio_input": {...},
     "document_input": {...}
   }'
+
 ```
 
 ---
@@ -155,6 +180,7 @@ curl -X POST http://localhost:8031/api/v1/analyze \
 
 ```
 ocean-core/
+
 ├── ocean_nanogrid.py           # Core Ocean service (existing)
 ├── ocean_multimodal.py         # NEW: Multimodal engine
 ├── Dockerfile                  # Original Ocean Dockerfile
@@ -166,6 +192,7 @@ Root directory:
 ├── ocean-multimodal.compose.yml # NEW: Service config snippet
 ├── OCEAN_MULTIMODAL_API.md      # NEW: Complete API documentation
 ├── OCEAN_MULTIMODAL_DEPLOYMENT.md # This file
+
 ```
 
 ---
@@ -176,17 +203,20 @@ Root directory:
 
 ```
 ocean-multimodal (port 8031)
+
     ↓
 clisonix-06-ollama (port 11434)
     ├── llava:latest          (Vision)
     ├── whisper:latest        (Audio)
     └── llama3.1:8b           (Reasoning)
+
 ```
 
 ### Processing Pipeline
 
 ```
 Request → Router (SensorMode)
+
     ├→ VISION     → VisionPipeline   → llava model
     ├→ AUDIO      → AudioPipeline    → whisper model
     ├→ DOCUMENT   → DocumentPipeline → llama model
@@ -194,6 +224,7 @@ Request → Router (SensorMode)
     └→ MULTIMODAL → Fusion Engine    → All models
         ↓
 Response (AnalysisResult)
+
 ```
 
 ---
@@ -202,6 +233,7 @@ Response (AnalysisResult)
 
 ```bash
 # Service Configuration
+
 PORT=8031                           # Service port
 OLLAMA_HOST=http://localhost:11434  # Ollama endpoint
 
@@ -212,6 +244,7 @@ REASONING_MODEL=llama3.1:8b         # LLM inference
 
 # Runtime
 PYTHONUNBUFFERED=1                  # No buffering
+
 ```
 
 ---
@@ -222,6 +255,7 @@ PYTHONUNBUFFERED=1                  # No buffering
 
 ```yaml
 ocean-multimodal:
+
   # ...
   environment:
     # Increase Ollama parallelism
@@ -237,6 +271,7 @@ ocean-multimodal:
       reservations:
         cpus: '2'
         memory: 4G
+
 ```
 
 ### For Low Latency
@@ -254,6 +289,7 @@ ocean-multimodal:
 
 ```bash
 # Real-time logs
+
 docker compose logs -f ocean-multimodal
 
 # Last 50 lines
@@ -261,26 +297,31 @@ docker compose logs --tail=50 ocean-multimodal
 
 # Specific time range
 docker compose logs --since 2026-02-04 ocean-multimodal
+
 ```
 
 ### Health Metrics
 
 ```bash
 # Monitor health endpoint continuously
+
 watch -n 5 'curl -s http://localhost:8031/health | jq'
 
 # Check request count growth
 curl http://localhost:8031/health | jq '.requests_processed'
+
 ```
 
 ### Container Stats
 
 ```bash
 # Memory and CPU usage
+
 docker stats clisonix-ocean-multimodal
 
 # Detailed inspection
 docker inspect clisonix-ocean-multimodal
+
 ```
 
 ---
@@ -291,6 +332,7 @@ docker inspect clisonix-ocean-multimodal
 
 ```bash
 # Check logs
+
 docker compose logs ocean-multimodal
 
 # Verify Ollama is running
@@ -298,33 +340,39 @@ docker ps | grep ollama
 
 # Test Ollama connectivity
 curl http://localhost:11434/api/tags
+
 ```
 
 ### Out of Memory
 
 ```bash
 # Increase container memory
+
 docker compose up -d --no-recreate ocean-multimodal
 docker update --memory 8g clisonix-ocean-multimodal
 
 # Restart container
 docker restart clisonix-ocean-multimodal
+
 ```
 
 ### Model Not Found
 
 ```bash
 # List available models
+
 docker exec clisonix-06-ollama ollama list
 
 # Pull missing model
 docker exec clisonix-06-ollama ollama pull llava:latest
+
 ```
 
 ### Slow Responses
 
 ```bash
 # Check Ollama load
+
 curl http://localhost:11434/api/ps
 
 # Monitor system resources
@@ -332,6 +380,7 @@ docker stats clisonix-ocean-multimodal
 docker stats clisonix-06-ollama
 
 # Increase parallelism if needed
+
 ```
 
 ---
@@ -342,6 +391,7 @@ docker stats clisonix-06-ollama
 
 ```python
 import httpx
+
 from fastapi import APIRouter
 
 router = APIRouter(prefix="/ocean")
@@ -362,12 +412,14 @@ async def analyze_image(image_b64: str, prompt: str):
             "prompt": prompt
         }
     })
+
 ```
 
 ### Service Mesh (Istio)
 
 ```yaml
 apiVersion: networking.istio.io/v1beta1
+
 kind: VirtualService
 metadata:
   name: ocean-multimodal
@@ -387,6 +439,7 @@ spec:
     retries:
       attempts: 3
       perTryTimeout: 20s
+
 ```
 
 ---
@@ -409,11 +462,13 @@ spec:
 
 ```yaml
 ocean-multimodal:
+
   # Enable reverse proxy with HTTPS
   labels:
     - "traefik.http.routers.ocean.rule=Host(`ocean.clisonix.com`)"
     - "traefik.http.routers.ocean.entrypoints=websecure"
     - "traefik.http.routers.ocean.tls=true"
+
 ```
 
 ---
@@ -423,8 +478,10 @@ ocean-multimodal:
 ### Horizontal Scaling
 
 For multiple instances:
+
 ```yaml
 ocean-multimodal-1:
+
   # ... same config
   container_name: clisonix-ocean-multimodal-1
   ports:
@@ -438,18 +495,22 @@ ocean-multimodal-2:
 
 # Load balancer (Nginx/HAProxy)
 # Routes to both instances
+
 ```
 
 ### Vertical Scaling
 
 Increase resources for single instance:
+
 ```yaml
 ocean-multimodal:
+
   deploy:
     resources:
       limits:
         cpus: '8'
         memory: 16G
+
 ```
 
 ---
