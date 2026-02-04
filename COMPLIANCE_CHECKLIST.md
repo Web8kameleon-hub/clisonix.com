@@ -226,13 +226,13 @@
 
 ## 9. Risk Assessment
 
-| Risk              | Nivel      | Mitigation           | Status         |
-| :---------------- | :--------- | :------------------- | :------------- |
-| Data Breach       | 🔴 High    | Encryption + MFA     | ✅ In Place    |
-| Service Downtime  | 🟡 Medium  | Redundancy           | ⏳ Planned     |
-| API Abuse         | 🟡 Medium  | Rate Limiting        | ✅ In Place    |
-| Model Bias        | 🟡 Medium  | Testing              | ✅ Ongoing     |
-| License Violation | 🟢 Low     | Audit                | ⏳ Scheduled    |
+| Risk              | Nivel  | Mitigation           | Status      |
+| :---------------- | :----- | :------------------- | :---------- |
+| Data Breach       | High   | Encryption + MFA     | In Place    |
+| Service Downtime  | Medium | Redundancy           | Planned     |
+| API Abuse         | Medium | Rate Limiting        | In Place    |
+| Model Bias        | Medium | Testing              | Ongoing     |
+| License Violation | Low    | Audit                | Scheduled   |
 
 ---
 
