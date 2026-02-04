@@ -187,7 +187,7 @@ services:
     <<: *python-service
     container_name: clisonix-alba
     command: >
-      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client &&
+      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi 2>/dev/null;
       python alba_service_5555.py"
     ports:
       - "5555:5555"
@@ -200,7 +200,7 @@ services:
     <<: *python-service
     container_name: clisonix-albi
     command: >
-      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client &&
+      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic aiohttp httpx redis psutil prometheus_client opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi 2>/dev/null;
       python albi_service_6680.py"
     ports:
       - "6680:6680"
@@ -696,7 +696,7 @@ services:
     <<: *python-service
     container_name: clisonix-reporting
     command: >
-      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic openpyxl python-pptx &&
+      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic openpyxl python-pptx httpx 2>/dev/null;
       python reporting_api.py"
     ports:
       - "8001:8001"
@@ -706,7 +706,7 @@ services:
     <<: *python-service
     container_name: clisonix-excel
     command: >
-      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic openpyxl pandas &&
+      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic openpyxl pandas httpx 2>/dev/null;
       cd services/excel && python main.py"
     ports:
       - "8002:8002"
