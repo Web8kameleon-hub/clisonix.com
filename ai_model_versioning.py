@@ -56,9 +56,9 @@ class AIModelRegistry:
     MODEL_REGISTRY_FILE = os.getenv("MODEL_REGISTRY_PATH", "model_registry.json")
     
     def __init__(self):
-        self.models: Dict[str, List[ModelVersion]] = self._load_registry()
+        self.models: Dict[str, List[Dict[str, Any]]] = self._load_registry()
     
-    def _load_registry(self) -> Dict[str, List[ModelVersion]]:
+    def _load_registry(self) -> Dict[str, List[Dict[str, Any]]]:
         """Load model registry from disk"""
         try:
             if os.path.exists(self.MODEL_REGISTRY_FILE):
@@ -105,7 +105,7 @@ class AIModelRegistry:
     
     def promote_model(self, model_id: str, version: str, new_status: str) -> bool:
         """Promote model to new status (e.g., staging -> production)"""
-        versions = self.models.get(model_id, [])
+        versions: List[Dict[str, Any]] = self.models.get(model_id, [])
         for v in versions:
             if v['version'] == version:
                 old_status = v['status']
@@ -116,9 +116,9 @@ class AIModelRegistry:
                 return True
         return False
     
-    def deprecate_model(self, model_id: str, version: str, reason: str):
+    def deprecate_model(self, model_id: str, version: str, reason: str) -> bool:
         """Deprecate a model version"""
-        versions = self.models.get(model_id, [])
+        versions: List[Dict[str, Any]] = self.models.get(model_id, [])
         for v in versions:
             if v['version'] == version:
                 v['status'] = ModelStatus.DEPRECATED.value

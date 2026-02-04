@@ -2,13 +2,14 @@
 """
 Agent Telemetry Stub - AI Agent monitoring and telemetry
 """
+import random
 import sys
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
-from datetime import datetime
-from typing import Dict, List, Optional, Any
-import random
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8009
 
@@ -19,7 +20,7 @@ app = FastAPI(
 )
 
 # Mock agent data
-AGENTS = {
+AGENTS: Dict[str, Dict[str, Any]] = {
     "alba": {"status": "active", "queries": 1234, "accuracy": 0.94},
     "albi": {"status": "active", "queries": 567, "accuracy": 0.91},
     "jona": {"status": "active", "queries": 890, "accuracy": 0.93},
@@ -76,9 +77,9 @@ def get_agent(agent_id: str):
     agent = AGENTS[agent_id]
     return AgentMetrics(
         agent_id=agent_id,
-        status=agent["status"],
-        queries_total=agent["queries"],
-        accuracy=agent["accuracy"],
+        status=str(agent["status"]),
+        queries_total=int(agent["queries"]),
+        accuracy=float(agent["accuracy"]),
         latency_avg_ms=random.uniform(50, 200),
         errors_24h=random.randint(0, 5)
     )

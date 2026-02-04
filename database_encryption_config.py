@@ -6,7 +6,7 @@ Enables AES-256 encryption at rest for PostgreSQL
 import os
 
 from cryptography.fernet import Fernet
-from sqlalchemy import create_engine, event
+from sqlalchemy import event
 from sqlalchemy.engine import Engine
 
 # Encryption Configuration
@@ -34,7 +34,7 @@ class DatabaseEncryption:
             return decrypted.decode()
         except Exception as e:
             print(f"Decryption error: {e}")
-            return None
+            return ""
 
 def enable_database_encryption(engine: Engine, app=None):
     """
@@ -98,6 +98,7 @@ encryption_config = enable_database_encryption(engine, app)
 
 if __name__ == "__main__":
     print("✅ Database Encryption Configuration Loaded")
-    print(f"   Key: {'***' if ENCRYPTION_KEY else 'NOT SET'}")
-    print(f"   Cipher: AES-256 (Fernet)")
+    key_status = "***" if ENCRYPTION_KEY else "NOT SET"
+    print(f"   Key: {key_status}")
+    print("   Cipher: AES-256 (Fernet)")
     print(f"   DB URL: {get_encrypted_db_url()}")

@@ -5,11 +5,14 @@ Supports Stripe, SEPA (Direct Debit), PayPal with SCA/2FA
 
 import logging
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
-import stripe
+try:
+    import stripe  # type: ignore[import-not-found]
+except ImportError:  # type: ignore[import-not-found]
+    stripe = None  # type: ignore[assignment]
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +58,7 @@ class StripePaymentManager:
     
     @staticmethod
     def create_payment_intent(amount_cents: int, currency: str = "usd", 
-                             customer_email: str = None) -> Dict[str, Any]:
+                             customer_email: str | None = None) -> Dict[str, Any]:
         """
         Create Stripe PaymentIntent with SCA 3D Secure
         PSD2 Compliant: Supports Strong Customer Authentication
@@ -161,7 +164,7 @@ class PaymentCompliance:
     
     @staticmethod
     def log_payment_event(event_type: str, payment_id: str, amount: float, 
-                         status: str, metadata: Dict = None):
+                         status: str, metadata: Dict[str, Any] | None = None) -> Dict[str, Any]:
         """Log payment events for compliance audit"""
         event_log = {
             "timestamp": datetime.utcnow().isoformat(),

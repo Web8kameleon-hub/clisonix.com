@@ -3,9 +3,11 @@
 Behavioral Science API Stub
 """
 import sys
+from datetime import datetime
+from typing import Any, Optional
+
 import uvicorn
 from fastapi import FastAPI
-from datetime import datetime
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8003
 
@@ -20,7 +22,7 @@ def health():
     return {"status": "healthy", "service": "behavioral", "timestamp": datetime.utcnow().isoformat()}
 
 @app.post("/analyze")
-def analyze(data: dict = None):
+def analyze(data: Optional[dict[str, Any]] = None):
     return {"analysis": "behavioral_patterns", "confidence": 0.89, "timestamp": datetime.utcnow().isoformat()}
 
 if __name__ == "__main__":

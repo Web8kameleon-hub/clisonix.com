@@ -4,8 +4,6 @@ Curiosity Ocean Chat Client
 Simple CLI to chat with Ocean Curiosity AI
 """
 
-import json
-import sys
 from typing import Optional
 
 import requests
@@ -23,7 +21,7 @@ def chat_with_ocean(query: str, context: Optional[str] = None) -> str:
             **({"context": context} if context else {})
         }
         
-        print(f"\n🌊 Curiosity Ocean thinking...", end="", flush=True)
+        print("\n🌊 Curiosity Ocean thinking...", end="", flush=True)
         response = requests.post(
             OCEAN_API,
             json=payload,
@@ -85,7 +83,7 @@ def main():
                         print(f"✅ Ocean is healthy: {resp.json()}")
                     else:
                         print(f"⚠️ Ocean status: {resp.status_code}")
-                except:
+                except requests.RequestException:
                     print("❌ Cannot reach Ocean")
                 continue
             
