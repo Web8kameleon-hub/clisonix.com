@@ -210,6 +210,7 @@ class ChatRequest(BaseModel):
     model: str = None
     use_mega_layers: bool = True
     use_knowledge_seeds: bool = True
+    strict_mode: bool = False  # Detyron ndjekjen e rregullave pa devijim
 
 class ChatResponse(BaseModel):
     response: str
@@ -367,8 +368,28 @@ async def process_query_full(req: ChatRequest) -> ChatResponse:
             mega_context = f"\n\n[Layer Depth: {layer_activations.get('consciousness_depth', 0)}, Emotional: {layer_activations.get('emotional_resonance', 0):.2f}]"
             engines_used.append("MegaLayerEngine")
     
+    # 4.5. STRICT MODE - Detyron ndjekjen e rregullave
+    strict_instruction = ""
+    if req.strict_mode:
+        strict_instruction = """
+
+## STRICT MODE ACTIVATED - MANDATORY RULES
+You MUST follow these rules EXACTLY. No exceptions.
+
+1. **STAY ON TOPIC**: Answer ONLY what was asked. Do not add extra information.
+2. **NO QUESTIONS**: Do not ask the user questions. Just answer.
+3. **NO DEVIATIONS**: Do not change the subject or add unrelated content.
+4. **NO HALLUCINATIONS**: If you don't know, say "I don't know". Do not invent.
+5. **FOLLOW INSTRUCTIONS**: If given a list of steps, execute ALL steps in order.
+6. **SELF-ANALYSIS**: If asked to analyze your response, do it honestly.
+7. **IMMEDIATE START**: Begin writing your answer immediately, no preamble.
+8. **CONTINUOUS OUTPUT**: Write without stopping until the task is complete.
+
+VIOLATION OF THESE RULES IS NOT ALLOWED."""
+        engines_used.append("StrictMode")
+    
     # 5. Build enhanced system prompt
-    enhanced_prompt = SYSTEM_PROMPT + lang_instruction + seed_context + mega_context
+    enhanced_prompt = SYSTEM_PROMPT + lang_instruction + seed_context + mega_context + strict_instruction
     
     # 6. Call Ollama - 60s timeout, optimized for speed
     try:
