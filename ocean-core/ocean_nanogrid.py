@@ -185,6 +185,87 @@ def get_realtime_context() -> str:
 """
 
 
+# ═══════════════════════════════════════════════════════════════════
+# WEB BROWSING - Lexon faqe web nga interneti
+# ═══════════════════════════════════════════════════════════════════
+
+async def fetch_webpage(url: str, max_chars: int = 8000) -> str:
+    """
+    Lexon përmbajtjen e një faqe web duke përdorur Jina Reader (falas)
+    
+    Args:
+        url: URL e faqes për të lexuar
+        max_chars: Limite e karaktereve (default 8000)
+    
+    Returns:
+        Teksti i pastër i faqes web
+    """
+    try:
+        # Jina Reader - konverton çdo faqe në tekst të pastër
+        jina_url = f"https://r.jina.ai/{url}"
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            headers = {
+                "Accept": "text/plain",
+                "User-Agent": "Ocean-AI/1.0 (Clisonix Cloud)"
+            }
+            r = await client.get(jina_url, headers=headers, follow_redirects=True)
+            
+            if r.status_code == 200:
+                content = r.text[:max_chars]
+                return content
+            else:
+                return f"[Gabim: Nuk u lexua faqja - HTTP {r.status_code}]"
+    except httpx.TimeoutException:
+        return "[Gabim: Timeout - faqja nuk u përgjigj në kohë]"
+    except Exception as e:
+        return f"[Gabim: {str(e)}]"
+
+
+async def search_web(query: str, num_results: int = 5) -> str:
+    """
+    Kërkon në internet duke përdorur DuckDuckGo (falas, pa API key)
+    
+    Args:
+        query: Pyetja për kërkim
+        num_results: Numri i rezultateve
+    
+    Returns:
+        Lista e rezultateve të kërkimit
+    """
+    try:
+        # DuckDuckGo HTML search (pa API key)
+        search_url = "https://html.duckduckgo.com/html/"
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            r = await client.post(
+                search_url,
+                data={"q": query},
+                headers={"User-Agent": "Ocean-AI/1.0"}
+            )
+            
+            if r.status_code == 200:
+                # Parse rezultatet (basic extraction)
+                import re
+                results = []
+                # Gjej titujt dhe URLs
+                links = re.findall(r'<a[^>]+class="result__a"[^>]*href="([^"]+)"[^>]*>([^<]+)</a>', r.text)
+                snippets = re.findall(r'<a[^>]+class="result__snippet"[^>]*>([^<]+)</a>', r.text)
+                
+                for i, (url, title) in enumerate(links[:num_results]):
+                    snippet = snippets[i] if i < len(snippets) else ""
+                    results.append(f"• {title.strip()}\n  {snippet.strip()}\n  URL: {url}")
+                
+                if results:
+                    return "\n\n".join(results)
+                else:
+                    return "[Nuk u gjetën rezultate]"
+    except Exception as e:
+        return f"[Gabim kërkimi: {str(e)}]"
+    
+    return ""
+
+
 async def fetch_wikipedia(query: str) -> str:
     """Quick Wikipedia search"""
     try:
@@ -502,6 +583,120 @@ async def get_wiki(query: str):
     """Search Wikipedia"""
     results = await fetch_wikipedia(query)
     return {"query": query, "results": results}
+
+
+# ═══════════════════════════════════════════════════════════════════
+# WEB BROWSING ENDPOINTS
+# ═══════════════════════════════════════════════════════════════════
+
+@app.get("/api/v1/browse")
+async def browse_webpage(url: str, max_chars: int = 8000):
+    """
+    Lexon përmbajtjen e një faqe web
+    
+    Përdorimi:
+        GET /api/v1/browse?url=https://example.com
+        GET /api/v1/browse?url=https://example.com&max_chars=4000
+    
+    Returns:
+        Teksti i pastër i faqes web
+    """
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+    
+    content = await fetch_webpage(url, max_chars)
+    return {
+        "url": url,
+        "content": content,
+        "chars": len(content)
+    }
+
+
+@app.get("/api/v1/search")
+async def web_search(q: str, num: int = 5):
+    """
+    Kërkon në internet
+    
+    Përdorimi:
+        GET /api/v1/search?q=python tutorials
+        GET /api/v1/search?q=weather tirana&num=3
+    
+    Returns:
+        Lista e rezultateve nga DuckDuckGo
+    """
+    results = await search_web(q, num)
+    return {
+        "query": q,
+        "results": results,
+        "source": "DuckDuckGo"
+    }
+
+
+@app.post("/api/v1/chat/browse")
+async def chat_with_webpage(request: Request):
+    """
+    Chat me kontekstin e një faqe web
+    
+    Body:
+    {
+        "url": "https://example.com",
+        "message": "Çfarë thotë kjo faqe?"
+    }
+    
+    Ocean lexon faqen dhe përgjigjet bazuar në përmbajtjen
+    """
+    body = await request.json()
+    url = body.get("url", "")
+    message = body.get("message", body.get("query", ""))
+    
+    if not url:
+        raise HTTPException(400, "url required")
+    if not message:
+        raise HTTPException(400, "message required")
+    
+    # Lexo faqen
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+    
+    webpage_content = await fetch_webpage(url, max_chars=6000)
+    
+    # Krijo prompt me kontekstin e faqes
+    enhanced_message = f"""Përdoruesi dëshiron informacion nga kjo faqe web:
+
+=== PËRMBAJTJA E FAQES ({url}) ===
+{webpage_content}
+=== FUND FAQES ===
+
+Pyetja e përdoruesit: {message}
+
+Përgjigju bazuar në përmbajtjen e faqes më sipër. Nëse informacioni nuk gjendet, thuaje qartë."""
+
+    # Thirr Ollama
+    client = await get_client()
+    system_prompt = build_system_prompt()
+    
+    try:
+        r = await client.post(f"{OLLAMA}/api/chat", json={
+            "model": MODEL,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": enhanced_message}
+            ],
+            "stream": False,
+            "options": {"num_ctx": 8192, "temperature": 0.7}
+        })
+        
+        if r.status_code == 200:
+            response_text = r.json().get("message", {}).get("content", "")
+            return {
+                "url": url,
+                "message": message,
+                "response": response_text
+            }
+    except Exception as e:
+        raise HTTPException(500, f"Error: {str(e)}")
+    
+    raise HTTPException(500, "No response from AI")
 
 
 # ═══════════════════════════════════════════════════════════════════
