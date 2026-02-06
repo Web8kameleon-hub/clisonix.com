@@ -1261,6 +1261,20 @@ class AutoPublisher:
             
             logger.info(f"💾 Saved to {md_path}")
             
+            # 🔄 Auto-sync to GitHub after each save
+            try:
+                from blog_sync import get_blog_sync
+                sync = get_blog_sync()
+                sync_result = await sync.sync(push=True)
+                if sync_result.get("status") == "success":
+                    synced = sync_result.get("results", {}).get("synced_files", [])
+                    if synced:
+                        logger.info(f"🚀 Synced {len(synced)} files to GitHub")
+                else:
+                    logger.warning(f"⚠️ Sync failed: {sync_result.get('error')}")
+            except Exception as sync_error:
+                logger.warning(f"⚠️ Blog sync skipped: {sync_error}")
+            
         except Exception as e:
             logger.error(f"Failed to save article: {e}")
     
