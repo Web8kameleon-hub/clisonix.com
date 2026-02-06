@@ -194,6 +194,84 @@ New articles are published daily covering topics in healthcare technology and AI
         
         logger.info("Created Jekyll blog structure")
     
+    def _regenerate_index(self) -> None:
+        """Regenerate index.html with all current articles"""
+        static_dir = self.blog_dir / "static"
+        if not static_dir.exists():
+            return
+        
+        # Get all HTML articles sorted by date (newest first)
+        articles = sorted(static_dir.glob("*.html"), reverse=True)
+        
+        # Generate article list HTML
+        article_items = []
+        for article in articles:
+            # Parse filename: 2026-02-06-title-here.html
+            name = article.stem
+            parts = name.split("-", 3)
+            if len(parts) >= 4:
+                date_str = f"{parts[0]}-{parts[1]}-{parts[2]}"
+                title_slug = parts[3]
+                # Convert slug to title
+                title = title_slug.replace("-", " ").title()
+                if len(title) > 60:
+                    title = title[:57] + "..."
+                date_display = f"{parts[1]}/{parts[2]}/{parts[0]}"
+            else:
+                title = name.replace("-", " ").title()
+                date_display = "Recent"
+            
+            article_items.append(
+                f'            <article><h2><a href="static/{article.name}">{title}</a></h2>'
+                f'<span class="date">{date_display}</span></article>'
+            )
+        
+        articles_html = "\n".join(article_items)
+        
+        index_html = f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clisonix Blog - AI & Industrial Intelligence</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 100%); color: #e0e0e0; min-height: 100vh; }}
+        header {{ background: rgba(0,0,0,0.3); padding: 2rem; text-align: center; border-bottom: 1px solid #333; }}
+        header h1 {{ font-size: 2.5rem; background: linear-gradient(90deg, #00d4ff, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }}
+        header p {{ color: #888; margin-top: 0.5rem; }}
+        .count {{ color: #00d4ff; font-size: 0.9rem; margin-top: 1rem; }}
+        main {{ max-width: 900px; margin: 0 auto; padding: 2rem; }}
+        .articles {{ display: grid; gap: 1.5rem; }}
+        article {{ background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 12px; padding: 1.5rem; transition: all 0.3s; }}
+        article:hover {{ border-color: #00d4ff; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,212,255,0.1); }}
+        article h2 {{ font-size: 1.2rem; margin-bottom: 0.5rem; }}
+        article h2 a {{ color: #00d4ff; text-decoration: none; }}
+        article h2 a:hover {{ text-decoration: underline; }}
+        article .date {{ color: #666; font-size: 0.85rem; }}
+        footer {{ text-align: center; padding: 2rem; color: #555; border-top: 1px solid #333; margin-top: 3rem; }}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Clisonix Blog</h1>
+        <p>AI, EEG Analytics, Industrial Intelligence & Compliance</p>
+        <p class="count">{len(articles)} Articles</p>
+    </header>
+    <main>
+        <div class="articles">
+{articles_html}
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2026 Clisonix - Powered by AI</p>
+    </footer>
+</body>
+</html>'''
+        
+        (self.blog_dir / "index.html").write_text(index_html)
+        logger.info(f"Regenerated index.html with {len(articles)} articles")
+
     async def sync(self, push: bool = True) -> Dict[str, Any]:
         """
         Sync content from source to blog repo (Batica-Zbatica flow)
@@ -248,6 +326,9 @@ New articles are published daily covering topics in healthcare technology and AI
                     
                     shutil.copy2(html_file, target_file)
                     results["synced_files"].append(f"static/{html_file.name}")
+            
+            # Regenerate index.html with all articles
+            self._regenerate_index()
             
             # Update stats
             self._stats["total_synced"] += len(results["synced_files"])
