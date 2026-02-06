@@ -382,31 +382,50 @@ async def analyze_content(request: AnalyzeRequest):
         if blerina is None:
             raise HTTPException(status_code=500, detail="Blerina not available")
         
-        # Analyze content - use sync method with async wrapper
-        if hasattr(blerina, 'analyze_async'):
-            result = await blerina.analyze_async(
-                content=request.content,
-                title=request.title or "Untitled",
-                doc_type=request.doc_type.value
+        # Map doc_type string to DocumentType enum if available
+        doc_type_enum = None
+        if DocumentType is not None:
+            doc_type_map = {
+                "news": DocumentType.NEWS,
+                "law": DocumentType.LAW,
+                "policy": DocumentType.POLICY,
+                "research": DocumentType.RESEARCH,
+                "report": DocumentType.REPORT,
+                "article": DocumentType.ARTICLE,
+            }
+            doc_type_enum = doc_type_map.get(request.doc_type.value, DocumentType.ARTICLE)
+        
+        # Use extract_gaps method (the actual Blerina method)
+        if hasattr(blerina, 'extract_gaps'):
+            gaps = await blerina.extract_gaps(
+                document=request.content,
+                doc_type=doc_type_enum,
+                context=request.title
             )
+            result = {
+                "id": f"blerina_{uuid.uuid4().hex[:12]}",
+                "gaps": [{"id": g.id, "type": g.gap_type.value if hasattr(g.gap_type, 'value') else str(g.gap_type), "severity": g.severity.value if hasattr(g.severity, 'value') else str(g.severity), "description": g.description, "context": g.context} for g in gaps] if gaps else [],
+                "discontinuity_level": "high" if len(gaps) > 5 else ("moderate" if len(gaps) > 2 else "low"),
+                "quality_score": max(0.3, 1.0 - len(gaps) * 0.1) if gaps else 0.8
+            }
         else:
-            result = blerina.analyze(
-                content=request.content,
-                title=request.title or "Untitled",
-                doc_type=request.doc_type.value
-            )
+            # Fallback to simulation
+            raise Exception("extract_gaps method not found")
         
         processing_time = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
         
+        gaps_list: List[Dict[str, Any]] = result.get("gaps", [])  # type: ignore[assignment]
+        quality_val: Any = result.get("quality_score", 0.0)
+        quality_score: float = float(quality_val) if quality_val is not None else 0.0
         stats["total_analyzed"] = int(stats["total_analyzed"]) + 1
-        stats["gaps_detected"] = int(stats["gaps_detected"]) + len(result.get("gaps", []))
+        stats["gaps_detected"] = int(stats["gaps_detected"]) + len(gaps_list)
         
         return AnalyzeResponse(
-            id=result.get("id", uuid.uuid4().hex[:12]),
-            gaps_found=len(result.get("gaps", [])),
-            discontinuity_level=result.get("discontinuity_level", "unknown"),
-            gaps=result.get("gaps", []),
-            quality_score=result.get("quality_score", 0.0),
+            id=str(result.get("id", uuid.uuid4().hex[:12])),
+            gaps_found=len(gaps_list),
+            discontinuity_level=str(result.get("discontinuity_level", "unknown")),
+            gaps=gaps_list,
+            quality_score=quality_score,
             processing_time_ms=round(processing_time, 2),
             timestamp=datetime.now(timezone.utc).isoformat()
         )
