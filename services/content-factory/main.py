@@ -906,3 +906,17 @@ if __name__ == "__main__":
     logger.info(f"🚀 Starting Content Factory API on port {port}")
     logger.info(f"📦 Components: Blerina={BLERINA_AVAILABLE}, EAP={EAP_AVAILABLE}, Publisher={PUBLISHER_AVAILABLE}, AutoPublisher={AUTO_PUBLISHER_AVAILABLE}")
     uvicorn.run(app, host="0.0.0.0", port=port)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STARTUP: Auto-start auto-publisher
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.on_event("startup")
+async def startup_event():
+    """Start auto-publisher automatically on server startup"""
+    if AUTO_PUBLISHER_AVAILABLE and get_auto_publisher:
+        import asyncio
+        publisher = get_auto_publisher()
+        logger.info("🚀 Starting Auto-Publisher on startup...")
+        asyncio.create_task(publisher.run_continuous())
