@@ -23,7 +23,7 @@ import logging
 import os
 import random
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -406,7 +406,7 @@ Write the complete article:"""
             "linkedin": f"🚀 {title}\n\n{summary[:500]}...\n\n#HealthTech #AI #Innovation #Clisonix",
             "twitter": f"{title[:200]}\n\n{summary[:180]}...\n\n#HealthTech #AI",
             "medium_excerpt": summary[:400],
-            "devto_tags": ["healthtech", "ai", "machinelearning", "programming"]
+            "devto_tags": "healthtech,ai,machinelearning,programming"
         }
 
 
@@ -488,12 +488,12 @@ class MediumPublisher:
         self.token = token
         self.api_url = "https://api.medium.com/v1"
     
-    async def publish(self, content: str, title: str, tags: List[str] = None) -> Dict[str, Any]:
+    async def publish(self, content: str, title: str, tags: Optional[List[str]] = None) -> Dict[str, Any]:
         """Publish article to Medium"""
         if not self.token:
             return {"success": False, "error": "No Medium token configured", "platform": "medium"}
         
-        tags = tags or ["Technology", "AI", "Healthcare"]
+        actual_tags = tags if tags else ["Technology", "AI", "Healthcare"]
         
         try:
             if httpx:
@@ -514,7 +514,7 @@ class MediumPublisher:
                         "title": title,
                         "contentFormat": "markdown",
                         "content": content,
-                        "tags": tags[:5],  # Medium allows max 5 tags
+                        "tags": actual_tags[:5],  # Medium allows max 5 tags
                         "publishStatus": "public"
                     }
                     
@@ -552,12 +552,12 @@ class DevToPublisher:
         self.api_key = api_key
         self.api_url = "https://dev.to/api"
     
-    async def publish(self, content: str, title: str, tags: List[str] = None) -> Dict[str, Any]:
+    async def publish(self, content: str, title: str, tags: Optional[List[str]] = None) -> Dict[str, Any]:
         """Publish article to Dev.to"""
         if not self.api_key:
             return {"success": False, "error": "No Dev.to API key configured", "platform": "devto"}
         
-        tags = tags or ["healthtech", "ai", "programming", "machinelearning"]
+        actual_tags = tags if tags else ["healthtech", "ai", "programming", "machinelearning"]
         
         try:
             if httpx:
@@ -567,7 +567,7 @@ class DevToPublisher:
                             "title": title,
                             "body_markdown": content,
                             "published": True,
-                            "tags": tags[:4]  # Dev.to allows max 4 tags
+                            "tags": actual_tags[:4]  # Dev.to allows max 4 tags
                         }
                     }
                     
@@ -646,7 +646,7 @@ class AutoPublisher:
         )
         
         self._running = False
-        self._stats = {
+        self._stats: Dict[str, Any] = {
             "total_generated": 0,
             "total_published": 0,
             "by_platform": {},
@@ -659,7 +659,7 @@ class AutoPublisher:
         cycle_id = hashlib.md5(datetime.now().isoformat().encode()).hexdigest()[:8]
         logger.info(f"🔄 Starting publish cycle {cycle_id}")
         
-        results = {
+        results: Dict[str, Any] = {
             "cycle_id": cycle_id,
             "started_at": datetime.now(timezone.utc).isoformat(),
             "topic": None,
@@ -702,6 +702,10 @@ class AutoPublisher:
             # 4. Publish to enabled platforms
             publish_tasks = []
             
+            # Parse tags from string to list
+            tags_str = variants.get("devto_tags", "healthtech,ai,programming")
+            tags_list = tags_str.split(",") if isinstance(tags_str, str) else ["healthtech", "ai"]
+            
             if self.config.linkedin_enabled:
                 publish_tasks.append(("linkedin", self.linkedin.publish(
                     variants["linkedin"], article["title"]
@@ -709,12 +713,12 @@ class AutoPublisher:
             
             if self.config.medium_enabled:
                 publish_tasks.append(("medium", self.medium.publish(
-                    article["content"], article["title"], variants.get("devto_tags")
+                    article["content"], article["title"], tags_list
                 )))
             
             if self.config.devto_enabled:
                 publish_tasks.append(("devto", self.devto.publish(
-                    article["content"], article["title"], variants.get("devto_tags")
+                    article["content"], article["title"], tags_list
                 )))
             
             # Execute all publish tasks

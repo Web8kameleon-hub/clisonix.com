@@ -38,6 +38,12 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
+# aiohttp for async HTTP requests
+try:
+    import aiohttp
+except ImportError:
+    aiohttp = None  # type: ignore[assignment]
+
 # Import components with type ignore for optional dependencies
 try:
     from blerina_core import BlerinaCore, DocumentType, get_blerina
@@ -98,6 +104,7 @@ class SourceType(str, Enum):
     RESEARCH = "research"
     REPORT = "report"
     MANUAL = "manual"
+    API = "api"
 
 
 @dataclass
@@ -222,14 +229,16 @@ class NewsLawWatcher:
     
     async def _check_source(self, source: Dict) -> List[SourceItem]:
         """Check individual source - REAL IMPLEMENTATION"""
-        import aiohttp
-        
-        items = []
+        items: List[SourceItem] = []
         source_type = source.get("type", "")
         url = source.get("url")
         api_key = source.get("api_key")
         
         if not url:
+            return items
+        
+        if aiohttp is None:
+            logger.warning("aiohttp not available, skipping source check")
             return items
         
         try:
