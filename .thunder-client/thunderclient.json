@@ -1,0 +1,174 @@
+[
+  {
+    "_id": "req_health_main",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_health",
+    "name": "GET /health",
+    "url": "{{base_url}}/health",
+    "method": "GET",
+    "sortNum": 10000,
+    "headers": [{ "name": "Authorization", "value": "Bearer {{auth_token}}" }]
+  },
+  {
+    "_id": "req_status_main",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_health",
+    "name": "GET /status",
+    "url": "{{base_url}}/status",
+    "method": "GET",
+    "sortNum": 20000,
+    "headers": []
+  },
+  {
+    "_id": "req_system_status",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_health",
+    "name": "GET /api/system-status",
+    "url": "{{base_url}}/api/system-status",
+    "method": "GET",
+    "sortNum": 30000,
+    "headers": []
+  },
+  {
+    "_id": "req_asi_status",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_asi",
+    "name": "ASI Status (Real)",
+    "url": "{{base_url}}/asi/status",
+    "method": "GET",
+    "sortNum": 10000,
+    "headers": []
+  },
+  {
+    "_id": "req_asi_health",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_asi",
+    "name": "ASI Health (Real)",
+    "url": "{{base_url}}/asi/health",
+    "method": "GET",
+    "sortNum": 20000,
+    "headers": []
+  },
+  {
+    "_id": "req_alba_metrics",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_asi",
+    "name": "ALBA Network Metrics",
+    "url": "{{base_url}}/asi/alba/metrics",
+    "method": "GET",
+    "sortNum": 30000,
+    "headers": []
+  },
+  {
+    "_id": "req_albi_metrics",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_asi",
+    "name": "ALBI Neural Metrics",
+    "url": "{{base_url}}/asi/albi/metrics",
+    "method": "GET",
+    "sortNum": 40000,
+    "headers": []
+  },
+  {
+    "_id": "req_jona_metrics",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_asi",
+    "name": "JONA Coordination Metrics",
+    "url": "{{base_url}}/asi/jona/metrics",
+    "method": "GET",
+    "sortNum": 50000,
+    "headers": []
+  },
+  {
+    "_id": "req_ocean_chat",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_ocean",
+    "name": "Ocean Chat",
+    "url": "{{base_url}}/ocean/chat",
+    "method": "POST",
+    "sortNum": 10000,
+    "headers": [{ "name": "Content-Type", "value": "application/json" }],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"message\": \"Hello Ocean AI\",\n  \"session_id\": \"test-session\"\n}"
+    }
+  },
+  {
+    "_id": "req_ocean_stream",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_ocean",
+    "name": "Ocean Stream Chat",
+    "url": "{{base_url}}/ocean/stream",
+    "method": "POST",
+    "sortNum": 20000,
+    "headers": [{ "name": "Content-Type", "value": "application/json" }],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"message\": \"Explain quantum computing\",\n  \"stream\": true\n}"
+    }
+  },
+  {
+    "_id": "req_excel_health",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_excel",
+    "name": "Excel Service Health",
+    "url": "{{base_url}}/api/excel/health",
+    "method": "GET",
+    "sortNum": 10000,
+    "headers": []
+  },
+  {
+    "_id": "req_excel_generate",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_excel",
+    "name": "Generate Excel Report",
+    "url": "{{base_url}}/api/excel/generate",
+    "method": "POST",
+    "sortNum": 20000,
+    "headers": [{ "name": "Content-Type", "value": "application/json" }],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"template\": \"monthly_report\",\n  \"data\": {}\n}"
+    }
+  },
+  {
+    "_id": "req_weather_current",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_weather",
+    "name": "Current Weather",
+    "url": "{{base_url}}/api/weather/current?city=Tirana",
+    "method": "GET",
+    "sortNum": 10000,
+    "headers": []
+  },
+  {
+    "_id": "req_weather_forecast",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_weather",
+    "name": "Weather Forecast",
+    "url": "{{base_url}}/api/weather/forecast?city=Berlin&days=5",
+    "method": "GET",
+    "sortNum": 20000,
+    "headers": []
+  },
+  {
+    "_id": "req_crypto_prices",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_crypto",
+    "name": "Crypto Prices (CoinGecko)",
+    "url": "{{base_url}}/api/crypto/prices?coins=bitcoin,ethereum",
+    "method": "GET",
+    "sortNum": 10000,
+    "headers": []
+  },
+  {
+    "_id": "req_crypto_market",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_crypto",
+    "name": "Crypto Market Data",
+    "url": "{{base_url}}/api/crypto/market",
+    "method": "GET",
+    "sortNum": 20000,
+    "headers": []
+  }
+]

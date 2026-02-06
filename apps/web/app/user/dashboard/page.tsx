@@ -15,10 +15,13 @@ import { useState, useEffect } from "react";
 // Conditional Clerk imports
 const isClerkConfigured = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let useUser: any = () => ({ user: null, isLoaded: true });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let UserButton: any = () => null;
 
 if (isClerkConfigured) {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const clerk = require("@clerk/nextjs");
   useUser = clerk.useUser;
   UserButton = clerk.UserButton;

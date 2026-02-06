@@ -3,22 +3,22 @@ OCEAN TRANSLATOR MODULE
 =======================
 Auto-translate any language to/from English
 
-Uses deep-translator (Google Translate backend)
+Uses googletrans (Google Translate backend)
 Supports 100+ languages including Albanian (sq), German (de), etc.
 """
 
-from typing import Optional, Tuple
 import logging
+from typing import Optional, Tuple
 
 logger = logging.getLogger("ocean_translator")
 
-# Try to import deep-translator
+# Try to import googletrans
 try:
-    from deep_translator import GoogleTranslator
+    from googletrans import Translator as GoogleTranslator
     TRANSLATOR_AVAILABLE = True
 except ImportError:
     TRANSLATOR_AVAILABLE = False
-    logger.warning("deep-translator not installed. Run: pip install deep-translator")
+    logger.warning("googletrans not installed. Run: pip install googletrans==4.0.2")
 
 
 # Language codes

@@ -13,12 +13,26 @@ const OCEAN_CORE_URL =
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const message = body.message || body.query;
+    // Parse body with error handling
+    let message: string;
+    try {
+      const text = await request.text();
+      if (!text || text.trim() === "") {
+        return new Response("Empty request body", { status: 400 });
+      }
+      const body = JSON.parse(text);
+      message = body.message || body.query || "";
+    } catch {
+      return new Response("Invalid JSON body", { status: 400 });
+    }
 
     if (!message?.trim()) {
       return new Response("Message required", { status: 400 });
     }
+
+    console.log(
+      `[Stream] Connecting to ${OCEAN_CORE_URL}/api/v1/chat/stream with message: ${message.substring(0, 50)}...`,
+    );
 
     // Call Ocean-Core streaming endpoint
     const response = await fetch(`${OCEAN_CORE_URL}/api/v1/chat/stream`, {
@@ -28,19 +42,28 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      return new Response("Ocean-Core error", { status: 500 });
+      const errorText = await response.text();
+      console.error(
+        `[Stream] Ocean-Core error: ${response.status} - ${errorText}`,
+      );
+      return new Response(`Ocean-Core error: ${response.status}`, {
+        status: 500,
+      });
     }
 
     // Stream the response directly to the client
     const headers = new Headers({
       "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": "no-cache",
-      Connection: "keep-alive",
+      "Transfer-Encoding": "chunked",
     });
 
     return new Response(response.body, { headers });
   } catch (error) {
     console.error("Streaming error:", error);
-    return new Response("Streaming failed", { status: 500 });
+    return new Response(
+      `Streaming failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      { status: 500 },
+    );
   }
 }

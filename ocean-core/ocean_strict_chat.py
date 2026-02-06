@@ -14,7 +14,7 @@ import time
 from typing import Dict, List, Optional
 
 import httpx
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -311,5 +311,5 @@ if __name__ == "__main__":
     import uvicorn
     logger.info(f"🌊 Ocean Strict Chat starting on port {PORT}")
     logger.info(f"   Model: {MODEL}")
-    logger.info(f"   Mode: STRICT")
+    logger.info("   Mode: STRICT")
     uvicorn.run(app, host="0.0.0.0", port=PORT)

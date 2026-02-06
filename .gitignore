@@ -173,5 +173,8 @@ Clisonix-cloud/
 
 # Build artifacts to ignore
 frontend/.next/
+.next/
+apps/web/.next/
+apps/web/kitchen-jobs/
 *.pack.gz
 *.pack.gz.old

@@ -57,7 +57,7 @@ export async function GET(req: Request, { params }: Props) {
         collection: status.collection,
         baseUrl: status.baseUrl,
       });
-    } catch (e) {
+    } catch {
       return NextResponse.json({
         runId,
         status: "running",
@@ -113,7 +113,7 @@ export async function GET(req: Request, { params }: Props) {
         baseUrl: job.baseUrl,
         createdAt: job.createdAt,
       });
-    } catch (e) {
+    } catch {
       return NextResponse.json({
         runId,
         status: "queued",

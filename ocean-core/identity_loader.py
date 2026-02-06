@@ -5,7 +5,6 @@ Një file i vetëm për identitetin e platformës.
 Të gjitha modulet e lexojnë këtë - asnjë hardcode.
 """
 
-import os
 from pathlib import Path
 
 # Path te dokumenti

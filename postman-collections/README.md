@@ -5,7 +5,7 @@ This directory contains Postman collections for API testing via the Kitchen work
 ## Collections
 
 | Collection | Description | Key |
-|------------|-------------|-----|
+| ---------- | ----------- | --- |
 | `Protocol_Kitchen_Sovereign_System.postman_collection.json` | Core protocol tests | `sovereign` |
 | `clisonix-ultra-mega-collection.json` | Comprehensive API tests | `ultra-mega` |
 | `Clisonix_Cloud_API.postman_collection.json` | Main cloud service tests | `cloud-api` |

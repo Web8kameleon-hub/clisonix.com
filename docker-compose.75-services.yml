@@ -25,12 +25,6 @@ x-python-service: &python-service
   networks:
     - clisonix-net
 
-x-lab-service: &lab-service
-  <<: *python-service
-  command: >
-    bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic aiohttp httpx redis python-multipart numpy &&
-    python -c 'import uvicorn; from fastapi import FastAPI; app=FastAPI(); uvicorn.run(app, host=\"0.0.0.0\", port=$${PORT})'"
-
 services:
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -168,7 +162,7 @@ services:
     <<: *python-service
     container_name: clisonix-ocean-core
     command: >
-      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic aiohttp httpx langdetect requests cbor2 msgpack numpy redis psutil deep-translator &&
+      bash -c "pip install --no-cache-dir -q uvicorn fastapi pydantic aiohttp httpx langdetect requests cbor2 msgpack numpy redis psutil googletrans==4.0.2 &&
       cd ocean-core && python ocean_api.py"
     ports:
       - "8030:8030"

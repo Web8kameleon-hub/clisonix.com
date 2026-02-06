@@ -1,0 +1,40 @@
+[
+  {
+    "_id": "env_clisonix_prod",
+    "name": "Clisonix Production",
+    "default": true,
+    "data": [
+      {
+        "name": "base_url",
+        "value": "http://46.225.14.83:8000"
+      },
+      {
+        "name": "auth_token",
+        "value": ""
+      },
+      {
+        "name": "api_key",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "_id": "env_clisonix_local",
+    "name": "Clisonix Local",
+    "default": false,
+    "data": [
+      {
+        "name": "base_url",
+        "value": "http://localhost:8000"
+      },
+      {
+        "name": "auth_token",
+        "value": ""
+      },
+      {
+        "name": "api_key",
+        "value": ""
+      }
+    ]
+  }
+]

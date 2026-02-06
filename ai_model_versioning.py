@@ -55,7 +55,7 @@ class AIModelRegistry:
     
     MODEL_REGISTRY_FILE = os.getenv("MODEL_REGISTRY_PATH", "model_registry.json")
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.models: Dict[str, List[Dict[str, Any]]] = self._load_registry()
     
     def _load_registry(self) -> Dict[str, List[Dict[str, Any]]]:

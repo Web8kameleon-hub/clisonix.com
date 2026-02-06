@@ -11,11 +11,12 @@ Port: 8036
 Architecture: Nanogrid Node Pulse
 """
 
-import os
 import json
 import logging
-from typing import Dict, Optional, List
+import os
 from datetime import datetime
+from typing import Dict, List, Optional
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -334,11 +335,11 @@ class TranslationNode:
                 processing_time_ms=(time.time() - start) * 1000
             )
         
-        # Fallback to deep-translator API
+        # Fallback to googletrans API
         try:
-            from deep_translator import GoogleTranslator
-            translator = GoogleTranslator(source=source, target=target)
-            result = translator.translate(text)
+            from googletrans import Translator
+            translator = Translator()
+            result = translator.translate(text, src=source, dest=target).text
             
             # Cache result
             self.cache[cache_key] = result
