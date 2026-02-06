@@ -17,6 +17,14 @@
         "value": "http://46.225.14.83:8070"
       },
       {
+        "name": "excel_url",
+        "value": "http://46.225.14.83:8002"
+      },
+      {
+        "name": "kitchen_url",
+        "value": "http://46.225.14.83:3100"
+      },
+      {
         "name": "auth_token",
         "value": ""
       },
@@ -46,6 +54,14 @@
       {
         "name": "users_url",
         "value": "http://localhost:8070"
+      },
+      {
+        "name": "excel_url",
+        "value": "http://localhost:8002"
+      },
+      {
+        "name": "kitchen_url",
+        "value": "http://localhost:3100"
       },
       {
         "name": "auth_token",

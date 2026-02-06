@@ -24,6 +24,12 @@
     "sortNum": 40000
   },
   {
+    "_id": "fldr_kitchen",
+    "colId": "col_clisonix_main",
+    "name": "🍳 Kitchen Worker",
+    "sortNum": 45000
+  },
+  {
     "_id": "fldr_weather",
     "colId": "col_clisonix_main",
     "name": "🌤️ Weather APIs",

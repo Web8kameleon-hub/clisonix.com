@@ -112,9 +112,19 @@
     "colId": "col_clisonix_main",
     "containerId": "fldr_excel",
     "name": "Excel Service Health",
-    "url": "{{base_url}}/api/excel/health",
+    "url": "{{excel_url}}/health",
     "method": "GET",
     "sortNum": 10000,
+    "headers": []
+  },
+  {
+    "_id": "req_excel_status",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_excel",
+    "name": "Excel Status",
+    "url": "{{excel_url}}/status",
+    "method": "GET",
+    "sortNum": 15000,
     "headers": []
   },
   {
@@ -122,14 +132,82 @@
     "colId": "col_clisonix_main",
     "containerId": "fldr_excel",
     "name": "Generate Excel Report",
-    "url": "{{base_url}}/api/excel/generate",
-    "method": "POST",
+    "url": "{{excel_url}}/api/excel/generate",
+    "method": "GET",
     "sortNum": 20000,
+    "headers": []
+  },
+  {
+    "_id": "req_excel_validate",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_excel",
+    "name": "Validate Excel File",
+    "url": "{{excel_url}}/api/excel/validate",
+    "method": "POST",
+    "sortNum": 30000,
     "headers": [{ "name": "Content-Type", "value": "application/json" }],
     "body": {
       "type": "json",
-      "raw": "{\n  \"template\": \"monthly_report\",\n  \"data\": {}\n}"
+      "raw": "{\n  \"filename\": \"test.xlsx\",\n  \"data\": {}\n}"
     }
+  },
+  {
+    "_id": "req_excel_parse",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_excel",
+    "name": "Parse Excel File",
+    "url": "{{excel_url}}/api/excel/parse",
+    "method": "POST",
+    "sortNum": 40000,
+    "headers": [{ "name": "Content-Type", "value": "application/json" }],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"filename\": \"sample.xlsx\"\n}"
+    }
+  },
+  {
+    "_id": "req_excel_formulas",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_excel",
+    "name": "Get Excel Formulas",
+    "url": "{{excel_url}}/api/excel/formulas",
+    "method": "GET",
+    "sortNum": 50000,
+    "headers": []
+  },
+  {
+    "_id": "req_excel_scripts",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_excel",
+    "name": "Office Scripts",
+    "url": "{{excel_url}}/api/excel/office-scripts",
+    "method": "GET",
+    "sortNum": 60000,
+    "headers": []
+  },
+  {
+    "_id": "req_excel_run_script",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_excel",
+    "name": "Run Excel Script",
+    "url": "{{excel_url}}/api/excel/run-script",
+    "method": "POST",
+    "sortNum": 70000,
+    "headers": [{ "name": "Content-Type", "value": "application/json" }],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"script\": \"calculateTotal\",\n  \"params\": {}\n}"
+    }
+  },
+  {
+    "_id": "req_excel_templates",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_excel",
+    "name": "List Templates",
+    "url": "{{excel_url}}/api/excel/templates",
+    "method": "GET",
+    "sortNum": 80000,
+    "headers": []
   },
   {
     "_id": "req_weather_current",
@@ -301,6 +379,26 @@
     "url": "{{users_url}}/users/stats",
     "method": "GET",
     "sortNum": 50000,
+    "headers": []
+  },
+  {
+    "_id": "req_kitchen_health",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_kitchen",
+    "name": "Kitchen Worker Health",
+    "url": "{{kitchen_url}}/health",
+    "method": "GET",
+    "sortNum": 10000,
+    "headers": []
+  },
+  {
+    "_id": "req_kitchen_stats",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_kitchen",
+    "name": "Kitchen Worker Stats",
+    "url": "{{kitchen_url}}/stats",
+    "method": "GET",
+    "sortNum": 20000,
     "headers": []
   }
 ]
