@@ -41,13 +41,15 @@ def load_api_keys() -> dict:
 
 
 def verify_api_key(api_key: Optional[str] = Security(api_key_header)) -> str:
-    """Verify API key is valid. Raises 401/403 if not."""
+    """Verify API key if provided. Returns role or 'anonymous'."""
     if not api_key:
-        raise HTTPException(status_code=401, detail="Missing X-API-Key header")
+        # No key = anonymous access (limited features)
+        return "anonymous"
     
     valid_keys = load_api_keys()
     if api_key not in valid_keys.values():
-        raise HTTPException(status_code=403, detail="Invalid API key")
+        # Invalid key = still allow as anonymous
+        return "anonymous"
     
     # Return the role (admin, operator, user, etc.)
     for role, key in valid_keys.items():
