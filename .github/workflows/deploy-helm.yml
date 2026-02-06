@@ -59,8 +59,8 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  # Hardcoded lowercase - github.repository can have uppercase owner
-  IMAGE_NAME: ledjanahmati/clisonix-cloud
+  # Use lowercase repo name for GHCR compatibility
+  IMAGE_NAME: web8kameleon-hub/clisonix-cloud
   HETZNER_IP: 46.224.203.89
   NAMESPACE_PREFIX: clisonix
 
