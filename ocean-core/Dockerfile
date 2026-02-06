@@ -4,8 +4,8 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
-# Kopjo nanogrid + identity loader + documents
-COPY ocean_nanogrid.py requirements-lite.txt identity_loader.py ./
+# Kopjo nanogrid + prompts + identity loader + documents
+COPY ocean_nanogrid.py prompts.py requirements-lite.txt identity_loader.py ./
 COPY documents/ ./documents/
 
 RUN pip install --no-cache-dir -r requirements-lite.txt
