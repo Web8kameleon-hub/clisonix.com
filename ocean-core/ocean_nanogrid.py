@@ -598,13 +598,22 @@ class Res(BaseModel):
 
 @app.on_event("startup")
 async def startup():
-    """Warm up connection pool"""
+    """Warm up connection pool and preload model"""
     client = await get_client()
     try:
         await client.get(f"{OLLAMA}/api/version")
         print(f"🟢 Nanogrid ready - Ollama connected")
-    except:
-        print(f"🟡 Nanogrid ready - Ollama will connect on first request")
+        
+        # Preload model to RAM - eliminates cold start
+        print(f"🔥 Warming up {MODEL}...")
+        await client.post(
+            f"{OLLAMA}/api/generate",
+            json={"model": MODEL, "prompt": "", "keep_alive": "24h"},
+            timeout=60.0
+        )
+        print(f"🚀 Model {MODEL} preloaded - zero cold start!")
+    except Exception as e:
+        print(f"🟡 Nanogrid ready - Ollama will connect on first request: {e}")
 
 @app.on_event("shutdown")
 async def shutdown():
