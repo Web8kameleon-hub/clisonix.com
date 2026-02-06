@@ -2,8 +2,27 @@
 
 Industrial Backend & Payment System
 
-**-Industrial-Grade FastAPI Backend with Real
- Business Integration**
+**Industrial-Grade FastAPI Backend with Real Business Integration**
+
+## 📧 Contact & Support
+
+- **Email:** contact@clisonix.com
+- **Support:** support@clisonix.com
+- **Website:** [clisonix.com](https://clisonix.com)
+
+## 💰 Support This Project
+
+**SEPA Bank Transfer:**
+- **IBAN:** DE72 xxxx xxxx xxxx xxxx xx
+- **BIC:** WELADEDxxxx
+- **Account Holder:** Configured via secrets
+
+**PayPal:**
+- **Email:** Configured via secrets
+
+> 💡 For real payment details, contact: contact@clisonix.com
+
+---
 
 **Business Information:**
 
