@@ -204,6 +204,9 @@ services:
       OLLAMA_HOST: "http://clisonix-ollama:11434"
       MODEL: "llama3.1:8b"
       REDIS_URL: "redis://redis:6379/0"
+      API_KEYS_FILE: "/app/config/api_keys.json"
+    volumes:
+      - ./config/api_keys.json:/app/config/api_keys.json:ro
     ports:
       - "8030:8030"
     depends_on:

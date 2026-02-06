@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf 
 COPY ocean_nanogrid.py prompts.py requirements-lite.txt identity_loader.py ./
 COPY documents/ ./documents/
 
+# Krijo folder për config (do të montohet si volume)
+RUN mkdir -p /app/config
+
 RUN pip install --no-cache-dir -r requirements-lite.txt
 
 ENV OCEAN_PORT=8030

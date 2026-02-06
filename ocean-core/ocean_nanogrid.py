@@ -9,11 +9,13 @@ import os
 import time
 from collections import defaultdict
 from datetime import datetime, timedelta
+from typing import Optional
 
 import httpx
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request, Security
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from fastapi.security import APIKeyHeader
 from prompts import build_prompt
 from pydantic import BaseModel
 
@@ -22,6 +24,36 @@ OLLAMA = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 MODEL = os.getenv("MODEL", "llama3.1:8b")
 PORT = int(os.getenv("PORT", "8030"))
 RATE_LIMIT = 1000  # per hour
+API_KEYS_FILE = os.getenv("API_KEYS_FILE", "/app/config/api_keys.json")
+
+# API Key Security
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+
+def load_api_keys() -> dict:
+    """Load valid API keys from config file."""
+    try:
+        with open(API_KEYS_FILE, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        # Fallback: allow dev key
+        return {"dev": "clisonix-dev-key-2025"}
+
+
+def verify_api_key(api_key: Optional[str] = Security(api_key_header)) -> str:
+    """Verify API key is valid. Raises 401/403 if not."""
+    if not api_key:
+        raise HTTPException(status_code=401, detail="Missing X-API-Key header")
+    
+    valid_keys = load_api_keys()
+    if api_key not in valid_keys.values():
+        raise HTTPException(status_code=403, detail="Invalid API key")
+    
+    # Return the role (admin, operator, user, etc.)
+    for role, key in valid_keys.items():
+        if key == api_key:
+            return role
+    return "user"
 
 # State
 _client: httpx.AsyncClient = None
@@ -139,8 +171,8 @@ async def health():
 
 
 @app.post("/api/v1/chat", response_model=Res)
-async def chat(req: Req, request: Request):
-    """Non-streaming chat."""
+async def chat(req: Req, request: Request, role: str = Depends(verify_api_key)):
+    """Non-streaming chat. Requires X-API-Key header."""
     t0 = time.time()
     q = req.message or req.query
     if not q:
@@ -148,7 +180,7 @@ async def chat(req: Req, request: Request):
     
     user_id = request.headers.get("X-User-ID") or request.client.host or "anon"
     session = request.headers.get("X-Session-ID") or user_id
-    admin = is_admin(q, user_id)
+    admin = role == "admin" or is_admin(q, user_id)
     
     # Rate limit
     allowed, remaining = check_rate(user_id, admin)
@@ -181,15 +213,15 @@ async def chat(req: Req, request: Request):
 
 
 @app.post("/api/v1/chat/stream")
-async def chat_stream(req: Req, request: Request):
-    """Streaming chat - first token in ~1s."""
+async def chat_stream(req: Req, request: Request, role: str = Depends(verify_api_key)):
+    """Streaming chat - first token in ~1s. Requires X-API-Key header."""
     q = req.message or req.query
     if not q:
         raise HTTPException(400, "message required")
     
     user_id = request.headers.get("X-User-ID") or request.client.host or "anon"
     session = request.headers.get("X-Session-ID") or user_id
-    admin = is_admin(q, user_id)
+    admin = role == "admin" or is_admin(q, user_id)
     
     allowed, _ = check_rate(user_id, admin)
     if not allowed:
