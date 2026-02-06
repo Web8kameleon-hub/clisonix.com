@@ -158,14 +158,15 @@ class DocumentTypeEnum(str, Enum):
     POLICY = "policy"
     RESEARCH = "research"
     REPORT = "report"
-    ARTICLE = "article"
+    TECHNICAL = "technical"
+    REGULATION = "regulation"
 
 
 class AnalyzeRequest(BaseModel):
     """Request for gap analysis (Blerina)"""
     content: str = Field(..., min_length=50, description="Content to analyze")
     title: Optional[str] = Field(None, description="Document title")
-    doc_type: DocumentTypeEnum = Field(DocumentTypeEnum.ARTICLE, description="Document type")
+    doc_type: DocumentTypeEnum = Field(DocumentTypeEnum.TECHNICAL, description="Document type")
     language: str = Field("sq", description="Language code (sq, en, de)")
 
 
@@ -184,7 +185,7 @@ class ProcessRequest(BaseModel):
     """Request for EAP processing"""
     content: str = Field(..., min_length=50, description="Content to process")
     title: Optional[str] = Field(None, description="Document title")
-    doc_type: DocumentTypeEnum = Field(DocumentTypeEnum.ARTICLE, description="Document type")
+    doc_type: DocumentTypeEnum = Field(DocumentTypeEnum.TECHNICAL, description="Document type")
     run_blerina: bool = Field(True, description="Run Blerina gap analysis first")
     language: str = Field("sq", description="Language code")
 
@@ -225,7 +226,7 @@ class PipelineRequest(BaseModel):
     """Request for full pipeline"""
     content: str = Field(..., min_length=50, description="Source content")
     title: Optional[str] = Field(None, description="Title")
-    doc_type: DocumentTypeEnum = Field(DocumentTypeEnum.ARTICLE)
+    doc_type: DocumentTypeEnum = Field(DocumentTypeEnum.TECHNICAL)
     auto_publish: bool = Field(False, description="Auto-publish if quality passes")
     publish_platforms: List[str] = Field(default=["clisonix"])
     quality_threshold: float = Field(0.7, ge=0.0, le=1.0)
@@ -391,9 +392,10 @@ async def analyze_content(request: AnalyzeRequest):
                 "policy": DocumentType.POLICY,
                 "research": DocumentType.RESEARCH,
                 "report": DocumentType.REPORT,
-                "article": DocumentType.ARTICLE,
+                "technical": DocumentType.TECHNICAL,
+                "regulation": DocumentType.REGULATION,
             }
-            doc_type_enum = doc_type_map.get(request.doc_type.value, DocumentType.ARTICLE)
+            doc_type_enum = doc_type_map.get(request.doc_type.value, DocumentType.TECHNICAL)
         
         # Use extract_gaps method (the actual Blerina method)
         if hasattr(blerina, 'extract_gaps'):
@@ -404,7 +406,7 @@ async def analyze_content(request: AnalyzeRequest):
             )
             result = {
                 "id": f"blerina_{uuid.uuid4().hex[:12]}",
-                "gaps": [{"id": g.id, "type": g.gap_type.value if hasattr(g.gap_type, 'value') else str(g.gap_type), "severity": g.severity.value if hasattr(g.severity, 'value') else str(g.severity), "description": g.description, "context": g.context} for g in gaps] if gaps else [],
+                "gaps": [{"id": g.id, "type": g.gap_type.value if hasattr(g.gap_type, 'value') else str(g.gap_type), "severity": g.severity.value if hasattr(g.severity, 'value') else str(g.severity), "description": g.description, "location": g.location, "missing_concept": g.missing_concept, "reconstruction_hint": g.reconstruction_hint} for g in gaps] if gaps else [],
                 "discontinuity_level": "high" if len(gaps) > 5 else ("moderate" if len(gaps) > 2 else "low"),
                 "quality_score": max(0.3, 1.0 - len(gaps) * 0.1) if gaps else 0.8
             }
@@ -432,7 +434,7 @@ async def analyze_content(request: AnalyzeRequest):
         
     except Exception as e:
         logger.error(f"Blerina analysis failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Blerina analysis error: {str(e)}")
 
 
 @app.post("/process", response_model=ProcessResponse)
