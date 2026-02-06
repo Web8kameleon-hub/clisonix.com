@@ -11,6 +11,10 @@ COPY content_factory.py /app/
 # Copy service requirements and code
 COPY services/content-factory/requirements.txt /app/
 COPY services/content-factory/main.py /app/
+COPY services/content-factory/auto_publisher.py /app/
+
+# Create output directory for published articles
+RUN mkdir -p /app/published
 
 RUN pip install --no-cache-dir -r requirements.txt
 

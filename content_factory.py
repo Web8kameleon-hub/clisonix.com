@@ -221,9 +221,204 @@ class NewsLawWatcher:
         return items
     
     async def _check_source(self, source: Dict) -> List[SourceItem]:
-        """Check individual source (to be implemented per source type)"""
-        # This is a placeholder - in production, would call actual APIs
-        return []
+        """Check individual source - REAL IMPLEMENTATION"""
+        import aiohttp
+        
+        items = []
+        source_type = source.get("type", "")
+        url = source.get("url")
+        api_key = source.get("api_key")
+        
+        if not url:
+            return items
+        
+        try:
+            async with aiohttp.ClientSession() as session:
+                headers = {"User-Agent": "Clisonix-Bot/1.0"}
+                if api_key:
+                    headers["Authorization"] = f"Bearer {api_key}"
+                
+                # RSS/News feeds
+                if source_type in ["news", "rss", "feed"]:
+                    items = await self._fetch_rss_feed(session, url, source)
+                
+                # REST APIs (JSON)
+                elif source_type in ["api", "rest", "json"]:
+                    items = await self._fetch_api_data(session, url, headers, source)
+                
+                # Web scraping for laws/regulations
+                elif source_type in ["law", "regulation", "government"]:
+                    items = await self._scrape_legal_page(session, url, headers, source)
+                
+                # Research/Academic (ArXiv, PubMed style)
+                elif source_type in ["research", "academic", "arxiv", "pubmed"]:
+                    items = await self._fetch_research_api(session, url, headers, source)
+                
+                # Generic web page
+                else:
+                    items = await self._scrape_web_page(session, url, headers, source)
+                    
+        except Exception as e:
+            logger.error(f"Source check failed for {source.get('name')}: {e}")
+        
+        return items
+    
+    async def _fetch_rss_feed(self, session, url: str, source: Dict) -> List[SourceItem]:
+        """Fetch and parse RSS/Atom feed"""
+        items = []
+        try:
+            async with session.get(url, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                if resp.status == 200:
+                    content = await resp.text()
+                    # Simple RSS parsing (production would use feedparser)
+                    import re
+                    # Extract items from RSS
+                    item_pattern = r'<item>(.*?)</item>'
+                    title_pattern = r'<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</title>'
+                    desc_pattern = r'<description>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</description>'
+                    link_pattern = r'<link>(.*?)</link>'
+                    
+                    for match in re.findall(item_pattern, content, re.DOTALL)[:10]:
+                        title_match = re.search(title_pattern, match)
+                        desc_match = re.search(desc_pattern, match)
+                        link_match = re.search(link_pattern, match)
+                        
+                        if title_match:
+                            item_id = hashlib.md5(match[:100].encode()).hexdigest()[:10]
+                            items.append(SourceItem(
+                                id=f"rss_{item_id}",
+                                source_type=SourceType.NEWS,
+                                title=title_match.group(1).strip(),
+                                content=desc_match.group(1).strip() if desc_match else "",
+                                url=link_match.group(1).strip() if link_match else url,
+                                date=datetime.now(timezone.utc).isoformat()[:10],
+                                tags=[source.get("name", "news")]
+                            ))
+        except Exception as e:
+            logger.warning(f"RSS fetch failed: {e}")
+        return items
+    
+    async def _fetch_api_data(self, session, url: str, headers: Dict, source: Dict) -> List[SourceItem]:
+        """Fetch data from JSON API"""
+        items = []
+        try:
+            async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    # Handle common API structures
+                    results = data if isinstance(data, list) else data.get("results", data.get("items", data.get("data", [])))
+                    
+                    for item in results[:10]:
+                        if isinstance(item, dict):
+                            item_id = hashlib.md5(str(item).encode()).hexdigest()[:10]
+                            items.append(SourceItem(
+                                id=f"api_{item_id}",
+                                source_type=SourceType.API,
+                                title=item.get("title", item.get("name", "Untitled")),
+                                content=item.get("description", item.get("content", item.get("body", str(item)))),
+                                url=item.get("url", item.get("link", url)),
+                                date=datetime.now(timezone.utc).isoformat()[:10],
+                                tags=[source.get("name", "api")]
+                            ))
+        except Exception as e:
+            logger.warning(f"API fetch failed: {e}")
+        return items
+    
+    async def _scrape_legal_page(self, session, url: str, headers: Dict, source: Dict) -> List[SourceItem]:
+        """Scrape legal/government pages"""
+        items = []
+        try:
+            async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                if resp.status == 200:
+                    content = await resp.text()
+                    # Extract title and main content
+                    import re
+                    title_match = re.search(r'<title>(.*?)</title>', content, re.IGNORECASE)
+                    # Remove HTML tags for content
+                    text_content = re.sub(r'<[^>]+>', ' ', content)
+                    text_content = re.sub(r'\s+', ' ', text_content).strip()
+                    
+                    if len(text_content) > 200:
+                        item_id = hashlib.md5(url.encode()).hexdigest()[:10]
+                        items.append(SourceItem(
+                            id=f"law_{item_id}",
+                            source_type=SourceType.LAW,
+                            title=title_match.group(1).strip() if title_match else "Legal Document",
+                            content=text_content[:5000],
+                            url=url,
+                            date=datetime.now(timezone.utc).isoformat()[:10],
+                            tags=[source.get("name", "legal"), "regulation"]
+                        ))
+        except Exception as e:
+            logger.warning(f"Legal page scrape failed: {e}")
+        return items
+    
+    async def _fetch_research_api(self, session, url: str, headers: Dict, source: Dict) -> List[SourceItem]:
+        """Fetch from research APIs (ArXiv, PubMed, etc.)"""
+        items = []
+        source_name = source.get("name", "").lower()
+        
+        try:
+            # ArXiv API
+            if "arxiv" in source_name or "arxiv" in url:
+                arxiv_url = "http://export.arxiv.org/api/query?search_query=all:AI+healthcare&max_results=5"
+                async with session.get(arxiv_url, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                    if resp.status == 200:
+                        content = await resp.text()
+                        import re
+                        entries = re.findall(r'<entry>(.*?)</entry>', content, re.DOTALL)
+                        for entry in entries[:5]:
+                            title_match = re.search(r'<title>(.*?)</title>', entry, re.DOTALL)
+                            summary_match = re.search(r'<summary>(.*?)</summary>', entry, re.DOTALL)
+                            if title_match:
+                                item_id = hashlib.md5(entry[:100].encode()).hexdigest()[:10]
+                                items.append(SourceItem(
+                                    id=f"arxiv_{item_id}",
+                                    source_type=SourceType.RESEARCH,
+                                    title=title_match.group(1).strip().replace('\n', ' '),
+                                    content=summary_match.group(1).strip().replace('\n', ' ') if summary_match else "",
+                                    url=url,
+                                    date=datetime.now(timezone.utc).isoformat()[:10],
+                                    tags=["arxiv", "research", "AI"]
+                                ))
+            
+            # Generic research API
+            else:
+                items = await self._fetch_api_data(session, url, headers, source)
+                
+        except Exception as e:
+            logger.warning(f"Research API fetch failed: {e}")
+        return items
+    
+    async def _scrape_web_page(self, session, url: str, headers: Dict, source: Dict) -> List[SourceItem]:
+        """Generic web page scraping"""
+        items = []
+        try:
+            async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                if resp.status == 200:
+                    content = await resp.text()
+                    import re
+                    title_match = re.search(r'<title>(.*?)</title>', content, re.IGNORECASE)
+                    # Extract main content (simplified)
+                    text_content = re.sub(r'<script[^>]*>.*?</script>', '', content, flags=re.DOTALL | re.IGNORECASE)
+                    text_content = re.sub(r'<style[^>]*>.*?</style>', '', text_content, flags=re.DOTALL | re.IGNORECASE)
+                    text_content = re.sub(r'<[^>]+>', ' ', text_content)
+                    text_content = re.sub(r'\s+', ' ', text_content).strip()
+                    
+                    if len(text_content) > 200:
+                        item_id = hashlib.md5(url.encode()).hexdigest()[:10]
+                        items.append(SourceItem(
+                            id=f"web_{item_id}",
+                            source_type=SourceType.MANUAL,
+                            title=title_match.group(1).strip() if title_match else source.get("name", "Web Content"),
+                            content=text_content[:5000],
+                            url=url,
+                            date=datetime.now(timezone.utc).isoformat()[:10],
+                            tags=[source.get("name", "web")]
+                        ))
+        except Exception as e:
+            logger.warning(f"Web scrape failed: {e}")
+        return items
     
     def create_manual_item(
         self,

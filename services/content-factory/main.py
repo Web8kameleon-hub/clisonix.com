@@ -115,6 +115,24 @@ except ImportError as e:
     FACTORY_AVAILABLE = False
     logger.warning(f"⚠️ ContentFactory not available: {e}")
 
+# Auto Publisher
+AutoPublisher: Optional[Type[Any]] = None
+get_auto_publisher: Optional[Callable[[], Any]] = None
+start_auto_publisher: Optional[Callable[[], Any]] = None
+
+try:
+    from auto_publisher import AutoPublisher as _AutoPublisher
+    from auto_publisher import get_auto_publisher as _get_auto_publisher
+    from auto_publisher import start_auto_publisher as _start_auto_publisher
+    AutoPublisher = _AutoPublisher
+    get_auto_publisher = _get_auto_publisher
+    start_auto_publisher = _start_auto_publisher
+    AUTO_PUBLISHER_AVAILABLE = True
+    logger.info("✅ AutoPublisher loaded")
+except ImportError as e:
+    AUTO_PUBLISHER_AVAILABLE = False
+    logger.warning(f"⚠️ AutoPublisher not available: {e}")
+
 # Instance ID
 INSTANCE_ID = uuid.uuid4().hex[:8]
 START_TIME = datetime.now(timezone.utc)
@@ -653,9 +671,87 @@ async def global_exception_handler(request, exc: Exception):
     )
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# AUTO-PUBLISHER ENDPOINTS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.post("/auto/start")
+async def start_auto_publishing():
+    """Start continuous auto-publishing (100% automated)"""
+    if not AUTO_PUBLISHER_AVAILABLE or not get_auto_publisher:
+        raise HTTPException(status_code=503, detail="AutoPublisher not available")
+    
+    import asyncio
+    publisher = get_auto_publisher()
+    
+    if publisher._running:
+        return {"status": "already_running", "message": "Auto-publisher is already running"}
+    
+    # Start in background
+    asyncio.create_task(publisher.run_continuous())
+    
+    return {
+        "status": "started",
+        "message": "Auto-publisher started in background",
+        "config": {
+            "docs_per_day_target": publisher.config.docs_per_day_target,
+            "min_interval_seconds": publisher.config.min_interval_seconds,
+            "max_interval_seconds": publisher.config.max_interval_seconds
+        },
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@app.post("/auto/stop")
+async def stop_auto_publishing():
+    """Stop continuous auto-publishing"""
+    if not AUTO_PUBLISHER_AVAILABLE or not get_auto_publisher:
+        raise HTTPException(status_code=503, detail="AutoPublisher not available")
+    
+    publisher = get_auto_publisher()
+    publisher.stop()
+    
+    return {
+        "status": "stopped",
+        "message": "Auto-publisher stopped",
+        "stats": publisher.get_stats(),
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@app.get("/auto/stats")
+async def get_auto_stats():
+    """Get auto-publisher statistics"""
+    if not AUTO_PUBLISHER_AVAILABLE or not get_auto_publisher:
+        raise HTTPException(status_code=503, detail="AutoPublisher not available")
+    
+    publisher = get_auto_publisher()
+    return {
+        "status": "running" if publisher._running else "stopped",
+        "stats": publisher.get_stats(),
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@app.post("/auto/cycle")
+async def run_single_cycle():
+    """Run a single publish cycle manually"""
+    if not AUTO_PUBLISHER_AVAILABLE or not get_auto_publisher:
+        raise HTTPException(status_code=503, detail="AutoPublisher not available")
+    
+    publisher = get_auto_publisher()
+    result = await publisher.publish_cycle()
+    
+    return {
+        "status": "completed",
+        "result": result,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8005))
     logger.info(f"🚀 Starting Content Factory API on port {port}")
-    logger.info(f"📦 Components: Blerina={BLERINA_AVAILABLE}, EAP={EAP_AVAILABLE}, Publisher={PUBLISHER_AVAILABLE}")
+    logger.info(f"📦 Components: Blerina={BLERINA_AVAILABLE}, EAP={EAP_AVAILABLE}, Publisher={PUBLISHER_AVAILABLE}, AutoPublisher={AUTO_PUBLISHER_AVAILABLE}")
     uvicorn.run(app, host="0.0.0.0", port=port)
