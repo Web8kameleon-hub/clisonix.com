@@ -35,7 +35,7 @@ interface UseOceanChatResult {
 }
 
 export function useOceanChat(): UseOceanChatResult {
-  const { userId, getToken } = useAuth();
+  const { userId } = useAuth();
   const { user } = useUser();
   const [messages, setMessages] = useState<OceanMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);

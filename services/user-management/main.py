@@ -14,6 +14,7 @@ import logging
 from typing import Any, Dict, Optional
 
 import uvicorn
+from clerk_webhook import router as clerk_router
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr, Field
@@ -112,8 +113,6 @@ app.add_middleware(
 )
 
 # Include Clerk webhook router
-from clerk_webhook import router as clerk_router
-
 app.include_router(clerk_router)
 
 

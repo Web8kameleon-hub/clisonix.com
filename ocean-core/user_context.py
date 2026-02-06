@@ -11,7 +11,7 @@ Author: Ledjan Ahmati (CEO, ABA GmbH)
 import logging
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Optional
 
 import httpx
 

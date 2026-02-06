@@ -93,7 +93,10 @@ class UserProfile:
     specialization: Optional[str] = None
     license_number: Optional[str] = None  # Numri i liçencës mjekësore
     
-    # Metadata
+    # Custom metadata (clerk_id, auth_provider, etc.)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    # Timestamps
     created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     updated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     
@@ -651,9 +654,7 @@ class UserRegistry:
         if "clerk_id" in metadata:
             self._clerk_index[metadata["clerk_id"]] = user_id
         
-        # Store in profile metadata (we'll add a metadata field)
-        if not hasattr(profile, 'metadata'):
-            profile.metadata = {}
+        # Store in profile metadata
         profile.metadata.update(metadata)
         
         # Update avatar if provided

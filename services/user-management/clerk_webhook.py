@@ -17,23 +17,21 @@ import hashlib
 import hmac
 import json
 import logging
+import os
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, Header, HTTPException, Request
 from pydantic import BaseModel
 from user_core import (
-    AccountStatus,
     SubscriptionPlan,
     UserRegistry,
-    VerificationStatus,
     get_user_registry,
 )
 
 logger = logging.getLogger("clerk_webhook")
 
 # Clerk webhook secret (from environment)
-import os
 
 CLERK_WEBHOOK_SECRET = os.getenv("CLERK_WEBHOOK_SECRET", "")
 

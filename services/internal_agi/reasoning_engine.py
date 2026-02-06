@@ -137,7 +137,7 @@ class ReasoningEngine:
     All logic is internal - no API calls to external AI services.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.rules = ReasoningRules()
         self._rule_cache: Dict[str, List] = {}
         self._executor = ThreadPoolExecutor(max_workers=4)
@@ -148,7 +148,7 @@ class ReasoningEngine:
         # Knowledge templates for common queries
         self.templates = self._init_templates()
     
-    def _init_rules(self):
+    def _init_rules(self) -> None:
         """Initialize all reasoning rules"""
         self._rule_cache = {
             "government": self.rules.government_rules(),
