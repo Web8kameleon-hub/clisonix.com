@@ -414,6 +414,268 @@ Write the complete article:"""
 # PLATFORM PUBLISHERS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+class LocalPublisher:
+    """Save articles locally - always works, no API needed"""
+    
+    def __init__(self, output_dir: str = "/app/published"):
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        # Also create blog directory for Jekyll/GitHub Pages
+        self.blog_dir = self.output_dir / "blog" / "_posts"
+        self.blog_dir.mkdir(parents=True, exist_ok=True)
+    
+    async def publish(self, content: str, title: str, domain: str = "general", 
+                     tags: Optional[List[str]] = None) -> Dict[str, Any]:
+        """Save article locally as Markdown and HTML"""
+        try:
+            # Create slug from title
+            slug = title.lower()
+            for char in ["'", '"', ":", ";", ",", ".", "?", "!", "(", ")", "[", "]"]:
+                slug = slug.replace(char, "")
+            slug = slug.replace(" ", "-")[:50]
+            
+            date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            timestamp = datetime.now(timezone.utc).isoformat()
+            
+            # Jekyll-compatible filename
+            filename = f"{date_str}-{slug}"
+            
+            actual_tags = tags if tags else ["clisonix", "technology", "ai"]
+            
+            # Create Jekyll front matter
+            front_matter = f"""---
+layout: post
+title: "{title}"
+date: {timestamp}
+categories: [{domain}]
+tags: [{', '.join(actual_tags)}]
+author: Clisonix AI
+description: "{title[:150]}"
+---
+
+"""
+            # Save as Markdown (Jekyll format)
+            md_path = self.blog_dir / f"{filename}.md"
+            md_path.write_text(front_matter + content, encoding="utf-8")
+            
+            # Save as plain Markdown (without front matter)
+            plain_md_path = self.output_dir / "articles" / f"{filename}.md"
+            plain_md_path.parent.mkdir(parents=True, exist_ok=True)
+            plain_md_path.write_text(f"# {title}\n\n{content}", encoding="utf-8")
+            
+            # Create HTML version
+            html_content = self._markdown_to_html(title, content, actual_tags, domain)
+            html_path = self.output_dir / "html" / f"{filename}.html"
+            html_path.parent.mkdir(parents=True, exist_ok=True)
+            html_path.write_text(html_content, encoding="utf-8")
+            
+            # Update index
+            self._update_index(title, filename, domain, actual_tags)
+            
+            logger.info(f"📁 Saved locally: {filename}")
+            
+            return {
+                "success": True,
+                "platform": "local",
+                "files": {
+                    "jekyll": str(md_path),
+                    "markdown": str(plain_md_path),
+                    "html": str(html_path)
+                },
+                "slug": slug,
+                "url": f"/blog/{date_str}/{slug}",
+                "published_at": timestamp
+            }
+            
+        except Exception as e:
+            logger.error(f"Local save failed: {e}")
+            return {"success": False, "error": str(e), "platform": "local"}
+    
+    def _markdown_to_html(self, title: str, content: str, tags: List[str], domain: str) -> str:
+        """Convert markdown to HTML with Clisonix branding"""
+        # Simple markdown to HTML conversion
+        html_body = content
+        
+        # Convert headers
+        for i in range(6, 0, -1):
+            html_body = html_body.replace(f"{'#' * i} ", f"<h{i}>").replace("\n", f"</h{i}>\n", 1)
+        
+        # Convert bold and italic
+        import re
+        html_body = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', html_body)
+        html_body = re.sub(r'\*(.+?)\*', r'<em>\1</em>', html_body)
+        
+        # Convert paragraphs
+        paragraphs = html_body.split('\n\n')
+        html_body = '\n'.join([f'<p>{p}</p>' if not p.startswith('<') else p for p in paragraphs])
+        
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{title[:150]}">
+    <meta name="keywords" content="{', '.join(tags)}">
+    <meta name="author" content="Clisonix">
+    <title>{title} | Clisonix</title>
+    <style>
+        :root {{ --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; }}
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+               max-width: 800px; margin: 0 auto; padding: 2rem; background: var(--bg); color: var(--text); }}
+        h1 {{ color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem; }}
+        .meta {{ color: #64748b; font-size: 0.9rem; margin-bottom: 2rem; }}
+        .tags {{ display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }}
+        .tag {{ background: var(--primary); color: white; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.8rem; }}
+        .content {{ line-height: 1.8; }}
+        .footer {{ margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; }}
+    </style>
+</head>
+<body>
+    <article>
+        <h1>{title}</h1>
+        <div class="meta">
+            <span>📅 {datetime.now(timezone.utc).strftime('%B %d, %Y')}</span> • 
+            <span>📁 {domain}</span> • 
+            <span>🏢 Clisonix AI</span>
+        </div>
+        <div class="tags">
+            {''.join([f'<span class="tag">{tag}</span>' for tag in tags])}
+        </div>
+        <div class="content">
+            {html_body}
+        </div>
+    </article>
+    <footer class="footer">
+        <p>© {datetime.now().year} Clisonix - Advancing Healthcare Through Intelligent Signal Processing</p>
+        <p><a href="https://clisonix.com">clisonix.com</a></p>
+    </footer>
+</body>
+</html>"""
+    
+    def _update_index(self, title: str, filename: str, domain: str, tags: List[str]) -> None:
+        """Update the articles index JSON"""
+        index_path = self.output_dir / "index.json"
+        
+        try:
+            if index_path.exists():
+                index = json.loads(index_path.read_text())
+            else:
+                index = {"articles": [], "last_updated": None, "total_count": 0}
+            
+            index["articles"].insert(0, {
+                "title": title,
+                "filename": filename,
+                "domain": domain,
+                "tags": tags,
+                "published_at": datetime.now(timezone.utc).isoformat()
+            })
+            
+            # Keep last 1000 articles in index
+            index["articles"] = index["articles"][:1000]
+            index["total_count"] = len(index["articles"])
+            index["last_updated"] = datetime.now(timezone.utc).isoformat()
+            
+            index_path.write_text(json.dumps(index, indent=2))
+            
+        except Exception as e:
+            logger.error(f"Failed to update index: {e}")
+
+
+class GitHubPagesPublisher:
+    """Publish to GitHub Pages via Git push"""
+    
+    def __init__(self, repo_path: str = "/app/published", 
+                 repo_url: Optional[str] = None,
+                 branch: str = "main"):
+        self.repo_path = Path(repo_path)
+        self.repo_url = repo_url or os.environ.get("GITHUB_PAGES_REPO")
+        self.branch = branch
+        self._git_configured = False
+    
+    async def configure_git(self) -> bool:
+        """Configure git for pushing"""
+        if self._git_configured:
+            return True
+        
+        try:
+            import subprocess
+            
+            # Check if git repo exists
+            git_dir = self.repo_path / ".git"
+            if not git_dir.exists():
+                # Initialize repo
+                subprocess.run(["git", "init"], cwd=self.repo_path, check=True)
+                
+                if self.repo_url:
+                    subprocess.run(["git", "remote", "add", "origin", self.repo_url], 
+                                 cwd=self.repo_path, check=True)
+            
+            # Configure user
+            subprocess.run(["git", "config", "user.email", "ai@clisonix.com"], 
+                         cwd=self.repo_path, check=True)
+            subprocess.run(["git", "config", "user.name", "Clisonix AI"], 
+                         cwd=self.repo_path, check=True)
+            
+            self._git_configured = True
+            return True
+            
+        except Exception as e:
+            logger.error(f"Git configuration failed: {e}")
+            return False
+    
+    async def publish(self, commit_message: Optional[str] = None) -> Dict[str, Any]:
+        """Commit and push all new articles to GitHub"""
+        if not self.repo_url:
+            return {
+                "success": False, 
+                "error": "No GitHub repo configured. Set GITHUB_PAGES_REPO env var",
+                "platform": "github_pages"
+            }
+        
+        try:
+            import subprocess
+            
+            if not await self.configure_git():
+                return {"success": False, "error": "Git configuration failed", "platform": "github_pages"}
+            
+            # Add all changes
+            subprocess.run(["git", "add", "-A"], cwd=self.repo_path, check=True)
+            
+            # Check if there are changes
+            result = subprocess.run(["git", "status", "--porcelain"], 
+                                  cwd=self.repo_path, capture_output=True, text=True)
+            
+            if not result.stdout.strip():
+                return {
+                    "success": True, 
+                    "message": "No new changes to publish",
+                    "platform": "github_pages"
+                }
+            
+            # Commit
+            msg = commit_message or f"📝 Auto-publish: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}"
+            subprocess.run(["git", "commit", "-m", msg], cwd=self.repo_path, check=True)
+            
+            # Push
+            subprocess.run(["git", "push", "-u", "origin", self.branch], 
+                         cwd=self.repo_path, check=True)
+            
+            logger.info(f"🚀 Pushed to GitHub Pages: {self.repo_url}")
+            
+            return {
+                "success": True,
+                "platform": "github_pages",
+                "repo": self.repo_url,
+                "branch": self.branch,
+                "published_at": datetime.now(timezone.utc).isoformat()
+            }
+            
+        except subprocess.CalledProcessError as e:
+            return {"success": False, "error": f"Git error: {e}", "platform": "github_pages"}
+        except Exception as e:
+            return {"success": False, "error": str(e), "platform": "github_pages"}
+
+
 class LinkedInPublisher:
     """Publish to LinkedIn"""
     
@@ -634,7 +896,14 @@ class AutoPublisher:
         self.topic_generator = TopicGenerator(self.config)
         self.content_generator = ContentGenerator(self.config)
         
-        # Initialize publishers
+        # Initialize publishers - LOCAL is ALWAYS enabled (no API needed)
+        self.local = LocalPublisher(self.config.output_dir)
+        self.github_pages = GitHubPagesPublisher(
+            self.config.output_dir,
+            os.environ.get("GITHUB_PAGES_REPO")
+        )
+        
+        # External platform publishers (need API keys)
         self.linkedin = LinkedInPublisher(self.config.linkedin_token)
         self.medium = MediumPublisher(self.config.medium_token)
         self.devto = DevToPublisher(self.config.devto_api_key)
@@ -649,6 +918,7 @@ class AutoPublisher:
         self._stats: Dict[str, Any] = {
             "total_generated": 0,
             "total_published": 0,
+            "locally_saved": 0,
             "by_platform": {},
             "errors": [],
             "started_at": None
@@ -699,12 +969,26 @@ class AutoPublisher:
             # 3. Generate social variants
             variants = self.content_generator.generate_social_variants(article)
             
-            # 4. Publish to enabled platforms
-            publish_tasks = []
-            
-            # Parse tags from string to list
+            # 4. ALWAYS save locally first (no API needed, always works)
             tags_str = variants.get("devto_tags", "healthtech,ai,programming")
             tags_list = tags_str.split(",") if isinstance(tags_str, str) else ["healthtech", "ai"]
+            
+            local_result = await self.local.publish(
+                article["content"], 
+                article["title"], 
+                article["domain"],
+                tags_list
+            )
+            results["publications"].append(local_result)
+            
+            if local_result.get("success"):
+                self._stats["locally_saved"] += 1
+                self._stats["total_published"] += 1
+                self._stats["by_platform"]["local"] = self._stats["by_platform"].get("local", 0) + 1
+                logger.info(f"📁 Saved locally: {local_result.get('files', {}).get('jekyll', 'N/A')}")
+            
+            # 5. Publish to external platforms (if configured)
+            publish_tasks = []
             
             if self.config.linkedin_enabled:
                 publish_tasks.append(("linkedin", self.linkedin.publish(
@@ -739,7 +1023,7 @@ class AutoPublisher:
                     results["publications"].append(error_result)
                     logger.error(f"❌ Error publishing to {platform}: {e}")
             
-            # 5. Save article locally
+            # 6. Save article metadata
             await self._save_article(article, results)
             
         except Exception as e:

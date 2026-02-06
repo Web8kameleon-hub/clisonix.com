@@ -749,6 +749,85 @@ async def run_single_cycle():
     }
 
 
+@app.get("/auto/articles")
+async def list_local_articles():
+    """List all locally saved articles"""
+    import json
+    from pathlib import Path
+    
+    output_dir = Path("/app/published")
+    index_path = output_dir / "index.json"
+    
+    if not index_path.exists():
+        return {
+            "status": "empty",
+            "articles": [],
+            "total": 0,
+            "message": "No articles published yet. Run /auto/cycle first.",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+    
+    try:
+        index = json.loads(index_path.read_text())
+        return {
+            "status": "success",
+            "articles": index.get("articles", [])[:50],  # Return last 50
+            "total": index.get("total_count", 0),
+            "last_updated": index.get("last_updated"),
+            "paths": {
+                "jekyll_posts": str(output_dir / "blog" / "_posts"),
+                "html": str(output_dir / "html"),
+                "markdown": str(output_dir / "articles")
+            },
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
+@app.get("/auto/article/{filename}")
+async def get_article_content(filename: str):
+    """Get content of a specific article"""
+    from pathlib import Path
+    
+    # Try different paths
+    output_dir = Path("/app/published")
+    possible_paths = [
+        output_dir / "articles" / f"{filename}.md",
+        output_dir / "html" / f"{filename}.html",
+        output_dir / "blog" / "_posts" / f"{filename}.md",
+    ]
+    
+    for path in possible_paths:
+        if path.exists():
+            return {
+                "status": "success",
+                "filename": filename,
+                "path": str(path),
+                "content": path.read_text(encoding="utf-8"),
+                "format": path.suffix[1:],
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+    
+    raise HTTPException(status_code=404, detail=f"Article not found: {filename}")
+
+
+@app.post("/auto/github-push")
+async def push_to_github():
+    """Push all local articles to GitHub Pages repository"""
+    if not AUTO_PUBLISHER_AVAILABLE or not get_auto_publisher:
+        raise HTTPException(status_code=503, detail="AutoPublisher not available")
+    
+    publisher = get_auto_publisher()
+    result = await publisher.github_pages.publish()
+    
+    return {
+        "status": "success" if result.get("success") else "failed",
+        "result": result,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8005))
