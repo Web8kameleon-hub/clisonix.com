@@ -133,6 +133,21 @@ except ImportError as e:
     AUTO_PUBLISHER_AVAILABLE = False
     logger.warning(f"⚠️ AutoPublisher not available: {e}")
 
+# Blog Sync (Batica-Zbatica flow)
+BlogSync: Optional[Type[Any]] = None
+get_blog_sync: Optional[Callable[[], Any]] = None
+
+try:
+    from blog_sync import BlogSync as _BlogSync
+    from blog_sync import get_blog_sync as _get_blog_sync
+    BlogSync = _BlogSync
+    get_blog_sync = _get_blog_sync
+    BLOG_SYNC_AVAILABLE = True
+    logger.info("✅ BlogSync loaded (Batica-Zbatica)")
+except ImportError as e:
+    BLOG_SYNC_AVAILABLE = False
+    logger.warning(f"⚠️ BlogSync not available: {e}")
+
 # Instance ID
 INSTANCE_ID = uuid.uuid4().hex[:8]
 START_TIME = datetime.now(timezone.utc)
@@ -823,6 +838,63 @@ async def push_to_github():
     
     return {
         "status": "success" if result.get("success") else "failed",
+        "result": result,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# BLOG SYNC - Batica-Zbatica (content flows OUT to separate blog repo)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.post("/blog/sync")
+async def sync_to_blog():
+    """
+    Sync generated articles to separate blog repository (Batica-Zbatica flow).
+    
+    This pushes content from main repo to clisonix-blog for GitHub Pages.
+    Keeps main repo clean while publishing content to the world.
+    """
+    if not BLOG_SYNC_AVAILABLE or not get_blog_sync:
+        raise HTTPException(status_code=503, detail="BlogSync not available")
+    
+    sync = get_blog_sync()
+    result = await sync.sync(push=True)
+    
+    return {
+        "status": result.get("status"),
+        "message": "Content synced to blog repo (Batica → Zbatica)",
+        "result": result,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@app.get("/blog/stats")
+async def get_blog_stats():
+    """Get blog sync statistics"""
+    if not BLOG_SYNC_AVAILABLE or not get_blog_sync:
+        raise HTTPException(status_code=503, detail="BlogSync not available")
+    
+    sync = get_blog_sync()
+    return {
+        "status": "available",
+        "stats": sync.get_stats(),
+        "flow": "Clisonix-cloud → clisonix-blog → GitHub Pages",
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@app.post("/blog/init")
+async def init_blog_repo():
+    """Initialize or clone the blog repository"""
+    if not BLOG_SYNC_AVAILABLE or not get_blog_sync:
+        raise HTTPException(status_code=503, detail="BlogSync not available")
+    
+    sync = get_blog_sync()
+    result = await sync.initialize()
+    
+    return {
+        "status": result.get("status"),
         "result": result,
         "timestamp": datetime.now(timezone.utc).isoformat()
     }

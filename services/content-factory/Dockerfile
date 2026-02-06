@@ -2,6 +2,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Install git for blog sync
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
 # Copy root-level content factory modules
 COPY blerina_core.py /app/
 COPY eap_layer.py /app/
@@ -12,9 +15,10 @@ COPY content_factory.py /app/
 COPY services/content-factory/requirements.txt /app/
 COPY services/content-factory/main.py /app/
 COPY services/content-factory/auto_publisher.py /app/
+COPY services/content-factory/blog_sync.py /app/
 
-# Create output directory for published articles
-RUN mkdir -p /app/published
+# Create output directories for published articles and blog repo
+RUN mkdir -p /app/published /app/blog-repo
 
 RUN pip install --no-cache-dir -r requirements.txt
 

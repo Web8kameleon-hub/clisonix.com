@@ -98,6 +98,14 @@ ehthumbs.db
 Thumbs.db
 
 # Test data (may contain sensitive info)
+
+# Auto-generated content (flows to separate blog repo)
+# Koncepti "batica-zbatica" - content flows OUT to clisonix-blog repo
+published/
+**/published/
+services/content-factory/published/
+*.generated.md
+*.generated.html
 test_data/
 temp/
 tmp/
