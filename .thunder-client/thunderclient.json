@@ -170,5 +170,137 @@
     "method": "GET",
     "sortNum": 20000,
     "headers": []
+  },
+  {
+    "_id": "req_intelligence_health",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_intelligence",
+    "name": "Intelligence Lab Health",
+    "url": "{{intelligence_url}}/health",
+    "method": "GET",
+    "sortNum": 10000,
+    "headers": []
+  },
+  {
+    "_id": "req_klajdi_status",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_intelligence",
+    "name": "KLAJDI Status",
+    "url": "{{intelligence_url}}/klajdi/status",
+    "method": "GET",
+    "sortNum": 20000,
+    "headers": []
+  },
+  {
+    "_id": "req_klajdi_signals",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_intelligence",
+    "name": "KLAJDI Recent Signals",
+    "url": "{{intelligence_url}}/klajdi/signals?limit=10",
+    "method": "GET",
+    "sortNum": 30000,
+    "headers": []
+  },
+  {
+    "_id": "req_klajdi_analyze",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_intelligence",
+    "name": "KLAJDI Analyze Signal",
+    "url": "{{intelligence_url}}/klajdi/analyze",
+    "method": "POST",
+    "sortNum": 40000,
+    "headers": [{ "name": "Content-Type", "value": "application/json" }],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"signal_type\": \"market\",\n  \"data\": {\"symbol\": \"BTC\", \"price\": 45000}\n}"
+    }
+  },
+  {
+    "_id": "req_mali_status",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_intelligence",
+    "name": "MALI Status",
+    "url": "{{intelligence_url}}/mali/status",
+    "method": "GET",
+    "sortNum": 50000,
+    "headers": []
+  },
+  {
+    "_id": "req_mali_announcements",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_intelligence",
+    "name": "MALI Recent Announcements",
+    "url": "{{intelligence_url}}/mali/announcements?limit=10",
+    "method": "GET",
+    "sortNum": 60000,
+    "headers": []
+  },
+  {
+    "_id": "req_mali_announce",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_intelligence",
+    "name": "MALI Create Announcement",
+    "url": "{{intelligence_url}}/mali/announce",
+    "method": "POST",
+    "sortNum": 70000,
+    "headers": [{ "name": "Content-Type", "value": "application/json" }],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"title\": \"Test Announcement\",\n  \"message\": \"This is a test\",\n  \"priority\": \"normal\"\n}"
+    }
+  },
+  {
+    "_id": "req_users_health",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_users",
+    "name": "User Management Health",
+    "url": "{{users_url}}/health",
+    "method": "GET",
+    "sortNum": 10000,
+    "headers": []
+  },
+  {
+    "_id": "req_users_list",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_users",
+    "name": "List Users",
+    "url": "{{users_url}}/users?limit=10",
+    "method": "GET",
+    "sortNum": 20000,
+    "headers": []
+  },
+  {
+    "_id": "req_users_register",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_users",
+    "name": "Register User",
+    "url": "{{users_url}}/users/register",
+    "method": "POST",
+    "sortNum": 30000,
+    "headers": [{ "name": "Content-Type", "value": "application/json" }],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"email\": \"test@clisonix.com\",\n  \"username\": \"testuser\",\n  \"full_name\": \"Test User\"\n}"
+    }
+  },
+  {
+    "_id": "req_users_get",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_users",
+    "name": "Get User by ID",
+    "url": "{{users_url}}/users/{{user_id}}",
+    "method": "GET",
+    "sortNum": 40000,
+    "headers": []
+  },
+  {
+    "_id": "req_users_stats",
+    "colId": "col_clisonix_main",
+    "containerId": "fldr_users",
+    "name": "User Statistics",
+    "url": "{{users_url}}/users/stats",
+    "method": "GET",
+    "sortNum": 50000,
+    "headers": []
   }
 ]

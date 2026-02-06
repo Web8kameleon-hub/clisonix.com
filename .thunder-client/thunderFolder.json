@@ -34,5 +34,17 @@
     "colId": "col_clisonix_main",
     "name": "💰 Crypto (CoinGecko)",
     "sortNum": 60000
+  },
+  {
+    "_id": "fldr_intelligence",
+    "colId": "col_clisonix_main",
+    "name": "🔬 Intelligence Lab (KLAJDI+MALI)",
+    "sortNum": 70000
+  },
+  {
+    "_id": "fldr_users",
+    "colId": "col_clisonix_main",
+    "name": "👤 User Management",
+    "sortNum": 80000
   }
 ]

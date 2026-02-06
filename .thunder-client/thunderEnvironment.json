@@ -9,12 +9,24 @@
         "value": "http://46.225.14.83:8000"
       },
       {
+        "name": "intelligence_url",
+        "value": "http://46.225.14.83:8099"
+      },
+      {
+        "name": "users_url",
+        "value": "http://46.225.14.83:8070"
+      },
+      {
         "name": "auth_token",
         "value": ""
       },
       {
         "name": "api_key",
         "value": ""
+      },
+      {
+        "name": "user_id",
+        "value": "test-user-id"
       }
     ]
   },
@@ -28,12 +40,24 @@
         "value": "http://localhost:8000"
       },
       {
+        "name": "intelligence_url",
+        "value": "http://localhost:8099"
+      },
+      {
+        "name": "users_url",
+        "value": "http://localhost:8070"
+      },
+      {
         "name": "auth_token",
         "value": ""
       },
       {
         "name": "api_key",
         "value": ""
+      },
+      {
+        "name": "user_id",
+        "value": "test-user-id"
       }
     ]
   }
