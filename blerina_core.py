@@ -144,9 +144,17 @@ class BlerinaCore:
         signal = blerina.generate_signal(gaps, analysis)
     """
     
-    def __init__(self, ollama_url: str = "http://localhost:11434"):
-        self.ollama_url = ollama_url
-        self.model = "llama3.1:8b"
+    def __init__(self, ollama_url: Optional[str] = None):
+        # Auto-detect Ollama URL from environment or use sensible defaults
+        import os
+        if ollama_url:
+            self.ollama_url = ollama_url
+        else:
+            self.ollama_url = os.environ.get(
+                "OLLAMA_HOST",
+                os.environ.get("OLLAMA_URL", "http://localhost:11434")
+            )
+        self.model = os.environ.get("MODEL", "llama3.1:8b")
         self._processed_documents: List[str] = []
         self._gaps_found: List[Gap] = []
         self._signals_generated: int = 0
