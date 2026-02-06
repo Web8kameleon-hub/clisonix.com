@@ -278,6 +278,7 @@ class UserRegistry:
         self._username_index: Dict[str, str] = {}  # username -> user_id
         self._api_key_index: Dict[str, str] = {}  # api_key -> user_id
         self._token_index: Dict[str, str] = {}  # access_token -> session_id
+        self._clerk_index: Dict[str, str] = {}  # clerk_id -> user_id
         
         # Stats
         self._stats: Dict[str, Any] = {
@@ -618,13 +619,83 @@ class UserRegistry:
     # USER LOOKUP - Kërkimi i përdoruesve
     # ═══════════════════════════════════════════════════════════════════════════
     
-    def get_user_by_email(self, email: str) -> Optional[str]:
-        """Gjej user_id nga email"""
-        return self._email_index.get(email.lower())
+    def get_user_by_email(self, email: str) -> Optional[Dict[str, Any]]:
+        """Gjej user nga email"""
+        user_id = self._email_index.get(email.lower())
+        if not user_id:
+            return None
+        return self._get_user_info(user_id)
     
-    def get_user_by_username(self, username: str) -> Optional[str]:
-        """Gjej user_id nga username"""
-        return self._username_index.get(username.lower())
+    def get_user_by_username(self, username: str) -> Optional[Dict[str, Any]]:
+        """Gjej user nga username"""
+        user_id = self._username_index.get(username.lower())
+        if not user_id:
+            return None
+        return self._get_user_info(user_id)
+    
+    def find_by_clerk_id(self, clerk_id: str) -> Optional[Dict[str, Any]]:
+        """Gjej user nga Clerk ID"""
+        user_id = self._clerk_index.get(clerk_id)
+        if not user_id:
+            return None
+        return self._get_user_info(user_id)
+    
+    def update_user_metadata(self, user_id: str, metadata: Dict[str, Any]) -> bool:
+        """Përditëso metadata të userit (clerk_id, auth_provider, etj)"""
+        if user_id not in self._profiles:
+            return False
+        
+        profile = self._profiles[user_id]
+        
+        # Store clerk_id in index
+        if "clerk_id" in metadata:
+            self._clerk_index[metadata["clerk_id"]] = user_id
+        
+        # Store in profile metadata (we'll add a metadata field)
+        if not hasattr(profile, 'metadata'):
+            profile.metadata = {}
+        profile.metadata.update(metadata)
+        
+        # Update avatar if provided
+        if "avatar_url" in metadata:
+            profile.avatar_url = metadata["avatar_url"]
+        
+        return True
+    
+    def _get_user_info(self, user_id: str) -> Optional[Dict[str, Any]]:
+        """Helper: Get full user info"""
+        account = self._accounts.get(user_id)
+        profile = self._profiles.get(user_id)
+        if not account:
+            return None
+        return {
+            "user_id": user_id,
+            "email": account.email,
+            "username": profile.username if profile else None,
+            "first_name": profile.first_name if profile else None,
+            "last_name": profile.last_name if profile else None,
+            "display_name": profile.display_name if profile else None,
+            "avatar_url": profile.avatar_url if profile else None,
+            "language": profile.language if profile else "en",
+            "role": account.role.value,
+            "plan": account.plan.value,
+            "status": account.status.value,
+            "clerk_id": self._get_clerk_id(user_id)
+        }
+    
+    def _get_clerk_id(self, user_id: str) -> Optional[str]:
+        """Get clerk_id for a user"""
+        for clerk_id, uid in self._clerk_index.items():
+            if uid == user_id:
+                return clerk_id
+        return None
+    
+    def delete_user(self, user_id: str) -> bool:
+        """Fshi/deaktivo userin"""
+        if user_id not in self._accounts:
+            return False
+        self._accounts[user_id].status = AccountStatus.DELETED
+        return True
     
     def user_exists(self, email_or_username: str) -> bool:
         """Kontrollo nëse përdoruesi ekziston"""

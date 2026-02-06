@@ -913,7 +913,8 @@ async def simple_chat(request: Request):
     
     Body:
     {
-        "message": "Përshëndetje! Si je?"
+        "message": "Përshëndetje! Si je?",
+        "clerk_user_id": "user_xxx" (optional)
     }
     
     Returns:
@@ -930,6 +931,11 @@ async def simple_chat(request: Request):
         body = await request.json()
         message = body.get("message", body.get("query", "")).strip()
         
+        # Get user context from Clerk ID
+        clerk_user_id = body.get("clerk_user_id") or request.headers.get("X-Clerk-User-Id")
+        user_name = body.get("user_name")
+        user_language = body.get("user_language", "sq")
+        
         if not message:
             return {
                 "response": "Ju lutem shkruani diçka për të vazhduar bisedën.",
@@ -937,16 +943,28 @@ async def simple_chat(request: Request):
                 "confidence": 1.0
             }
         
-        logger.info(f"💬 Chat v5: {message[:50]}...")
+        # Log with user context
+        user_info = f"[User: {user_name or clerk_user_id or 'anonymous'}]" if clerk_user_id else ""
+        logger.info(f"💬 Chat v5 {user_info}: {message[:50]}...")
         
         # Use Orchestrator v5 - fast conversational path
-        result = await orchestrator.orchestrate(message, mode="conversational")
+        # Pass user context for personalization
+        result = await orchestrator.orchestrate(
+            message, 
+            mode="conversational",
+            user_context={
+                "clerk_id": clerk_user_id,
+                "name": user_name,
+                "language": user_language
+            } if clerk_user_id else None
+        )
         return {
             "response": result.fused_answer,
             "sources": result.sources_cited,
             "confidence": result.confidence,
             "language": result.language,
-            "query_category": result.query_category.value if hasattr(result.query_category, 'value') else str(result.query_category)
+            "query_category": result.query_category.value if hasattr(result.query_category, 'value') else str(result.query_category),
+            "user_identified": bool(clerk_user_id)
         }
     
     except Exception as e:

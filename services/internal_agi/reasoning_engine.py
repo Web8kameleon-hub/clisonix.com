@@ -5,8 +5,6 @@
 # NO external LLMs - 100% Internal Clisonix Intelligence
 # ============================================================================
 
-import asyncio
-import json
 import logging
 import re
 from concurrent.futures import ThreadPoolExecutor
@@ -387,21 +385,21 @@ class ReasoningEngine:
     def explain_reasoning(self, result: InferenceResult) -> str:
         """Generate human-readable explanation of reasoning"""
         explanation = [
-            f"## Reasoning Explanation",
-            f"",
+            "## Reasoning Explanation",
+            "",
             f"**Query:** {result.metadata.get('query', 'Unknown')}",
-            f"",
+            "",
             f"**Method Used:** {result.method.value}",
-            f"",
-            f"**Reasoning Chain:**"
+            "",
+            "**Reasoning Chain:**"
         ]
         
         for i, step in enumerate(result.reasoning_chain, 1):
             explanation.append(f"{i}. {step}")
         
         explanation.extend([
-            f"",
-            f"**Result:**",
+            "",
+            "**Result:**",
             f"- Answer: {result.answer[:100]}..." if len(result.answer) > 100 else f"- Answer: {result.answer}",
             f"- Confidence: {result.confidence:.1%} ({result.confidence_level.value})",
             f"- Data Points: {result.data_points}",

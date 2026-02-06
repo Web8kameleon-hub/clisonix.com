@@ -9,10 +9,12 @@ import asyncio
 import json
 import random
 import time
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
-from .clisonix_identity import get_clisonix_identity, IdentityLanguage
+from typing import Any, Dict, List, Optional
+
+from .clisonix_identity import IdentityLanguage, get_clisonix_identity
+
 
 class CuriosityLevel(Enum):
     CURIOUS = "curious"
@@ -212,10 +214,10 @@ class CoreResponseEngine:
         primary_answer = f"{intro}\n\n{primary_answer}"
         
         # Generate rabbit holes
-        rabbit_holes = self._generate_rabbit_holes(question, domain, context.curiosity_level)
+        rabbit_holes = self._generate_rabbit_holes(question, context, context.language)
         
         # Generate next questions  
-        next_questions = self._generate_next_questions(question, domain, context.curiosity_level)
+        next_questions = self._generate_next_questions(question, context, context.language)
         
         # Calculate ASI metrics
         asi_metrics = {

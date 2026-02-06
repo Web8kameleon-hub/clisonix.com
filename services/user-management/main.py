@@ -111,6 +111,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include Clerk webhook router
+from clerk_webhook import router as clerk_router
+
+app.include_router(clerk_router)
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # DEPENDENCIES
@@ -573,6 +578,22 @@ async def check_username_availability(
         "available": not exists,
         "message": "Username tashmë i marrë" if exists else "Username i disponueshëm"
     }
+
+
+@app.get("/api/users/by-clerk/{clerk_id}")
+async def get_user_by_clerk_id(
+    clerk_id: str,
+    registry: UserRegistry = Depends(get_registry)
+):
+    """
+    🔗 Merr userin nga Clerk ID
+    
+    Përdoret nga Ocean për të identifikuar userin.
+    """
+    user = registry.find_by_clerk_id(clerk_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Përdoruesi nuk u gjet")
+    return user
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

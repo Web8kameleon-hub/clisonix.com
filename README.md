@@ -2,25 +2,27 @@
 
 Industrial Backend & Payment System
 
-**Industrial-Grade FastAPI Backend with Real Business Integration**
+## Industrial-Grade FastAPI Backend with Real Business Integration
 
 ## 📧 Contact & Support
 
-- **Email:** contact@clisonix.com
-- **Support:** support@clisonix.com
+- **Email:** <contact@clisonix.com>
+- **Support:** <support@clisonix.com>
 - **Website:** [clisonix.com](https://clisonix.com)
 
 ## 💰 Support This Project
 
 **SEPA Bank Transfer:**
+
 - **IBAN:** DE72 xxxx xxxx xxxx xxxx xx
 - **BIC:** WELADEDxxxx
 - **Account Holder:** Configured via secrets
 
 **PayPal:**
+
 - **Email:** Configured via secrets
 
-> 💡 For real payment details, contact: contact@clisonix.com
+> 💡 For real payment details, contact: <contact@clisonix.com>
 
 ---
 
@@ -394,5 +396,3 @@ pytest tests/test_billing.py -v
 - Payment system status at `/billing/stats`
 
 **No Mock Data:** This is an industrial-grade backend using real business integration, actual system monitoring, and live payment processing. All metrics, business information, and processing capabilities are real and functional. - FastAPI + Worker + Docker Compose
-
-
