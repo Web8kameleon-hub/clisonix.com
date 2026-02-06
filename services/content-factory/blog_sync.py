@@ -210,7 +210,6 @@ New articles are published daily covering topics in healthcare technology and AI
             name = article.stem
             parts = name.split("-", 3)
             if len(parts) >= 4:
-                date_str = f"{parts[0]}-{parts[1]}-{parts[2]}"
                 title_slug = parts[3]
                 # Convert slug to title
                 title = title_slug.replace("-", " ").title()
