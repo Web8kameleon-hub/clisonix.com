@@ -325,38 +325,225 @@ Return ONLY the topic title, nothing else."""
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# CONTENT GENERATOR
+# CLISONIX IDENTITY & TECHNOLOGY
+# ═══════════════════════════════════════════════════════════════════════════════
+
+CLISONIX_TECH_IDENTITY = {
+    "tide_engine": {
+        "name": "Tide Engine",
+        "description": "Real-time data synchronization using tidal flow patterns",
+        "use_case": "Ensures consistent state across distributed healthcare nodes"
+    },
+    "signal_fabric": {
+        "name": "Signal Fabric",
+        "description": "Neural mesh for interconnected signal processing",
+        "use_case": "Weaves together EEG, audio, and biosensor streams"
+    },
+    "neural_mesh": {
+        "name": "Neural Mesh",
+        "description": "Distributed neural network topology",
+        "use_case": "Enables edge-to-cloud AI inference with sub-ms latency"
+    },
+    "crdt_merge": {
+        "name": "CRDT Merge Layer",
+        "description": "Conflict-free replicated data types for collaboration",
+        "use_case": "Multiple clinicians editing same patient data simultaneously"
+    },
+    "pq_encryption": {
+        "name": "Post-Quantum Encryption",
+        "description": "Kyber-1024 lattice-based cryptography",
+        "use_case": "Future-proof security for sensitive medical data"
+    },
+    "liam_algebra": {
+        "name": "LIAM Binary Algebra",
+        "description": "Labor Intelligence Array Matrix - no-loop vectorized processing",
+        "use_case": "High-performance signal transformations without Python loops"
+    },
+    "alda_orchestration": {
+        "name": "ALDA Labor Array",
+        "description": "Artificial Labor Determined Array for workload distribution",
+        "use_case": "Deterministic task scheduling across compute nodes"
+    }
+}
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CONTENT GENERATOR - Premium Clisonix Articles
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class ContentGenerator:
-    """Generates full article content from topics"""
+    """
+    Generates premium Clisonix articles with:
+    - Real data tables from LIAM/ALDA/Excel Core
+    - Clisonix technology identity
+    - Technical depth with code snippets
+    - Professional but distinctive voice
+    """
     
     def __init__(self, config: AutoPublishConfig):
         self.config = config
+        self.intelligence_lab_url = os.environ.get(
+            "INTELLIGENCE_LAB_URL",
+            "http://clisonix-intelligence-lab:8099"
+        )
+    
+    async def _fetch_tables(self) -> Dict[str, Any]:
+        """Fetch real data tables from Intelligence Lab"""
+        try:
+            if httpx:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    resp = await client.get(f"{self.intelligence_lab_url}/tables/all")
+                    if resp.status_code == 200:
+                        return resp.json()
+        except Exception as e:
+            logger.warning(f"Could not fetch tables: {e}")
+        return {}
+    
+    def _select_clisonix_tech(self, domain: str) -> List[Dict[str, Any]]:
+        """Select relevant Clisonix technologies for the domain"""
+        tech_map = {
+            "eeg_neuroscience": ["signal_fabric", "neural_mesh", "liam_algebra"],
+            "audio_processing": ["signal_fabric", "tide_engine"],
+            "ai_ml_systems": ["neural_mesh", "liam_algebra", "alda_orchestration"],
+            "healthcare_tech": ["crdt_merge", "pq_encryption", "tide_engine"],
+            "regulatory": ["pq_encryption", "crdt_merge"],
+            "enterprise_ai": ["alda_orchestration", "tide_engine", "neural_mesh"],
+            "real_time_systems": ["tide_engine", "signal_fabric", "neural_mesh"]
+        }
+        
+        tech_keys = tech_map.get(domain, ["tide_engine", "signal_fabric"])
+        return [CLISONIX_TECH_IDENTITY[k] for k in tech_keys if k in CLISONIX_TECH_IDENTITY]
+    
+    def _generate_code_snippet(self, domain: str) -> str:
+        """Generate relevant code snippet for the domain"""
+        snippets = {
+            "eeg_neuroscience": '''```python
+# Clisonix Signal Fabric - EEG Processing
+from clisonix.signal import SignalFabric
+
+fabric = SignalFabric(channels=64, sample_rate=256)
+filtered = fabric.bandpass_filter(raw_eeg, low=0.5, high=45)
+features = fabric.extract_features(filtered, bands=['alpha', 'beta', 'gamma'])
+```''',
+            "ai_ml_systems": '''```python
+# LIAM Binary Algebra - Vectorized Processing
+from clisonix.liam import BinaryAlgebra
+
+algebra = BinaryAlgebra()
+transformed = algebra.transform_matrix(data, weights)
+compressed = algebra.svd_compress(transformed, k=32)
+```''',
+            "real_time_systems": '''```python
+# Tide Engine - Real-time Sync
+from clisonix.tide import TideEngine
+
+tide = TideEngine(nodes=['edge-1', 'edge-2', 'cloud'])
+tide.sync_state(patient_data, consistency='eventual')
+```''',
+            "healthcare_tech": '''```python
+# CRDT Merge - Collaborative Editing
+from clisonix.crdt import DocumentMerge
+
+doc = DocumentMerge(document_id='patient-123')
+doc.apply_edit(clinician_a_changes)
+doc.apply_edit(clinician_b_changes)  # No conflicts!
+merged = doc.get_state()
+```''',
+            "enterprise_ai": '''```python
+# ALDA Labor Orchestration
+from clisonix.alda import LaborArray
+
+array = LaborArray(dimension=64, determinism='strict')
+array.schedule_task(inference_job, priority=1)
+results = array.execute_all()
+```'''
+        }
+        return snippets.get(domain, snippets["ai_ml_systems"])
     
     async def generate_article(self, topic: str, domain: str) -> Dict[str, Any]:
-        """Generate full article content using LLM"""
+        """Generate premium article with Clisonix identity"""
         
-        prompt = f"""Write a professional technical article about: "{topic}"
+        # Fetch real tables
+        tables = await self._fetch_tables()
+        
+        # Select relevant Clisonix tech
+        tech_stack = self._select_clisonix_tech(domain)
+        tech_names = [t["name"] for t in tech_stack]
+        
+        # Get code snippet
+        code_snippet = self._generate_code_snippet(domain)
+        
+        # Build enhanced prompt
+        default_table = "| Metric | Value |\n|--------|-------|\n| Example | 42 |"
+        metrics_table = tables.get('system_metrics', {}).get('markdown', default_table)
+        prompt = f"""Write a premium technical article for Clisonix, a healthcare AI company.
 
-Domain: {domain.replace('_', ' ').title()}
-Company: Clisonix (AI healthcare technology company)
+TOPIC: "{topic}"
+DOMAIN: {domain.replace('_', ' ').title()}
 
-Structure:
-1. Introduction (hook the reader, state the problem)
-2. Core content (3-4 sections with technical depth)
-3. Practical examples or case studies
-4. Conclusion with actionable takeaways
+CLISONIX IDENTITY (weave these naturally into the article):
+{json.dumps([{"name": t["name"], "use": t["use_case"]} for t in tech_stack], indent=2)}
 
-Requirements:
-- 800-1200 words
-- Professional but accessible
-- Include technical details where relevant
-- Add value to readers (CTOs, developers, healthcare professionals)
-- Subtle Clisonix positioning (expertise, not sales)
-- Use markdown formatting
+STRUCTURE:
+1. **Hook** - Why this matters NOW (not generic intro)
+2. **The Problem** - Real challenges in {domain.replace('_', ' ')}
+3. **Technical Deep Dive** - Architecture, algorithms, implementation
+4. **Real Data** - Include this table in the article:
+{metrics_table}
+
+5. **Code Example** - Include this snippet:
+{code_snippet}
+
+6. **Results & Impact** - Measurable outcomes
+7. **What's Next** - Future directions with clear CTA
+
+REQUIREMENTS:
+- 1000-1500 words
+- Technical but accessible
+- Include the Clisonix technologies listed above naturally
+- Use the provided table and code snippet
+- End with specific CTA (GitHub, demo, contact)
+- Voice: Expert lab, not marketing
 
 Write the complete article:"""
+
+        try:
+            if httpx:
+                async with httpx.AsyncClient(timeout=120.0) as client:
+                    response = await client.post(
+                        f"{self.config.ollama_url}/api/generate",
+                        json={
+                            "model": self.config.model,
+                            "prompt": prompt,
+                            "stream": False
+                        }
+                    )
+                    
+                    if response.status_code == 200:
+                        result = response.json()
+                        content = result.get("response", "").strip()
+                        
+                        if content and len(content) > 500:
+                            return {
+                                "success": True,
+                                "title": topic,
+                                "content": content,
+                                "word_count": len(content.split()),
+                                "domain": domain,
+                                "clisonix_tech": tech_names,
+                                "has_table": bool(tables),
+                                "has_code": True,
+                                "generated_at": datetime.now(timezone.utc).isoformat()
+                            }
+        except Exception as e:
+            logger.error(f"Content generation failed: {e}")
+        
+        return {
+            "success": False,
+            "title": topic,
+            "error": "Content generation failed",
+            "domain": domain
+        }
 
         try:
             if httpx:
@@ -424,9 +611,17 @@ class LocalPublisher:
         self.blog_dir = self.output_dir / "blog" / "_posts"
         self.blog_dir.mkdir(parents=True, exist_ok=True)
     
-    async def publish(self, content: str, title: str, domain: str = "general", 
-                     tags: Optional[List[str]] = None) -> Dict[str, Any]:
-        """Save article locally as Markdown and HTML"""
+    async def publish(
+        self, 
+        content: str, 
+        title: str, 
+        domain: str = "general", 
+        tags: Optional[List[str]] = None,
+        clisonix_tech: Optional[List[str]] = None,
+        has_table: bool = False,
+        has_code: bool = False
+    ) -> Dict[str, Any]:
+        """Save article locally as Markdown and HTML with enhanced metadata"""
         try:
             # Create slug from title
             slug = title.lower()
@@ -441,8 +636,9 @@ class LocalPublisher:
             filename = f"{date_str}-{slug}"
             
             actual_tags = tags if tags else ["clisonix", "technology", "ai"]
+            tech_stack = clisonix_tech if clisonix_tech else []
             
-            # Create Jekyll front matter
+            # Create enhanced Jekyll front matter with technical metadata
             front_matter = f"""---
 layout: post
 title: "{title}"
@@ -451,6 +647,10 @@ categories: [{domain}]
 tags: [{', '.join(actual_tags)}]
 author: Clisonix AI
 description: "{title[:150]}"
+clisonix_tech: [{', '.join(tech_stack)}]
+has_table: {str(has_table).lower()}
+has_code: {str(has_code).lower()}
+lab_generated: true
 ---
 
 """

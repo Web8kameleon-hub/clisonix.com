@@ -311,6 +311,46 @@ services:
     restart: unless-stopped
 
   # ==========================
+  # USER MANAGEMENT (Centralized User Registry)
+  # ==========================
+  user-management:
+    build:
+      context: ./services/user-management
+      dockerfile: Dockerfile
+    container_name: clisonix-user-management
+    environment:
+      PYTHONUNBUFFERED: "1"
+      USER_MANAGEMENT_PORT: "8070"
+    ports:
+      - "8070:8070"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8070/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ==========================
+  # INTELLIGENCE LAB (KLAJDI + MALI)
+  # ==========================
+  intelligence-lab:
+    build:
+      context: ./services/intelligence-lab
+      dockerfile: Dockerfile
+    container_name: clisonix-intelligence-lab
+    environment:
+      PYTHONUNBUFFERED: "1"
+      INTELLIGENCE_LAB_PORT: "8099"
+    ports:
+      - "8099:8099"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8099/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ==========================
   # EXCEL MICROSERVICE
   # ==========================
   excel:
