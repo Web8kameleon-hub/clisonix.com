@@ -216,27 +216,27 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="p-8 rounded-2xl bg-gray-100/50 border border-gray-300 hover:border-emerald-500 hover:shadow-xl hover:shadow-emerald-500/10 transition-all text-center">
+            <Link href="/modules/eeg-analysis" className="p-8 rounded-2xl bg-gray-100/50 border border-gray-300 hover:border-emerald-500 hover:shadow-xl hover:shadow-emerald-500/10 transition-all text-center cursor-pointer">
               <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center mb-6 shadow-lg">
                 <span className="text-3xl">🔬</span>
               </div>
               <h3 className="text-xl font-bold text-black mb-2">Smart Analysis</h3>
               <p className="text-gray-600">Pattern recognition and data insights</p>
-            </div>
-            <div className="p-8 rounded-2xl bg-gray-100/50 border border-gray-300 hover:border-teal-500 hover:shadow-xl hover:shadow-teal-500/10 transition-all text-center">
+            </Link>
+            <Link href="/modules/curiosity-ocean" className="p-8 rounded-2xl bg-gray-100/50 border border-gray-300 hover:border-teal-500 hover:shadow-xl hover:shadow-teal-500/10 transition-all text-center cursor-pointer">
               <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center mb-6 shadow-lg">
                 <span className="text-3xl">🎨</span>
               </div>
               <h3 className="text-xl font-bold text-black mb-2">Creative Tools</h3>
               <p className="text-gray-600">AI-powered creative assistance</p>
-            </div>
-            <div className="p-8 rounded-2xl bg-gray-100/50 border border-gray-300 hover:border-orange-500 hover:shadow-xl hover:shadow-orange-500/10 transition-all text-center">
+            </Link>
+            <Link href="/modules" className="p-8 rounded-2xl bg-gray-100/50 border border-gray-300 hover:border-orange-500 hover:shadow-xl hover:shadow-orange-500/10 transition-all text-center cursor-pointer">
               <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-6 shadow-lg">
                 <span className="text-3xl">✨</span>
               </div>
               <h3 className="text-xl font-bold text-black mb-2">Seamless Experience</h3>
               <p className="text-gray-600">Unified and harmonious interface</p>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
