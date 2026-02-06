@@ -296,6 +296,8 @@ services:
       PYTHONUNBUFFERED: "1"
       PORT: "8006"
       OLLAMA_HOST: "http://clisonix-ollama:11434"
+      GITHUB_TOKEN: "${GITHUB_TOKEN}"
+      BLOG_REPO_URL: "${BLOG_REPO_URL:-https://github.com/LedjanAhmati/clisonix-blog.git}"
     ports:
       - "8006:8006"
     depends_on:
