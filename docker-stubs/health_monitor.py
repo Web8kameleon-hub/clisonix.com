@@ -3,13 +3,14 @@
 Health Monitor - Monitors all 75 Clisonix microservices
 Provides real-time health status and service discovery
 """
-import sys
 import asyncio
-import uvicorn
-from fastapi import FastAPI, BackgroundTasks
+import sys
 from datetime import datetime
 from typing import Dict, List, Optional
+
 import httpx
+import uvicorn
+from fastapi import BackgroundTasks, FastAPI
 
 app = FastAPI(
     title="Clisonix Health Monitor",
@@ -94,11 +95,14 @@ SERVICES: Dict[str, int] = {
     "reporting": 8001,
     "excel": 8002,
     "behavioral": 8003,
-    "analytics": 8005,
-    "neurosonix": 8006,
+    "analytics": 8016,
+    "neurosonix": 8015,
     "aviation": 8080,
     "multi-tenant": 8007,
     "quantum": 8008,
+    "biometric": 8017,
+    "userdata": 8018,
+    "curiosity": 8019,
     
     # Frontend & Gateway
     "api": 8000,
