@@ -11,10 +11,10 @@ Author: Clisonix Cloud
 import random
 import time
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 import numpy as np
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 eeg_router = APIRouter(prefix="/api/eeg", tags=["EEG Analysis"])
@@ -69,7 +69,7 @@ def calculate_band_power(signal: List[float], fs: int = 256) -> EEGBandPowers:
     if n < 10:
         base = 0.5
     else:
-        base = np.std(signal) if signal else 1.0
+        base = float(np.std(signal)) if signal else 1.0
     
     return EEGBandPowers(
         delta=round(base * random.uniform(0.8, 1.2) * 20, 2),
@@ -89,7 +89,7 @@ def determine_brain_state(bands: EEGBandPowers) -> str:
         "focused": bands.beta,
         "peak_performance": bands.gamma,
     }
-    return max(states, key=states.get)
+    return max(states, key=lambda k: states[k])
 
 
 # =============================================================================
@@ -153,11 +153,11 @@ async def process_eeg_data(request: EEGProcessRequest):
     
     # Calculate average bands
     avg_bands = EEGBandPowers(
-        delta=round(np.mean([b.delta for b in channel_bands.values()]), 2),
-        theta=round(np.mean([b.theta for b in channel_bands.values()]), 2),
-        alpha=round(np.mean([b.alpha for b in channel_bands.values()]), 2),
-        beta=round(np.mean([b.beta for b in channel_bands.values()]), 2),
-        gamma=round(np.mean([b.gamma for b in channel_bands.values()]), 2),
+        delta=float(round(np.mean([b.delta for b in channel_bands.values()]), 2)),
+        theta=float(round(np.mean([b.theta for b in channel_bands.values()]), 2)),
+        alpha=float(round(np.mean([b.alpha for b in channel_bands.values()]), 2)),
+        beta=float(round(np.mean([b.beta for b in channel_bands.values()]), 2)),
+        gamma=float(round(np.mean([b.gamma for b in channel_bands.values()]), 2)),
     )
     
     # Determine brain state

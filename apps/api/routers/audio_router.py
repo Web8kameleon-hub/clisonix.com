@@ -12,8 +12,7 @@ import io
 import random
 import struct
 import time
-import uuid
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 import numpy as np
 from fastapi import APIRouter, File, HTTPException, UploadFile

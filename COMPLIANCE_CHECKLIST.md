@@ -247,4 +247,3 @@
 
 **Përditësim i fundit:** 2026-02-03  
 **Përditësuesi:** Copilot Agent
-

@@ -125,7 +125,6 @@ curl http://localhost:8031/health
 
 ## Files Created
 
-```
 ✅ ocean-core/ocean_multimodal.py          - Main engine
 ✅ ocean-core/Dockerfile.multimodal        - Container definition
 ✅ ocean-core/test_multimodal.py           - Test suite
@@ -133,7 +132,6 @@ curl http://localhost:8031/health
 ✅ OCEAN_MULTIMODAL_API.md                 - Full API documentation
 ✅ OCEAN_MULTIMODAL_DEPLOYMENT.md          - Deployment guide
 ✅ This file                                - Quick reference
-```
 
 ## Next Steps
 

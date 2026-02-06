@@ -8,12 +8,13 @@ Consolidates all brain/neural functionality under /api/brain prefix.
 Author: Clisonix Cloud
 """
 
-from fastapi import APIRouter, HTTPException
-from typing import Dict, Any, Optional, List
-from pydantic import BaseModel, Field
 import random
 import time
 import uuid
+from typing import List, Optional
+
+from fastapi import APIRouter
+from pydantic import BaseModel, Field
 
 brain_api_router = APIRouter(prefix="/api/brain", tags=["Brain Engine"])
 
@@ -264,7 +265,7 @@ async def detect_patterns(pattern_type: str = "all"):
     return {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "patterns": patterns,
-        "dominant_pattern": max(patterns.keys(), key=lambda k: patterns[k]["amplitude_uv"] if patterns[k]["detected"] else 0),
+        "dominant_pattern": max(patterns.keys(), key=lambda k: float(patterns[k]["amplitude_uv"]) if patterns[k]["detected"] else 0.0),  # type: ignore[arg-type]
         "pattern_stability": round(random.uniform(0.5, 0.95), 2)
     }
 
@@ -351,11 +352,12 @@ async def get_recommendations(goal: str = "productivity"):
     }
     
     goal_data = goals.get(goal, goals["productivity"])
+    target_state = str(goal_data["target_state"])
     
     return {
         "goal": goal,
         "current_brain_state": random.choice(["focused", "relaxed", "alert"]),
         "optimization": goal_data,
-        "audio_preset": f"/api/audio/binaural/preset/{goal_data['target_state'].replace('-', '_')}",
+        "audio_preset": f"/api/audio/binaural/preset/{target_state.replace('-', '_')}",
         "estimated_time_to_target": f"{random.randint(5, 20)} minutes"
     }

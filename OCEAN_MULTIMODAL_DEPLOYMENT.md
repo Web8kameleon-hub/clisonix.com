@@ -178,7 +178,7 @@ curl -X POST http://localhost:8031/api/v1/analyze \
 
 ## File Structure
 
-```
+```text
 ocean-core/
 
 ├── ocean_nanogrid.py           # Core Ocean service (existing)
@@ -201,7 +201,7 @@ Root directory:
 
 ### Service Dependencies
 
-```
+```text
 ocean-multimodal (port 8031)
 
     ↓
@@ -214,7 +214,7 @@ clisonix-06-ollama (port 11434)
 
 ### Processing Pipeline
 
-```
+```text
 Request → Router (SensorMode)
 
     ├→ VISION     → VisionPipeline   → llava model

@@ -50,18 +50,11 @@ class Res(BaseModel):
 async def get_client() -> httpx.AsyncClient:
     global _client
     if _client is None or _client.is_closed:
-        try:
-            _client = httpx.AsyncClient(
-                timeout=300.0,
-                limits=httpx.Limits(max_keepalive_connections=5, max_connections=10),
-                http2=True
-            )
-        except ImportError:
-            # Fallback without http2 if h2 not installed
-            _client = httpx.AsyncClient(
-                timeout=300.0,
-                limits=httpx.Limits(max_keepalive_connections=5, max_connections=10),
-            )
+        _client = httpx.AsyncClient(
+            timeout=300.0,
+            limits=httpx.Limits(max_keepalive_connections=5, max_connections=10),
+            http2=True
+        )
     return _client
 
 
