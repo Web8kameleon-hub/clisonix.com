@@ -12,11 +12,11 @@ COPY mali_core.py .
 COPY main.py .
 
 # Expose port
-EXPOSE 8099
+EXPOSE 8098
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8099/health || exit 1
+    CMD curl -f http://localhost:8098/health || exit 1
 
 # Run
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8099"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8098"]

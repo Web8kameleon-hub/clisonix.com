@@ -10,7 +10,7 @@ Endpoints:
 - /mali/* - Master Announced Labor Intelligence
 - /tables/* - Excel-ready tables from real data
 
-Port: 8099
+Port: 8098
 
 Author: Ledjan Ahmati (CEO, ABA GmbH)
 """

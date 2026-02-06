@@ -5,15 +5,15 @@
 # NO external LLMs - 100% Internal Clisonix Intelligence
 # ============================================================================
 
-import logging
-from dataclasses import dataclass, field
-from enum import Enum
-from typing import Dict, List, Optional, Any, Callable, Tuple
-from datetime import datetime
-import json
-import re
 import asyncio
+import json
+import logging
+import re
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -287,8 +287,8 @@ class ReasoningEngine:
     
     async def _aggregation_reasoning(self, context: ReasoningContext) -> Tuple[str, int]:
         """Reasoning via data aggregation"""
-        data_points = 0
-        aggregated = []
+        data_points: int = 0
+        aggregated: list[Any] = []
         
         if context.data:
             for key, value in context.data.items():
