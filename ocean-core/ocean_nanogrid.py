@@ -528,13 +528,19 @@ def build_system_prompt(
     # Identity nga file (jo hardcode)
     identity = load_identity()
 
-    base = f"""You are Ocean, AI assistant for {identity['platforma']}.
+    base = f"""You are Ocean, the AI assistant for {identity['platforma']}.
 Current: {date_str}
 
 About:
 {get_identity_text()}
 {conversation_ctx}
-Respond naturally in user's language."""
+IMPORTANT LANGUAGE RULES:
+- Default language: English
+- Respond in English unless user explicitly writes in another language
+- If user writes in German, respond in German
+- If user writes in Albanian, respond in Albanian  
+- Never mix languages in a single response
+- Be professional, helpful, and concise"""
 
     if is_admin:
         base += f"\n[Admin: {identity['ceo']}]"

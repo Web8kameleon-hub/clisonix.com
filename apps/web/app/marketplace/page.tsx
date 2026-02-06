@@ -83,49 +83,65 @@ const apiCategories = [
     name: 'Core System',
     icon: '⚡',
     endpoints: 5,
-    description: 'Health, status, and system monitoring'
+    description: 'Health, status, and system monitoring',
+    basePath: '/api/status',
+    docsUrl: '/docs#core'
   },
   {
     name: 'Brain Engine',
     icon: '🧠',
-    endpoints: 15,
-    description: 'Neural processing, harmony analysis, brain-sync'
+    endpoints: 8,
+    description: 'Neural processing, harmony analysis, brain-sync',
+    basePath: '/api/brain',
+    docsUrl: '/docs#brain'
   },
   {
     name: 'Audio Processing',
     icon: '🎵',
-    endpoints: 8,
-    description: 'Audio synthesis, spectrum analysis, conversion'
+    endpoints: 7,
+    description: 'Binaural beats, spectrum analysis, brain-sync audio',
+    basePath: '/api/audio',
+    docsUrl: '/docs#audio'
   },
   {
     name: 'EEG Analysis',
     icon: '📊',
     endpoints: 6,
-    description: 'Signal processing, frequency bands, patterns'
+    description: 'Signal processing, frequency bands, coherence',
+    basePath: '/api/eeg',
+    docsUrl: '/docs#eeg'
   },
   {
     name: 'ASI Trinity',
     icon: '🔺',
-    endpoints: 10,
-    description: 'Core-A, Core-B, Core-C autonomous systems'
+    endpoints: 12,
+    description: 'Alba, Albi, Jona autonomous systems',
+    basePath: '/api/alba',
+    docsUrl: '/docs#asi'
   },
   {
-    name: 'AI Services',
-    icon: '🤖',
-    endpoints: 8,
-    description: 'Neural interpretation, CrewAI, Claude tools'
+    name: 'Ocean Chat',
+    icon: '🌊',
+    endpoints: 4,
+    description: 'AI chat, streaming responses, context',
+    basePath: '/ocean',
+    docsUrl: '/docs#ocean'
   },
   {
     name: 'Billing',
     icon: '💳',
-    endpoints: 5,
-    description: 'PayPal, Stripe, SEPA payments'
+    endpoints: 8,
+    description: 'Stripe, PayPal, SEPA payments',
+    basePath: '/api/billing',
+    docsUrl: '/docs#billing'
   },
   {
     name: 'Reporting',
     icon: '📈',
-    endpoints: 10,
-    description: 'Excel export, dashboards, metrics'
+    endpoints: 6,
+    description: 'Excel export, dashboards, metrics',
+    basePath: '/api/reporting',
+    docsUrl: '/docs#reporting'
   }
 ]
 

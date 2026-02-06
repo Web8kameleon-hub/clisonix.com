@@ -5,9 +5,27 @@
 
 import path from "path";
 import { fileURLToPath } from "url";
+import withPWAInit from "@ducanh2912/next-pwa";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// PWA Configuration
+const withPWA = withPWAInit({
+  dest: "public",
+  disable: process.env.NODE_ENV === "development",
+  register: true,
+  skipWaiting: true,
+  cacheOnFrontEndNav: true,
+  aggressiveFrontEndNavCaching: true,
+  reloadOnOnline: true,
+  fallbacks: {
+    document: "/offline",
+  },
+  workboxOptions: {
+    disableDevLogs: true,
+  },
+});
 
 // PRODUCTION: Docker internal communication via container names
 // DEVELOPMENT: Use localhost for local backend
@@ -259,4 +277,4 @@ const nextConfig = {
   allowedDevOrigins: ["localhost:3000", "127.0.0.1:3000", "clisonix.com"],
 };
 
-export default nextConfig;
+export default withPWA(nextConfig);

@@ -1,33 +1,33 @@
 # -*- coding: utf-8 -*-
 # --- CONSOLIDATED IMPORTS (MUST COME FIRST) ---
-import os
-import sys
-import time
-import json
-import uuid
-import socket
 import asyncio
+import json
 import logging
+import os
 import random
-import traceback
-import tempfile
-from pathlib import Path
-from datetime import datetime, timezone
-from typing import Optional, Dict, Any, List
+import socket
 import statistics
+import sys
+import tempfile
+import time
+import traceback
+import uuid
 from collections import defaultdict
-from itertools import islice
+from datetime import datetime, timezone
 from glob import glob
+from itertools import islice
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 # FastAPI / ASGI
-from fastapi import FastAPI, UploadFile, File, Request, HTTPException, APIRouter, Form
+from fastapi import APIRouter, FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
 # Pydantic
 from pydantic import BaseModel, Field
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 # Try importing BaseSettings from the correct location (Pydantic v2)
 try:
@@ -50,8 +50,8 @@ except Exception:
     _PSUTIL = False
 
 # HTTP
-import requests
 import httpx
+import requests
 
 # --- Brain Router Initialization (must come after imports) ---
 brain_router = APIRouter(prefix="/brain", tags=["brain"])
@@ -80,9 +80,10 @@ async def youtube_insight(video_id: str):
     """
 
     try:
+        import httpx
+
         from apps.api.integrations.youtube import _get_json
         from apps.api.neuro.youtube_insight_engine import YouTubeInsightEngine
-        import httpx
 
         engine = YouTubeInsightEngine()
 
@@ -128,6 +129,7 @@ async def daily_energy_check(file: UploadFile = File(...)):
     """
     try:
         import tempfile
+
         from apps.api.neuro.energy_engine import EnergyEngine
 
         # Save audio sample
@@ -171,6 +173,7 @@ async def generate_moodboard(
     """
     try:
         import tempfile
+
         from apps.api.neuro.moodboard_engine import MoodboardEngine
 
         engine = MoodboardEngine()
@@ -199,6 +202,7 @@ async def generate_moodboard(
         raise HTTPException(status_code=500, detail="moodboard_failed")
 # --- Personal Brain-Sync Music Endpoint ---
 from fastapi.responses import StreamingResponse
+
 
 @brain_router.post("/music/brainsync")
 async def generate_brainsync_music(
@@ -489,11 +493,11 @@ async def restart_brain():
         logger.error(f"[RESTART ERROR] {e}")
         raise HTTPException(status_code=500, detail="internal_restart_failed")
 # ------------- Clisonix Cloud API (EEG to Audio) -------------
-from fastapi.responses import StreamingResponse
-import numpy as np
 import io
 
+import numpy as np
 from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
 
 neural_router = APIRouter()
 
@@ -536,28 +540,28 @@ Notes:
     - If a dependency is not configured or reachable, endpoints return 5xx (do NOT fabricate values).
 """
 
+import asyncio
+import json
+import logging
 import os
+import socket
+import statistics
 import sys
 import time
-import json
-import uuid
-import socket
-import asyncio
-import logging
 import traceback
-from pathlib import Path
-from datetime import datetime, timezone
-from typing import Optional, Dict, Any, List
-import statistics
+import uuid
 from collections import defaultdict
-from itertools import islice
+from datetime import datetime, timezone
 from glob import glob
+from itertools import islice
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 # FastAPI / ASGI
-from fastapi import FastAPI, UploadFile, File, Request, HTTPException
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 BaseSettings = None
@@ -600,8 +604,8 @@ except Exception:
 
 # EEG (mne/numpy/scipy)
 try:
-    import numpy as np
     import mne
+    import numpy as np
     from scipy.signal import welch
     _EEG = True
 except Exception:
@@ -617,6 +621,7 @@ except Exception:
 
 # HTTP
 import requests
+
 
 # ------------- Settings -------------
 class Settings(BaseSettings):
@@ -925,12 +930,12 @@ app = FastAPI(
 # =============================================================================
 try:
     from apps.api.unified_status_layer import (
-        unified_router,
         CachingMiddleware,
-        RateLimitMiddleware,
         NotFoundMiddleware,
+        RateLimitMiddleware,
+        error_handler,
         status_cache,
-        error_handler
+        unified_router,
     )
     
     # Add unified status router (/api/system/health)
@@ -1535,7 +1540,7 @@ app.add_middleware(
 # STRIPE USAGE METERING MIDDLEWARE
 # ============================================================================
 try:
-    from stripe_metering import metering_middleware, get_metering_status
+    from stripe_metering import get_metering_status, metering_middleware
     app.middleware("http")(metering_middleware)
     logger.info("✅ Stripe usage metering middleware loaded")
 except ImportError as e:
@@ -2133,9 +2138,10 @@ async def redis_ping():
 
 
 # ------------- Brain Router (Cognitive Endpoints) -------------
+import asyncio
+
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
-import asyncio
 
 # Assume 'cog' is the cognitive engine instance, must be available in the context
 try:
@@ -2216,6 +2222,18 @@ async def stream_live_brain():
 # Register brain_router with the main app
 app.include_router(brain_router)
 
+# =============================================================================
+# MARKETPLACE API ROUTERS (EEG, Audio, Brain)
+# =============================================================================
+try:
+    from routers import audio_router, brain_api_router, eeg_router
+    app.include_router(eeg_router)
+    app.include_router(audio_router)
+    app.include_router(brain_api_router)
+    logger.info("✅ Marketplace API routers loaded (EEG, Audio, Brain)")
+except Exception as e:
+    logger.warning(f"Marketplace routers not loaded: {e}")
+
 # Import and include Fitness Module routes
 try:
     from apps.api.routes.fitness_routes import fitness_router
@@ -2226,8 +2244,8 @@ except Exception as e:
 
 # Import and include Alba monitoring routes
 try:
-    import sys
     import os
+    import sys
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
     from routes.alba_routes import router as alba_router
     app.include_router(alba_router)
@@ -2313,8 +2331,9 @@ async def query_prometheus(query: str) -> dict:
 @app.get("/metrics")
 async def prometheus_metrics():
     """Prometheus metrics endpoint - returns text/plain format for scraping"""
-    from starlette.responses import Response
     import time
+
+    from starlette.responses import Response
     
     # Get system metrics
     uptime = time.time() - START_TIME
@@ -3430,7 +3449,9 @@ async def get_realdata_dashboard():
 
 # Import local AI engine
 try:
-    from clisonix_ai_engine import clisonix_ai, analyze_eeg, interpret_query, trinity_analysis as local_trinity, ocean_chat, ai_health as local_ai_health
+    from clisonix_ai_engine import ai_health as local_ai_health
+    from clisonix_ai_engine import analyze_eeg, clisonix_ai, interpret_query, ocean_chat
+    from clisonix_ai_engine import trinity_analysis as local_trinity
     LOCAL_AI_AVAILABLE = True
     logger.info("✅ Clisonix Local AI Engine loaded successfully")
 except ImportError:
@@ -3564,9 +3585,10 @@ def init_crewai_agents():
         return _crewai_agents
     
     try:
+        import os
+
         from crewai import Agent
         from dotenv import load_dotenv
-        import os
         
         load_dotenv()
         
@@ -3613,11 +3635,12 @@ def init_langchain_chains():
         return _langchain_chains
     
     try:
+        import os
+
+        from dotenv import load_dotenv
+        from langchain.chains import ConversationChain
         from langchain.llms import OpenAI
         from langchain.memory import ConversationBufferMemory
-        from langchain.chains import ConversationChain
-        from dotenv import load_dotenv
-        import os
         
         load_dotenv()
         
@@ -4880,7 +4903,7 @@ async def mymirror_export(request: Request):
         # Try to use openpyxl for Excel export
         try:
             from openpyxl import Workbook
-            from openpyxl.styles import Font, PatternFill, Alignment
+            from openpyxl.styles import Alignment, Font, PatternFill
             
             wb = Workbook()
             ws = wb.active
