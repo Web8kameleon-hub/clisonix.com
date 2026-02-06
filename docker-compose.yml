@@ -294,15 +294,15 @@ services:
     container_name: clisonix-content-factory
     environment:
       PYTHONUNBUFFERED: "1"
-      PORT: "8005"
+      PORT: "8006"
       OLLAMA_HOST: "http://clisonix-ollama:11434"
     ports:
-      - "8005:8005"
+      - "8006:8006"
     depends_on:
       ollama:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8006/health"]
       interval: 30s
       timeout: 10s
       retries: 3
