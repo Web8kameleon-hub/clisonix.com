@@ -24,6 +24,7 @@
 | 📊 Excel | `/api/excel/health`, `/api/excel/generate` |
 | 💳 Billing | `/billing/stripe/payment-intent`, `/billing/paypal/order` |
 | 🔬 Neural | `/neural-symphony`, `/api/ask` |
+| 🏭 Content Factory | `/analyze`, `/process`, `/publish`, `/pipeline` |
 
 ## 🔐 Environment Variables
 

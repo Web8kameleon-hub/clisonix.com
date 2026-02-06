@@ -285,6 +285,30 @@ services:
     restart: unless-stopped
 
   # ==========================
+  # CONTENT FACTORY (Blerina + EAP + Publisher)
+  # ==========================
+  content-factory:
+    build:
+      context: .
+      dockerfile: services/content-factory/Dockerfile
+    container_name: clisonix-content-factory
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PORT: "8005"
+      OLLAMA_HOST: "http://clisonix-ollama:11434"
+    ports:
+      - "8005:8005"
+    depends_on:
+      ollama:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ==========================
   # EXCEL MICROSERVICE
   # ==========================
   excel:
