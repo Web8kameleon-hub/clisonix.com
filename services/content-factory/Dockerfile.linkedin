@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
 # Install Python dependencies
 COPY services/content-factory/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir uvicorn fastapi pydantic
+RUN pip install --no-cache-dir uvicorn fastapi pydantic requests
 
 # Copy the LinkedIn auto poster
 COPY services/content-factory/linkedin_auto_poster.py .
