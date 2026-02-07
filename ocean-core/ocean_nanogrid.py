@@ -283,7 +283,7 @@ try:
     BINARY_ALGEBRA_AVAILABLE = True
 except ImportError:
     BINARY_ALGEBRA_AVAILABLE = False
-    logger.info("Binary Algebra not loaded (optional)")
+    print("Binary Algebra not loaded (optional)")
 
 
 async def perform_binary_operation(a: int, b: int, op: str = "XOR", bits: int = 8) -> dict:
