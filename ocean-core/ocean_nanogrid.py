@@ -221,7 +221,7 @@ try:
 except ImportError:
     LABORATORIES_AVAILABLE = False
     _lab_network = None
-    logger.info("Laboratories module not loaded (optional)")
+    print("Laboratories module not loaded (optional)")
 
 
 async def get_laboratory_status(lab_id: str = None) -> str:
