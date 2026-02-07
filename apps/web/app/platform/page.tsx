@@ -23,7 +23,8 @@ export default function PlatformPage() {
     { name: 'Prism', icon: '🔮', desc: 'Data analysis & insights', status: 'Live' },
     { name: 'Harmony', icon: '🎵', desc: 'Audio processing engine', status: 'Live' },
     { name: 'Nexus', icon: '🌐', desc: 'Integration hub', status: 'Live' },
-    { name: 'Chronicle', icon: '📜', desc: 'Historical data archive', status: 'Coming Soon' },
+    { name: 'Chronicle', icon: '📜', desc: 'Historical data archive', status: 'Live' },
+    { name: 'Web Reader', icon: '🌐', desc: 'Browse & search the web', status: 'Live' },
   ];
 
   const apiStats = [

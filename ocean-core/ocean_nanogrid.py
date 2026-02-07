@@ -38,7 +38,7 @@ api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 def load_api_keys() -> dict:
     """Load valid API keys from config file."""
     try:
-        with open(API_KEYS_FILE, "r") as f:
+        with open(API_KEYS_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
     except FileNotFoundError:
         return {"dev": "clisonix-dev-key-2025"}
@@ -117,7 +117,7 @@ async def fetch_wikipedia(query: str) -> str:
                 if results:
                     return "\n".join([f"- {item['title']}: {item['snippet'][:150]}..." 
                                      for item in results[:3]])
-    except:
+    except Exception:  # noqa: BLE001
         pass
     return ""
 
@@ -131,7 +131,7 @@ async def fetch_weather(city: str = "Tirana") -> str:
                 data = r.json()
                 current = data.get("current_condition", [{}])[0]
                 return f"Weather in {city}: {current.get('temp_C')}°C, {current.get('weatherDesc', [{}])[0].get('value', 'Unknown')}"
-    except:
+    except Exception:  # noqa: BLE001
         pass
     return ""
 
@@ -151,7 +151,7 @@ async def fetch_crypto_prices() -> str:
                 for coin, prices in data.items():
                     lines.append(f"- {coin.title()}: ${prices.get('usd', 'N/A')} / €{prices.get('eur', 'N/A')}")
                 return "💰 Crypto Prices:\n" + "\n".join(lines)
-    except:
+    except Exception:  # noqa: BLE001
         pass
     return ""
 
@@ -170,7 +170,7 @@ async def fetch_earthquakes() -> str:
                         props = eq.get("properties", {})
                         lines.append(f"- M{props.get('mag')} {props.get('place')}")
                     return "🌍 Recent Earthquakes:\n" + "\n".join(lines)
-    except:
+    except Exception:  # noqa: BLE001
         pass
     return ""
 
@@ -189,7 +189,7 @@ async def fetch_arxiv_papers(query: str = "AI") -> str:
                     titles.append(f"- {match[:80]}...")
                 if titles:
                     return "📚 Recent ArXiv Papers:\n" + "\n".join(titles)
-    except:
+    except Exception:  # noqa: BLE001
         pass
     return ""
 
@@ -222,7 +222,7 @@ async def fetch_pubmed(query: str) -> str:
                                 lines.append(f"- {title} ({source})")
                         if lines:
                             return "🏥 PUBMED RESEARCH:\n" + "\n".join(lines)
-    except:
+    except Exception:  # noqa: BLE001
         pass
     return ""
 
@@ -232,7 +232,7 @@ async def fetch_eurostat(query: str) -> str:
     try:
         async with httpx.AsyncClient(timeout=8.0) as client:
             # Search datasets
-            search_url = f"https://ec.europa.eu/eurostat/api/dissemination/catalogue/datasets?lang=en&limit=5"
+            search_url = "https://ec.europa.eu/eurostat/api/dissemination/catalogue/datasets?lang=en&limit=5"
             r = await client.get(search_url)
             if r.status_code == 200:
                 # Return available datasets info
@@ -243,7 +243,7 @@ async def fetch_eurostat(query: str) -> str:
 - Inflation HICP: https://ec.europa.eu/eurostat/databrowser/view/prc_hicp_manr
 - Energy Prices: https://ec.europa.eu/eurostat/databrowser/view/nrg_pc_204
 For specific queries, I can fetch detailed data from these sources."""
-    except:
+    except Exception:  # noqa: BLE001
         pass
     return ""
 
@@ -258,7 +258,7 @@ async def fetch_exchange_rates() -> str:
                 data = r.json()
                 rates = data.get("rates", {})
                 if rates:
-                    lines = [f"💱 EXCHANGE RATES (Base: 1 EUR):"]
+                    lines = ["💱 EXCHANGE RATES (Base: 1 EUR):"]
                     for currency, rate in rates.items():
                         lines.append(f"- {currency}: {rate:.4f}")
                     return "\n".join(lines)
@@ -272,7 +272,7 @@ async def fetch_exchange_rates() -> str:
                 for currency, rate in rates.items():
                     lines.append(f"- {currency}: {rate:.4f}")
                 return "\n".join(lines)
-    except:
+    except Exception:  # noqa: BLE001
         pass
     return ""
 
@@ -293,7 +293,7 @@ async def search_github(query: str) -> str:
                         stars = repo.get("stargazers_count", 0)
                         lines.append(f"- [{name}](https://github.com/{name}) ⭐{stars}\n  {desc}")
                     return "\n".join(lines)
-    except:
+    except Exception:  # noqa: BLE001
         pass
     return ""
 
@@ -322,7 +322,7 @@ async def fetch_albania_data(query: str) -> str:
 - NATO Member: Since 2009
 
 For specific statistics, visit instat.gov.al or bankofalbania.org"""
-    except:
+    except Exception:  # noqa: BLE001
         pass
     return ""
 
@@ -350,7 +350,7 @@ INTERNAL_SERVICES = {
 # ═══════════════════════════════════════════════════════════════════
 
 try:
-    from laboratories import Laboratory, LaboratoryNetwork
+    from laboratories import LaboratoryNetwork
     LABORATORIES_AVAILABLE = True
     _lab_network = LaboratoryNetwork()
 except ImportError:
@@ -379,7 +379,7 @@ async def get_laboratory_status(lab_id: str = None) -> str:
         
         # All labs summary
         labs = _lab_network.get_all_laboratories()
-        lab_list = "\n".join([f"- {l.lab_id}: {l.function} ({l.location})" for l in labs[:10]])
+        lab_list = "\n".join([f"- {lab.lab_id}: {lab.function} ({lab.location})" for lab in labs[:10]])
         return f"""🔬 CLISONIX LABORATORY NETWORK ({len(labs)} labs):
 {lab_list}
 ... and {len(labs) - 10} more
@@ -461,14 +461,14 @@ async def get_internal_service_status() -> str:
     """Check status of all Clisonix internal services"""
     results = []
     async with httpx.AsyncClient(timeout=2.0) as client:
-        for name, config in INTERNAL_SERVICES.items():
+        for _name, config in INTERNAL_SERVICES.items():
             try:
                 r = await client.get(f"http://localhost:{config['port']}/health")
                 if r.status_code == 200:
                     results.append(f"✅ {config['name']} (:{config['port']})")
                 else:
                     results.append(f"⚠️ {config['name']} (:{config['port']}) - {r.status_code}")
-            except:
+            except Exception:  # noqa: BLE001
                 results.append(f"❌ {config['name']} (:{config['port']}) - offline")
     return "🔧 Clisonix Services:\n" + "\n".join(results)
 
@@ -916,7 +916,7 @@ async def fetch_from_data_sources(query: str, region: str = "global") -> str:
             "japan": "JP", "japoni": "JP",
             "china": "CN", "kinë": "CN",
             "india": "IN", "indi": "IN",
-            "brazil": "BR", "brazil": "BR",
+            "brazil": "BR", "brasil": "BR",
             "australia": "AU", "australi": "AU",
             "serbia": "RS", "serbi": "RS",
             "croatia": "HR", "kroaci": "HR",
@@ -934,7 +934,7 @@ async def fetch_from_data_sources(query: str, region: str = "global") -> str:
         
         if detected_country:
             # Find the country in our index
-            for region_name, countries in GLOBAL_DATA_SOURCES_INDEX.items():
+            for _region_name, countries in GLOBAL_DATA_SOURCES_INDEX.items():
                 if detected_country in countries:
                     source = countries[detected_country]
                     result_parts.append(f"🌍 {source['name']}: {source['url']}")
@@ -965,7 +965,7 @@ async def fetch_from_data_sources(query: str, region: str = "global") -> str:
         
         return ""
     except Exception as e:
-        logger.debug(f"Data sources not available: {e}")
+        print(f"⚠️ Data sources not available: {e}")
         return ""
 
 
@@ -1055,6 +1055,7 @@ Never say you are ChatGPT, Llama, or any other AI.
 
 Remember: You know the current date and time! Use it when relevant."""
 
+
 # Rate limiting config
 FREE_TIER_LIMIT = 1000  # messages per hour (increased from 20 for better development experience)
 FREE_TRIAL_MONTHS = 6
@@ -1084,8 +1085,10 @@ def check_rate_limit(user_id: str, is_admin: bool = False) -> tuple[bool, int]:
     rate_limits[user_id].append(now)
     return True, FREE_TIER_LIMIT - count - 1
 
+
 # Persistent client (connection pool)
 _client: httpx.AsyncClient = None
+
 
 async def get_client() -> httpx.AsyncClient:
     global _client
@@ -1115,15 +1118,16 @@ async def startup():
     client = await get_client()
     try:
         await client.get(f"{OLLAMA}/api/version")
-        print(f"🟢 Nanogrid ready - Ollama connected")
-    except:
-        print(f"🟡 Nanogrid ready - Ollama will connect on first request")
+        print("🟢 Nanogrid ready - Ollama connected")
+    except Exception:  # noqa: BLE001
+        print("🟡 Nanogrid ready - Ollama will connect on first request")
 
 @app.on_event("shutdown")
 async def shutdown():
-    global _client
+    global _client  # pylint: disable=global-statement
     if _client:
         await _client.aclose()
+        _client = None
 
 @app.get("/")
 async def root():
@@ -1184,7 +1188,7 @@ async def chat(req: Req, request: Request):
         })
         resp = r.json().get("message", {}).get("content", "")
     except Exception as e:
-        raise HTTPException(500, str(e))
+        raise HTTPException(500, str(e)) from e
     
     return Res(response=resp, time=round(time.time() - t0, 2))
 
@@ -1517,7 +1521,7 @@ async def get_crypto(symbol: str = "bitcoin"):
             r = await client.get(f"https://api.coingecko.com/api/v3/simple/price?ids={symbol}&vs_currencies=usd,eur")
             if r.status_code == 200:
                 return {"symbol": symbol, "prices": r.json()}
-    except:
+    except Exception:  # noqa: BLE001
         pass
     return {"symbol": symbol, "error": "Could not fetch price"}
 
@@ -1538,7 +1542,7 @@ async def get_github_repo(owner: str, repo: str):
                     "language": data.get("language"),
                     "url": data.get("html_url")
                 }
-    except:
+    except Exception:  # noqa: BLE001
         pass
     return {"error": "Could not fetch repo"}
 
@@ -1553,12 +1557,12 @@ async def search_arxiv(query: str):
                 # Parse XML response (simplified)
                 text = r.text
                 titles = []
-                import re
+                import re  # noqa: C0415
                 for match in re.findall(r'<title>(.*?)</title>', text):
                     if match != "ArXiv Query":
                         titles.append(match.strip())
                 return {"query": query, "papers": titles[:5]}
-    except:
+    except Exception:  # noqa: BLE001
         pass
     return {"query": query, "papers": []}
 
@@ -1580,7 +1584,7 @@ async def get_earthquakes():
                         "time": props.get("time")
                     })
                 return {"earthquakes": quakes}
-    except:
+    except Exception:  # noqa: BLE001
         pass
     return {"earthquakes": []}
 
@@ -1600,10 +1604,9 @@ async def list_sources():
 # 🎤 MULTIMODAL ENDPOINTS - Mikrofon, Kamera, Dokumente
 # ═══════════════════════════════════════════════════════════════════
 
-import base64
-
 # Multimodal Models
 VISION_MODEL = os.getenv("VISION_MODEL", "llava:latest")
+_whisper_model = None  # Cached whisper model instance
 
 class VisionRequest(BaseModel):
     """Request për analizë imazhi"""
@@ -1687,7 +1690,7 @@ async def analyze_image(req: VisionRequest):
             }
             
     except Exception as e:
-        raise HTTPException(500, f"Vision error: {str(e)}")
+        raise HTTPException(500, f"Vision error: {str(e)}") from e
 
 
 @app.post("/api/v1/audio/transcribe")
@@ -1704,12 +1707,12 @@ async def transcribe_audio(req: AudioRequest):
     t0 = time.time()
     
     try:
-        import base64 as b64mod
+        import base64 as b64mod  # noqa: C0415
         audio_bytes = b64mod.b64decode(req.audio_base64)
         audio_size = len(audio_bytes)
         
         # Ruaj audio si temp file
-        import tempfile
+        import tempfile  # noqa: C0415
         with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as tmp:
             tmp.write(audio_bytes)
             tmp_path = tmp.name
@@ -1718,14 +1721,15 @@ async def transcribe_audio(req: AudioRequest):
             from faster_whisper import WhisperModel
             
             # Ngarko modelin (cache-ohet pas ngarkimit të parë)
-            if not hasattr(transcribe_audio, '_whisper_model'):
-                transcribe_audio._whisper_model = WhisperModel(
+            global _whisper_model  # pylint: disable=global-statement
+            if _whisper_model is None:
+                _whisper_model = WhisperModel(
                     "base",  # Modeli: tiny, base, small, medium, large-v3
                     device="cpu",
                     compute_type="int8"
                 )
             
-            model = transcribe_audio._whisper_model
+            model = _whisper_model
             segments, info = model.transcribe(
                 tmp_path, 
                 language=req.language if req.language != 'auto' else None,
@@ -1739,8 +1743,7 @@ async def transcribe_audio(req: AudioRequest):
             transcript = " ".join(transcript_parts)
             
             # Pastro temp file
-            import os as _os
-            _os.unlink(tmp_path)
+            os.unlink(tmp_path)
             
             if not transcript.strip():
                 transcript = "[Nuk u dallua fjalim në audio]"
@@ -1757,8 +1760,7 @@ async def transcribe_audio(req: AudioRequest):
             }
             
         except ImportError:
-            import os as _os
-            _os.unlink(tmp_path)
+            os.unlink(tmp_path)
             return {
                 "status": "whisper_not_available",
                 "message": "faster-whisper nuk është instaluar",
@@ -1766,7 +1768,7 @@ async def transcribe_audio(req: AudioRequest):
             }
             
     except Exception as e:
-        raise HTTPException(500, f"Audio error: {str(e)}")
+        raise HTTPException(500, f"Audio error: {str(e)}") from e
 
 
 @app.post("/api/v1/document/analyze")
@@ -1818,7 +1820,7 @@ async def analyze_document(req: DocumentRequest):
         }
         
     except Exception as e:
-        raise HTTPException(500, f"Document error: {str(e)}")
+        raise HTTPException(500, f"Document error: {str(e)}") from e
 
 
 @app.post("/api/v1/document/write")
@@ -1897,7 +1899,7 @@ Shkruaj dokumentin e plotë, të gatshëm për përdorim.
         }
         
     except Exception as e:
-        raise HTTPException(500, f"Document write error: {str(e)}")
+        raise HTTPException(500, f"Document write error: {str(e)}") from e
 
 
 @app.get("/api/v1/multimodal/status")
@@ -1943,7 +1945,7 @@ async def keep_alive():
         try:
             client = await get_client()
             await client.get(f"{OLLAMA}/api/ps")
-        except:
+        except Exception:  # noqa: BLE001
             pass
 
 @app.on_event("startup")

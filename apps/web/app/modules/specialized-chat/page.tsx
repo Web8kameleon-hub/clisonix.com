@@ -45,7 +45,7 @@ const EXPERT_DOMAINS: Domain[] = [
   { id: 'marine', name: 'Marine Biology', icon: '🌊', description: 'Ocean ecosystems, marine life', keywords: ['ocean', 'marine', 'ecosystem', 'coral'] },
 ]
 
-const OCEAN_API = process.env.NEXT_PUBLIC_OCEAN_API || 'http://localhost:8030/api/v1'
+const API_PROXY = '/api/ocean/specialized'
 
 export default function SpecializedChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
@@ -59,7 +59,7 @@ export default function SpecializedChatPage() {
   useEffect(() => {
     const checkApi = async () => {
       try {
-        const res = await fetch(`${OCEAN_API}/status`)
+        const res = await fetch(API_PROXY)
         setApiStatus(res.ok ? 'online' : 'offline')
       } catch {
         setApiStatus('offline')
@@ -104,8 +104,7 @@ _My responses are powered by domain-specific knowledge bases and research databa
     setLoading(true)
 
     try {
-      // Try specialized endpoint first
-      const response = await fetch(`${OCEAN_API}/chat/specialized`, {
+      const response = await fetch(API_PROXY, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -129,27 +128,7 @@ _My responses are powered by domain-specific knowledge bases and research databa
         
         setMessages(prev => [...prev, assistantMessage])
       } else {
-        // Fallback to orchestrated
-        const fallbackRes = await fetch(`${OCEAN_API}/chat/orchestrated`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: input })
-        })
-
-        if (fallbackRes.ok) {
-          const fallbackData = await fallbackRes.json()
-          setMessages(prev => [...prev, {
-            id: `ai-${Date.now()}`,
-            role: 'assistant',
-            content: fallbackData.fused_answer || fallbackData.response || 'Analyzing...',
-            timestamp: new Date(),
-            domain: fallbackData.query_category,
-            confidence: fallbackData.confidence,
-            sources: fallbackData.sources_cited
-          }])
-        } else {
-          throw new Error('API error')
-        }
+        throw new Error(`API error: ${response.status}`)
       }
     } catch {
       setMessages(prev => [...prev, {

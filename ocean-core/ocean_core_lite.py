@@ -15,7 +15,7 @@ Port: 8030
 import logging
 import os
 import time
-from typing import Dict, List, Optional
+from typing import Optional
 
 import httpx
 from fastapi import FastAPI, HTTPException
@@ -65,6 +65,7 @@ def route_intent(text: str) -> Optional[str]:
             return svc
     return None
 
+
 # ═══════════════════════════════════════════════════════════════════
 # SYSTEM PROMPT - Minimal
 # ═══════════════════════════════════════════════════════════════════
@@ -109,7 +110,7 @@ async def detect_language(text: str) -> tuple:
             if resp.status_code == 200:
                 data = resp.json()
                 return data.get("detected_language", "en"), data.get("language_name", "English")
-    except:
+    except Exception:  # noqa: BLE001
         pass
     return "en", "English"
 
@@ -124,14 +125,14 @@ async def process_chat(req: ChatRequest) -> ChatResponse:
     
     # 1. Detect language (fast)
     lang_code, lang_name = await detect_language(prompt)
-    
+
     # 2. Route service (instant)
     routed = route_intent(prompt)
-    
+
     # 3. Build prompt
     lang_hint = f"\nRespond in {lang_name}." if lang_code != "en" else ""
     service_hint = f"\nUser is asking about {routed}. URL: {SERVICES.get(routed, '')}" if routed else ""
-    
+
     system = SYSTEM_PROMPT + lang_hint + service_hint
     
     # 4. Call Ollama (main latency)
@@ -160,16 +161,16 @@ async def process_chat(req: ChatRequest) -> ChatResponse:
             )
             if resp.status_code != 200:
                 raise HTTPException(resp.status_code, "Ollama error")
-            
+
             response_text = resp.json().get("message", {}).get("content", "")
-    except httpx.TimeoutException:
-        raise HTTPException(504, "Timeout")
+    except httpx.TimeoutException as exc:
+        raise HTTPException(504, "Timeout") from exc
     except Exception as e:
-        raise HTTPException(500, str(e))
-    
+        raise HTTPException(500, str(e)) from e
+
     elapsed = time.time() - start
-    logger.info(f"[{lang_code}] {elapsed:.1f}s")
-    
+    logger.info("[%s] %.1fs", lang_code, elapsed)
+
     return ChatResponse(
         response=response_text,
         model=req.model or MODEL,
@@ -207,5 +208,5 @@ async def list_services():
 
 if __name__ == "__main__":
     import uvicorn
-    logger.info(f"🌊 Ocean Core Lite on port {PORT}")
+    logger.info("🌊 Ocean Core Lite on port %s", PORT)
     uvicorn.run(app, host="0.0.0.0", port=PORT)

@@ -18,6 +18,24 @@ const MODULES = [
     color: 'from-emerald-500 to-teal-600',
     category: 'AI Chat'
   },
+  {
+    id: 'web-reader',
+    name: 'Web Reader',
+    description: 'Browse any webpage, search the web, chat with page content',
+    icon: '🌐',
+    color: 'from-blue-500 to-cyan-600',
+    category: 'AI Chat',
+    isNew: true
+  },
+  {
+    id: 'archive',
+    name: 'Archive & Research',
+    description: 'Search ArXiv, Wikipedia, PubMed and 5000+ global data sources',
+    icon: '📜',
+    color: 'from-indigo-500 to-violet-600',
+    category: 'Research',
+    isNew: true
+  },
   // 🧠 NEUROSCIENCE
   {
     id: 'eeg-analysis',

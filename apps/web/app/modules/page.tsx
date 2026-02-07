@@ -27,7 +27,9 @@ import {
   Bell,
   Command,
   ExternalLink,
-  MessageSquare
+  MessageSquare,
+  Globe,
+  Archive
 } from 'lucide-react';
 
 // Module definitions with Lucide icons
@@ -39,6 +41,24 @@ const publicModules = [
     icon: Waves,
     category: 'AI Chat',
     href: '/modules/curiosity-ocean',
+    accent: 'slate'
+  },
+  {
+    id: 'web-reader',
+    name: 'Web Reader',
+    description: 'Browse any webpage, search the web, and chat with page content',
+    icon: Globe,
+    category: 'AI Chat',
+    href: '/modules/web-reader',
+    accent: 'slate'
+  },
+  {
+    id: 'archive',
+    name: 'Archive & Research',
+    description: 'Search ArXiv, Wikipedia, PubMed and 5000+ global data sources',
+    icon: Archive,
+    category: 'Research',
+    href: '/modules/archive',
     accent: 'slate'
   },
   {
