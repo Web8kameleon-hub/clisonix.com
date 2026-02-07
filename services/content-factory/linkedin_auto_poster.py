@@ -10,14 +10,14 @@ Features:
 - Supports manual posting via API
 """
 
-import os
-import json
-import requests
 import hashlib
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Optional
+import json
 import logging
+import os
+from datetime import datetime
+from pathlib import Path
+
+import requests
 
 # Configure logging
 logging.basicConfig(
@@ -66,7 +66,7 @@ def generate_post_text(article: dict) -> str:
     title = article.get('title', 'New Article')
     description = article.get('description', article.get('excerpt', ''))
     slug = article.get('slug', '')
-    category = article.get('category', 'Technology')
+    _category = article.get('category', 'Technology')  # Reserved for future use
     tags = article.get('tags', [])
     
     # Build hashtags from tags
@@ -257,7 +257,7 @@ def post_custom_content(text: str) -> dict:
 # FastAPI endpoints for the automation service
 def create_app():
     """Create FastAPI app for the LinkedIn automation service."""
-    from fastapi import FastAPI, HTTPException, BackgroundTasks
+    from fastapi import BackgroundTasks, FastAPI, HTTPException
     from pydantic import BaseModel
     
     app = FastAPI(
