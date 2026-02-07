@@ -2,8 +2,8 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install git for blog sync
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+# Install git + curl for blog sync and health checks
+RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
 
 # Copy root-level content factory modules
 COPY blerina_core.py /app/
