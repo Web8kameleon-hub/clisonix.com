@@ -8,13 +8,20 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 export default function OpenWebUIChat() {
   const [messages, setMessages] = useState([
     { id: 1, text: "Hello! I'm Clisonix AI Assistant. How can I help you with EEG analysis, neural synthesis, or system monitoring?", sender: 'bot' }
   ])
   const [input, setInput] = useState('')
+  const [isRecording, setIsRecording] = useState(false)
+  const [showCamera, setShowCamera] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+
+  const OCEAN_API = process.env.NEXT_PUBLIC_OCEAN_URL || 'http://localhost:8030'
 
   const sendMessage = async () => {
     if (input.trim()) {
@@ -22,14 +29,143 @@ export default function OpenWebUIChat() {
       setMessages(prev => [...prev, newMessage])
       setInput('')
 
-      // Simple placeholder response
-      const botResponse = { 
-        id: Date.now(), 
-        text: 'Processing your query through Clisonix neural systems...', 
-        sender: 'bot' 
+      try {
+        const response = await fetch(`${OCEAN_API}/api/v1/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: input })
+        })
+        const data = await response.json()
+        const botResponse = { 
+          id: Date.now(), 
+          text: data.response || 'Processing...', 
+          sender: 'bot' 
+        }
+        setMessages(prev => [...prev, botResponse])
+      } catch {
+        setMessages(prev => [...prev, { id: Date.now(), text: 'Connection error. Try again.', sender: 'bot' }])
       }
-      setMessages(prev => [...prev, botResponse])
     }
+  }
+
+  // 🎤 Mikrofon - Start/Stop Recording
+  const toggleRecording = async () => {
+    if (isRecording) {
+      mediaRecorderRef.current?.stop()
+      setIsRecording(false)
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        const mediaRecorder = new MediaRecorder(stream)
+        const chunks: BlobPart[] = []
+        
+        mediaRecorder.ondataavailable = (e) => chunks.push(e.data)
+        mediaRecorder.onstop = async () => {
+          const blob = new Blob(chunks, { type: 'audio/webm' })
+          const reader = new FileReader()
+          reader.onloadend = async () => {
+            const base64 = (reader.result as string).split(',')[1]
+            setMessages(prev => [...prev, { id: Date.now(), text: '🎤 Audio recording sent...', sender: 'user' }])
+            
+            try {
+              const res = await fetch(`${OCEAN_API}/api/v1/audio/transcribe`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ audio_base64: base64, language: 'sq' })
+              })
+              const data = await res.json()
+              setMessages(prev => [...prev, { id: Date.now(), text: `📝 Transkriptim: ${data.transcript || 'Audio processing...'}`, sender: 'bot' }])
+            } catch {
+              setMessages(prev => [...prev, { id: Date.now(), text: 'Audio processing error', sender: 'bot' }])
+            }
+          }
+          reader.readAsDataURL(blob)
+          stream.getTracks().forEach(t => t.stop())
+        }
+        
+        mediaRecorderRef.current = mediaRecorder
+        mediaRecorder.start()
+        setIsRecording(true)
+      } catch {
+        alert('Microphone access denied')
+      }
+    }
+  }
+
+  // 📷 Kamera - Capture Photo
+  const toggleCamera = async () => {
+    if (showCamera) {
+      const video = videoRef.current
+      if (video?.srcObject) {
+        (video.srcObject as MediaStream).getTracks().forEach(t => t.stop())
+      }
+      setShowCamera(false)
+    } else {
+      setShowCamera(true)
+      setTimeout(async () => {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream
+          }
+        } catch {
+          alert('Camera access denied')
+          setShowCamera(false)
+        }
+      }, 100)
+    }
+  }
+
+  const capturePhoto = async () => {
+    const video = videoRef.current
+    if (!video) return
+    
+    const canvas = document.createElement('canvas')
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    canvas.getContext('2d')?.drawImage(video, 0, 0)
+    const base64 = canvas.toDataURL('image/jpeg').split(',')[1]
+    
+    setMessages(prev => [...prev, { id: Date.now(), text: '📷 Photo captured...', sender: 'user' }])
+    
+    try {
+      const res = await fetch(`${OCEAN_API}/api/v1/vision/analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image_base64: base64, prompt: 'Përshkruaj këtë foto' })
+      })
+      const data = await res.json()
+      setMessages(prev => [...prev, { id: Date.now(), text: `🔍 ${data.analysis || 'Image analysis...'}`, sender: 'bot' }])
+    } catch {
+      setMessages(prev => [...prev, { id: Date.now(), text: 'Vision processing error', sender: 'bot' }])
+    }
+    
+    toggleCamera()
+  }
+
+  // 📄 Document Upload
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    const reader = new FileReader()
+    reader.onloadend = async () => {
+      const content = reader.result as string
+      setMessages(prev => [...prev, { id: Date.now(), text: `📄 Document: ${file.name}`, sender: 'user' }])
+      
+      try {
+        const res = await fetch(`${OCEAN_API}/api/v1/document/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content, action: 'summarize' })
+        })
+        const data = await res.json()
+        setMessages(prev => [...prev, { id: Date.now(), text: `📋 ${data.analysis || 'Document analysis...'}`, sender: 'bot' }])
+      } catch {
+        setMessages(prev => [...prev, { id: Date.now(), text: 'Document processing error', sender: 'bot' }])
+      }
+    }
+    reader.readAsText(file)
   }
 
   return (
@@ -90,7 +226,56 @@ export default function OpenWebUIChat() {
 
         {/* Input Area */}
         <div className="border-t bg-white p-6">
+          {/* Camera Preview */}
+          {showCamera && (
+            <div className="mb-4 flex justify-center">
+              <div className="relative">
+                <video ref={videoRef} autoPlay className="rounded-xl w-80 h-60 bg-black" />
+                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                  <button onClick={capturePhoto} className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                    📸 Capture
+                  </button>
+                  <button onClick={toggleCamera} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                    ✕ Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="flex space-x-4 max-w-4xl mx-auto">
+            {/* Multimodal Buttons */}
+            <div className="flex space-x-2">
+              <button 
+                onClick={toggleRecording}
+                className={`p-4 rounded-xl transition ${isRecording ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-100 hover:bg-gray-200'}`}
+                title="Mikrofon"
+              >
+                🎤
+              </button>
+              <button 
+                onClick={toggleCamera}
+                className={`p-4 rounded-xl transition ${showCamera ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+                title="Kamera"
+              >
+                📷
+              </button>
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="p-4 bg-gray-100 rounded-xl hover:bg-gray-200 transition"
+                title="Dokument"
+              >
+                📄
+              </button>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileUpload} 
+                className="hidden" 
+                accept=".txt,.pdf,.doc,.docx,.md"
+              />
+            </div>
+            
             <input
               type="text"
               placeholder="Ask about EEG data analysis, neural synthesis, ALBI patterns, or system status..."
@@ -108,7 +293,7 @@ export default function OpenWebUIChat() {
             </button>
           </div>
           <div className="text-center mt-3 text-sm text-gray-500">
-          Ask about: EEG Analysis • Neural Synthesis • Data Streams • System Status
+          🎤 Voice • 📷 Camera • 📄 Documents • EEG Analysis • Neural Synthesis
           </div>
         </div>
       </div>
