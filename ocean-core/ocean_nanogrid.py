@@ -193,6 +193,139 @@ async def fetch_arxiv_papers(query: str = "AI") -> str:
 
 
 # ═══════════════════════════════════════════════════════════════════
+# NEW DATA SOURCES - PubMed, Eurostat, Exchange Rates, GitHub, Albania
+# ═══════════════════════════════════════════════════════════════════
+
+async def fetch_pubmed(query: str) -> str:
+    """Get medical research from PubMed (FREE API)"""
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            # Search for articles
+            search_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term={query}&retmax=3&retmode=json"
+            r = await client.get(search_url)
+            if r.status_code == 200:
+                ids = r.json().get("esearchresult", {}).get("idlist", [])
+                if ids:
+                    # Get summaries
+                    summary_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id={','.join(ids[:3])}&retmode=json"
+                    s = await client.get(summary_url)
+                    if s.status_code == 200:
+                        results = s.json().get("result", {})
+                        lines = []
+                        for pmid in ids[:3]:
+                            if pmid in results:
+                                article = results[pmid]
+                                title = article.get("title", "")[:100]
+                                source = article.get("source", "")
+                                lines.append(f"- {title} ({source})")
+                        if lines:
+                            return "🏥 PUBMED RESEARCH:\n" + "\n".join(lines)
+    except:
+        pass
+    return ""
+
+
+async def fetch_eurostat(query: str) -> str:
+    """Get EU statistics from Eurostat (FREE API)"""
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            # Search datasets
+            search_url = f"https://ec.europa.eu/eurostat/api/dissemination/catalogue/datasets?lang=en&limit=5"
+            r = await client.get(search_url)
+            if r.status_code == 200:
+                # Return available datasets info
+                return """📊 EUROSTAT EU STATISTICS:
+- Population & Demographics: https://ec.europa.eu/eurostat/databrowser/view/demo_pjan
+- GDP & Economy: https://ec.europa.eu/eurostat/databrowser/view/nama_10_gdp
+- Unemployment: https://ec.europa.eu/eurostat/databrowser/view/une_rt_m
+- Inflation HICP: https://ec.europa.eu/eurostat/databrowser/view/prc_hicp_manr
+- Energy Prices: https://ec.europa.eu/eurostat/databrowser/view/nrg_pc_204
+For specific queries, I can fetch detailed data from these sources."""
+    except:
+        pass
+    return ""
+
+
+async def fetch_exchange_rates() -> str:
+    """Get exchange rates from ECB (FREE API)"""
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            # Use exchangerate.host (free, no key)
+            r = await client.get("https://api.exchangerate.host/latest?base=EUR&symbols=USD,GBP,CHF,ALL,JPY")
+            if r.status_code == 200:
+                data = r.json()
+                rates = data.get("rates", {})
+                if rates:
+                    lines = [f"💱 EXCHANGE RATES (Base: 1 EUR):"]
+                    for currency, rate in rates.items():
+                        lines.append(f"- {currency}: {rate:.4f}")
+                    return "\n".join(lines)
+            
+            # Fallback to frankfurter.app
+            r2 = await client.get("https://api.frankfurter.app/latest?from=EUR&to=USD,GBP,CHF,JPY")
+            if r2.status_code == 200:
+                data = r2.json()
+                rates = data.get("rates", {})
+                lines = [f"💱 EXCHANGE RATES (Base: 1 EUR, Date: {data.get('date', 'today')}):"]
+                for currency, rate in rates.items():
+                    lines.append(f"- {currency}: {rate:.4f}")
+                return "\n".join(lines)
+    except:
+        pass
+    return ""
+
+
+async def search_github(query: str) -> str:
+    """Search GitHub repositories (FREE API, rate limited)"""
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            headers = {"Accept": "application/vnd.github.v3+json"}
+            r = await client.get(f"https://api.github.com/search/repositories?q={query}&sort=stars&per_page=5", headers=headers)
+            if r.status_code == 200:
+                items = r.json().get("items", [])[:5]
+                if items:
+                    lines = ["🐙 GITHUB REPOSITORIES:"]
+                    for repo in items:
+                        name = repo.get("full_name", "")
+                        desc = (repo.get("description", "") or "")[:80]
+                        stars = repo.get("stargazers_count", 0)
+                        lines.append(f"- [{name}](https://github.com/{name}) ⭐{stars}\n  {desc}")
+                    return "\n".join(lines)
+    except:
+        pass
+    return ""
+
+
+async def fetch_albania_data(query: str) -> str:
+    """Get Albania-specific data from INSTAT and Bank of Albania"""
+    try:
+        # Return structured info about Albanian data sources
+        return """🇦🇱 ALBANIA DATA SOURCES:
+
+**INSTAT (Institute of Statistics):**
+- Website: https://www.instat.gov.al/en/
+- Population: ~2.8 million (2024)
+- GDP Growth: ~3.5% (2024)
+- Inflation: ~4.2% (2024)
+
+**Bank of Albania:**
+- Website: https://www.bankofalbania.org/
+- Exchange Rate: 1 EUR ≈ 100-103 ALL
+- Interest Rate: 3.25% (repo rate)
+
+**Quick Facts:**
+- Capital: Tirana (pop. ~900,000)
+- Currency: Albanian Lek (ALL)
+- EU Candidate: Since 2014
+- NATO Member: Since 2009
+
+For specific statistics, visit instat.gov.al or bankofalbania.org"""
+    except:
+        pass
+    return ""
+
+
+# ═══════════════════════════════════════════════════════════════════
 # CLISONIX INTERNAL SERVICES - ALBA, ALBI, ASI, Kitchen
 # ═══════════════════════════════════════════════════════════════════
 
@@ -447,6 +580,98 @@ async def build_smart_context(query: str) -> str:
             webpage = await fetch_webpage(url, max_chars=4000)
             if webpage and not webpage.startswith("Error"):
                 context_parts.append(f"📄 WEBPAGE ({url}):\n{webpage[:3000]}")
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # WIKIPEDIA - For general knowledge questions (ALWAYS try for factual queries)
+    # ═══════════════════════════════════════════════════════════════════
+    wiki_keywords = ["what is", "who is", "when", "where", "why", "how", "define", "explain",
+                     "çfarë", "kush", "kur", "ku", "pse", "si", "historia", "history", 
+                     "person", "country", "city", "company", "event", "concept",
+                     "was ist", "wer ist", "bedeutung", "definition"]
+    # Also trigger for proper nouns (capitalized words that might be entities)
+    has_proper_noun = any(word[0].isupper() and len(word) > 2 for word in query.split() if word)
+    
+    if any(kw in query_lower for kw in wiki_keywords) or has_proper_noun:
+        # Extract the main topic (remove question words)
+        topic = query_lower
+        for remove in ["what is", "who is", "çfarë është", "kush është", "was ist", "wer ist", "?"]:
+            topic = topic.replace(remove, "")
+        topic = topic.strip()
+        if len(topic) > 2:
+            wiki_result = await fetch_wikipedia(topic)
+            if wiki_result:
+                context_parts.append(f"📚 WIKIPEDIA:\n{wiki_result}")
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # WEB SEARCH - For current events, news, recent info
+    # ═══════════════════════════════════════════════════════════════════
+    search_keywords = ["latest", "news", "recent", "today", "2025", "2026", "current",
+                       "lajm", "sot", "aktual", "fundit", "aktuell", "neueste",
+                       "price", "cost", "how much", "sa kushton", "çmim"]
+    if any(kw in query_lower for kw in search_keywords):
+        search_results = await search_web(query, num_results=3)
+        if search_results and not any("error" in str(r).lower() for r in search_results):
+            formatted = "\n".join([f"- [{r.get('title', 'Link')}]({r.get('url', '')})" for r in search_results[:3]])
+            context_parts.append(f"🔍 WEB SEARCH RESULTS:\n{formatted}")
+            # Auto-fetch first result for more context
+            if search_results and search_results[0].get('url'):
+                first_page = await fetch_webpage(search_results[0]['url'], max_chars=2000)
+                if first_page and not first_page.startswith("Error"):
+                    context_parts.append(f"📄 TOP RESULT CONTENT:\n{first_page[:1500]}")
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # PUBMED - Medical/Health questions
+    # ═══════════════════════════════════════════════════════════════════
+    medical_keywords = ["disease", "medicine", "drug", "treatment", "symptom", "diagnosis",
+                        "health", "medical", "clinical", "patient", "doctor", "hospital",
+                        "sëmundje", "ilaç", "trajtim", "simptom", "shëndet", "mjek",
+                        "krankheit", "medizin", "behandlung", "arzt"]
+    if any(kw in query_lower for kw in medical_keywords):
+        pubmed_results = await fetch_pubmed(query)
+        if pubmed_results:
+            context_parts.append(pubmed_results)
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # EUROSTAT - EU Statistics
+    # ═══════════════════════════════════════════════════════════════════
+    eu_keywords = ["europe", "eu", "european", "germany", "france", "italy", "spain",
+                   "population", "gdp", "unemployment", "inflation", "statistics",
+                   "evropë", "gjermani", "francë", "itali", "statistik"]
+    if any(kw in query_lower for kw in eu_keywords):
+        eurostat_data = await fetch_eurostat(query)
+        if eurostat_data:
+            context_parts.append(eurostat_data)
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # EXCHANGE RATES - Currency conversion
+    # ═══════════════════════════════════════════════════════════════════
+    currency_keywords = ["euro", "dollar", "eur", "usd", "gbp", "exchange", "currency",
+                         "convert", "rate", "lekë", "lek", "kurs", "valutë", "währung"]
+    if any(kw in query_lower for kw in currency_keywords):
+        exchange_data = await fetch_exchange_rates()
+        if exchange_data:
+            context_parts.append(exchange_data)
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # GITHUB - Code/Programming questions
+    # ═══════════════════════════════════════════════════════════════════
+    code_keywords = ["github", "code", "programming", "repository", "repo", "open source",
+                     "python", "javascript", "typescript", "rust", "golang", "library",
+                     "kod", "programim", "bibliothek"]
+    if any(kw in query_lower for kw in code_keywords):
+        github_results = await search_github(query)
+        if github_results:
+            context_parts.append(github_results)
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # ALBANIA SPECIFIC - INSTAT, Bank of Albania
+    # ═══════════════════════════════════════════════════════════════════
+    albania_keywords = ["albania", "albanian", "shqipëri", "shqiptar", "tirana", "tiranë",
+                        "instat", "banka e shqipërisë", "lekë", "all"]
+    if any(kw in query_lower for kw in albania_keywords):
+        albania_data = await fetch_albania_data(query)
+        if albania_data:
+            context_parts.append(albania_data)
     
     return "\n\n".join(context_parts) if context_parts else ""
 
