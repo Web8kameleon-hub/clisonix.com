@@ -1,125 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Script from 'next/script';
 
 /**
- * PRICING PAGE - Stripe Checkout Integration
+ * PRICING PAGE - Stripe Pricing Table Integration
  * 
- * Plans:
- * - Free: 10 articles, basic access
+ * Plans (via Stripe Pricing Table):
  * - Pro: €9.99/month - All 63+ articles, Curiosity Ocean, priority support
  * - Team: €29.99/month - Everything + team features
  */
 
 export default function PricingPage() {
-  const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
-  const [loading, setLoading] = useState<string | null>(null);
-  const router = useRouter();
-
-  const handleSubscribe = async (planKey: string) => {
-    if (planKey === 'starter') {
-      // Free plan - redirect to sign up
-      router.push('/sign-up');
-      return;
-    }
-    
-    if (planKey === 'enterprise') {
-      // Enterprise - contact sales
-      window.location.href = 'mailto:investors@clisonix.com?subject=Enterprise Plan Inquiry';
-      return;
-    }
-
-    setLoading(planKey);
-    
-    try {
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          plan: planKey,
-          interval: billing === 'monthly' ? 'monthly' : 'yearly',
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
-      } else if (data.error === 'Unauthorized') {
-        // Not logged in - redirect to sign in
-        router.push('/sign-in?redirect_url=/pricing');
-      } else {
-        console.error('Checkout error:', data.error);
-        alert('Unable to start checkout. Please try again.');
-      }
-    } catch (error) {
-      console.error('Checkout error:', error);
-      alert('Unable to start checkout. Please try again.');
-    } finally {
-      setLoading(null);
-    }
-  };
-
-  const plans = [
-    {
-      key: 'starter',
-      name: 'Free',
-      description: 'Perfect for exploring Clisonix',
-      price: { monthly: 0, annual: 0 },
-      features: [
-        '10 Research Articles',
-        'Basic Curiosity Ocean access',
-        '1,000 API calls/month',
-        'Community support',
-        'Standard latency'
-      ],
-      cta: 'Start Free',
-      highlighted: false,
-      badge: null
-    },
-    {
-      key: 'professional',
-      name: 'Pro',
-      description: 'Full access to all features',
-      price: { monthly: 9.99, annual: 99 },
-      features: [
-        '✨ All 63+ Research Articles',
-        '🧠 Full Curiosity Ocean AI',
-        '🔧 All 15+ Modules',
-        '50,000 API calls/month',
-        'Priority email support',
-        '99.9% uptime SLA',
-        'Camera & Mic tools',
-        'Document analysis'
-      ],
-      cta: 'Subscribe Now',
-      highlighted: true,
-      badge: 'Most Popular'
-    },
-    {
-      key: 'enterprise',
-      name: 'Team',
-      description: 'For teams and organizations',
-      price: { monthly: 29.99, annual: 299 },
-      features: [
-        'Everything in Pro',
-        'Unlimited API calls',
-        '5 team members',
-        '24/7 priority support',
-        'Custom integrations',
-        'SSO & advanced security',
-        'Dedicated account manager',
-        'SLA guarantees'
-      ],
-      cta: 'Contact Sales',
-      highlighted: false,
-      badge: 'Teams'
-    }
-  ];
-
   const faqs = [
     {
       q: 'Can I try Clisonix before paying?',
@@ -167,90 +59,46 @@ export default function PricingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="pt-32 pb-16 px-6 text-center">
+      <section className="pt-32 pb-8 px-6 text-center">
         <h1 className="text-5xl font-bold mb-4">
           Simple, Transparent Pricing
         </h1>
         <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
           Start free, scale as you grow. No hidden fees, no surprises.
         </p>
+      </section>
 
-        {/* Billing Toggle */}
-        <div className="inline-flex items-center gap-4 p-1 rounded-xl bg-slate-800">
-          <button
-            onClick={() => setBilling('monthly')}
-            className={`px-6 py-2 rounded-lg transition-colors ${
-              billing === 'monthly' ? 'bg-violet-600 text-white' : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            Monthly
-          </button>
-          <button
-            onClick={() => setBilling('annual')}
-            className={`px-6 py-2 rounded-lg transition-colors ${
-              billing === 'annual' ? 'bg-violet-600 text-white' : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            Annual <span className="text-green-400 text-sm ml-1">Save 17%</span>
-          </button>
+      {/* Stripe Pricing Table */}
+      <section className="py-12 px-6">
+        <div className="max-w-4xl mx-auto">
+          <Script 
+            async 
+            src="https://js.stripe.com/v3/pricing-table.js"
+            strategy="lazyOnload"
+          />
+          {/* @ts-expect-error - Stripe custom element */}
+          <stripe-pricing-table 
+            pricing-table-id="prctbl_1Sy8ChJQa06Hh2HG3AT0Lh1s"
+            publishable-key="pk_live_51SMsVsJQa06Hh2HGoqyEOIwdY5dcRYjr2Ic5Xk2xkjdHZf71cXGM7wU3sFTWHPXaePYEE0fmVJzbihbJEXU8oaKP00kNtNyHEg"
+          />
         </div>
       </section>
 
-      {/* Pricing Cards */}
-      <section className="py-12 px-6">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`relative rounded-2xl p-8 ${
-                plan.highlighted
-                  ? 'bg-gradient-to-b from-violet-500/20 to-slate-800 border-2 border-violet-500'
-                  : 'bg-slate-800/50 border border-slate-700'
-              }`}
+      {/* Free Tier Info */}
+      <section className="py-8 px-6">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="p-6 rounded-2xl bg-slate-800/50 border border-slate-700">
+            <h3 className="text-xl font-bold mb-2">🆓 Free Tier Available</h3>
+            <p className="text-gray-400 mb-4">
+              Want to try before you buy? Get 10 free research articles and basic Curiosity Ocean access.
+            </p>
+            <Link 
+              href="/sign-up" 
+              className="inline-flex px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-semibold transition-colors"
             >
-              {plan.badge && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-violet-500 text-sm font-medium">
-                  {plan.badge}
-                </div>
-              )}
-
-              <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-              <p className="text-gray-400 mb-6">{plan.description}</p>
-
-              <div className="mb-6">
-                <span className="text-5xl font-bold">
-                  €{billing === 'monthly' ? plan.price.monthly : Math.round(plan.price.annual / 12)}
-                </span>
-                <span className="text-gray-400">/month</span>
-                {billing === 'annual' && plan.price.annual > 0 && (
-                  <div className="text-sm text-green-400 mt-1">
-                    Save €{(plan.price.monthly * 12 - plan.price.annual).toFixed(0)}/year
-                  </div>
-                )}
-              </div>
-
-              <button
-                onClick={() => handleSubscribe(plan.key)}
-                disabled={loading === plan.key}
-                className={`block w-full py-3 rounded-xl font-semibold text-center transition-colors mb-8 disabled:opacity-50 ${
-                  plan.highlighted
-                    ? 'bg-violet-600 hover:bg-violet-500'
-                    : 'bg-slate-700 hover:bg-slate-600'
-                }`}
-              >
-                {loading === plan.key ? 'Loading...' : plan.cta}
-              </button>
-
-              <ul className="space-y-3">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3">
-                    <span className="text-violet-400 mt-0.5">✓</span>
-                    <span className="text-gray-300">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+              Start Free →
+            </Link>
+          </div>
         </div>
       </section>
 
