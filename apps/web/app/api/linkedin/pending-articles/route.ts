@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 const LINKEDIN_API_URL =
   process.env.LINKEDIN_API_URL || "http://localhost:8007";

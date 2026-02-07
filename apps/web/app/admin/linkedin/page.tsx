@@ -14,12 +14,6 @@ interface Article {
   author?: string;
 }
 
-interface PostedArticle {
-  id: string;
-  postedAt: string;
-  postId: string;
-}
-
 export default function LinkedInAdminPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [postedArticles, setPostedArticles] = useState<string[]>([]);
@@ -69,7 +63,7 @@ export default function LinkedInAdminPage() {
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to post article' });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Error posting article' });
     } finally {
       setPosting(null);
@@ -97,7 +91,7 @@ export default function LinkedInAdminPage() {
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to post' });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Error posting content' });
     } finally {
       setPosting(null);
@@ -125,7 +119,7 @@ export default function LinkedInAdminPage() {
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to run daily post' });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Error running daily post' });
     } finally {
       setPosting(null);

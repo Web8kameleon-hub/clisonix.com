@@ -273,7 +273,7 @@ def create_app():
         article_id: str
     
     @app.get("/health")
-    async def health():
+    async def health() -> dict[str, str]:
         return {
             "status": "healthy",
             "service": "linkedin-auto-poster",
@@ -281,7 +281,7 @@ def create_app():
         }
     
     @app.post("/api/linkedin/post-daily")
-    async def trigger_daily_post(background_tasks: BackgroundTasks):
+    async def trigger_daily_post(background_tasks: BackgroundTasks) -> dict[str, object]:
         """Trigger the daily posting job."""
         result = run_daily_post()
         return result
