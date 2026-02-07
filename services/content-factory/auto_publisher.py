@@ -63,8 +63,9 @@ class AutoPublishConfig:
     medium_enabled: bool = True
     twitter_enabled: bool = True
     devto_enabled: bool = True
+    reddit_enabled: bool = True
     substack_enabled: bool = False       # Needs manual newsletter setup
-    
+
     # API Credentials (from environment)
     linkedin_token: Optional[str] = field(default_factory=lambda: os.environ.get("LINKEDIN_ACCESS_TOKEN"))
     medium_token: Optional[str] = field(default_factory=lambda: os.environ.get("MEDIUM_TOKEN"))
@@ -73,8 +74,11 @@ class AutoPublishConfig:
     twitter_access_token: Optional[str] = field(default_factory=lambda: os.environ.get("TWITTER_ACCESS_TOKEN"))
     twitter_access_secret: Optional[str] = field(default_factory=lambda: os.environ.get("TWITTER_ACCESS_SECRET"))
     devto_api_key: Optional[str] = field(default_factory=lambda: os.environ.get("DEVTO_API_KEY"))
-    
-    # Content storage
+    reddit_client_id: Optional[str] = field(default_factory=lambda: os.environ.get("REDDIT_CLIENT_ID"))
+    reddit_client_secret: Optional[str] = field(default_factory=lambda: os.environ.get("REDDIT_CLIENT_SECRET"))
+    reddit_username: Optional[str] = field(default_factory=lambda: os.environ.get("REDDIT_USERNAME"))
+    reddit_password: Optional[str] = field(default_factory=lambda: os.environ.get("REDDIT_PASSWORD"))
+    reddit_subreddit: str = field(default_factory=lambda: os.environ.get("REDDIT_SUBREDDIT", "clisonix"))    # Content storage
     output_dir: str = "/app/published"
     
     # Quality thresholds
@@ -592,6 +596,8 @@ Write the complete article:"""
         return {
             "linkedin": f"🚀 {title}\n\n{summary[:500]}...\n\n#HealthTech #AI #Innovation #Clisonix",
             "twitter": f"{title[:200]}\n\n{summary[:180]}...\n\n#HealthTech #AI",
+            "reddit_title": title,
+            "reddit_body": f"{summary[:800]}\n\n---\n*Published by [Clisonix](https://clisonix.com) - AI-Powered Healthcare Intelligence*",
             "medium_excerpt": summary[:400],
             "devto_tags": "healthtech,ai,machinelearning,programming"
         }
@@ -1061,34 +1067,134 @@ class DevToPublisher:
 
 
 class TwitterPublisher:
-    """Publish to Twitter/X"""
-    
+    """Publish to Twitter/X using OAuth 1.0a (via tweepy)"""
+
     def __init__(self, api_key: str, api_secret: str, access_token: str, access_secret: str):
         self.api_key = api_key
         self.api_secret = api_secret
         self.access_token = access_token
         self.access_secret = access_secret
-        self.api_url = "https://api.twitter.com/2"
-    
+
     async def publish(self, content: str) -> Dict[str, Any]:
-        """Publish tweet"""
+        """Publish tweet via Twitter API v2 with OAuth 1.0a"""
         if not all([self.api_key, self.api_secret, self.access_token, self.access_secret]):
             return {"success": False, "error": "Twitter credentials not configured", "platform": "twitter"}
-        
-        # Twitter integration requires OAuth 1.0a which is complex
-        # For now, return placeholder - would need tweepy or similar
-        return {
-            "success": False, 
-            "error": "Twitter OAuth implementation needed - use tweepy library",
-            "platform": "twitter"
-        }
+
+        try:
+            import tweepy
+            client = tweepy.Client(
+                consumer_key=self.api_key,
+                consumer_secret=self.api_secret,
+                access_token=self.access_token,
+                access_token_secret=self.access_secret
+            )
+            # Twitter limit = 280 chars
+            tweet_text = content[:277] + "..." if len(content) > 280 else content
+            response = client.create_tweet(text=tweet_text)
+            tweet_id = response.data["id"]
+            return {
+                "success": True,
+                "platform": "twitter",
+                "url": f"https://x.com/i/status/{tweet_id}",
+                "tweet_id": tweet_id
+            }
+        except ImportError:
+            return {"success": False, "error": "tweepy not installed", "platform": "twitter"}
+        except Exception as e:
+            return {"success": False, "error": str(e), "platform": "twitter"}
+
+
+class RedditPublisher:
+    """Publish to Reddit via OAuth2 (script app)"""
+
+    def __init__(self, client_id: str, client_secret: str, username: str, password: str, subreddit: str = "clisonix"):
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.username = username
+        self.password = password
+        self.subreddit = subreddit
+        self.token_url = "https://www.reddit.com/api/v1/access_token"
+        self.api_url = "https://oauth.reddit.com"
+        self.user_agent = "Clisonix-AutoPublisher/1.0 (by /u/{})".format(username or "clisonix")
+
+    async def _get_token(self) -> Optional[str]:
+        """Get Reddit OAuth2 token via password grant"""
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    self.token_url,
+                    auth=(self.client_id, self.client_secret),
+                    data={
+                        "grant_type": "password",
+                        "username": self.username,
+                        "password": self.password
+                    },
+                    headers={"User-Agent": self.user_agent}
+                )
+                if response.status_code == 200:
+                    return response.json().get("access_token")
+                logger.warning(f"Reddit token error: {response.status_code} {response.text}")
+                return None
+        except Exception as e:
+            logger.error(f"Reddit auth failed: {e}")
+            return None
+
+    async def publish(self, title: str, body: str, flair: str = "") -> Dict[str, Any]:
+        """Submit a text post to the configured subreddit"""
+        if not all([self.client_id, self.client_secret, self.username, self.password]):
+            return {"success": False, "error": "Reddit credentials not configured", "platform": "reddit"}
+
+        token = await self._get_token()
+        if not token:
+            return {"success": False, "error": "Failed to get Reddit access token", "platform": "reddit"}
+
+        try:
+            async with httpx.AsyncClient() as client:
+                headers = {
+                    "Authorization": f"Bearer {token}",
+                    "User-Agent": self.user_agent
+                }
+                payload = {
+                    "sr": self.subreddit,
+                    "kind": "self",
+                    "title": title[:300],
+                    "text": body[:40000],
+                    "resubmit": True
+                }
+                if flair:
+                    payload["flair_text"] = flair
+
+                response = await client.post(
+                    f"{self.api_url}/api/submit",
+                    data=payload,
+                    headers=headers
+                )
+
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("success") or not data.get("json", {}).get("errors"):
+                        post_url = (
+                            data.get("json", {}).get("data", {}).get("url")
+                            or f"https://reddit.com/r/{self.subreddit}/new"
+                        )
+                        return {
+                            "success": True,
+                            "platform": "reddit",
+                            "url": post_url,
+                            "subreddit": self.subreddit
+                        }
+                    errors = data.get("json", {}).get("errors", [])
+                    return {"success": False, "error": f"Reddit errors: {errors}", "platform": "reddit"}
+
+                return {"success": False, "error": f"Reddit HTTP {response.status_code}: {response.text[:200]}", "platform": "reddit"}
+
+        except Exception as e:
+            return {"success": False, "error": str(e), "platform": "reddit"}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # AUTO PUBLISHER ENGINE
-# ═══════════════════════════════════════════════════════════════════════════════
-
-class AutoPublisher:
+# ═══════════════════════════════════════════════════════════════════════════════class AutoPublisher:
     """Main auto-publishing engine"""
     
     def __init__(self, config: Optional[AutoPublishConfig] = None):
@@ -1113,7 +1219,14 @@ class AutoPublisher:
             self.config.twitter_access_token or "",
             self.config.twitter_access_secret or ""
         )
-        
+        self.reddit = RedditPublisher(
+            self.config.reddit_client_id or "",
+            self.config.reddit_client_secret or "",
+            self.config.reddit_username or "",
+            self.config.reddit_password or "",
+            self.config.reddit_subreddit
+        )
+
         self._running = False
         self._stats: Dict[str, Any] = {
             "total_generated": 0,
@@ -1204,7 +1317,17 @@ class AutoPublisher:
                 publish_tasks.append(("devto", self.devto.publish(
                     article["content"], article["title"], tags_list
                 )))
-            
+
+            if self.config.twitter_enabled:
+                publish_tasks.append(("twitter", self.twitter.publish(
+                    variants["twitter"]
+                )))
+
+            if self.config.reddit_enabled:
+                publish_tasks.append(("reddit", self.reddit.publish(
+                    variants["reddit_title"], variants["reddit_body"]
+                )))
+
             # Execute all publish tasks
             for platform, task in publish_tasks:
                 try:
