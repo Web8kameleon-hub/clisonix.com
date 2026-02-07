@@ -5,20 +5,27 @@
 # Server: 46.225.14.83 (hetzner-new)
 #
 # This workflow:
-# 1. Builds Docker images locally (GitHub Actions)
-# 2. Pushes to GitHub Container Registry
-# 3. SSHs to Hetzner and runs docker-compose pull + up
+# 1. SSHs to Hetzner and runs git pull
+# 2. Builds Docker images on server
+# 3. Restarts containers with new images
 # =============================================================================
 
 name: "🚀 Deploy via SSH (Docker Compose)"
 
 on:
+  # Auto-deploy on push to main (apps/web changes)
+  push:
+    branches: [ main ]
+    paths:
+      - 'apps/web/**'
+      - 'apps/web/app/**'
+  # Manual dispatch for full control
   workflow_dispatch:
     inputs:
       scope:
         description: 'Deployment scope'
         required: true
-        default: 'pull-only'
+        default: 'rebuild-core'
         type: choice
         options:
           - pull-only        # Just git pull, no rebuild
