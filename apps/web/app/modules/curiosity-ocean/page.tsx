@@ -360,6 +360,7 @@ export default function CuriosityOceanChat() {
   const [language, setLanguage] = useState('en');
   const [isRecording, setIsRecording] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -480,6 +481,24 @@ export default function CuriosityOceanChat() {
   // ============================================================================
   // 📷 CAMERA - Image Capture
   // ============================================================================
+  const startCameraStream = async (mode: 'user' | 'environment') => {
+    try {
+      const video = videoRef.current;
+      if (video?.srcObject) {
+        (video.srcObject as MediaStream).getTracks().forEach(t => t.stop());
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: { ideal: mode } } 
+      });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch {
+      alert('Qasja në kamerë u refuzua');
+      setShowCamera(false);
+    }
+  };
+
   const toggleCamera = async () => {
     if (showCamera) {
       const video = videoRef.current;
@@ -489,17 +508,15 @@ export default function CuriosityOceanChat() {
       setShowCamera(false);
     } else {
       setShowCamera(true);
-      setTimeout(async () => {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
-        } catch {
-          alert('Qasja në kamerë u refuzua');
-          setShowCamera(false);
-        }
-      }, 100);
+      setTimeout(() => startCameraStream(facingMode), 100);
+    }
+  };
+
+  const switchCamera = async () => {
+    const newMode = facingMode === 'user' ? 'environment' : 'user';
+    setFacingMode(newMode);
+    if (showCamera) {
+      await startCameraStream(newMode);
     }
   };
 
@@ -556,26 +573,34 @@ export default function CuriosityOceanChat() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // File size limit: 10MB
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Dokumenti është shumë i madh (max 10MB)');
+      return;
+    }
     
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const content = reader.result as string;
-      
-      setMessages(prev => [...prev, {
-        id: `user-${Date.now()}`,
-        type: 'user',
-        content: `📄 Dokument: ${file.name}`,
-        timestamp: new Date(),
-      }]);
-      
+    const ext = (file.name.split('.').pop() || '').toLowerCase();
+    const isBinary = ['pdf', 'doc', 'docx'].includes(ext);
+    
+    setMessages(prev => [...prev, {
+      id: `user-${Date.now()}`,
+      type: 'user',
+      content: `📄 Dokument: ${file.name}`,
+      timestamp: new Date(),
+    }]);
+
+    const sendDocument = async (content: string, encoding: string) => {
       try {
         const res = await fetch(`${OCEAN_API}/api/v1/document/analyze`, {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({ 
-            content, 
+            content,
+            encoding,
             action: 'summarize',
-            doc_type: file.name.split('.').pop() || 'text',
+            doc_type: ext,
+            filename: file.name,
             clerk_user_id: userId
           })
         });
@@ -596,7 +621,23 @@ export default function CuriosityOceanChat() {
         }]);
       }
     };
-    reader.readAsText(file);
+
+    if (isBinary) {
+      // PDF/DOC/DOCX → base64 encoding
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = (reader.result as string).split(',')[1];
+        await sendDocument(base64, 'base64');
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // TXT/MD/CSV/JSON → plain text
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        await sendDocument(reader.result as string, 'text');
+      };
+      reader.readAsText(file);
+    }
     
     // Reset file input
     if (fileInputRef.current) {
@@ -993,6 +1034,13 @@ export default function CuriosityOceanChat() {
                     className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 flex items-center gap-2 shadow-lg"
                   >
                     <Camera className="w-4 h-4" /> Kap
+                  </button>
+                  <button 
+                    onClick={switchCamera} 
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2 shadow-lg"
+                    title={facingMode === 'user' ? 'Kalo kamerën mbrapa' : 'Kalo kamerën para'}
+                  >
+                    🔄 {facingMode === 'user' ? 'Mbrapa' : 'Para'}
                   </button>
                   <button 
                     onClick={toggleCamera} 
