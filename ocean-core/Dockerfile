@@ -2,7 +2,7 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends curl ffmpeg && rm -rf /var/lib/apt/lists/*
 
 # Kopjo nanogrid + prompts + identity loader + documents
 COPY ocean_nanogrid.py prompts.py requirements-lite.txt identity_loader.py ./

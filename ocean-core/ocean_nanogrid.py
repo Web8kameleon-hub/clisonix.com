@@ -18,7 +18,7 @@ from datetime import datetime, timedelta
 from typing import AsyncGenerator, Optional
 
 import httpx
-from fastapi import Depends, FastAPI, HTTPException, Request, Security
+from fastapi import FastAPI, HTTPException, Request, Security
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.security import APIKeyHeader
@@ -1693,7 +1693,7 @@ async def analyze_image(req: VisionRequest):
 @app.post("/api/v1/audio/transcribe")
 async def transcribe_audio(req: AudioRequest):
     """
-    🎤 MIKROFON - Transkriptim audio në tekst
+    🎤 MIKROFON - Transkriptim audio në tekst me faster-whisper
     
     Përdorime:
     - Speech-to-text
@@ -1704,36 +1704,64 @@ async def transcribe_audio(req: AudioRequest):
     t0 = time.time()
     
     try:
-        # Decode audio
-        audio_bytes = base64.b64decode(req.audio_base64)
+        import base64 as b64mod
+        audio_bytes = b64mod.b64decode(req.audio_base64)
         audio_size = len(audio_bytes)
         
-        # Për demo: simulim transkriptimi
-        # Real implementation do të përdorte Whisper ose faster-whisper
+        # Ruaj audio si temp file
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as tmp:
+            tmp.write(audio_bytes)
+            tmp_path = tmp.name
         
-        # Kontrollo nëse whisper model ekziston
-        client = await get_client()
-        
-        # Provo me Whisper API (nëse është instaluar)
         try:
-            # Whisper përmes Ollama (nëse është vendosur)
-            # Për tani, kthe simulim
-            transcript = f"[Audio transkriptim: {audio_size} bytes, gjuha: {req.language}]"
+            from faster_whisper import WhisperModel
+            
+            # Ngarko modelin (cache-ohet pas ngarkimit të parë)
+            if not hasattr(transcribe_audio, '_whisper_model'):
+                transcribe_audio._whisper_model = WhisperModel(
+                    "base",  # Modeli: tiny, base, small, medium, large-v3
+                    device="cpu",
+                    compute_type="int8"
+                )
+            
+            model = transcribe_audio._whisper_model
+            segments, info = model.transcribe(
+                tmp_path, 
+                language=req.language if req.language != 'auto' else None,
+                beam_size=5
+            )
+            
+            transcript_parts = []
+            for segment in segments:
+                transcript_parts.append(segment.text.strip())
+            
+            transcript = " ".join(transcript_parts)
+            
+            # Pastro temp file
+            import os as _os
+            _os.unlink(tmp_path)
+            
+            if not transcript.strip():
+                transcript = "[Nuk u dallua fjalim në audio]"
             
             return {
                 "status": "success",
                 "transcript": transcript,
-                "language": req.language,
-                "duration_seconds": audio_size / 16000,  # Approx
+                "language": info.language if hasattr(info, 'language') else req.language,
+                "language_probability": round(info.language_probability, 2) if hasattr(info, 'language_probability') else None,
+                "duration_seconds": round(info.duration, 2) if hasattr(info, 'duration') else audio_size / 16000,
                 "word_count": len(transcript.split()),
                 "processing_time": round(time.time() - t0, 2),
-                "note": "Instaloni faster-whisper për transkriptim real"
+                "engine": "faster-whisper"
             }
             
-        except Exception as e:
+        except ImportError:
+            import os as _os
+            _os.unlink(tmp_path)
             return {
                 "status": "whisper_not_available",
-                "message": "Whisper model nuk është instaluar",
+                "message": "faster-whisper nuk është instaluar",
                 "install_command": "pip install faster-whisper"
             }
             
@@ -1891,8 +1919,8 @@ async def multimodal_status():
                     "endpoints": ["/api/v1/vision/analyze"]
                 },
                 "audio": {
-                    "available": False,  # Whisper needs separate install
-                    "note": "Instalo faster-whisper për audio",
+                    "available": True,
+                    "engine": "faster-whisper (base model, CPU)",
                     "endpoints": ["/api/v1/audio/transcribe"]
                 },
                 "document": {
