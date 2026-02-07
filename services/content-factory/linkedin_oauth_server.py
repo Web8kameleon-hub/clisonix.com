@@ -10,6 +10,7 @@ Autor: Ledjan Ahmati (CEO, ABA GmbH)
 import logging
 import os
 import secrets
+from typing import Optional
 
 import httpx
 from fastapi import FastAPI, HTTPException, Query
@@ -81,7 +82,7 @@ async def start_linkedin_auth():
         f"&scope={' '.join(LINKEDIN_SCOPES)}"
     )
     
-    logger.info(f"Starting LinkedIn OAuth flow, redirecting to LinkedIn...")
+    logger.info("Starting LinkedIn OAuth flow, redirecting to LinkedIn...")
     return RedirectResponse(url=auth_url)
 
 
@@ -157,12 +158,13 @@ async def linkedin_callback(
 # POSTING ENDPOINTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.post("/api/linkedin/post")
 async def create_linkedin_post(
     commentary: str,
-    article_url: str = None,
-    article_title: str = None,
-    article_description: str = None
+    article_url: Optional[str] = None,
+    article_title: Optional[str] = None,
+    article_description: Optional[str] = None
 ):
     """
     Create a LinkedIn post for the organization.
@@ -244,7 +246,7 @@ async def get_organization_posts(count: int = 10):
     
     async with httpx.AsyncClient() as client:
         response = await client.get(
-            f"https://api.linkedin.com/rest/posts",
+            "https://api.linkedin.com/rest/posts",
             params={
                 "author": LINKEDIN_ORGANIZATION_URN.replace(":", "%3A"),
                 "q": "author",

@@ -4,7 +4,7 @@
 
 ### Step 1: Create LinkedIn App
 
-1. Go to: **https://www.linkedin.com/developers/apps**
+1. Go to: **<https://www.linkedin.com/developers/apps>**
 2. Click **"Create App"**
 3. Fill in:
    - **App name**: `Clisonix Content Factory`
@@ -15,6 +15,7 @@
 ### Step 2: Request Access Products
 
 After creating the app:
+
 1. Go to **Products** tab
 2. Request these products:
    - ✅ **Share on LinkedIn** (instant approval)
@@ -24,7 +25,8 @@ After creating the app:
 ### Step 3: Get Credentials
 
 Go to **Auth** tab and copy:
-```
+
+```text
 Client ID: xxxxxxxxxxxx
 Client Secret: xxxxxxxxxxxx
 ```
@@ -32,11 +34,13 @@ Client Secret: xxxxxxxxxxxx
 ### Step 4: Configure Redirect URI
 
 In **Auth** tab → **OAuth 2.0 settings**:
+
 - Add: `https://clisonix.com/api/linkedin/callback`
 
 ### Step 5: Set Environment Variables
 
 On your server:
+
 ```bash
 export LINKEDIN_CLIENT_ID="your_client_id"
 export LINKEDIN_CLIENT_SECRET="your_client_secret"
@@ -47,6 +51,7 @@ export LINKEDIN_ORGANIZATION_URN="urn:li:organization:111866162"
 ### Step 6: Connect LinkedIn
 
 1. Start the LinkedIn OAuth server:
+
    ```bash
    cd services/content-factory
    python linkedin_oauth_server.py
@@ -67,12 +72,12 @@ Full URN: `urn:li:organization:111866162`
 
 ## API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/linkedin/auth` | GET | Start OAuth flow |
-| `/api/linkedin/callback` | GET | OAuth callback |
-| `/api/linkedin/post` | POST | Create post |
-| `/api/linkedin/posts` | GET | Get recent posts |
+| Endpoint                  | Method | Description      |
+| ------------------------- | ------ | ---------------- |
+| `/api/linkedin/auth`      | GET    | Start OAuth flow |
+| `/api/linkedin/callback`  | GET    | OAuth callback   |
+| `/api/linkedin/post`      | POST   | Create post      |
+| `/api/linkedin/posts`     | GET    | Get recent posts |
 
 ---
 
@@ -93,11 +98,11 @@ curl -X POST "https://clisonix.com/api/linkedin/post" \
 
 ## Permissions Required
 
-| Permission | Description |
-|------------|-------------|
-| `w_organization_social` | Post on behalf of organization |
-| `r_organization_social` | Read organization posts |
-| `rw_organization_admin` | Admin access |
+| Permission               | Description                    |
+| ------------------------ | ------------------------------ |
+| `w_organization_social`  | Post on behalf of organization |
+| `r_organization_social`  | Read organization posts        |
+| `rw_organization_admin`  | Admin access                   |
 
 ---
 
@@ -131,21 +136,25 @@ results = await publisher.publish(
 ## Troubleshooting
 
 ### "Access token not configured"
+
 → Run OAuth flow: `/api/linkedin/auth`
 
 ### "Insufficient permissions"
+
 → Request **Marketing Developer Platform** product
 
 ### "Organization not found"
+
 → Verify you're admin of the company page
 
 ### "Rate limit exceeded"
+
 → Wait 1 hour between batches
 
 ---
 
 ## Support
 
-- LinkedIn Developer Portal: https://www.linkedin.com/developers/
-- API Documentation: https://learn.microsoft.com/en-us/linkedin/marketing/
-- Clisonix Support: support@clisonix.com
+- LinkedIn Developer Portal: <https://www.linkedin.com/developers/>
+- API Documentation: <https://learn.microsoft.com/en-us/linkedin/marketing/>
+- Clisonix Support: <support@clisonix.com>
