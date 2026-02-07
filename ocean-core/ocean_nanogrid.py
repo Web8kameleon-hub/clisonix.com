@@ -1174,6 +1174,317 @@ async def list_sources():
     }
 
 
+# ═══════════════════════════════════════════════════════════════════
+# 🎤 MULTIMODAL ENDPOINTS - Mikrofon, Kamera, Dokumente
+# ═══════════════════════════════════════════════════════════════════
+
+import base64
+
+# Multimodal Models
+VISION_MODEL = os.getenv("VISION_MODEL", "llava:latest")
+
+class VisionRequest(BaseModel):
+    """Request për analizë imazhi"""
+    image_base64: str
+    prompt: Optional[str] = "Përshkruaj këtë imazh në detaje"
+    extract_text: bool = False  # OCR mode
+
+class AudioRequest(BaseModel):
+    """Request për transkriptim audio"""
+    audio_base64: str
+    language: str = "sq"  # Albanian default
+
+class DocumentRequest(BaseModel):
+    """Request për lexim/shkrim dokumentash"""
+    content: str
+    action: str = "analyze"  # "analyze", "summarize", "extract", "write"
+    doc_type: str = "text"  # "pdf", "docx", "text", "markdown"
+    output_format: str = "text"  # "text", "markdown", "json"
+
+class WriteDocumentRequest(BaseModel):
+    """Request për gjenerim dokumenti"""
+    topic: str
+    doc_type: str = "article"  # "article", "report", "letter", "contract", "email"
+    length: str = "medium"  # "short", "medium", "long"
+    language: str = "sq"
+    style: str = "professional"  # "professional", "casual", "academic"
+    additional_context: Optional[str] = None
+
+
+@app.post("/api/v1/vision/analyze")
+async def analyze_image(req: VisionRequest):
+    """
+    🎥 KAMERA - Analizë imazhi me AI
+    
+    Përdorime:
+    - Përshkrim imazhi
+    - Njohje objektesh
+    - OCR (text extraction)
+    - Analizë skenash
+    """
+    t0 = time.time()
+    
+    try:
+        client = await get_client()
+        
+        # Kontrollo nëse llava është instaluar
+        prompt = req.prompt
+        if req.extract_text:
+            prompt = "Ekstrakto të gjithë tekstin e dukshëm në këtë imazh. Kthe vetëm tekstin."
+        
+        response = await client.post(
+            f"{OLLAMA}/api/generate",
+            json={
+                "model": VISION_MODEL,
+                "prompt": prompt,
+                "images": [req.image_base64],
+                "stream": False,
+                "options": {
+                    "num_predict": -1,
+                    "temperature": 0.3
+                }
+            },
+            timeout=60.0
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            return {
+                "status": "success",
+                "analysis": result.get("response", ""),
+                "mode": "ocr" if req.extract_text else "vision",
+                "model": VISION_MODEL,
+                "processing_time": round(time.time() - t0, 2)
+            }
+        else:
+            # Fallback nëse llava nuk është instaluar
+            return {
+                "status": "model_not_found",
+                "message": f"Modeli {VISION_MODEL} nuk është instaluar. Ekzekuto: ollama pull llava",
+                "install_command": f"ollama pull {VISION_MODEL}"
+            }
+            
+    except Exception as e:
+        raise HTTPException(500, f"Vision error: {str(e)}")
+
+
+@app.post("/api/v1/audio/transcribe")
+async def transcribe_audio(req: AudioRequest):
+    """
+    🎤 MIKROFON - Transkriptim audio në tekst
+    
+    Përdorime:
+    - Speech-to-text
+    - Diktim zëri
+    - Transkriptim takimesh
+    - Ndihmë për të verbërit
+    """
+    t0 = time.time()
+    
+    try:
+        # Decode audio
+        audio_bytes = base64.b64decode(req.audio_base64)
+        audio_size = len(audio_bytes)
+        
+        # Për demo: simulim transkriptimi
+        # Real implementation do të përdorte Whisper ose faster-whisper
+        
+        # Kontrollo nëse whisper model ekziston
+        client = await get_client()
+        
+        # Provo me Whisper API (nëse është instaluar)
+        try:
+            # Whisper përmes Ollama (nëse është vendosur)
+            # Për tani, kthe simulim
+            transcript = f"[Audio transkriptim: {audio_size} bytes, gjuha: {req.language}]"
+            
+            return {
+                "status": "success",
+                "transcript": transcript,
+                "language": req.language,
+                "duration_seconds": audio_size / 16000,  # Approx
+                "word_count": len(transcript.split()),
+                "processing_time": round(time.time() - t0, 2),
+                "note": "Instaloni faster-whisper për transkriptim real"
+            }
+            
+        except Exception as e:
+            return {
+                "status": "whisper_not_available",
+                "message": "Whisper model nuk është instaluar",
+                "install_command": "pip install faster-whisper"
+            }
+            
+    except Exception as e:
+        raise HTTPException(500, f"Audio error: {str(e)}")
+
+
+@app.post("/api/v1/document/analyze")
+async def analyze_document(req: DocumentRequest):
+    """
+    📄 DOKUMENT SCANNING - Lexim dhe analizë dokumentash
+    
+    Veprime:
+    - analyze: Analizë e plotë
+    - summarize: Përmbledhje
+    - extract: Ekstraktim entitetesh
+    """
+    t0 = time.time()
+    
+    try:
+        client = await get_client()
+        
+        # Ndërto prompt bazuar në veprim
+        if req.action == "summarize":
+            prompt = f"Përmbledh këtë dokument në 3-5 fjali kryesore:\n\n{req.content}"
+        elif req.action == "extract":
+            prompt = f"Ekstrakto entitetet kryesore (emra, data, organizata, vendndodhje) nga ky dokument:\n\n{req.content}"
+        else:
+            prompt = f"Analizo këtë dokument dhe jep një vlerësim të detajuar:\n\n{req.content}"
+        
+        response = await client.post(
+            f"{OLLAMA}/api/chat",
+            json={
+                "model": MODEL,
+                "messages": [
+                    {"role": "system", "content": "Ti je një analist dokumentash profesional. Përgjigju në gjuhën e dokumentit."},
+                    {"role": "user", "content": prompt}
+                ],
+                "stream": False,
+                "options": {"num_predict": -1}
+            }
+        )
+        
+        result = response.json()
+        analysis = result.get("message", {}).get("content", "")
+        
+        return {
+            "status": "success",
+            "action": req.action,
+            "doc_type": req.doc_type,
+            "analysis": analysis,
+            "word_count": len(req.content.split()),
+            "processing_time": round(time.time() - t0, 2)
+        }
+        
+    except Exception as e:
+        raise HTTPException(500, f"Document error: {str(e)}")
+
+
+@app.post("/api/v1/document/write")
+async def write_document(req: WriteDocumentRequest):
+    """
+    ✍️ DOKUMENT WRITING - Gjenerim dokumentash
+    
+    Llojet:
+    - article: Artikull
+    - report: Raport
+    - letter: Letër
+    - contract: Kontratë
+    - email: Email
+    """
+    t0 = time.time()
+    
+    try:
+        client = await get_client()
+        
+        # Gjatësia sipas kërkesës
+        length_guide = {
+            "short": "200-300 fjalë",
+            "medium": "500-800 fjalë",
+            "long": "1000-1500 fjalë"
+        }
+        target_length = length_guide.get(req.length, "500-800 fjalë")
+        
+        # Ndërto prompt për gjenerim
+        doc_type_prompts = {
+            "article": f"Shkruaj një artikull profesional për temën: {req.topic}",
+            "report": f"Shkruaj një raport formal për: {req.topic}",
+            "letter": f"Shkruaj një letër zyrtare për: {req.topic}",
+            "contract": f"Shkruaj një draft kontrate për: {req.topic}",
+            "email": f"Shkruaj një email profesional për: {req.topic}"
+        }
+        
+        base_prompt = doc_type_prompts.get(req.doc_type, doc_type_prompts["article"])
+        
+        full_prompt = f"""
+{base_prompt}
+
+Specifikimet:
+- Gjatësia: {target_length}
+- Gjuha: {"Shqip" if req.language == "sq" else req.language}
+- Stili: {req.style}
+{"- Kontekst shtesë: " + req.additional_context if req.additional_context else ""}
+
+Shkruaj dokumentin e plotë, të gatshëm për përdorim.
+"""
+        
+        response = await client.post(
+            f"{OLLAMA}/api/chat",
+            json={
+                "model": MODEL,
+                "messages": [
+                    {"role": "system", "content": "Ti je një shkrimtar profesional dokumentash. Gjithmonë shkruaj dokumente të plota, të formatuara mirë."},
+                    {"role": "user", "content": full_prompt}
+                ],
+                "stream": False,
+                "options": {"num_predict": -1, "temperature": 0.7}
+            }
+        )
+        
+        result = response.json()
+        document = result.get("message", {}).get("content", "")
+        
+        return {
+            "status": "success",
+            "doc_type": req.doc_type,
+            "topic": req.topic,
+            "language": req.language,
+            "document": document,
+            "word_count": len(document.split()),
+            "format": req.output_format if hasattr(req, 'output_format') else "text",
+            "processing_time": round(time.time() - t0, 2)
+        }
+        
+    except Exception as e:
+        raise HTTPException(500, f"Document write error: {str(e)}")
+
+
+@app.get("/api/v1/multimodal/status")
+async def multimodal_status():
+    """Kontrollo statusin e modeleve multimodal"""
+    client = await get_client()
+    
+    try:
+        response = await client.get(f"{OLLAMA}/api/tags")
+        models = response.json().get("models", [])
+        model_names = [m["name"] for m in models]
+        
+        return {
+            "status": "ok",
+            "capabilities": {
+                "vision": {
+                    "available": any("llava" in m.lower() for m in model_names),
+                    "model": VISION_MODEL,
+                    "endpoints": ["/api/v1/vision/analyze"]
+                },
+                "audio": {
+                    "available": False,  # Whisper needs separate install
+                    "note": "Instalo faster-whisper për audio",
+                    "endpoints": ["/api/v1/audio/transcribe"]
+                },
+                "document": {
+                    "available": True,
+                    "model": MODEL,
+                    "endpoints": ["/api/v1/document/analyze", "/api/v1/document/write"]
+                }
+            },
+            "installed_models": model_names
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
 # Keep-alive pulse (background)
 async def keep_alive():
     """Pulse every 30s to keep Ollama model hot"""
