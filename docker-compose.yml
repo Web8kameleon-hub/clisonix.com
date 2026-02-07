@@ -515,6 +515,11 @@ services:
       OLLAMA_HOST: "http://clisonix-ollama:11434"
       GITHUB_TOKEN: "${GITHUB_TOKEN}"
       BLOG_REPO_URL: "${BLOG_REPO_URL:-https://github.com/LedjanAhmati/clisonix-blog.git}"
+      # LinkedIn Integration
+      LINKEDIN_CLIENT_ID: "${LINKEDIN_CLIENT_ID}"
+      LINKEDIN_CLIENT_SECRET: "${LINKEDIN_CLIENT_SECRET}"
+      LINKEDIN_ACCESS_TOKEN: "${LINKEDIN_ACCESS_TOKEN}"
+      LINKEDIN_ORGANIZATION_URN: "${LINKEDIN_ORGANIZATION_URN:-urn:li:organization:111866162}"
     ports:
       - "8006:8006"
     depends_on:
