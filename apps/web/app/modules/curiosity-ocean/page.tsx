@@ -2,8 +2,24 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Compass, Send, Sparkles, Lightbulb, RefreshCw, ChevronRight, Loader2, Zap, Globe, Mic, Camera, FileText, X, Square } from 'lucide-react';
-import { useAuth, useUser } from '@clerk/nextjs';
+
+// Clerk hooks - safe import for build time
+let useAuthHook: () => { userId: string | null; isSignedIn: boolean | undefined } = () => ({ userId: null, isSignedIn: false });
+let useUserHook: () => { user: { firstName?: string | null; username?: string | null } | null | undefined } = () => ({ user: null });
+
+// Only import Clerk on client side
+if (typeof window !== 'undefined') {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const clerk = require('@clerk/nextjs');
+    useAuthHook = clerk.useAuth;
+    useUserHook = clerk.useUser;
+  } catch {
+    // Clerk not available, use defaults
+  }
+}
 
 /**
  * CURIOSITY OCEAN - Interactive AI Chat with STREAMING
@@ -318,8 +334,23 @@ interface Message {
 }
 
 export default function CuriosityOceanChat() {
-  const { userId, isSignedIn } = useAuth();
-  const { user } = useUser();
+  // Use safe Clerk hooks that work during SSR/build
+  const [clerkData, setClerkData] = useState<{ userId: string | null; user: { firstName?: string | null; username?: string | null } | null }>({ userId: null, user: null });
+  
+  // Load Clerk data on client side only
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const auth = useAuthHook();
+        const userData = useUserHook();
+        setClerkData({ userId: auth.userId, user: userData.user || null });
+      } catch {
+        // Clerk not available
+      }
+    }
+  }, []);
+  
+  const { userId, user } = clerkData;
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
