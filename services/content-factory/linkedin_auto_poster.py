@@ -145,23 +145,25 @@ def fetch_blog_articles() -> list:
         if response.status_code == 200:
             html = response.text
             # Parse article links from HTML
-            # Pattern: [Title](url) with date
-            pattern = r'href="([^"]+/static/(\d{4}-\d{2}-\d{2})-([^"]+)\.html)"[^>]*>([^<]+)</a>'
+            # Format: <a href="static/2026-02-07-slug.html">Title</a>
+            pattern = r'href="(static/(\d{4}-\d{2}-\d{2})-([^"]+)\.html)">([^<]+)</a>'
             matches = re.findall(pattern, html)
             
             articles = []
-            for url, date, slug, title in matches:
+            for url_path, date, slug, title in matches:
                 # Clean up title
                 title = title.strip()
                 if not title or title == 'Clisonix Blog':
                     continue
+                
+                full_url = f"{BLOG_URL.rstrip('/')}/{url_path}"
                     
                 articles.append({
-                    'id': slug,
+                    'id': f"{date}-{slug}",
                     'title': title,
                     'description': f'Read our latest article: {title}',
                     'slug': slug,
-                    'url': url if url.startswith('http') else f'{BLOG_URL.rstrip("/")}/{url.lstrip("/")}',
+                    'url': full_url,
                     'date': date,
                     'category': 'Blog',
                     'tags': extract_tags_from_title(title)
