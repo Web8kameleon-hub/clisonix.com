@@ -198,7 +198,7 @@ jobs:
           helm upgrade --install postgres bitnami/postgresql \
             --namespace clisonix-${{ inputs.environment }} \
             --values ./helm/values-postgres.yaml \
-            --set auth.password=${{ secrets.DB_PASSWORD }}
+            --set auth.password=${{ secrets.DB_PASSWORD || 'changeme' }}
 
       - name: Deploy Redis
         run: |
@@ -217,7 +217,7 @@ jobs:
           helm upgrade --install grafana grafana/grafana \
             --namespace clisonix-${{ inputs.environment }} \
             --values ./helm/values-grafana.yaml \
-            --set adminPassword=${{ secrets.GRAFANA_PASSWORD }}
+            --set adminPassword=${{ secrets.GRAFANA_PASSWORD || 'admin' }}
 
       - name: Deploy Clisonix Application
         run: |
