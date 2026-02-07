@@ -95,8 +95,8 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: "subscription",
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://clisonix.cloud"}/subscription?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://clisonix.cloud"}/pricing?cancelled=true`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://clisonix.com"}/subscription?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://clisonix.com"}/pricing?cancelled=true`,
       metadata: {
         clerk_user_id: userId,
         plan: plan,

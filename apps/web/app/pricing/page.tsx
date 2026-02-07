@@ -2,26 +2,78 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 /**
- * PRICING PAGE - Clear, Transparent Pricing
- * SEO-optimized with trust signals
+ * PRICING PAGE - Stripe Checkout Integration
+ * 
+ * Plans:
+ * - Free: 10 articles, basic access
+ * - Pro: €9.99/month - All 63+ articles, Curiosity Ocean, priority support
+ * - Team: €29.99/month - Everything + team features
  */
 
 export default function PricingPage() {
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
+  const [loading, setLoading] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleSubscribe = async (planKey: string) => {
+    if (planKey === 'starter') {
+      // Free plan - redirect to sign up
+      router.push('/sign-up');
+      return;
+    }
+    
+    if (planKey === 'enterprise') {
+      // Enterprise - contact sales
+      window.location.href = 'mailto:investors@clisonix.com?subject=Enterprise Plan Inquiry';
+      return;
+    }
+
+    setLoading(planKey);
+    
+    try {
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: planKey,
+          interval: billing === 'monthly' ? 'monthly' : 'yearly',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      } else if (data.error === 'Unauthorized') {
+        // Not logged in - redirect to sign in
+        router.push('/sign-in?redirect_url=/pricing');
+      } else {
+        console.error('Checkout error:', data.error);
+        alert('Unable to start checkout. Please try again.');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('Unable to start checkout. Please try again.');
+    } finally {
+      setLoading(null);
+    }
+  };
 
   const plans = [
     {
-      name: 'Starter',
-      description: 'Perfect for individuals and small projects',
+      key: 'starter',
+      name: 'Free',
+      description: 'Perfect for exploring Clisonix',
       price: { monthly: 0, annual: 0 },
       features: [
-        '10,000 API calls/month',
-        'Basic ASI Trinity access',
-        '3 modules included',
+        '10 Research Articles',
+        'Basic Curiosity Ocean access',
+        '1,000 API calls/month',
         'Community support',
-        '99.5% uptime SLA',
         'Standard latency'
       ],
       cta: 'Start Free',
@@ -29,69 +81,69 @@ export default function PricingPage() {
       badge: null
     },
     {
-      name: 'Professional',
-      description: 'For growing teams and production workloads',
-      price: { monthly: 19, annual: 180 },
+      key: 'professional',
+      name: 'Pro',
+      description: 'Full access to all features',
+      price: { monthly: 9.99, annual: 99 },
       features: [
-        '🎁 6 MONTHS FREE for early adopters',
-        '100,000 API calls/month',
-        'Full ASI Trinity access',
-        'All 15+ modules',
+        '✨ All 63+ Research Articles',
+        '🧠 Full Curiosity Ocean AI',
+        '🔧 All 15+ Modules',
+        '50,000 API calls/month',
         'Priority email support',
         '99.9% uptime SLA',
-        'Sub-100ms latency',
-        'Custom dashboards'
+        'Camera & Mic tools',
+        'Document analysis'
       ],
-      cta: 'Start Free 6 Months',
+      cta: 'Subscribe Now',
       highlighted: true,
-      badge: '6 Months Free'
+      badge: 'Most Popular'
     },
     {
-      name: 'Enterprise',
-      description: 'For large organizations with custom needs',
-      price: { monthly: 49, annual: 490 },
+      key: 'enterprise',
+      name: 'Team',
+      description: 'For teams and organizations',
+      price: { monthly: 29.99, annual: 299 },
       features: [
+        'Everything in Pro',
         'Unlimited API calls',
-        'Dedicated ASI Trinity cluster',
-        'All modules + custom',
-        '24/7 phone & Slack support',
-        '99.99% uptime SLA',
-        'Private edge locations',
+        '5 team members',
+        '24/7 priority support',
+        'Custom integrations',
         'SSO & advanced security',
-        'Custom SLA terms',
         'Dedicated account manager',
-        'On-premise option'
+        'SLA guarantees'
       ],
       cta: 'Contact Sales',
       highlighted: false,
-      badge: 'Custom'
+      badge: 'Teams'
     }
   ];
 
   const faqs = [
     {
-      q: 'Can I try Clisonix before committing?',
-      a: 'Yes! Our Starter plan is completely free forever. Professional plan includes 6 MONTHS FREE for early adopters - no credit card required.'
+      q: 'Can I try Clisonix before paying?',
+      a: 'Absolutely! The Free plan gives you access to 10 research articles and basic Curiosity Ocean features forever - no credit card required.'
     },
     {
-      q: 'What happens if I exceed my API limits?',
-      a: 'We\'ll notify you at 80% usage. You can upgrade anytime, or we\'ll throttle requests gracefully - never hard cuts that break your application.'
+      q: 'What payment methods do you accept?',
+      a: 'We accept all major credit cards (Visa, Mastercard, American Express), SEPA bank transfers, and PayPal through our secure Stripe payment system.'
     },
     {
-      q: 'Is there a contract or commitment?',
-      a: 'No contracts for Starter or Professional. Month-to-month, cancel anytime. Enterprise plans have flexible terms based on your needs.'
+      q: 'Can I cancel anytime?',
+      a: 'Yes! No contracts, no commitments. Cancel your subscription anytime and you\'ll keep access until the end of your billing period.'
     },
     {
-      q: 'Do you offer discounts for startups or academia?',
-      a: 'Yes! Startups get 50% off Professional for the first year. Academic institutions receive special pricing - contact us for details.'
+      q: 'What\'s included in the 63+ articles?',
+      a: 'Our research articles cover EEG analysis, industrial AI, FDA compliance, neural networks, and more. New articles are added monthly.'
     },
     {
-      q: 'What\'s included in the ASI Trinity?',
-      a: 'ASI Trinity includes ALBA (Network Intelligence), ALBI (Neural Processing), and JONA (Data Coordination) - three synchronized AI systems working together.'
+      q: 'What is Curiosity Ocean?',
+      a: 'Curiosity Ocean is our AI assistant powered by advanced language models. It can analyze documents, answer questions, and help with research using camera and microphone tools.'
     },
     {
-      q: 'How do I get support?',
-      a: 'Starter: Community forums. Professional: Priority email with <4 hour response. Enterprise: 24/7 phone, Slack, and dedicated account manager.'
+      q: 'Do you offer refunds?',
+      a: 'Yes, we offer a 14-day money-back guarantee. If you\'re not satisfied, contact us for a full refund.'
     }
   ];
 
@@ -167,26 +219,27 @@ export default function PricingPage() {
 
               <div className="mb-6">
                 <span className="text-5xl font-bold">
-                  ${billing === 'monthly' ? plan.price.monthly : Math.round(plan.price.annual / 12)}
+                  €{billing === 'monthly' ? plan.price.monthly : Math.round(plan.price.annual / 12)}
                 </span>
                 <span className="text-gray-400">/month</span>
                 {billing === 'annual' && plan.price.annual > 0 && (
-                  <div className="text-sm text-gray-500 mt-1">
-                    Billed ${plan.price.annual}/year
+                  <div className="text-sm text-green-400 mt-1">
+                    Save €{(plan.price.monthly * 12 - plan.price.annual).toFixed(0)}/year
                   </div>
                 )}
               </div>
 
-              <Link
-                href={plan.name === 'Enterprise' ? 'mailto:investors@clisonix.com' : '/modules'}
-                className={`block w-full py-3 rounded-xl font-semibold text-center transition-colors mb-8 ${
+              <button
+                onClick={() => handleSubscribe(plan.key)}
+                disabled={loading === plan.key}
+                className={`block w-full py-3 rounded-xl font-semibold text-center transition-colors mb-8 disabled:opacity-50 ${
                   plan.highlighted
                     ? 'bg-violet-600 hover:bg-violet-500'
                     : 'bg-slate-700 hover:bg-slate-600'
                 }`}
               >
-                {plan.cta}
-              </Link>
+                {loading === plan.key ? 'Loading...' : plan.cta}
+              </button>
 
               <ul className="space-y-3">
                 {plan.features.map((feature) => (
