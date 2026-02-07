@@ -5,8 +5,9 @@ import { RequestLogger } from "../src/components/telemetry/RequestLogger";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { DynamicFavicon } from "../src/components/DynamicFavicon";
 
-// Check if Clerk is configured
-const isClerkConfigured = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+// Check if Clerk is configured with a REAL key (not placeholder)
+const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
+const isClerkConfigured = clerkKey.startsWith('pk_') && !clerkKey.includes('YOUR_CLERK');
 
 // Dynamic import for ClerkProvider - only if configured
 const ClerkProvider = isClerkConfigured 

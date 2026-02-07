@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Compass, Send, Sparkles, Lightbulb, RefreshCw, ChevronRight, Loader2, Zap, Globe } from 'lucide-react';
+import { Compass, Send, Sparkles, Lightbulb, RefreshCw, ChevronRight, Loader2, Zap, Globe, Mic, Camera, FileText, X, Square } from 'lucide-react';
+import { useAuth, useUser } from '@clerk/nextjs';
 
 /**
  * CURIOSITY OCEAN - Interactive AI Chat with STREAMING
@@ -317,6 +318,8 @@ interface Message {
 }
 
 export default function CuriosityOceanChat() {
+  const { userId, isSignedIn } = useAuth();
+  const { user } = useUser();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -324,13 +327,31 @@ export default function CuriosityOceanChat() {
   const [useStreaming, setUseStreaming] = useState(true);
   const [curiosityLevel, setCuriosityLevel] = useState<'curious' | 'wild' | 'chaos' | 'genius'>('curious');
   const [language, setLanguage] = useState('en');
+  const [isRecording, setIsRecording] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+  const OCEAN_API = process.env.NEXT_PUBLIC_OCEAN_URL || 'http://localhost:8030';
 
   // Get current translations
   const t = translations[language] || translations.en;
   const suggestedQuestions = SUGGESTED_QUESTIONS[language] || SUGGESTED_QUESTIONS.en;
+
+  // Helper to get auth headers
+  const getAuthHeaders = useCallback(() => {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (userId) {
+      headers['X-Clerk-User-Id'] = userId;
+    }
+    return headers;
+  }, [userId]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -357,6 +378,201 @@ export default function CuriosityOceanChat() {
     }]);
   }, [language]);
 
+  // ============================================================================
+  // 🎤 MICROPHONE - Voice Recording
+  // ============================================================================
+  const toggleRecording = async () => {
+    if (isRecording) {
+      mediaRecorderRef.current?.stop();
+      setIsRecording(false);
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(stream);
+        const chunks: BlobPart[] = [];
+        
+        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+        mediaRecorder.onstop = async () => {
+          const blob = new Blob(chunks, { type: 'audio/webm' });
+          const reader = new FileReader();
+          reader.onloadend = async () => {
+            const base64 = (reader.result as string).split(',')[1];
+            
+            // Add user message
+            setMessages(prev => [...prev, {
+              id: `user-${Date.now()}`,
+              type: 'user',
+              content: '🎤 Duke dërguar audio...',
+              timestamp: new Date(),
+            }]);
+            
+            try {
+              const res = await fetch(`${OCEAN_API}/api/v1/audio/transcribe`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ 
+                  audio_base64: base64, 
+                  language: language,
+                  clerk_user_id: userId 
+                })
+              });
+              const data = await res.json();
+              
+              setMessages(prev => [...prev, {
+                id: `ai-${Date.now()}`,
+                type: 'ai',
+                content: `📝 Transkriptim: ${data.transcript || data.text || 'Audio u përpunua'}`,
+                timestamp: new Date(),
+              }]);
+            } catch {
+              setMessages(prev => [...prev, {
+                id: `error-${Date.now()}`,
+                type: 'ai',
+                content: '❌ Gabim në përpunimin e audios',
+                timestamp: new Date(),
+              }]);
+            }
+          };
+          reader.readAsDataURL(blob);
+          stream.getTracks().forEach(t => t.stop());
+        };
+        
+        mediaRecorderRef.current = mediaRecorder;
+        mediaRecorder.start();
+        setIsRecording(true);
+      } catch {
+        alert('Qasja në mikrofon u refuzua');
+      }
+    }
+  };
+
+  // ============================================================================
+  // 📷 CAMERA - Image Capture
+  // ============================================================================
+  const toggleCamera = async () => {
+    if (showCamera) {
+      const video = videoRef.current;
+      if (video?.srcObject) {
+        (video.srcObject as MediaStream).getTracks().forEach(t => t.stop());
+      }
+      setShowCamera(false);
+    } else {
+      setShowCamera(true);
+      setTimeout(async () => {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+        } catch {
+          alert('Qasja në kamerë u refuzua');
+          setShowCamera(false);
+        }
+      }, 100);
+    }
+  };
+
+  const capturePhoto = async () => {
+    const video = videoRef.current;
+    if (!video) return;
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d')?.drawImage(video, 0, 0);
+    const base64 = canvas.toDataURL('image/jpeg').split(',')[1];
+    
+    setMessages(prev => [...prev, {
+      id: `user-${Date.now()}`,
+      type: 'user',
+      content: '📷 Foto u kap...',
+      timestamp: new Date(),
+    }]);
+    
+    try {
+      const res = await fetch(`${OCEAN_API}/api/v1/vision/analyze`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ 
+          image_base64: base64, 
+          prompt: language === 'sq' ? 'Përshkruaj këtë foto në shqip' : 'Describe this photo',
+          clerk_user_id: userId
+        })
+      });
+      const data = await res.json();
+      
+      setMessages(prev => [...prev, {
+        id: `ai-${Date.now()}`,
+        type: 'ai',
+        content: `🔍 ${data.analysis || data.text_extracted || 'Analiza e imazhit...'}`,
+        timestamp: new Date(),
+      }]);
+    } catch {
+      setMessages(prev => [...prev, {
+        id: `error-${Date.now()}`,
+        type: 'ai',
+        content: '❌ Gabim në analizën e imazhit',
+        timestamp: new Date(),
+      }]);
+    }
+    
+    toggleCamera();
+  };
+
+  // ============================================================================
+  // 📄 DOCUMENT - File Upload
+  // ============================================================================
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const content = reader.result as string;
+      
+      setMessages(prev => [...prev, {
+        id: `user-${Date.now()}`,
+        type: 'user',
+        content: `📄 Dokument: ${file.name}`,
+        timestamp: new Date(),
+      }]);
+      
+      try {
+        const res = await fetch(`${OCEAN_API}/api/v1/document/analyze`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ 
+            content, 
+            action: 'summarize',
+            doc_type: file.name.split('.').pop() || 'text',
+            clerk_user_id: userId
+          })
+        });
+        const data = await res.json();
+        
+        setMessages(prev => [...prev, {
+          id: `ai-${Date.now()}`,
+          type: 'ai',
+          content: `📋 ${data.analysis || data.summary || 'Dokumenti u analizua'}`,
+          timestamp: new Date(),
+        }]);
+      } catch {
+        setMessages(prev => [...prev, {
+          id: `error-${Date.now()}`,
+          type: 'ai',
+          content: '❌ Gabim në përpunimin e dokumentit',
+          timestamp: new Date(),
+        }]);
+      }
+    };
+    reader.readAsText(file);
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   // Streaming message handler
   const sendStreamingMessage = async (messageText: string) => {
     const aiMessageId = `ai-${Date.now()}`;
@@ -377,8 +593,13 @@ export default function CuriosityOceanChat() {
       
       const response = await fetch('/api/ocean/stream', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: messageText, language }),
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ 
+          message: messageText, 
+          language,
+          clerk_user_id: userId,
+          user_name: user?.firstName || user?.username
+        }),
         signal: abortControllerRef.current.signal,
       });
 
@@ -437,10 +658,13 @@ export default function CuriosityOceanChat() {
     try {
       const res = await fetch('/api/ocean', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           question: messageText,
           curiosityLevel: curiosityLevel,
+          clerk_user_id: userId,
+          user_name: user?.firstName || user?.username,
+          language: language,
         }),
       });
 
@@ -727,7 +951,73 @@ export default function CuriosityOceanChat() {
       {/* Input Area */}
       <div className="border-t border-gray-200 bg-white shadow-lg">
         <div className="max-w-4xl mx-auto px-4 py-4">
+          {/* Camera Preview */}
+          {showCamera && (
+            <div className="mb-4 flex justify-center">
+              <div className="relative rounded-xl overflow-hidden shadow-lg">
+                <video ref={videoRef} autoPlay className="w-80 h-60 bg-black" />
+                <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-2">
+                  <button 
+                    onClick={capturePhoto} 
+                    className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 flex items-center gap-2 shadow-lg"
+                  >
+                    <Camera className="w-4 h-4" /> Kap
+                  </button>
+                  <button 
+                    onClick={toggleCamera} 
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 flex items-center gap-2 shadow-lg"
+                  >
+                    <X className="w-4 h-4" /> Mbyll
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center gap-3">
+            {/* Multimodal Tools */}
+            <div className="flex gap-1">
+              <button
+                onClick={toggleRecording}
+                disabled={isLoading || isStreaming}
+                className={`p-3 rounded-xl transition-all ${
+                  isRecording 
+                    ? 'bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/30' 
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-emerald-600'
+                }`}
+                title="🎤 Mikrofon"
+              >
+                {isRecording ? <Square className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+              </button>
+              <button
+                onClick={toggleCamera}
+                disabled={isLoading || isStreaming}
+                className={`p-3 rounded-xl transition-all ${
+                  showCamera 
+                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30' 
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-emerald-600'
+                }`}
+                title="📷 Kamera"
+              >
+                <Camera className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isLoading || isStreaming}
+                className="p-3 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-emerald-600 rounded-xl transition-all"
+                title="📄 Dokument"
+              >
+                <FileText className="w-5 h-5" />
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                className="hidden"
+                accept=".txt,.pdf,.doc,.docx,.md,.csv,.json"
+              />
+            </div>
+
             <div className="flex-1 relative">
               <input
                 ref={inputRef}
