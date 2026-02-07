@@ -30,7 +30,7 @@ logger = logging.getLogger('linkedin_auto_poster')
 LINKEDIN_ACCESS_TOKEN = os.getenv('LINKEDIN_ACCESS_TOKEN')
 LINKEDIN_PERSON_URN = os.getenv('LINKEDIN_PERSON_URN', 'urn:li:person:5KOBp94BOT')
 POSTED_ARTICLES_FILE = Path('/app/data/posted_articles.json')
-BLOG_API_URL = os.getenv('BLOG_API_URL', 'http://localhost:3000/api/blog/articles')
+BLOG_URL = os.getenv('BLOG_URL', 'https://ledjanahmati.github.io/clisonix-blog/')
 SITE_URL = os.getenv('SITE_URL', 'https://clisonix.com')
 
 # Ensure data directory exists
@@ -65,8 +65,8 @@ def generate_post_text(article: dict) -> str:
     """Generate engaging LinkedIn post text from article data."""
     title = article.get('title', 'New Article')
     description = article.get('description', article.get('excerpt', ''))
-    slug = article.get('slug', '')
-    _category = article.get('category', 'Technology')  # Reserved for future use
+    # Use direct blog URL if available, otherwise construct from slug
+    article_url = article.get('url', f"{BLOG_URL}static/{article.get('slug', '')}.html")
     tags = article.get('tags', [])
     
     # Build hashtags from tags
@@ -79,7 +79,7 @@ def generate_post_text(article: dict) -> str:
 
 {description[:200]}{'...' if len(description) > 200 else ''}
 
-📖 Read more: {SITE_URL}/blog/{slug}
+📖 Read more: {article_url}
 
 {hashtags}
 
@@ -138,16 +138,62 @@ def post_to_linkedin(text: str) -> dict:
 
 
 def fetch_blog_articles() -> list:
-    """Fetch articles from the blog API."""
+    """Fetch articles from GitHub Pages blog by parsing HTML."""
+    import re
     try:
-        response = requests.get(BLOG_API_URL, timeout=10)
+        response = requests.get(BLOG_URL, timeout=15)
         if response.status_code == 200:
-            return response.json().get('articles', [])
+            html = response.text
+            # Parse article links from HTML
+            # Pattern: [Title](url) with date
+            pattern = r'href="([^"]+/static/(\d{4}-\d{2}-\d{2})-([^"]+)\.html)"[^>]*>([^<]+)</a>'
+            matches = re.findall(pattern, html)
+            
+            articles = []
+            for url, date, slug, title in matches:
+                # Clean up title
+                title = title.strip()
+                if not title or title == 'Clisonix Blog':
+                    continue
+                    
+                articles.append({
+                    'id': slug,
+                    'title': title,
+                    'description': f'Read our latest article: {title}',
+                    'slug': slug,
+                    'url': url if url.startswith('http') else f'{BLOG_URL.rstrip("/")}/{url.lstrip("/")}',
+                    'date': date,
+                    'category': 'Blog',
+                    'tags': extract_tags_from_title(title)
+                })
+            
+            logger.info(f"Fetched {len(articles)} articles from blog")
+            return articles
     except Exception as e:
-        logger.error(f"Error fetching articles: {e}")
+        logger.error(f"Error fetching articles from blog: {e}")
     
-    # Fallback: return sample articles if API not available
+    # Fallback: return sample articles if blog not available
     return get_sample_articles()
+
+
+def extract_tags_from_title(title: str) -> list:
+    """Extract relevant hashtags from article title."""
+    keywords = {
+        'EEG': 'EEG', 'Brain': 'BrainTech', 'Neural': 'NeuralNetworks',
+        'AI': 'AI', 'Healthcare': 'Healthcare', 'FDA': 'FDA',
+        'Edge': 'EdgeComputing', 'Cloud': 'CloudComputing',
+        'Medical': 'MedicalDevices', 'Compliance': 'Compliance',
+        'Data': 'DataScience', 'Audio': 'AudioAnalysis',
+        'Signal': 'SignalProcessing', 'Privacy': 'DataPrivacy',
+        'Industrial': 'IndustrialAI', 'Sustainable': 'Sustainability'
+    }
+    
+    tags = ['Clisonix']
+    for keyword, tag in keywords.items():
+        if keyword.lower() in title.lower():
+            tags.append(tag)
+    
+    return tags[:5]  # Limit to 5 tags
 
 
 def get_sample_articles() -> list:
