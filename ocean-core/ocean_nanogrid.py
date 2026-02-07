@@ -571,15 +571,30 @@ async def build_smart_context(query: str) -> str:
         if lab_status:
             context_parts.append(lab_status)
     
-    # Auto web browse - if user asks about a specific URL
+    # ═══════════════════════════════════════════════════════════════════
+    # UNIVERSAL WEB READER - Read ANY URL the user provides
+    # ═══════════════════════════════════════════════════════════════════
     import re
     url_pattern = r'https?://[^\s<>"\']+'
     urls = re.findall(url_pattern, query)
     if urls:
-        for url in urls[:2]:  # Max 2 URLs
-            webpage = await fetch_webpage(url, max_chars=4000)
+        for url in urls[:3]:  # Max 3 URLs
+            webpage = await universal_web_reader(url, max_chars=5000)
             if webpage and not webpage.startswith("Error"):
-                context_parts.append(f"📄 WEBPAGE ({url}):\n{webpage[:3000]}")
+                context_parts.append(webpage)
+    
+    # Also detect requests to read/browse/open websites
+    browse_keywords = ["read", "lexo", "hap", "browse", "open", "shiko", "visit", "check",
+                       "lesen", "öffnen", "show me", "më trego", "what does", "çfarë thotë"]
+    if any(kw in query_lower for kw in browse_keywords):
+        # Try to extract domain-like patterns
+        domain_pattern = r'(?:www\.)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?)'
+        domains = re.findall(domain_pattern, query)
+        for domain in domains[:2]:
+            if domain and not any(x in domain for x in ['example', 'test']):
+                webpage = await universal_web_reader(f"https://{domain}", max_chars=4000)
+                if webpage and not webpage.startswith("Error"):
+                    context_parts.append(webpage)
     
     # ═══════════════════════════════════════════════════════════════════
     # WIKIPEDIA - For general knowledge questions (ALWAYS try for factual queries)
@@ -792,52 +807,229 @@ async def search_web(query: str, num_results: int = 5) -> list:
 # GLOBAL DATA SOURCES - 5000+ sources from 200+ countries
 # ═══════════════════════════════════════════════════════════════════
 
+# Pre-load the comprehensive data sources index
+GLOBAL_DATA_SOURCES_INDEX = {
+    "europe": {
+        "EU": {"name": "EU Open Data Portal", "url": "https://data.europa.eu/", "api": True},
+        "DE": {"name": "GovData.de", "url": "https://www.govdata.de/", "api": True},
+        "FR": {"name": "Data.gouv.fr", "url": "https://www.data.gouv.fr/", "api": True},
+        "UK": {"name": "Data.gov.uk", "url": "https://data.gov.uk/", "api": True},
+        "IT": {"name": "Dati.gov.it", "url": "https://dati.gov.it/", "api": True},
+        "ES": {"name": "Datos.gob.es", "url": "https://datos.gob.es/", "api": True},
+        "NL": {"name": "Data.overheid.nl", "url": "https://data.overheid.nl/", "api": True},
+        "CH": {"name": "OpenData.swiss", "url": "https://opendata.swiss/", "api": True},
+        "AT": {"name": "Data.gv.at", "url": "https://data.gv.at/", "api": True},
+        "BE": {"name": "Data.gov.be", "url": "https://data.gov.be/", "api": True},
+        "SE": {"name": "Oppnadata.se", "url": "https://oppnadata.se/", "api": True},
+        "NO": {"name": "Data.norge.no", "url": "https://data.norge.no/", "api": True},
+        "DK": {"name": "Datahub.virk.dk", "url": "https://datahub.virk.dk/", "api": True},
+        "FI": {"name": "Avoindata.fi", "url": "https://www.avoindata.fi/", "api": True},
+        "PL": {"name": "Dane.gov.pl", "url": "https://dane.gov.pl/", "api": True},
+        "CZ": {"name": "Data.gov.cz", "url": "https://data.gov.cz/", "api": True},
+        "PT": {"name": "Dados.gov.pt", "url": "https://dados.gov.pt/", "api": True},
+        "GR": {"name": "Data.gov.gr", "url": "https://data.gov.gr/", "api": True},
+        "IE": {"name": "Data.gov.ie", "url": "https://data.gov.ie/", "api": True},
+    },
+    "balkans": {
+        "AL": {"name": "INSTAT Albania", "url": "https://www.instat.gov.al/", "api": False},
+        "XK": {"name": "Kosovo Open Data", "url": "https://opendata.rks-gov.net/", "api": True},
+        "MK": {"name": "Open Data Macedonia", "url": "https://opendata.gov.mk/", "api": True},
+        "RS": {"name": "Serbia Open Data", "url": "https://data.gov.rs/", "api": True},
+        "HR": {"name": "Data.gov.hr", "url": "https://data.gov.hr/", "api": True},
+        "SI": {"name": "OPSI Slovenia", "url": "https://www.opsi.si/", "api": True},
+        "BA": {"name": "Bosnia Statistics", "url": "https://bhas.gov.ba/", "api": False},
+        "ME": {"name": "Montenegro Statistics", "url": "https://www.monstat.org/", "api": False},
+        "RO": {"name": "Data.gov.ro", "url": "https://data.gov.ro/", "api": True},
+        "BG": {"name": "Opendata.government.bg", "url": "https://opendata.government.bg/", "api": True},
+    },
+    "americas": {
+        "US": {"name": "Data.gov USA", "url": "https://data.gov/", "api": True},
+        "CA": {"name": "Open Canada", "url": "https://open.canada.ca/", "api": True},
+        "MX": {"name": "Datos.gob.mx", "url": "https://datos.gob.mx/", "api": True},
+        "BR": {"name": "Dados.gov.br", "url": "https://dados.gov.br/", "api": True},
+        "AR": {"name": "Datos.gob.ar", "url": "https://datos.gob.ar/", "api": True},
+        "CL": {"name": "Datos.gob.cl", "url": "https://datos.gob.cl/", "api": True},
+        "CO": {"name": "Datos.gov.co", "url": "https://datos.gov.co/", "api": True},
+        "PE": {"name": "Datosabiertos.gob.pe", "url": "https://www.datosabiertos.gob.pe/", "api": True},
+    },
+    "asia": {
+        "JP": {"name": "E-Stat Japan", "url": "https://www.e-stat.go.jp/", "api": True},
+        "KR": {"name": "Data.go.kr", "url": "https://www.data.go.kr/", "api": True},
+        "CN": {"name": "Data.stats.gov.cn", "url": "https://data.stats.gov.cn/", "api": True},
+        "IN": {"name": "Data.gov.in", "url": "https://data.gov.in/", "api": True},
+        "SG": {"name": "Data.gov.sg", "url": "https://data.gov.sg/", "api": True},
+        "MY": {"name": "Data.gov.my", "url": "https://www.data.gov.my/", "api": True},
+        "TH": {"name": "Data.go.th", "url": "https://data.go.th/", "api": True},
+        "ID": {"name": "Data.go.id", "url": "https://data.go.id/", "api": True},
+        "PH": {"name": "Data.gov.ph", "url": "https://data.gov.ph/", "api": True},
+        "TW": {"name": "Data.gov.tw", "url": "https://data.gov.tw/", "api": True},
+    },
+    "oceania": {
+        "AU": {"name": "Data.gov.au", "url": "https://data.gov.au/", "api": True},
+        "NZ": {"name": "Data.govt.nz", "url": "https://www.data.govt.nz/", "api": True},
+    },
+    "africa_middle_east": {
+        "ZA": {"name": "Data.gov.za", "url": "https://www.data.gov.za/", "api": True},
+        "KE": {"name": "OpenData Kenya", "url": "https://opendata.go.ke/", "api": True},
+        "NG": {"name": "NigeriaData.gov.ng", "url": "https://nigeriastat.gov.ng/", "api": False},
+        "AE": {"name": "Bayanat UAE", "url": "https://bayanat.ae/", "api": True},
+        "SA": {"name": "Data.gov.sa", "url": "https://data.gov.sa/", "api": True},
+        "IL": {"name": "Data.gov.il", "url": "https://data.gov.il/", "api": True},
+    },
+    "international": {
+        "UN": {"name": "UN Data", "url": "https://data.un.org/", "api": True},
+        "WB": {"name": "World Bank", "url": "https://data.worldbank.org/", "api": True},
+        "IMF": {"name": "IMF Data", "url": "https://data.imf.org/", "api": True},
+        "OECD": {"name": "OECD Data", "url": "https://data.oecd.org/", "api": True},
+        "WHO": {"name": "WHO IRIS", "url": "https://apps.who.int/iris/", "api": True},
+        "FAO": {"name": "FAOSTAT", "url": "https://www.fao.org/faostat/", "api": True},
+        "WTO": {"name": "WTO Data", "url": "https://data.wto.org/", "api": True},
+        "UNICEF": {"name": "UNICEF Data", "url": "https://data.unicef.org/", "api": True},
+    },
+    "research": {
+        "ARXIV": {"name": "ArXiv", "url": "https://arxiv.org/", "api": True},
+        "PUBMED": {"name": "PubMed", "url": "https://pubmed.ncbi.nlm.nih.gov/", "api": True},
+        "ZENODO": {"name": "Zenodo", "url": "https://zenodo.org/", "api": True},
+        "CERN": {"name": "CERN Open Data", "url": "https://opendata.cern.ch/", "api": True},
+        "NASA": {"name": "NASA Open Data", "url": "https://data.nasa.gov/", "api": True},
+        "ESA": {"name": "ESA Open Data", "url": "https://earth.esa.int/", "api": True},
+    }
+}
+
 async def fetch_from_data_sources(query: str, region: str = "global") -> str:
     """Fetch relevant data from the 5000+ registered global data sources"""
     try:
-        # Import the data sources module
-        import sys
-        sys.path.insert(0, str(Path(__file__).parent.parent / "data_sources"))
-        
-        from data_sources.global_data_sources import (
-            get_sources_by_country,
-            get_sources_for_topic,
-        )
-        
-        # Detect topic from query
         query_lower = query.lower()
         
-        topic_mappings = {
-            "weather": "environmental",
-            "bank": "bank", "finance": "bank", "economic": "bank",
-            "hospital": "hospital", "health": "hospital", "medical": "hospital",
-            "university": "university", "education": "university", "research": "research",
-            "news": "news", "media": "news",
-            "government": "government", "politik": "government",
-            "sport": "sport", "football": "sport", "futbol": "sport",
-            "industry": "industry", "manufacture": "industry",
-            "tech": "technology", "technology": "technology"
+        # Detect country from query
+        country_keywords = {
+            "albania": "AL", "shqipëri": "AL", "tirana": "AL",
+            "kosovo": "XK", "prishtina": "XK", "kosova": "XK",
+            "germany": "DE", "gjermani": "DE", "deutschland": "DE",
+            "france": "FR", "francë": "FR",
+            "italy": "IT", "itali": "IT",
+            "spain": "ES", "spanjë": "ES",
+            "usa": "US", "america": "US", "amerik": "US",
+            "uk": "UK", "britain": "UK", "england": "UK",
+            "japan": "JP", "japoni": "JP",
+            "china": "CN", "kinë": "CN",
+            "india": "IN", "indi": "IN",
+            "brazil": "BR", "brazil": "BR",
+            "australia": "AU", "australi": "AU",
+            "serbia": "RS", "serbi": "RS",
+            "croatia": "HR", "kroaci": "HR",
+            "north macedonia": "MK", "maqedoni": "MK",
         }
         
-        detected_topic = None
-        for keyword, topic in topic_mappings.items():
+        detected_country = None
+        for keyword, code in country_keywords.items():
             if keyword in query_lower:
-                detected_topic = topic
+                detected_country = code
                 break
         
-        if detected_topic:
-            sources = get_sources_for_topic(detected_topic, limit=10)
-            if sources:
-                source_list = "\n".join([f"- {s.name}: {s.url}" for s in sources[:10]])
-                return f"""📚 DATA SOURCES for {detected_topic.upper()}:
-{source_list}
-
-Note: These are verified open data sources. For real-time data, query their APIs directly."""
+        # Build response with relevant sources
+        result_parts = []
+        
+        if detected_country:
+            # Find the country in our index
+            for region_name, countries in GLOBAL_DATA_SOURCES_INDEX.items():
+                if detected_country in countries:
+                    source = countries[detected_country]
+                    result_parts.append(f"🌍 {source['name']}: {source['url']}")
+                    break
+        
+        # Always include relevant international sources
+        topic_sources = {
+            "health": ["WHO", "PUBMED"],
+            "economic": ["WB", "IMF", "OECD"],
+            "research": ["ARXIV", "ZENODO", "NASA"],
+            "statistic": ["UN", "OECD", "WB"],
+            "climate": ["NASA", "FAO"],
+            "trade": ["WTO", "WB"],
+        }
+        
+        for topic, sources in topic_sources.items():
+            if topic in query_lower:
+                for src_code in sources:
+                    if src_code in GLOBAL_DATA_SOURCES_INDEX["international"]:
+                        src = GLOBAL_DATA_SOURCES_INDEX["international"][src_code]
+                        result_parts.append(f"📊 {src['name']}: {src['url']}")
+                    elif src_code in GLOBAL_DATA_SOURCES_INDEX["research"]:
+                        src = GLOBAL_DATA_SOURCES_INDEX["research"][src_code]
+                        result_parts.append(f"🔬 {src['name']}: {src['url']}")
+        
+        if result_parts:
+            return "📚 RELEVANT DATA SOURCES:\n" + "\n".join(result_parts[:10])
         
         return ""
     except Exception as e:
         logger.debug(f"Data sources not available: {e}")
         return ""
+
+
+# ═══════════════════════════════════════════════════════════════════
+# UNIVERSAL WEB READER - Reads ANY webpage without restrictions
+# ═══════════════════════════════════════════════════════════════════
+
+async def universal_web_reader(url: str, max_chars: int = 10000) -> str:
+    """
+    Universal web page reader - fetches and extracts content from ANY URL.
+    No restrictions, no blocklist. For educational and research purposes.
+    """
+    try:
+        if not url.startswith(("http://", "https://")):
+            url = "https://" + url
+        
+        async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.9",
+            }
+            resp = await client.get(url, headers=headers)
+            
+            if resp.status_code != 200:
+                return f"Error: HTTP {resp.status_code} for {url}"
+            
+            html = resp.text
+            
+            # Extract text content
+            import re
+            # Remove scripts, styles, comments
+            html = re.sub(r'<script[^>]*>.*?</script>', '', html, flags=re.DOTALL | re.IGNORECASE)
+            html = re.sub(r'<style[^>]*>.*?</style>', '', html, flags=re.DOTALL | re.IGNORECASE)
+            html = re.sub(r'<!--.*?-->', '', html, flags=re.DOTALL)
+            html = re.sub(r'<noscript[^>]*>.*?</noscript>', '', html, flags=re.DOTALL | re.IGNORECASE)
+            
+            # Extract title
+            title_match = re.search(r'<title[^>]*>([^<]+)</title>', html, re.IGNORECASE)
+            title = title_match.group(1).strip() if title_match else "Untitled"
+            
+            # Extract main content (prefer article, main, or body)
+            main_content = ""
+            for tag in ['article', 'main', 'div[role="main"]', 'body']:
+                pattern = f'<{tag}[^>]*>(.*?)</{tag}>'
+                match = re.search(pattern, html, re.DOTALL | re.IGNORECASE)
+                if match:
+                    main_content = match.group(1)
+                    break
+            
+            if not main_content:
+                main_content = html
+            
+            # Remove HTML tags
+            text = re.sub(r'<[^>]+>', ' ', main_content)
+            # Clean whitespace
+            text = re.sub(r'\s+', ' ', text).strip()
+            # Decode entities
+            text = text.replace('&nbsp;', ' ').replace('&amp;', '&')
+            text = text.replace('&lt;', '<').replace('&gt;', '>')
+            text = text.replace('&quot;', '"').replace('&#39;', "'")
+            
+            return f"📄 **{title}**\n\nURL: {url}\n\n{text[:max_chars]}"
+            
+    except Exception as e:
+        return f"Error reading {url}: {str(e)}"
 
 
 def build_system_prompt(extra_context: str = "") -> str:
