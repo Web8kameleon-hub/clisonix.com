@@ -61,11 +61,17 @@ Firma: {i['firma']}
 Website: {i['website']}"""
 
 
+def get_identity_short() -> str:
+    """Versioni KONCIZ për system prompt — vetëm 2 rreshta, pa vonesa"""
+    i = load_identity()
+    return f"You are {i['ai']}, AI of {i['platforma']}, created by {i['krijues']} ({i['firma']}). Website: {i['website']}"
+
+
 def get_ceo() -> str:
     return load_identity()["ceo"]
 
-def get_firma() -> str:
-    return load_identity()["firma"]
+def get_company() -> str:
+    return load_identity()["company"]
 
 def get_krijues() -> str:
     return load_identity()["krijues"]

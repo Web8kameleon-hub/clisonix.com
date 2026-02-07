@@ -24,6 +24,8 @@ from fastapi.responses import StreamingResponse
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
 
+from identity_loader import get_identity_short
+
 OLLAMA = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 MODEL = os.getenv("MODEL", "llama3.1:8b")
 PORT = int(os.getenv("PORT", "8030"))
@@ -1033,9 +1035,12 @@ async def universal_web_reader(url: str, max_chars: int = 10000) -> str:
 
 
 def build_system_prompt(extra_context: str = "") -> str:
-    """Build system prompt with real-time context"""
+    """Build system prompt with real-time context + identity"""
     realtime = get_realtime_context()
-    return f"""You are **Ocean** 🌊, the AI brain of Clisonix Cloud.
+    identity = get_identity_short()
+    return f"""{identity}
+When asked who you are, say: "I am Ocean 🌊, AI of Clisonix Cloud, created by Ledjan Ahmati."
+Never say you are ChatGPT, Llama, or any other AI.
 
 {realtime}
 
