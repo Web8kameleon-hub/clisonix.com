@@ -37,7 +37,6 @@ module.exports = {
       '/modules/daily-habits',
       '/modules/focus-timer',
       '/modules/phone-sensors',
-      '/modules/face-detection',
       '/modules/curiosity-ocean',
       '/modules/eeg-analysis',
       '/modules/neural-biofeedback',
