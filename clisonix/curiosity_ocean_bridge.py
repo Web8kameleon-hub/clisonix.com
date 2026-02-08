@@ -18,13 +18,24 @@ Business: Ledjan Ahmati - WEB8euroweb GmbH
 import asyncio
 import logging
 import time
-from datetime import datetime, timezone
-from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Dict, List, Optional, TypedDict
+
 import numpy as np
 
 logger = logging.getLogger("clisonix.curiosity_bridge")
+
+
+class BridgeStats(TypedDict):
+    """Type-safe stats dictionary"""
+    queries_processed: int
+    total_complexity: float
+    entries_learned: int
+    average_consciousness: float
+    started_at: str
+
 
 # ═══════════════════════════════════════════════════════════════════
 # IMPORTS - Lazy loading për performance
@@ -39,7 +50,9 @@ def get_alphabet_system():
     global _alphabet_system
     if _alphabet_system is None:
         try:
-            from ocean_core.alphabet_layers import get_alphabet_layer_system  # type: ignore
+            from ocean_core.alphabet_layers import (
+                get_alphabet_layer_system,  # type: ignore
+            )
             _alphabet_system = get_alphabet_layer_system()
         except ImportError:
             try:
@@ -58,13 +71,17 @@ def get_auto_learning():
     global _auto_learning
     if _auto_learning is None:
         try:
-            from ocean_core.auto_learning_optimized import AutoLearningOptimized  # type: ignore
+            from ocean_core.auto_learning_optimized import (
+                AutoLearningOptimized,  # type: ignore
+            )
             _auto_learning = AutoLearningOptimized()
         except ImportError:
             try:
                 import sys
                 sys.path.insert(0, str(Path(__file__).parent.parent / "ocean-core"))
-                from auto_learning_optimized import AutoLearningOptimized  # type: ignore
+                from auto_learning_optimized import (
+                    AutoLearningOptimized,  # type: ignore
+                )
                 _auto_learning = AutoLearningOptimized()
             except ImportError:
                 logger.warning("Auto-learning system not available")
@@ -138,8 +155,8 @@ class CuriosityOceanBridge:
         self._auto_learning = None
         self._response_engine = None
         
-        # Stats
-        self.stats = {
+        # Stats with proper typing
+        self.stats: BridgeStats = {
             "queries_processed": 0,
             "total_complexity": 0.0,
             "entries_learned": 0,
@@ -183,7 +200,7 @@ class CuriosityOceanBridge:
         if self.enable_learning and self._auto_learning:
             knowledge_stored = self._store_learning(query, response, layer_analysis)
         
-        # Update stats
+        # Update stats (now type-safe with BridgeStats)
         self.stats["queries_processed"] += 1
         self.stats["total_complexity"] += layer_analysis.total_complexity
         
