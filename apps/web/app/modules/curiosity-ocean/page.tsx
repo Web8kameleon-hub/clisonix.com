@@ -4,19 +4,24 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Send, Sparkles, RefreshCw, ChevronRight, Loader2, Mic, Camera, FileText, X, Square, Plus, Settings2, ArrowLeft } from 'lucide-react';
 
-// Clerk hooks — safe import for build time
-let useAuthHook: () => { userId: string | null; isSignedIn: boolean | undefined } = () => ({ userId: null, isSignedIn: false });
-let useUserHook: () => { user: { firstName?: string | null; username?: string | null } | null | undefined } = () => ({ user: null });
-
-if (typeof window !== 'undefined') {
+// Clerk — safe runtime access (no hooks, avoids ClerkProvider requirement)
+function getClerkUser(): { userId: string | null; firstName: string | null; username: string | null } {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const clerk = require('@clerk/nextjs');
-    useAuthHook = clerk.useAuth;
-    useUserHook = clerk.useUser;
+    // Access Clerk's client-side singleton if available
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = window as any;
+    if (w?.Clerk?.user) {
+      const u = w.Clerk.user;
+      return { userId: u.id || null, firstName: u.firstName || null, username: u.username || null };
+    }
+    if (w?.Clerk?.session?.user) {
+      const u = w.Clerk.session.user;
+      return { userId: u.id || null, firstName: u.firstName || null, username: u.username || null };
+    }
   } catch {
     // Clerk not available
   }
+  return { userId: null, firstName: null, username: null };
 }
 
 /**
@@ -336,9 +341,23 @@ interface Message {
 // COMPONENT
 // ============================================================================
 export default function CuriosityOceanChat() {
-  // Clerk hooks — called at top level (safe: fallbacks return nulls if Clerk unavailable)
-  const { userId } = useAuthHook();
-  const { user } = useUserHook();
+  // Clerk data — fetched safely via window.Clerk (no hooks needed)
+  const [clerkUser, setClerkUser] = useState<{ userId: string | null; firstName: string | null; username: string | null }>({ userId: null, firstName: null, username: null });
+
+  useEffect(() => {
+    // Try immediately, then retry after Clerk loads
+    const tryLoad = () => {
+      const data = getClerkUser();
+      if (data.userId) setClerkUser(data);
+    };
+    tryLoad();
+    const timer = setTimeout(tryLoad, 1500);
+    const timer2 = setTimeout(tryLoad, 3000);
+    return () => { clearTimeout(timer); clearTimeout(timer2); };
+  }, []);
+
+  const userId = clerkUser.userId;
+  const user = { firstName: clerkUser.firstName, username: clerkUser.username };
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
