@@ -23,7 +23,7 @@ const inter = Inter({
 
 // 🚀 AGGRESSIVE SEO - Maximum visibility
 export const metadata: Metadata = {
-  metadataBase: new URL('https://clisonix.cloud'),
+  metadataBase: new URL('https://clisonix.com'),
   title: {
     default: "Clisonix Cloud - AI-Powered Industrial Intelligence Platform",
     template: "%s | Clisonix Cloud"
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     "automation", "smart manufacturing", "Industry 4.0", "digital transformation",
     "Clisonix", "AGI", "artificial general intelligence"
   ],
-  authors: [{ name: "Clisonix", url: "https://clisonix.cloud" }],
+  authors: [{ name: "Clisonix", url: "https://clisonix.com" }],
   creator: "Clisonix",
   publisher: "Clisonix Cloud",
   robots: {
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://clisonix.cloud',
+    url: 'https://clisonix.com',
     siteName: 'Clisonix Cloud',
     title: 'Clisonix Cloud - AI-Powered Industrial Intelligence',
     description: 'Transform your industrial operations with AI-powered analytics, behavioral science insights, and real-time monitoring.',
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
     creator: '@clisonix',
   },
   alternates: {
-    canonical: 'https://clisonix.cloud',
+    canonical: 'https://clisonix.com',
   },
   category: 'Technology',
   verification: {
@@ -111,11 +111,11 @@ export default function RootLayout({
                 "ratingCount": "150"
               },
               "description": "AI-powered industrial intelligence and behavioral science platform",
-              "url": "https://clisonix.cloud",
+              "url": "https://clisonix.com",
               "author": {
                 "@type": "Organization",
                 "name": "Clisonix",
-                "url": "https://clisonix.cloud"
+                "url": "https://clisonix.com"
               }
             })
           }}
@@ -128,8 +128,8 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               "name": "Clisonix",
-              "url": "https://clisonix.cloud",
-              "logo": "https://clisonix.cloud/logo.png",
+              "url": "https://clisonix.com",
+              "logo": "https://clisonix.com/logo.png",
               "sameAs": [
                 "https://github.com/LedjanAhmati/Clisonix-cloud",
                 "https://twitter.com/clisonix"
@@ -142,7 +142,7 @@ export default function RootLayout({
             })
           }}
         />
-        <link rel="canonical" href="https://clisonix.cloud" />
+        <link rel="canonical" href="https://clisonix.com" />
         <meta name="theme-color" content="#6366f1" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />

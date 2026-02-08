@@ -1695,7 +1695,7 @@ const AviationWeatherDashboard: React.FC = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
                       <span className="text-gray-600">Host</span>
-                      <span className="font-mono font-bold text-gray-900">clisonix.cloud</span>
+                      <span className="font-mono font-bold text-gray-900">clisonix.com</span>
                     </div>
                     <div className="flex justify-between p-3 bg-gray-50 rounded-lg">
                       <span className="text-gray-600">Port</span>

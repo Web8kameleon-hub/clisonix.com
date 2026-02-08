@@ -64,7 +64,7 @@ export default function TermsPage() {
               into products and services, please contact us directly:
             </p>
             <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
-              <p className="font-mono">contact@clisonix.cloud</p>
+              <p className="font-mono">contact@clisonix.com</p>
             </div>
           </section>
 

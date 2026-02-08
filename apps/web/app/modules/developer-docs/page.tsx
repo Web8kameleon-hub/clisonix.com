@@ -10,13 +10,13 @@ import Link from 'next/link'
 
 const CODE_EXAMPLES = {
   curl: `# Get API Health
-curl -s https://clisonix.cloud/api/ping
+curl -s https://clisonix.com/api/ping
 
 # Get System Status
-curl -s https://clisonix.cloud/api/system-status
+curl -s https://clisonix.com/api/system-status
 
 # Chat with Ocean AI
-curl -X POST https://clisonix.cloud/api/ocean \
+curl -X POST https://clisonix.com/api/ocean \
   -H "Content-Type: application/json" \\
   -d '{
     "message": "What is neural audio processing?",
@@ -301,7 +301,7 @@ export default function DeveloperDocs() {
               <h3 className="text-xl font-semibold mb-2">REST API</h3>
               <code className="text-purple-400 text-sm">Any language</code>
               <div className="mt-4 bg-gray-900 rounded-lg p-3">
-                <code className="text-purple-300 text-sm">clisonix.cloud/api</code>
+                <code className="text-purple-300 text-sm">clisonix.com/api</code>
               </div>
               <a href="#api-reference" className="mt-4 inline-block text-purple-400 hover:text-purple-300 text-sm">
                 View Documentation →

@@ -173,22 +173,22 @@ export default function DevelopersPage() {
 
   const codeExamples = {
     curl: `# Health check
-curl -s https://clisonix.cloud/api/ping
+curl -s https://clisonix.com/api/ping
 
 # System status
-curl -s https://clisonix.cloud/api/system-status | jq .
+curl -s https://clisonix.com/api/system-status | jq .
 
 # Chat with Ocean AI
-curl -X POST https://clisonix.cloud/api/ocean \\
+curl -X POST https://clisonix.com/api/ocean \\
   -H "Content-Type: application/json" \\
   -d '{"message": "What is neural audio processing?", "language": "en"}'
 
 # Streaming chat
-curl -N -X POST https://clisonix.cloud/api/ocean/stream \\
+curl -N -X POST https://clisonix.com/api/ocean/stream \\
   -H "Content-Type: application/json" \\
   -d '{"message": "Explain EEG analysis", "language": "en"}'`,
     typescript: `// Clisonix Cloud API — TypeScript
-const BASE = 'https://clisonix.cloud/api'
+const BASE = 'https://clisonix.com/api'
 
 // Health check
 const ping = await fetch(\`\${BASE}/ping\`)
@@ -213,7 +213,7 @@ const { data } = await metrics.json()
 console.log(\`CPU: \${data.cpu_percent}%, RAM: \${data.memory_percent}%\`)`,
     python: `import requests
 
-BASE = "https://clisonix.cloud/api"
+BASE = "https://clisonix.com/api"
 
 # Health check
 r = requests.get(f"{BASE}/ping")
@@ -280,7 +280,7 @@ print(f"CPU: {data['cpu_percent']}%, RAM: {data['memory_percent']}%")`,
           <div className="max-w-2xl mx-auto bg-slate-900/60 border border-slate-800 rounded-2xl p-6 mb-8">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm text-slate-400">Try it now — live from production</span>
-              <span className="text-xs text-slate-600">clisonix.cloud</span>
+              <span className="text-xs text-slate-600">clisonix.com</span>
             </div>
             <div className="flex gap-3">
               <code className="flex-1 bg-slate-950 rounded-lg px-4 py-3 text-left text-sm text-emerald-400 font-mono">
@@ -351,7 +351,7 @@ print(f"CPU: {data['cpu_percent']}%, RAM: {data['memory_percent']}%")`,
                     <span className="hidden sm:block text-xs text-slate-500 flex-shrink-0">{ep.desc}</span>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => copy(`curl ${ep.method === 'POST' ? '-X POST ' : '-s '}https://clisonix.cloud${ep.path}${ep.method === 'POST' ? ' -H "Content-Type: application/json" -d \'{"message":"test"}\'': ''}`, key + '-copy')}
+                        onClick={() => copy(`curl ${ep.method === 'POST' ? '-X POST ' : '-s '}https://clisonix.com${ep.path}${ep.method === 'POST' ? ' -H "Content-Type: application/json" -d \'{"message":"test"}\'': ''}`, key + '-copy')}
                         className="p-2 text-slate-500 hover:text-white transition-colors"
                         title="Copy cURL"
                       >
@@ -503,7 +503,7 @@ print(f"CPU: {data['cpu_percent']}%, RAM: {data['memory_percent']}%")`,
           <h2 className="text-3xl font-bold text-center mb-12">FAQ</h2>
           <div className="space-y-4">
             {[
-              { q: 'How do I get started?', a: 'Sign up for a free account at clisonix.cloud/sign-up. You can start calling public endpoints immediately — no API key required for read-only status and health endpoints.' },
+              { q: 'How do I get started?', a: 'Sign up for a free account at clisonix.com/sign-up. You can start calling public endpoints immediately — no API key required for read-only status and health endpoints.' },
               { q: 'Do these APIs actually work?', a: 'Yes. Every endpoint listed on this page is live on production. Click "Try" next to any endpoint above to see the real response.' },
               { q: 'What AI models power Ocean?', a: 'Curiosity Ocean uses Llama 3.1 8B for text, LLaVA for vision, and Faster-Whisper for audio transcription. All models run on our infrastructure — no external API calls.' },
               { q: 'Can I upgrade or downgrade anytime?', a: 'Yes. Upgrades take effect immediately. Downgrades apply at the next billing cycle. All payments are processed through Stripe.' },
