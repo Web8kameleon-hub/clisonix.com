@@ -53,31 +53,72 @@ export default function OpenWebUIChat() {
     setMessages(prev => [...prev, { id: Date.now() + Math.random(), text, sender, type }])
   }, [])
 
-  // ======================== CHAT ========================
+  // ======================== CHAT (STREAMING) ========================
   const sendMessage = async () => {
     const trimmed = input.trim()
     if (!trimmed || isLoading) return
     addMessage(trimmed, 'user')
     setInput('')
     setIsLoading(true)
+    
+    // Create placeholder for streaming response
+    const botMsgId = Date.now() + Math.random()
+    setMessages(prev => [...prev, { id: botMsgId, text: '', sender: 'bot' }])
+    
     try {
-      // Build conversation history for backend context
-      const history = messages
-        .filter(m => m.sender === 'user' || m.sender === 'bot')
-        .slice(-20)
-        .map(m => ({
-          role: m.sender === 'user' ? 'user' : 'assistant',
-          content: m.text
-        }))
-      const res = await fetch('/api/ocean', {
+      // Use STREAMING endpoint for instant response!
+      const res = await fetch('/api/ocean/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: trimmed, messages: history })
+        body: JSON.stringify({ message: trimmed })
       })
-      const data = await res.json()
-      addMessage(data.response || 'No response received.', 'bot')
+      
+      if (!res.ok) throw new Error('API error')
+      if (!res.body) throw new Error('No response body')
+      
+      // Stream response in real-time
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let fullContent = ''
+      
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split('\n')
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6)
+            if (data === '[DONE]') continue
+            try {
+              const json = JSON.parse(data)
+              if (json.chunk) fullContent += json.chunk
+            } catch {
+              fullContent += data
+            }
+          } else if (line.trim()) {
+            fullContent += line
+          }
+        }
+        
+        // Update message in real-time
+        setMessages(prev => prev.map(msg =>
+          msg.id === botMsgId ? { ...msg, text: fullContent } : msg
+        ))
+      }
+      
+      // Final update
+      if (!fullContent) {
+        setMessages(prev => prev.map(msg =>
+          msg.id === botMsgId ? { ...msg, text: 'No response received.' } : msg
+        ))
+      }
     } catch {
-      addMessage('Connection error. Check if Ocean Core is running.', 'bot', 'error')
+      setMessages(prev => prev.map(msg =>
+        msg.id === botMsgId ? { ...msg, text: 'Connection error. Check if Ocean Core is running.', type: 'error' } : msg
+      ))
     } finally {
       setIsLoading(false)
     }
