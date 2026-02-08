@@ -387,11 +387,18 @@ export default function CuriosityOceanChat() {
     return headers;
   }, [userId]);
 
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = useCallback((instant = false) => {
+    messagesEndRef.current?.scrollIntoView({ behavior: instant ? 'instant' : 'smooth' });
   }, []);
 
-  useEffect(() => { scrollToBottom(); }, [messages, scrollToBottom]);
+  // Scroll on new messages (smooth), but NOT on every streaming chunk
+  const prevMsgCountRef = useRef(0);
+  useEffect(() => {
+    if (messages.length !== prevMsgCountRef.current) {
+      prevMsgCountRef.current = messages.length;
+      scrollToBottom();
+    }
+  }, [messages, scrollToBottom]);
   useEffect(() => { setLanguage(detectLanguage()); }, []);
 
   useEffect(() => {
@@ -582,6 +589,7 @@ export default function CuriosityOceanChat() {
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let fullContent = '';
+      let lastScroll = 0;
 
       if (reader) {
         while (true) {
@@ -589,8 +597,15 @@ export default function CuriosityOceanChat() {
           if (done) break;
           fullContent += decoder.decode(value, { stream: true });
           setMessages(prev => prev.map(msg => msg.id === aiMessageId ? { ...msg, content: fullContent } : msg));
-          scrollToBottom();
+          // Throttle scroll during streaming — max once per 80ms, instant (no smooth animation)
+          const now = Date.now();
+          if (now - lastScroll > 80) {
+            lastScroll = now;
+            scrollToBottom(true);
+          }
         }
+        // Final scroll after stream ends
+        scrollToBottom(true);
       }
       setMessages(prev => prev.map(msg => msg.id === aiMessageId ? { ...msg, isStreaming: false } : msg));
     } catch (error) {
