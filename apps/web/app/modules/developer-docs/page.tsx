@@ -10,23 +10,17 @@ import Link from 'next/link'
 
 const CODE_EXAMPLES = {
   curl: `# Get API Health
-curl -X GET https://api.clisonix.com/health \\
-  -H "Authorization: Bearer YOUR_API_KEY"
+curl -s https://clisonix.cloud/api/ping
 
 # Get System Status
-curl -X GET https://api.clisonix.com/status \\
-  -H "Authorization: Bearer YOUR_API_KEY"
+curl -s https://clisonix.cloud/api/system-status
 
-# Create New Cycle
-curl -X POST https://api.clisonix.com/cycles \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
+# Chat with Ocean AI
+curl -X POST https://clisonix.cloud/api/ocean \
   -H "Content-Type: application/json" \\
   -d '{
-    "name": "Production Cycle",
-    "config": {
-      "interval": 1000,
-      "retries": 3
-    }
+    "message": "What is neural audio processing?",
+    "language": "en"
   }'`,
   python: `from clisonix import Clisonix
 
@@ -307,7 +301,7 @@ export default function DeveloperDocs() {
               <h3 className="text-xl font-semibold mb-2">REST API</h3>
               <code className="text-purple-400 text-sm">Any language</code>
               <div className="mt-4 bg-gray-900 rounded-lg p-3">
-                <code className="text-purple-300 text-sm">api.clisonix.com</code>
+                <code className="text-purple-300 text-sm">clisonix.cloud/api</code>
               </div>
               <a href="#api-reference" className="mt-4 inline-block text-purple-400 hover:text-purple-300 text-sm">
                 View Documentation →

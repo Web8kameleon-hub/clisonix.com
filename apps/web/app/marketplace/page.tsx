@@ -223,7 +223,7 @@ export default function MarketplacePage() {
             <code className="block bg-slate-900 rounded-lg p-4 text-left overflow-x-auto">
               <span className="text-violet-400">curl</span>
               <span className="text-slate-300"> -X GET </span>
-              <span className="text-blue-700">&quot;https://api.clisonix.com/status&quot;</span>
+              <span className="text-blue-700">&quot;https://clisonix.cloud/api/ping&quot;</span>
               <span className="text-slate-300"> \</span>
               <br />
               <span className="text-slate-300">  -H </span>
@@ -414,7 +414,7 @@ export default function MarketplacePage() {
 
 const client = new ClisonixClient({
   apiKey: 'your_api_key_here',
-  baseUrl: 'https://api.clisonix.com'
+  baseUrl: 'https://clisonix.cloud/api'
 });
 
 // Get system status
