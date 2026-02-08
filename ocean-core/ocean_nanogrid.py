@@ -1166,11 +1166,56 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 class Req(BaseModel):
     message: str = None
     query: str = None
+    messages: list = None  # Conversation history from frontend
+    context: dict = None  # Multimodal context (vision/audio/doc results)
 
 
 class Res(BaseModel):
     response: str
     time: float
+    conversation_id: str = None
+
+
+# ═══════════════════════════════════════════════════════════════════
+# CONVERSATION MEMORY - In-memory session store (per user)
+# ═══════════════════════════════════════════════════════════════════
+
+MAX_HISTORY_PER_USER = 20  # Last 20 messages per user
+MAX_CONTEXT_CHARS = 4000  # Max chars for multimodal context injection
+
+# user_id -> list of {"role": "user"|"assistant", "content": str}
+conversation_store: dict = defaultdict(list)
+# user_id -> multimodal context from last vision/audio/doc
+multimodal_context_store: dict = defaultdict(str)
+
+
+def get_conversation_history(user_id: str) -> list:
+    """Get the last N messages for a user"""
+    history = conversation_store.get(user_id, [])
+    return history[-MAX_HISTORY_PER_USER:]
+
+
+def add_to_history(user_id: str, role: str, content: str):
+    """Add a message to conversation history"""
+    conversation_store[user_id].append({"role": role, "content": content})
+    # Trim to max
+    if len(conversation_store[user_id]) > MAX_HISTORY_PER_USER * 2:
+        conversation_store[user_id] = conversation_store[user_id][
+            -MAX_HISTORY_PER_USER:
+        ]
+
+
+def set_multimodal_context(user_id: str, context_type: str, content: str):
+    """Store multimodal result so chat can reference it"""
+    truncated = content[:MAX_CONTEXT_CHARS]
+    multimodal_context_store[user_id] = (
+        f"\n[LAST {context_type.upper()} RESULT]:\n{truncated}"
+    )
+
+
+def get_multimodal_context(user_id: str) -> str:
+    """Get stored multimodal context for this user"""
+    return multimodal_context_store.get(user_id, "")
 
 
 @app.on_event("startup")
@@ -1231,15 +1276,44 @@ async def chat(req: Req, request: Request):
         # 🔥 SMART CONTEXT: Fetch real data based on query
         smart_context = await build_smart_context(q)
 
+        # 🔥 MULTIMODAL CONTEXT: Include last vision/audio/doc result
+        mm_context = get_multimodal_context(user_id)
+        if mm_context:
+            smart_context = f"{smart_context}\n{mm_context}" if smart_context else mm_context
+
         # Build prompt with real-time context + smart data
         system_prompt = build_system_prompt(extra_context=smart_context)
 
+        # 🔥 CONVERSATION HISTORY: Build messages array with history
+        messages_for_llm = [{"role": "system", "content": system_prompt}]
+
+        # Add conversation history (last N turns)
+        history = get_conversation_history(user_id)
+        for msg in history:
+            messages_for_llm.append(msg)
+
+        # If frontend sent messages array, prefer that over stored history
+        if req.messages and len(req.messages) > 1:
+            # Frontend has its own history - use it instead
+            messages_for_llm = [{"role": "system", "content": system_prompt}]
+            for m in req.messages[-MAX_HISTORY_PER_USER:]:
+                role = m.get("role", m.get("sender", "user"))
+                content = m.get("content", m.get("text", ""))
+                if role in ("user", "assistant") and content:
+                    messages_for_llm.append({"role": role, "content": content})
+            # Still add current message if not already last
+            if not messages_for_llm or messages_for_llm[-1].get("content") != q:
+                messages_for_llm.append({"role": "user", "content": q})
+        else:
+            # Add current user message
+            messages_for_llm.append({"role": "user", "content": q})
+
+        # Save to history
+        add_to_history(user_id, "user", q)
+
         r = await client.post(f"{OLLAMA}/api/chat", json={
             "model": MODEL,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": q}
-            ],
+            "messages": messages_for_llm,
             "stream": False,
             "options": {
                 "num_ctx": 8192,
@@ -1252,23 +1326,48 @@ async def chat(req: Req, request: Request):
             }
         })
         resp = r.json().get("message", {}).get("content", "")
+
+        # Save assistant response to history
+        add_to_history(user_id, "assistant", resp)
+
     except Exception as e:
         raise HTTPException(500, str(e)) from e
 
-    return Res(response=resp, time=round(time.time() - t0, 2))
+    return Res(
+        response=resp,
+        time=round(time.time() - t0, 2),
+        conversation_id=user_id
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════
 # STREAMING ENDPOINT - First token in 2-3 seconds!
 # ═══════════════════════════════════════════════════════════════════
 
-async def stream_ollama(query: str) -> AsyncGenerator[str, None]:
+async def stream_ollama(query: str, user_id: str = "anonymous") -> AsyncGenerator[str, None]:
     """Stream response from Ollama - text appears immediately!"""
     client = await get_client()
 
     # 🔥 SMART CONTEXT: Fetch real data based on query
     smart_context = await build_smart_context(query)
+
+    # 🔥 MULTIMODAL CONTEXT
+    mm_context = get_multimodal_context(user_id)
+    if mm_context:
+        smart_context = f"{smart_context}\n{mm_context}" if smart_context else mm_context
+
     system_prompt = build_system_prompt(extra_context=smart_context)
+
+    # 🔥 CONVERSATION HISTORY
+    messages_for_llm = [{"role": "system", "content": system_prompt}]
+    history = get_conversation_history(user_id)
+    for msg in history:
+        messages_for_llm.append(msg)
+    messages_for_llm.append({"role": "user", "content": query})
+
+    # Save user message
+    add_to_history(user_id, "user", query)
+    full_response = []
 
     try:
         async with client.stream(
@@ -1276,10 +1375,7 @@ async def stream_ollama(query: str) -> AsyncGenerator[str, None]:
             f"{OLLAMA}/api/chat",
             json={
                 "model": MODEL,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": query}
-                ],
+                "messages": messages_for_llm,
                 "stream": True,  # STREAMING!
                 "options": {
                     "num_ctx": 8192,
@@ -1297,11 +1393,17 @@ async def stream_ollama(query: str) -> AsyncGenerator[str, None]:
                         if "message" in data and "content" in data["message"]:
                             content = data["message"]["content"]
                             if content:
+                                full_response.append(content)
                                 yield content
                         if data.get("done", False):
                             break
                     except json.JSONDecodeError:
                         continue
+
+        # Save full response to history
+        if full_response:
+            add_to_history(user_id, "assistant", "".join(full_response))
+
     except Exception as e:
         yield f"\n[Error: {str(e)}]"
 
@@ -1324,7 +1426,7 @@ async def chat_stream(req: Req, request: Request):
         raise HTTPException(429, "Rate limit exceeded")
 
     return StreamingResponse(
-        stream_ollama(q),
+        stream_ollama(q, user_id=user_id),
         media_type="text/plain"
     )
 
@@ -1332,6 +1434,34 @@ async def chat_stream(req: Req, request: Request):
 @app.post("/api/v1/query", response_model=Res)
 async def query(req: Req, request: Request):
     return await chat(req, request)
+
+
+# ═══════════════════════════════════════════════════════════════════
+# CONVERSATION MANAGEMENT ENDPOINTS
+# ═══════════════════════════════════════════════════════════════════
+
+@app.get("/api/v1/chat/history")
+async def get_chat_history(request: Request):
+    """Get conversation history for current user"""
+    user_id = request.headers.get("X-User-ID") or request.client.host or "anonymous"
+    history = get_conversation_history(user_id)
+    return {
+        "user_id": user_id,
+        "messages": history,
+        "count": len(history)
+    }
+
+
+@app.delete("/api/v1/chat/history")
+async def clear_chat_history(request: Request):
+    """Clear conversation history for current user"""
+    user_id = request.headers.get("X-User-ID") or request.client.host or "anonymous"
+    conversation_store[user_id] = []
+    multimodal_context_store[user_id] = ""
+    return {
+        "status": "cleared",
+        "user_id": user_id
+    }
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -1707,7 +1837,7 @@ class WriteDocumentRequest(BaseModel):
 
 
 @app.post("/api/v1/vision/analyze")
-async def analyze_image(req: VisionRequest):
+async def analyze_image(req: VisionRequest, request: Request):
     """
     🎥 KAMERA - Analizë imazhi me AI
 
@@ -1718,6 +1848,24 @@ async def analyze_image(req: VisionRequest):
     - Analizë skenash
     """
     t0 = time.time()
+    user_id = request.headers.get("X-User-ID") or request.client.host or "anonymous"
+
+    # 🔥 INPUT VALIDATION
+    try:
+        import base64 as b64mod  # noqa: C0415
+        decoded_size = len(b64mod.b64decode(req.image_base64))
+        max_image_bytes = 10 * 1024 * 1024  # 10 MB max
+        if decoded_size > max_image_bytes:
+            raise HTTPException(
+                413,
+                f"Image too large ({decoded_size // 1024 // 1024} MB). Max 10 MB."
+            )
+        if decoded_size < 100:
+            raise HTTPException(400, "Image data too small or invalid.")
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(400, "Invalid base64 image data.") from None
 
     try:
         client = await get_client()
@@ -1744,9 +1892,21 @@ async def analyze_image(req: VisionRequest):
 
         if response.status_code == 200:
             result = response.json()
+            analysis = result.get("response", "")
+
+            # 🔥 STORE FOR CHAT CONTEXT - so user can ask follow-up questions
+            set_multimodal_context(
+                user_id, "vision",
+                f"Image analysis: {analysis}"
+            )
+            add_to_history(
+                user_id, "assistant",
+                f"[Vision Analysis]: {analysis[:500]}"
+            )
+
             return {
                 "status": "success",
-                "analysis": result.get("response", ""),
+                "analysis": analysis,
                 "mode": "ocr" if req.extract_text else "vision",
                 "model": VISION_MODEL,
                 "processing_time": round(time.time() - t0, 2)
@@ -1764,7 +1924,7 @@ async def analyze_image(req: VisionRequest):
 
 
 @app.post("/api/v1/audio/transcribe")
-async def transcribe_audio(req: AudioRequest):
+async def transcribe_audio(req: AudioRequest, request: Request):
     """
     🎤 MIKROFON - Transkriptim audio në tekst me faster-whisper
 
@@ -1775,11 +1935,22 @@ async def transcribe_audio(req: AudioRequest):
     - Ndihmë për të verbërit
     """
     t0 = time.time()
+    user_id = request.headers.get("X-User-ID") or request.client.host or "anonymous"
 
     try:
         import base64 as b64mod  # noqa: C0415
         audio_bytes = b64mod.b64decode(req.audio_base64)
         audio_size = len(audio_bytes)
+
+        # 🔥 INPUT VALIDATION
+        max_audio_bytes = 25 * 1024 * 1024  # 25 MB max
+        if audio_size > max_audio_bytes:
+            raise HTTPException(
+                413,
+                f"Audio too large ({audio_size // 1024 // 1024} MB). Max 25 MB."
+            )
+        if audio_size < 100:
+            raise HTTPException(400, "Audio data too small or empty.")
 
         # Ruaj audio si temp file
         import tempfile  # noqa: C0415
@@ -1818,6 +1989,16 @@ async def transcribe_audio(req: AudioRequest):
             if not transcript.strip():
                 transcript = "[Nuk u dallua fjalim në audio]"
 
+            # 🔥 STORE FOR CHAT CONTEXT - so user can ask about transcript
+            set_multimodal_context(
+                user_id, "audio transcription",
+                f"User said (voice): {transcript}"
+            )
+            add_to_history(
+                user_id, "user",
+                f"[Voice message]: {transcript}"
+            )
+
             return {
                 "status": "success",
                 "transcript": transcript,
@@ -1846,7 +2027,7 @@ async def transcribe_audio(req: AudioRequest):
 
 
 @app.post("/api/v1/document/analyze")
-async def analyze_document(req: DocumentRequest):
+async def analyze_document(req: DocumentRequest, request: Request):
     """
     📄 DOKUMENT SCANNING - Lexim dhe analizë dokumentash
 
@@ -1856,6 +2037,25 @@ async def analyze_document(req: DocumentRequest):
     - extract: Ekstraktim entitetesh
     """
     t0 = time.time()
+    user_id = request.headers.get("X-User-ID") or request.client.host or "anonymous"
+
+    # 🔥 INPUT VALIDATION
+    if not req.content or not req.content.strip():
+        raise HTTPException(400, "Document content is empty.")
+
+    max_content_chars = 50000  # 50K chars max
+    if len(req.content) > max_content_chars:
+        raise HTTPException(
+            413,
+            f"Document too large ({len(req.content)} chars). Max {max_content_chars}."
+        )
+
+    valid_actions = ["analyze", "summarize", "extract"]
+    if req.action not in valid_actions:
+        raise HTTPException(
+            400,
+            f"Invalid action: {req.action}. Use: {', '.join(valid_actions)}"
+        )
 
     try:
         client = await get_client()
@@ -1894,6 +2094,16 @@ async def analyze_document(req: DocumentRequest):
 
         result = response.json()
         analysis = result.get("message", {}).get("content", "")
+
+        # 🔥 STORE FOR CHAT CONTEXT - so user can ask about the document
+        set_multimodal_context(
+            user_id, "document analysis",
+            f"Document ({req.action}): {analysis[:1000]}"
+        )
+        add_to_history(
+            user_id, "assistant",
+            f"[Document {req.action}]: {analysis[:500]}"
+        )
 
         return {
             "status": "success",

@@ -61,10 +61,18 @@ export default function OpenWebUIChat() {
     setInput('')
     setIsLoading(true)
     try {
+      // Build conversation history for backend context
+      const history = messages
+        .filter(m => m.sender === 'user' || m.sender === 'bot')
+        .slice(-20)
+        .map(m => ({
+          role: m.sender === 'user' ? 'user' : 'assistant',
+          content: m.text
+        }))
       const res = await fetch(`${OCEAN_API}/api/v1/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: trimmed })
+        body: JSON.stringify({ message: trimmed, messages: history })
       })
       const data = await res.json()
       addMessage(data.response || 'No response received.', 'bot')
@@ -133,7 +141,12 @@ export default function OpenWebUIChat() {
       })
       const data = await res.json()
       if (data.status === 'success' && data.transcript) {
-        addMessage(`📝 "${data.transcript}" (${data.language || 'auto'}, ${data.processing_time}s)`, 'bot')
+        const transcript = data.transcript.trim()
+        addMessage(`📝 "${transcript}" (${data.language || 'auto'}, ${data.processing_time}s)`, 'bot')
+        // Put transcript in input so user can send it as chat or edit it
+        if (transcript && transcript !== '[Nuk u dallua fjalim në audio]') {
+          setInput(transcript)
+        }
       } else if (data.status === 'whisper_not_available') {
         addMessage('Whisper engine not available on server. Install: pip install faster-whisper', 'bot', 'error')
       } else {
