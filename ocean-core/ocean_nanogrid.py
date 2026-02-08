@@ -58,13 +58,14 @@ def verify_api_key(api_key: Optional[str] = Security(api_key_header)) -> str:
 # REAL-TIME CONTEXT - Date, Time, News, Weather
 # ═══════════════════════════════════════════════════════════════════
 
+
 def get_realtime_context() -> str:
     """Get current date, time, and day of week"""
     now = datetime.now()
     weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    months = ["January", "February", "March", "April", "May", "June", 
+    months = ["January", "February", "March", "April", "May", "June",
               "July", "August", "September", "October", "November", "December"]
-    
+
     return f"""
 ## CURRENT DATE & TIME
 - Date: {weekdays[now.weekday()]}, {months[now.month-1]} {now.day}, {now.year}
@@ -109,13 +110,13 @@ async def fetch_wikipedia(query: str) -> str:
     """Quick Wikipedia search"""
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
-            params = {"action": "query", "list": "search", "srsearch": query, 
+            params = {"action": "query", "list": "search", "srsearch": query,
                       "srlimit": 3, "format": "json"}
             r = await client.get("https://en.wikipedia.org/w/api.php", params=params)
             if r.status_code == 200:
                 results = r.json().get("query", {}).get("search", [])
                 if results:
-                    return "\n".join([f"- {item['title']}: {item['snippet'][:150]}..." 
+                    return "\n".join([f"- {item['title']}: {item['snippet'][:150]}..."
                                      for item in results[:3]])
     except Exception:  # noqa: BLE001
         pass
@@ -130,7 +131,14 @@ async def fetch_weather(city: str = "Tirana") -> str:
             if r.status_code == 200:
                 data = r.json()
                 current = data.get("current_condition", [{}])[0]
-                return f"Weather in {city}: {current.get('temp_C')}°C, {current.get('weatherDesc', [{}])[0].get('value', 'Unknown')}"
+                desc = current.get(
+                    "weatherDesc", [{}]
+                )[0].get("value", "Unknown")
+                temp = current.get("temp_C")
+                return (
+                    f"Weather in {city}:"
+                    f" {temp}°C, {desc}"
+                )
     except Exception:  # noqa: BLE001
         pass
     return ""
@@ -144,7 +152,12 @@ async def fetch_crypto_prices() -> str:
     """Get crypto prices from CoinGecko (FREE API)"""
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
-            r = await client.get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd,eur")
+            coin_url = (
+                "https://api.coingecko.com/api/v3/"
+                "simple/price?ids=bitcoin,ethereum,solana"
+                "&vs_currencies=usd,eur"
+            )
+            r = await client.get(coin_url)
             if r.status_code == 200:
                 data = r.json()
                 lines = []
@@ -179,7 +192,12 @@ async def fetch_arxiv_papers(query: str = "AI") -> str:
     """Get recent papers from ArXiv (FREE API)"""
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
-            r = await client.get(f"http://export.arxiv.org/api/query?search_query=all:{query}&max_results=3&sortBy=submittedDate")
+            arxiv_url = (
+                "http://export.arxiv.org/api/query"
+                f"?search_query=all:{query}"
+                "&max_results=3&sortBy=submittedDate"
+            )
+            r = await client.get(arxiv_url)
             if r.status_code == 200:
                 # Simple XML parsing
                 text = r.text
@@ -203,13 +221,24 @@ async def fetch_pubmed(query: str) -> str:
     try:
         async with httpx.AsyncClient(timeout=8.0) as client:
             # Search for articles
-            search_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term={query}&retmax=3&retmode=json"
+            search_url = (
+                "https://eutils.ncbi.nlm.nih.gov"
+                "/entrez/eutils/esearch.fcgi"
+                f"?db=pubmed&term={query}"
+                "&retmax=3&retmode=json"
+            )
             r = await client.get(search_url)
             if r.status_code == 200:
                 ids = r.json().get("esearchresult", {}).get("idlist", [])
                 if ids:
                     # Get summaries
-                    summary_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id={','.join(ids[:3])}&retmode=json"
+                    summary_url = (
+                        "https://eutils.ncbi.nlm.nih.gov"
+                        "/entrez/eutils/esummary.fcgi"
+                        "?db=pubmed"
+                        f"&id={','.join(ids[:3])}"
+                        "&retmode=json"
+                    )
                     s = await client.get(summary_url)
                     if s.status_code == 200:
                         results = s.json().get("result", {})
@@ -262,7 +291,7 @@ async def fetch_exchange_rates() -> str:
                     for currency, rate in rates.items():
                         lines.append(f"- {currency}: {rate:.4f}")
                     return "\n".join(lines)
-            
+
             # Fallback to frankfurter.app
             r2 = await client.get("https://api.frankfurter.app/latest?from=EUR&to=USD,GBP,CHF,JPY")
             if r2.status_code == 200:
@@ -282,7 +311,12 @@ async def search_github(query: str) -> str:
     try:
         async with httpx.AsyncClient(timeout=8.0) as client:
             headers = {"Accept": "application/vnd.github.v3+json"}
-            r = await client.get(f"https://api.github.com/search/repositories?q={query}&sort=stars&per_page=5", headers=headers)
+            gh_url = (
+                "https://api.github.com/search/"
+                f"repositories?q={query}"
+                "&sort=stars&per_page=5"
+            )
+            r = await client.get(gh_url, headers=headers)
             if r.status_code == 200:
                 items = r.json().get("items", [])[:5]
                 if items:
@@ -338,9 +372,22 @@ INTERNAL_SERVICES = {
     "kitchen": {"port": 8006, "name": "Content Factory", "endpoints": ["/health", "/generate"]},
     "translation": {"port": 8036, "name": "Translation Node", "endpoints": ["/health", "/translate"]},
     "blerina": {"port": 8040, "name": "Blerina Formatter", "endpoints": ["/health", "/format"]},
-    "excel": {"port": 8002, "name": "Excel Service", "endpoints": ["/health", "/api/excel/generate", "/api/excel/templates"]},
+    "excel": {
+        "port": 8002, "name": "Excel Service",
+        "endpoints": [
+            "/health", "/api/excel/generate",
+            "/api/excel/templates"
+        ]
+    },
     "alphabet": {"port": 8061, "name": "Alphabet Layers", "endpoints": ["/health", "/api/v1/curiosity/algebra/op"]},
-    "intelligence_lab": {"port": 8099, "name": "Intelligence Lab (KLAJDI+MALI)", "endpoints": ["/health", "/klajdi/status", "/mali/status"]},
+    "intelligence_lab": {
+        "port": 8099,
+        "name": "Intelligence Lab (KLAJDI+MALI)",
+        "endpoints": [
+            "/health", "/klajdi/status",
+            "/mali/status"
+        ]
+    },
     "jona": {"port": 7777, "name": "JONA Synthesizer", "endpoints": ["/health", "/synthesize"]},
 }
 
@@ -363,7 +410,7 @@ async def get_laboratory_status(lab_id: str = None) -> str:
     """Get status of laboratories"""
     if not LABORATORIES_AVAILABLE or not _lab_network:
         return "Laboratories module not available"
-    
+
     try:
         if lab_id:
             lab = _lab_network.get_laboratory(lab_id)
@@ -376,7 +423,7 @@ async def get_laboratory_status(lab_id: str = None) -> str:
 - Active Projects: {lab.active_projects}
 - Data Quality: {lab.data_quality_score * 100:.1f}%"""
             return f"Laboratory {lab_id} not found"
-        
+
         # All labs summary
         labs = _lab_network.get_all_laboratories()
         lab_list = "\n".join([f"- {lab.lab_id}: {lab.function} ({lab.location})" for lab in labs[:10]])
@@ -393,12 +440,12 @@ async def query_laboratory(lab_id: str, query: str) -> dict:
     """Query a specific laboratory for data"""
     if not LABORATORIES_AVAILABLE:
         return {"error": "Laboratories not available"}
-    
+
     try:
         lab = _lab_network.get_laboratory(lab_id)
         if not lab:
             return {"error": f"Lab {lab_id} not found"}
-        
+
         return {
             "lab": lab.to_dict(),
             "query": query,
@@ -426,7 +473,7 @@ async def perform_binary_operation(a: int, b: int, op: str = "XOR", bits: int = 
     if BINARY_ALGEBRA_AVAILABLE:
         try:
             algebra = get_binary_algebra()
-            op_map = {"AND": BinaryOp.AND, "OR": BinaryOp.OR, "XOR": BinaryOp.XOR, 
+            op_map = {"AND": BinaryOp.AND, "OR": BinaryOp.OR, "XOR": BinaryOp.XOR,
                       "NOT": BinaryOp.NOT, "NAND": BinaryOp.NAND, "NOR": BinaryOp.NOR,
                       "SHL": BinaryOp.SHL, "SHR": BinaryOp.SHR, "ADD": BinaryOp.ADD}
             binary_op = op_map.get(op.upper(), BinaryOp.XOR)
@@ -439,7 +486,7 @@ async def perform_binary_operation(a: int, b: int, op: str = "XOR", bits: int = 
             }
         except Exception as e:
             return {"success": False, "error": str(e)}
-    
+
     # Fallback to simple Python operations
     ops = {"AND": a & b, "OR": a | b, "XOR": a ^ b, "NOT": ~a, "ADD": a + b}
     result = ops.get(op.upper(), a ^ b) & ((1 << bits) - 1)
@@ -501,7 +548,7 @@ async def build_smart_context(query: str) -> str:
     """Build context by fetching relevant data based on user query"""
     context_parts = []
     query_lower = query.lower()
-    
+
     # Weather detection
     weather_keywords = ["weather", "wetter", "moti", "temperatura", "temperature", "rain", "sunny"]
     if any(kw in query_lower for kw in weather_keywords):
@@ -515,64 +562,68 @@ async def build_smart_context(query: str) -> str:
         weather = await fetch_weather(city)
         if weather:
             context_parts.append(weather)
-    
+
     # Crypto detection
     crypto_keywords = ["bitcoin", "crypto", "ethereum", "btc", "eth", "coin", "krypto"]
     if any(kw in query_lower for kw in crypto_keywords):
         crypto = await fetch_crypto_prices()
         if crypto:
             context_parts.append(crypto)
-    
+
     # Earthquake/disaster detection
     earthquake_keywords = ["earthquake", "erdbeben", "tërmet", "seismic", "disaster"]
     if any(kw in query_lower for kw in earthquake_keywords):
         quakes = await fetch_earthquakes()
         if quakes:
             context_parts.append(quakes)
-    
+
     # Scientific papers
     science_keywords = ["paper", "research", "study", "arxiv", "science", "publikim"]
     if any(kw in query_lower for kw in science_keywords):
         papers = await fetch_arxiv_papers("machine learning")
         if papers:
             context_parts.append(papers)
-    
+
     # Service status
     service_keywords = ["service", "status", "health", "alba", "albi", "system", "shërbim"]
     if any(kw in query_lower for kw in service_keywords):
         status = await get_internal_service_status()
         context_parts.append(status)
-    
+
     # Excel/data/tabela detection
     excel_keywords = ["excel", "tabela", "spreadsheet", "data", "export", "metrics", "të dhëna", "raport", "report"]
     if any(kw in query_lower for kw in excel_keywords):
         excel_data = await fetch_excel_data()
         if excel_data:
             context_parts.append(excel_data)
-    
+
     # Data sources - 5000+ global open data sources
-    data_keywords = ["burim", "source", "database", "hospital", "bank", "university", "government", "shëndetësi", "ministri"]
+    data_keywords = [
+        "burim", "source", "database", "hospital",
+        "bank", "university", "government",
+        "shëndetësi", "ministri"
+    ]
     if any(kw in query_lower for kw in data_keywords):
         data_sources = await fetch_from_data_sources(query)
         if data_sources:
             context_parts.append(data_sources)
-    
+
     # Binary algebra detection
     binary_keywords = ["binary", "binar", "xor", "and", "or", "not", "bit", "algebra", "hex", "operacion"]
     if any(kw in query_lower for kw in binary_keywords):
         binary_context = await get_binary_context()
         if binary_context:
             context_parts.append(binary_context)
-    
+
     # Laboratory detection - 23 specialized labs
-    lab_keywords = ["lab", "laboratory", "laborator", "research", "elbasan", "tirana", "zurich", "prishtina", 
-                    "durres", "vlore", "shkoder", "korce", "sarande", "athens", "rome", "beograd", 
+    lab_keywords = ["lab", "laboratory", "laborator", "research", "elbasan", "tirana", "zurich", "prishtina",
+                    "durres", "vlore", "shkoder", "korce", "sarande", "athens", "rome", "beograd",
                     "sofia", "zagreb", "ljubljana", "klajdi", "mali"]
     if any(kw in query_lower for kw in lab_keywords):
         lab_status = await get_laboratory_status()
         if lab_status:
             context_parts.append(lab_status)
-    
+
     # ═══════════════════════════════════════════════════════════════════
     # UNIVERSAL WEB READER - Read ANY URL the user provides
     # ═══════════════════════════════════════════════════════════════════
@@ -584,7 +635,7 @@ async def build_smart_context(query: str) -> str:
             webpage = await universal_web_reader(url, max_chars=5000)
             if webpage and not webpage.startswith("Error"):
                 context_parts.append(webpage)
-    
+
     # Also detect requests to read/browse/open websites
     browse_keywords = ["read", "lexo", "hap", "browse", "open", "shiko", "visit", "check",
                        "lesen", "öffnen", "show me", "më trego", "what does", "çfarë thotë"]
@@ -597,17 +648,17 @@ async def build_smart_context(query: str) -> str:
                 webpage = await universal_web_reader(f"https://{domain}", max_chars=4000)
                 if webpage and not webpage.startswith("Error"):
                     context_parts.append(webpage)
-    
+
     # ═══════════════════════════════════════════════════════════════════
     # WIKIPEDIA - For general knowledge questions (ALWAYS try for factual queries)
     # ═══════════════════════════════════════════════════════════════════
     wiki_keywords = ["what is", "who is", "when", "where", "why", "how", "define", "explain",
-                     "çfarë", "kush", "kur", "ku", "pse", "si", "historia", "history", 
+                     "çfarë", "kush", "kur", "ku", "pse", "si", "historia", "history",
                      "person", "country", "city", "company", "event", "concept",
                      "was ist", "wer ist", "bedeutung", "definition"]
     # Also trigger for proper nouns (capitalized words that might be entities)
     has_proper_noun = any(word[0].isupper() and len(word) > 2 for word in query.split() if word)
-    
+
     if any(kw in query_lower for kw in wiki_keywords) or has_proper_noun:
         # Extract the main topic (remove question words)
         topic = query_lower
@@ -618,7 +669,7 @@ async def build_smart_context(query: str) -> str:
             wiki_result = await fetch_wikipedia(topic)
             if wiki_result:
                 context_parts.append(f"📚 WIKIPEDIA:\n{wiki_result}")
-    
+
     # ═══════════════════════════════════════════════════════════════════
     # WEB SEARCH - For current events, news, recent info
     # ═══════════════════════════════════════════════════════════════════
@@ -635,7 +686,7 @@ async def build_smart_context(query: str) -> str:
                 first_page = await fetch_webpage(search_results[0]['url'], max_chars=2000)
                 if first_page and not first_page.startswith("Error"):
                     context_parts.append(f"📄 TOP RESULT CONTENT:\n{first_page[:1500]}")
-    
+
     # ═══════════════════════════════════════════════════════════════════
     # PUBMED - Medical/Health questions
     # ═══════════════════════════════════════════════════════════════════
@@ -647,7 +698,7 @@ async def build_smart_context(query: str) -> str:
         pubmed_results = await fetch_pubmed(query)
         if pubmed_results:
             context_parts.append(pubmed_results)
-    
+
     # ═══════════════════════════════════════════════════════════════════
     # EUROSTAT - EU Statistics
     # ═══════════════════════════════════════════════════════════════════
@@ -658,7 +709,7 @@ async def build_smart_context(query: str) -> str:
         eurostat_data = await fetch_eurostat(query)
         if eurostat_data:
             context_parts.append(eurostat_data)
-    
+
     # ═══════════════════════════════════════════════════════════════════
     # EXCHANGE RATES - Currency conversion
     # ═══════════════════════════════════════════════════════════════════
@@ -668,7 +719,7 @@ async def build_smart_context(query: str) -> str:
         exchange_data = await fetch_exchange_rates()
         if exchange_data:
             context_parts.append(exchange_data)
-    
+
     # ═══════════════════════════════════════════════════════════════════
     # GITHUB - Code/Programming questions
     # ═══════════════════════════════════════════════════════════════════
@@ -679,7 +730,7 @@ async def build_smart_context(query: str) -> str:
         github_results = await search_github(query)
         if github_results:
             context_parts.append(github_results)
-    
+
     # ═══════════════════════════════════════════════════════════════════
     # ALBANIA SPECIFIC - INSTAT, Bank of Albania
     # ═══════════════════════════════════════════════════════════════════
@@ -689,7 +740,7 @@ async def build_smart_context(query: str) -> str:
         albania_data = await fetch_albania_data(query)
         if albania_data:
             context_parts.append(albania_data)
-    
+
     return "\n\n".join(context_parts) if context_parts else ""
 
 
@@ -699,6 +750,7 @@ async def build_smart_context(query: str) -> str:
 
 EXCEL_SERVICE_URL = os.environ.get("EXCEL_SERVICE_URL", "http://localhost:8002")
 
+
 async def fetch_excel_data() -> str:
     """Fetch available Excel data and templates from Excel service"""
     try:
@@ -706,15 +758,15 @@ async def fetch_excel_data() -> str:
             # Get available templates
             templates_resp = await client.get(f"{EXCEL_SERVICE_URL}/api/excel/templates")
             templates = templates_resp.json() if templates_resp.status_code == 200 else {}
-            
+
             # Get available formulas
             formulas_resp = await client.get(f"{EXCEL_SERVICE_URL}/api/excel/formulas")
             formulas = formulas_resp.json() if formulas_resp.status_code == 200 else {}
-            
+
             # Get service status
             status_resp = await client.get(f"{EXCEL_SERVICE_URL}/status")
             status = status_resp.json() if status_resp.status_code == 200 else {}
-            
+
             return f"""📊 EXCEL SERVICE DATA (Live from port 8002):
 - Status: {'✅ Online' if status else '❌ Offline'}
 - Available Templates: {json.dumps(templates.get('templates', []), indent=2) if templates else 'None loaded'}
@@ -749,16 +801,16 @@ async def fetch_webpage(url: str, max_chars: int = 8000) -> str:
     try:
         if not url.startswith(("http://", "https://")):
             url = "https://" + url
-        
+
         async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
             headers = {"User-Agent": "Mozilla/5.0 (compatible; ClisonixOcean/1.0)"}
             resp = await client.get(url, headers=headers)
-            
+
             if resp.status_code != 200:
                 return f"Error fetching {url}: HTTP {resp.status_code}"
-            
+
             html = resp.text
-            
+
             # Simple HTML to text extraction
             import re
             # Remove scripts and styles
@@ -770,7 +822,7 @@ async def fetch_webpage(url: str, max_chars: int = 8000) -> str:
             text = re.sub(r'\s+', ' ', text).strip()
             # Decode entities
             text = text.replace('&nbsp;', ' ').replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')
-            
+
             return text[:max_chars]
     except Exception as e:
         return f"Error fetching webpage: {str(e)}"
@@ -783,23 +835,23 @@ async def search_web(query: str, num_results: int = 5) -> list:
         async with httpx.AsyncClient(timeout=10.0) as client:
             headers = {"User-Agent": "Mozilla/5.0 (compatible; ClisonixOcean/1.0)"}
             resp = await client.get(search_url, headers=headers)
-            
+
             if resp.status_code != 200:
                 return [{"error": f"Search failed: HTTP {resp.status_code}"}]
-            
+
             # Parse results (simplified)
             import re
             results = []
             # Find result links
             links = re.findall(r'href="//duckduckgo.com/l/\?uddg=([^"&]+)', resp.text)
             titles = re.findall(r'class="result__a"[^>]*>([^<]+)', resp.text)
-            
+
             from urllib.parse import unquote
             for i, link in enumerate(links[:num_results]):
                 url = unquote(link)
                 title = titles[i] if i < len(titles) else url
                 results.append({"title": title, "url": url})
-            
+
             return results if results else [{"info": "No results found"}]
     except Exception as e:
         return [{"error": str(e)}]
@@ -898,11 +950,12 @@ GLOBAL_DATA_SOURCES_INDEX = {
     }
 }
 
+
 async def fetch_from_data_sources(query: str, region: str = "global") -> str:
     """Fetch relevant data from the 5000+ registered global data sources"""
     try:
         query_lower = query.lower()
-        
+
         # Detect country from query
         country_keywords = {
             "albania": "AL", "shqipëri": "AL", "tirana": "AL",
@@ -922,16 +975,16 @@ async def fetch_from_data_sources(query: str, region: str = "global") -> str:
             "croatia": "HR", "kroaci": "HR",
             "north macedonia": "MK", "maqedoni": "MK",
         }
-        
+
         detected_country = None
         for keyword, code in country_keywords.items():
             if keyword in query_lower:
                 detected_country = code
                 break
-        
+
         # Build response with relevant sources
         result_parts = []
-        
+
         if detected_country:
             # Find the country in our index
             for _region_name, countries in GLOBAL_DATA_SOURCES_INDEX.items():
@@ -939,7 +992,7 @@ async def fetch_from_data_sources(query: str, region: str = "global") -> str:
                     source = countries[detected_country]
                     result_parts.append(f"🌍 {source['name']}: {source['url']}")
                     break
-        
+
         # Always include relevant international sources
         topic_sources = {
             "health": ["WHO", "PUBMED"],
@@ -949,7 +1002,7 @@ async def fetch_from_data_sources(query: str, region: str = "global") -> str:
             "climate": ["NASA", "FAO"],
             "trade": ["WTO", "WB"],
         }
-        
+
         for topic, sources in topic_sources.items():
             if topic in query_lower:
                 for src_code in sources:
@@ -959,10 +1012,10 @@ async def fetch_from_data_sources(query: str, region: str = "global") -> str:
                     elif src_code in GLOBAL_DATA_SOURCES_INDEX["research"]:
                         src = GLOBAL_DATA_SOURCES_INDEX["research"][src_code]
                         result_parts.append(f"🔬 {src['name']}: {src['url']}")
-        
+
         if result_parts:
             return "📚 RELEVANT DATA SOURCES:\n" + "\n".join(result_parts[:10])
-        
+
         return ""
     except Exception as e:
         print(f"⚠️ Data sources not available: {e}")
@@ -981,20 +1034,24 @@ async def universal_web_reader(url: str, max_chars: int = 10000) -> str:
     try:
         if not url.startswith(("http://", "https://")):
             url = "https://" + url
-        
+
         async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
             headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "User-Agent": (
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+                    " AppleWebKit/537.36 (KHTML, like Gecko)"
+                    " Chrome/120.0.0.0 Safari/537.36"
+                ),
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                 "Accept-Language": "en-US,en;q=0.9",
             }
             resp = await client.get(url, headers=headers)
-            
+
             if resp.status_code != 200:
                 return f"Error: HTTP {resp.status_code} for {url}"
-            
+
             html = resp.text
-            
+
             # Extract text content
             import re
             # Remove scripts, styles, comments
@@ -1002,11 +1059,11 @@ async def universal_web_reader(url: str, max_chars: int = 10000) -> str:
             html = re.sub(r'<style[^>]*>.*?</style>', '', html, flags=re.DOTALL | re.IGNORECASE)
             html = re.sub(r'<!--.*?-->', '', html, flags=re.DOTALL)
             html = re.sub(r'<noscript[^>]*>.*?</noscript>', '', html, flags=re.DOTALL | re.IGNORECASE)
-            
+
             # Extract title
             title_match = re.search(r'<title[^>]*>([^<]+)</title>', html, re.IGNORECASE)
             title = title_match.group(1).strip() if title_match else "Untitled"
-            
+
             # Extract main content (prefer article, main, or body)
             main_content = ""
             for tag in ['article', 'main', 'div[role="main"]', 'body']:
@@ -1015,10 +1072,10 @@ async def universal_web_reader(url: str, max_chars: int = 10000) -> str:
                 if match:
                     main_content = match.group(1)
                     break
-            
+
             if not main_content:
                 main_content = html
-            
+
             # Remove HTML tags
             text = re.sub(r'<[^>]+>', ' ', main_content)
             # Clean whitespace
@@ -1027,9 +1084,9 @@ async def universal_web_reader(url: str, max_chars: int = 10000) -> str:
             text = text.replace('&nbsp;', ' ').replace('&amp;', '&')
             text = text.replace('&lt;', '<').replace('&gt;', '>')
             text = text.replace('&quot;', '"').replace('&#39;', "'")
-            
+
             return f"📄 **{title}**\n\nURL: {url}\n\n{text[:max_chars]}"
-            
+
     except Exception as e:
         return f"Error reading {url}: {str(e)}"
 
@@ -1061,9 +1118,10 @@ FREE_TIER_LIMIT = 1000  # messages per hour (increased from 20 for better develo
 FREE_TRIAL_MONTHS = 6
 rate_limits: dict = defaultdict(list)  # user_id -> [timestamps]
 
+
 def check_rate_limit(user_id: str, is_admin: bool = False) -> tuple[bool, int]:
     """Check if user is within rate limit. Returns (allowed, remaining)
-    
+
     Args:
         user_id: User identifier (email, ID, or IP)
         is_admin: Admin users bypass all rate limits
@@ -1071,17 +1129,17 @@ def check_rate_limit(user_id: str, is_admin: bool = False) -> tuple[bool, int]:
     # Admin users have no limit
     if is_admin:
         return True, float('inf')
-    
+
     now = datetime.now()
     hour_ago = now - timedelta(hours=1)
-    
+
     # Clean old entries
     rate_limits[user_id] = [ts for ts in rate_limits[user_id] if ts > hour_ago]
-    
+
     count = len(rate_limits[user_id])
     if count >= FREE_TIER_LIMIT:
         return False, 0
-    
+
     rate_limits[user_id].append(now)
     return True, FREE_TIER_LIMIT - count - 1
 
@@ -1104,13 +1162,16 @@ async def get_client() -> httpx.AsyncClient:
 app = FastAPI(title="Ocean Nanogrid", version="2.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
+
 class Req(BaseModel):
     message: str = None
     query: str = None
 
+
 class Res(BaseModel):
     response: str
     time: float
+
 
 @app.on_event("startup")
 async def startup():
@@ -1122,6 +1183,7 @@ async def startup():
     except Exception:  # noqa: BLE001
         print("🟡 Nanogrid ready - Ollama will connect on first request")
 
+
 @app.on_event("shutdown")
 async def shutdown():
     global _client  # pylint: disable=global-statement
@@ -1129,13 +1191,16 @@ async def shutdown():
         await _client.aclose()
         _client = None
 
+
 @app.get("/")
 async def root():
     return {"service": "Ocean Nanogrid", "model": MODEL, "status": "awake"}
 
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
 
 @app.post("/api/v1/chat", response_model=Res)
 async def chat(req: Req, request: Request):
@@ -1143,13 +1208,13 @@ async def chat(req: Req, request: Request):
     q = req.message or req.query
     if not q:
         raise HTTPException(400, "message required")
-    
+
     # Get user identifier (IP for now, will be Clerk user_id later)
     user_id = request.headers.get("X-User-ID") or request.client.host or "anonymous"
-    
+
     # Check if admin (via header or user ID)
     is_admin = request.headers.get("X-Admin") == "true" or user_id in ["admin", "adm"]
-    
+
     # Check rate limit
     allowed, remaining = check_rate_limit(user_id, is_admin=is_admin)
     if not allowed:
@@ -1159,16 +1224,16 @@ async def chat(req: Req, request: Request):
             "period": "1 hour",
             "upgrade_url": "https://clisonix.com/pricing"
         })
-    
+
     client = await get_client()
-    
+
     try:
         # 🔥 SMART CONTEXT: Fetch real data based on query
         smart_context = await build_smart_context(q)
-        
+
         # Build prompt with real-time context + smart data
         system_prompt = build_system_prompt(extra_context=smart_context)
-        
+
         r = await client.post(f"{OLLAMA}/api/chat", json={
             "model": MODEL,
             "messages": [
@@ -1189,7 +1254,7 @@ async def chat(req: Req, request: Request):
         resp = r.json().get("message", {}).get("content", "")
     except Exception as e:
         raise HTTPException(500, str(e)) from e
-    
+
     return Res(response=resp, time=round(time.time() - t0, 2))
 
 
@@ -1200,11 +1265,11 @@ async def chat(req: Req, request: Request):
 async def stream_ollama(query: str) -> AsyncGenerator[str, None]:
     """Stream response from Ollama - text appears immediately!"""
     client = await get_client()
-    
+
     # 🔥 SMART CONTEXT: Fetch real data based on query
     smart_context = await build_smart_context(query)
     system_prompt = build_system_prompt(extra_context=smart_context)
-    
+
     try:
         async with client.stream(
             "POST",
@@ -1250,14 +1315,14 @@ async def chat_stream(req: Req, request: Request):
     q = req.message or req.query
     if not q:
         raise HTTPException(400, "message required")
-    
+
     # Rate limit check
     user_id = request.headers.get("X-User-ID") or request.client.host or "anonymous"
     is_admin = request.headers.get("X-Admin") == "true"
     allowed, remaining = check_rate_limit(user_id, is_admin=is_admin)
     if not allowed:
         raise HTTPException(429, "Rate limit exceeded")
-    
+
     return StreamingResponse(
         stream_ollama(q),
         media_type="text/plain"
@@ -1277,11 +1342,11 @@ async def query(req: Req, request: Request):
 async def binary_algebra_operation(a: int, b: int = 0, op: str = "XOR", bits: int = 8):
     """
     Operacion binar algjebrik
-    
+
     Përdorimi:
         GET /api/v1/algebra/op?a=255&b=128&op=XOR
         GET /api/v1/algebra/op?a=42&b=15&op=AND&bits=16
-    
+
     Operations: AND, OR, XOR, NOT, NAND, NOR, SHL, SHR, ADD
     """
     result = await perform_binary_operation(a, b, op, bits)
@@ -1292,10 +1357,10 @@ async def binary_algebra_operation(a: int, b: int = 0, op: str = "XOR", bits: in
 async def binary_convert(value: int, bits: int = 8):
     """
     Konverto numër në formate të ndryshme
-    
+
     Përdorimi:
         GET /api/v1/algebra/convert?value=255&bits=8
-    
+
     Returns: binary, hex, octal representations
     """
     mask = (1 << bits) - 1
@@ -1318,7 +1383,7 @@ async def binary_convert(value: int, bits: int = 8):
 async def list_laboratories():
     """
     Lista e 23 laboratorëve të Clisonix
-    
+
     Returns: All laboratories with their functions and locations
     """
     status = await get_laboratory_status()
@@ -1329,7 +1394,7 @@ async def list_laboratories():
 async def get_laboratory_info(lab_id: str):
     """
     Informacion për një laborator specifik
-    
+
     Përdorimi:
         GET /api/v1/labs/Zurich_Finance
         GET /api/v1/labs/Elbasan_AI
@@ -1343,7 +1408,7 @@ async def get_laboratory_info(lab_id: str):
 async def query_laboratory_endpoint(lab_id: str, request: Request):
     """
     Dërgo pyetje në një laborator
-    
+
     Body: {"query": "your question"}
     """
     body = await request.json()
@@ -1360,11 +1425,11 @@ async def query_laboratory_endpoint(lab_id: str, request: Request):
 async def browse_webpage_endpoint(url: str, max_chars: int = 8000):
     """
     Lexon përmbajtjen e një faqe web
-    
+
     Përdorimi:
         GET /api/v1/browse?url=https://example.com
         GET /api/v1/browse?url=https://example.com&max_chars=4000
-    
+
     Returns:
         Teksti i pastër i faqes web
     """
@@ -1380,11 +1445,11 @@ async def browse_webpage_endpoint(url: str, max_chars: int = 8000):
 async def web_search_endpoint(q: str, num: int = 5):
     """
     Kërkon në internet me DuckDuckGo
-    
+
     Përdorimi:
         GET /api/v1/search?q=python tutorials
         GET /api/v1/search?q=weather tirana&num=3
-    
+
     Returns:
         Lista e rezultateve
     """
@@ -1400,34 +1465,34 @@ async def web_search_endpoint(q: str, num: int = 5):
 async def chat_with_webpage(request: Request):
     """
     Chat me kontekstin e një faqe web
-    
+
     Body:
     {
         "url": "https://example.com",
         "message": "Çfarë thotë kjo faqe?"
     }
-    
+
     Ocean lexon faqen dhe përgjigjet bazuar në përmbajtjen
     """
     body = await request.json()
     url = body.get("url", "")
     message = body.get("message", body.get("query", ""))
-    
+
     if not url:
         raise HTTPException(400, "url required")
     if not message:
         raise HTTPException(400, "message required")
-    
+
     # Lexo faqen
     webpage_content = await fetch_webpage(url, max_chars=6000)
-    
+
     # Krijo system prompt me kontekstin e faqes
     system_prompt = build_system_prompt(extra_context=f"""
 📄 WEB PAGE CONTENT from {url}:
 {webpage_content}
 
 Answer the user's question based on this webpage content.""")
-    
+
     client = await get_client()
     resp = await client.post(
         f"{OLLAMA}/api/chat",
@@ -1441,10 +1506,10 @@ Answer the user's question based on this webpage content.""")
             "options": {"num_ctx": 8192, "temperature": 0.7}
         }
     )
-    
+
     data = resp.json()
     answer = data.get("message", {}).get("content", "No response")
-    
+
     return {
         "url": url,
         "question": message,
@@ -1458,11 +1523,11 @@ async def get_rate_limit(request: Request):
     user_id = request.headers.get("X-User-ID") or request.client.host or "anonymous"
     now = datetime.now()
     hour_ago = now - timedelta(hours=1)
-    
+
     # Clean and count
     rate_limits[user_id] = [ts for ts in rate_limits[user_id] if ts > hour_ago]
     count = len(rate_limits[user_id])
-    
+
     return {
         "user_id": user_id,
         "used": count,
@@ -1472,6 +1537,7 @@ async def get_rate_limit(request: Request):
         "tier": "free_trial",
         "trial_months": FREE_TRIAL_MONTHS
     }
+
 
 @app.get("/api/v1/status")
 async def status():
@@ -1608,16 +1674,19 @@ async def list_sources():
 VISION_MODEL = os.getenv("VISION_MODEL", "llava:latest")
 _whisper_model = None  # Cached whisper model instance
 
+
 class VisionRequest(BaseModel):
     """Request për analizë imazhi"""
     image_base64: str
     prompt: Optional[str] = "Përshkruaj këtë imazh në detaje"
     extract_text: bool = False  # OCR mode
 
+
 class AudioRequest(BaseModel):
     """Request për transkriptim audio"""
     audio_base64: str
     language: str = "sq"  # Albanian default
+
 
 class DocumentRequest(BaseModel):
     """Request për lexim/shkrim dokumentash"""
@@ -1625,6 +1694,7 @@ class DocumentRequest(BaseModel):
     action: str = "analyze"  # "analyze", "summarize", "extract", "write"
     doc_type: str = "text"  # "pdf", "docx", "text", "markdown"
     output_format: str = "text"  # "text", "markdown", "json"
+
 
 class WriteDocumentRequest(BaseModel):
     """Request për gjenerim dokumenti"""
@@ -1640,7 +1710,7 @@ class WriteDocumentRequest(BaseModel):
 async def analyze_image(req: VisionRequest):
     """
     🎥 KAMERA - Analizë imazhi me AI
-    
+
     Përdorime:
     - Përshkrim imazhi
     - Njohje objektesh
@@ -1648,15 +1718,15 @@ async def analyze_image(req: VisionRequest):
     - Analizë skenash
     """
     t0 = time.time()
-    
+
     try:
         client = await get_client()
-        
+
         # Kontrollo nëse llava është instaluar
         prompt = req.prompt
         if req.extract_text:
             prompt = "Ekstrakto të gjithë tekstin e dukshëm në këtë imazh. Kthe vetëm tekstin."
-        
+
         response = await client.post(
             f"{OLLAMA}/api/generate",
             json={
@@ -1671,7 +1741,7 @@ async def analyze_image(req: VisionRequest):
             },
             timeout=60.0
         )
-        
+
         if response.status_code == 200:
             result = response.json()
             return {
@@ -1688,7 +1758,7 @@ async def analyze_image(req: VisionRequest):
                 "message": f"Modeli {VISION_MODEL} nuk është instaluar. Ekzekuto: ollama pull llava",
                 "install_command": f"ollama pull {VISION_MODEL}"
             }
-            
+
     except Exception as e:
         raise HTTPException(500, f"Vision error: {str(e)}") from e
 
@@ -1697,7 +1767,7 @@ async def analyze_image(req: VisionRequest):
 async def transcribe_audio(req: AudioRequest):
     """
     🎤 MIKROFON - Transkriptim audio në tekst me faster-whisper
-    
+
     Përdorime:
     - Speech-to-text
     - Diktim zëri
@@ -1705,21 +1775,21 @@ async def transcribe_audio(req: AudioRequest):
     - Ndihmë për të verbërit
     """
     t0 = time.time()
-    
+
     try:
         import base64 as b64mod  # noqa: C0415
         audio_bytes = b64mod.b64decode(req.audio_base64)
         audio_size = len(audio_bytes)
-        
+
         # Ruaj audio si temp file
         import tempfile  # noqa: C0415
         with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as tmp:
             tmp.write(audio_bytes)
             tmp_path = tmp.name
-        
+
         try:
             from faster_whisper import WhisperModel
-            
+
             # Ngarko modelin (cache-ohet pas ngarkimit të parë)
             global _whisper_model  # pylint: disable=global-statement
             if _whisper_model is None:
@@ -1728,37 +1798,41 @@ async def transcribe_audio(req: AudioRequest):
                     device="cpu",
                     compute_type="int8"
                 )
-            
+
             model = _whisper_model
             segments, info = model.transcribe(
-                tmp_path, 
+                tmp_path,
                 language=req.language if req.language != 'auto' else None,
                 beam_size=5
             )
-            
+
             transcript_parts = []
             for segment in segments:
                 transcript_parts.append(segment.text.strip())
-            
+
             transcript = " ".join(transcript_parts)
-            
+
             # Pastro temp file
             os.unlink(tmp_path)
-            
+
             if not transcript.strip():
                 transcript = "[Nuk u dallua fjalim në audio]"
-            
+
             return {
                 "status": "success",
                 "transcript": transcript,
                 "language": info.language if hasattr(info, 'language') else req.language,
-                "language_probability": round(info.language_probability, 2) if hasattr(info, 'language_probability') else None,
+                "language_probability": (
+                    round(info.language_probability, 2)
+                    if hasattr(info, "language_probability")
+                    else None
+                ),
                 "duration_seconds": round(info.duration, 2) if hasattr(info, 'duration') else audio_size / 16000,
                 "word_count": len(transcript.split()),
                 "processing_time": round(time.time() - t0, 2),
                 "engine": "faster-whisper"
             }
-            
+
         except ImportError:
             os.unlink(tmp_path)
             return {
@@ -1766,7 +1840,7 @@ async def transcribe_audio(req: AudioRequest):
                 "message": "faster-whisper nuk është instaluar",
                 "install_command": "pip install faster-whisper"
             }
-            
+
     except Exception as e:
         raise HTTPException(500, f"Audio error: {str(e)}") from e
 
@@ -1775,41 +1849,52 @@ async def transcribe_audio(req: AudioRequest):
 async def analyze_document(req: DocumentRequest):
     """
     📄 DOKUMENT SCANNING - Lexim dhe analizë dokumentash
-    
+
     Veprime:
     - analyze: Analizë e plotë
     - summarize: Përmbledhje
     - extract: Ekstraktim entitetesh
     """
     t0 = time.time()
-    
+
     try:
         client = await get_client()
-        
+
         # Ndërto prompt bazuar në veprim
         if req.action == "summarize":
             prompt = f"Përmbledh këtë dokument në 3-5 fjali kryesore:\n\n{req.content}"
         elif req.action == "extract":
-            prompt = f"Ekstrakto entitetet kryesore (emra, data, organizata, vendndodhje) nga ky dokument:\n\n{req.content}"
+            prompt = (
+                "Ekstrakto entitetet kryesore"
+                " (emra, data, organizata, vendndodhje)"
+                f" nga ky dokument:\n\n{req.content}"
+            )
         else:
             prompt = f"Analizo këtë dokument dhe jep një vlerësim të detajuar:\n\n{req.content}"
-        
+
         response = await client.post(
             f"{OLLAMA}/api/chat",
             json={
                 "model": MODEL,
                 "messages": [
-                    {"role": "system", "content": "Ti je një analist dokumentash profesional. Përgjigju në gjuhën e dokumentit."},
+                    {
+                        "role": "system",
+                        "content": (
+                            "Ti je një analist dokumentash"
+                            " profesional. Përgjigju në"
+                            " gjuhën e dokumentit."
+                        )
+                    },
                     {"role": "user", "content": prompt}
                 ],
                 "stream": False,
                 "options": {"num_predict": -1}
             }
         )
-        
+
         result = response.json()
         analysis = result.get("message", {}).get("content", "")
-        
+
         return {
             "status": "success",
             "action": req.action,
@@ -1818,7 +1903,7 @@ async def analyze_document(req: DocumentRequest):
             "word_count": len(req.content.split()),
             "processing_time": round(time.time() - t0, 2)
         }
-        
+
     except Exception as e:
         raise HTTPException(500, f"Document error: {str(e)}") from e
 
@@ -1827,7 +1912,7 @@ async def analyze_document(req: DocumentRequest):
 async def write_document(req: WriteDocumentRequest):
     """
     ✍️ DOKUMENT WRITING - Gjenerim dokumentash
-    
+
     Llojet:
     - article: Artikull
     - report: Raport
@@ -1836,10 +1921,10 @@ async def write_document(req: WriteDocumentRequest):
     - email: Email
     """
     t0 = time.time()
-    
+
     try:
         client = await get_client()
-        
+
         # Gjatësia sipas kërkesës
         length_guide = {
             "short": "200-300 fjalë",
@@ -1847,7 +1932,7 @@ async def write_document(req: WriteDocumentRequest):
             "long": "1000-1500 fjalë"
         }
         target_length = length_guide.get(req.length, "500-800 fjalë")
-        
+
         # Ndërto prompt për gjenerim
         doc_type_prompts = {
             "article": f"Shkruaj një artikull profesional për temën: {req.topic}",
@@ -1856,9 +1941,9 @@ async def write_document(req: WriteDocumentRequest):
             "contract": f"Shkruaj një draft kontrate për: {req.topic}",
             "email": f"Shkruaj një email profesional për: {req.topic}"
         }
-        
+
         base_prompt = doc_type_prompts.get(req.doc_type, doc_type_prompts["article"])
-        
+
         full_prompt = f"""
 {base_prompt}
 
@@ -1870,23 +1955,31 @@ Specifikimet:
 
 Shkruaj dokumentin e plotë, të gatshëm për përdorim.
 """
-        
+
         response = await client.post(
             f"{OLLAMA}/api/chat",
             json={
                 "model": MODEL,
                 "messages": [
-                    {"role": "system", "content": "Ti je një shkrimtar profesional dokumentash. Gjithmonë shkruaj dokumente të plota, të formatuara mirë."},
+                    {
+                        "role": "system",
+                        "content": (
+                            "Ti je një shkrimtar profesional"
+                            " dokumentash. Gjithmonë shkruaj"
+                            " dokumente të plota, të"
+                            " formatuara mirë."
+                        )
+                    },
                     {"role": "user", "content": full_prompt}
                 ],
                 "stream": False,
                 "options": {"num_predict": -1, "temperature": 0.7}
             }
         )
-        
+
         result = response.json()
         document = result.get("message", {}).get("content", "")
-        
+
         return {
             "status": "success",
             "doc_type": req.doc_type,
@@ -1897,7 +1990,7 @@ Shkruaj dokumentin e plotë, të gatshëm për përdorim.
             "format": req.output_format if hasattr(req, 'output_format') else "text",
             "processing_time": round(time.time() - t0, 2)
         }
-        
+
     except Exception as e:
         raise HTTPException(500, f"Document write error: {str(e)}") from e
 
@@ -1906,12 +1999,12 @@ Shkruaj dokumentin e plotë, të gatshëm për përdorim.
 async def multimodal_status():
     """Kontrollo statusin e modeleve multimodal"""
     client = await get_client()
-    
+
     try:
         response = await client.get(f"{OLLAMA}/api/tags")
         models = response.json().get("models", [])
         model_names = [m["name"] for m in models]
-        
+
         return {
             "status": "ok",
             "capabilities": {
@@ -1947,6 +2040,7 @@ async def keep_alive():
             await client.get(f"{OLLAMA}/api/ps")
         except Exception:  # noqa: BLE001
             pass
+
 
 @app.on_event("startup")
 async def start_keepalive():

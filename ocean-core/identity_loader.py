@@ -13,13 +13,14 @@ IDENTITY_FILE = DOCS_DIR / "company_info.md"
 
 _identity_cache = None
 
+
 def load_identity() -> dict:
     """Lexon identitetin nga company_info.md"""
     global _identity_cache
-    
+
     if _identity_cache:
         return _identity_cache
-    
+
     identity = {
         "platforma": "Clisonix Cloud",
         "ai": "Ocean",
@@ -28,7 +29,7 @@ def load_identity() -> dict:
         "firma": "ABA GmbH",
         "website": "clisonix.cloud"
     }
-    
+
     try:
         if IDENTITY_FILE.exists():
             content = IDENTITY_FILE.read_text(encoding="utf-8")
@@ -45,7 +46,7 @@ def load_identity() -> dict:
                     identity["firma"] = line.split(":**")[1].strip()
     except Exception as e:
         print(f"[IDENTITY] Error loading: {e}")
-    
+
     _identity_cache = identity
     return identity
 
@@ -64,14 +65,20 @@ Website: {i['website']}"""
 def get_identity_short() -> str:
     """Versioni KONCIZ për system prompt — vetëm 2 rreshta, pa vonesa"""
     i = load_identity()
-    return f"You are {i['ai']}, AI of {i['platforma']}, created by {i['krijues']} ({i['firma']}). Website: {i['website']}"
+    return (
+        f"You are {i['ai']}, AI of {i['platforma']}, "
+        f"created by {i['krijues']} ({i['firma']}). "
+        f"Website: {i['website']}"
+    )
 
 
 def get_ceo() -> str:
     return load_identity()["ceo"]
 
+
 def get_company() -> str:
-    return load_identity()["company"]
+    return load_identity()["firma"]
+
 
 def get_krijues() -> str:
     return load_identity()["krijues"]

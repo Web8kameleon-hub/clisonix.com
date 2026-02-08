@@ -5,7 +5,7 @@ OCEAN CORE LITE - Fast & Clean
 ==============================
 Vetëm ato që funksionojnë 100%:
 1. Translation Node - 72 gjuhë
-2. Service Router - 31 module  
+2. Service Router - 31 module
 3. Ollama - llama3.1:8b
 
 Pa: MegaLayerEngine, KnowledgeSeeds, RealAnswerEngine
@@ -58,6 +58,7 @@ INTENTS = {
     "analytics": "ocean-analytics", "iot": "iot-network", "sensor": "iot-network",
 }
 
+
 def route_intent(text: str) -> Optional[str]:
     text_lower = text.lower()
     for kw, svc in INTENTS.items():
@@ -80,18 +81,26 @@ RULES:
 5. For long responses, write continuously without stopping
 6. Never conclude early - develop the full explanation
 
-If asked about platform services, mention: EEG Analysis, Neural Biofeedback, Document Tools, Fitness Dashboard, Weather, Crypto, Analytics, IoT Network."""
+If asked about platform services, mention: EEG Analysis,
+Neural Biofeedback, Document Tools, Fitness Dashboard,
+Weather, Crypto, Analytics, IoT Network."""
 
 # ═══════════════════════════════════════════════════════════════════
 # FASTAPI
 # ═══════════════════════════════════════════════════════════════════
 app = FastAPI(title="Ocean Core Lite", version="1.0.0")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware, allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"], allow_headers=["*"]
+)
+
 
 class ChatRequest(BaseModel):
     message: str = None
     query: str = None
     model: str = None
+
 
 class ChatResponse(BaseModel):
     response: str
@@ -100,9 +109,11 @@ class ChatResponse(BaseModel):
     language_detected: str = "en"
     routed_service: Optional[str] = None
 
+
 # ═══════════════════════════════════════════════════════════════════
 # LANGUAGE DETECTION - Fast (1s timeout)
 # ═══════════════════════════════════════════════════════════════════
+
 async def detect_language(text: str) -> tuple:
     try:
         async with httpx.AsyncClient(timeout=1.0) as client:
@@ -114,15 +125,17 @@ async def detect_language(text: str) -> tuple:
         pass
     return "en", "English"
 
+
 # ═══════════════════════════════════════════════════════════════════
 # MAIN CHAT - Direct Ollama call
 # ═══════════════════════════════════════════════════════════════════
+
 async def process_chat(req: ChatRequest) -> ChatResponse:
     start = time.time()
     prompt = req.message or req.query
     if not prompt:
         raise HTTPException(400, "message required")
-    
+
     # 1. Detect language (fast)
     lang_code, lang_name = await detect_language(prompt)
 
@@ -134,7 +147,7 @@ async def process_chat(req: ChatRequest) -> ChatResponse:
     service_hint = f"\nUser is asking about {routed}. URL: {SERVICES.get(routed, '')}" if routed else ""
 
     system = SYSTEM_PROMPT + lang_hint + service_hint
-    
+
     # 4. Call Ollama (main latency)
     try:
         async with httpx.AsyncClient(timeout=45.0) as client:
@@ -179,28 +192,35 @@ async def process_chat(req: ChatRequest) -> ChatResponse:
         routed_service=routed
     )
 
+
 # ═══════════════════════════════════════════════════════════════════
 # ENDPOINTS
 # ═══════════════════════════════════════════════════════════════════
+
 @app.get("/")
 async def root():
     return {"service": "Ocean Core Lite", "version": "1.0.0", "model": MODEL}
+
 
 @app.get("/health")
 async def health():
     return {"status": "ok"}
 
+
 @app.get("/api/v1/status")
 async def status():
     return {"status": "operational", "model": MODEL, "services": len(SERVICES)}
+
 
 @app.post("/api/v1/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
     return await process_chat(req)
 
+
 @app.post("/api/v1/query", response_model=ChatResponse)
 async def query(req: ChatRequest):
     return await process_chat(req)
+
 
 @app.get("/api/v1/services")
 async def list_services():
