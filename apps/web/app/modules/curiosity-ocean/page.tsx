@@ -439,7 +439,7 @@ export default function CuriosityOceanChat() {
             }]);
             
             try {
-              const res = await fetch(`${OCEAN_API}/api/v1/audio/transcribe`, {
+              const res = await fetch('/api/ocean/audio', {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 body: JSON.stringify({ 
@@ -538,7 +538,7 @@ export default function CuriosityOceanChat() {
     }]);
     
     try {
-      const res = await fetch(`${OCEAN_API}/api/v1/vision/analyze`, {
+      const res = await fetch('/api/ocean/vision', {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ 
@@ -592,7 +592,7 @@ export default function CuriosityOceanChat() {
 
     const sendDocument = async (content: string, encoding: string) => {
       try {
-        const res = await fetch(`${OCEAN_API}/api/v1/document/analyze`, {
+        const res = await fetch('/api/ocean/document', {
           method: 'POST',
           headers: getAuthHeaders(),
           body: JSON.stringify({ 

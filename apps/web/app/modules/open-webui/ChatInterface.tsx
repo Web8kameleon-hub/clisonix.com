@@ -69,7 +69,7 @@ export default function OpenWebUIChat() {
           role: m.sender === 'user' ? 'user' : 'assistant',
           content: m.text
         }))
-      const res = await fetch(`${OCEAN_API}/api/v1/chat`, {
+      const res = await fetch('/api/ocean', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: trimmed, messages: history })
@@ -134,7 +134,7 @@ export default function OpenWebUIChat() {
         reader.onerror = reject
         reader.readAsDataURL(blob)
       })
-      const res = await fetch(`${OCEAN_API}/api/v1/audio/transcribe`, {
+      const res = await fetch('/api/ocean/audio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ audio_base64: base64, language: 'auto' })
@@ -223,7 +223,7 @@ export default function OpenWebUIChat() {
     setShowCamera(false)
     setIsLoading(true)
     try {
-      const res = await fetch(`${OCEAN_API}/api/v1/vision/analyze`, {
+      const res = await fetch('/api/ocean/vision', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image_base64: base64, prompt: 'Describe this image in detail' })
@@ -260,7 +260,7 @@ export default function OpenWebUIChat() {
     setIsLoading(true)
     try {
       const content = await file.text()
-      const res = await fetch(`${OCEAN_API}/api/v1/document/analyze`, {
+      const res = await fetch('/api/ocean/document', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content, action: 'summarize', doc_type: file.name.split('.').pop() || 'text' })
